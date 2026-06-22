@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>גל עיני Web - שלב ראשון</title>
+  <meta name="description" content="גרסת Web ראשונית ויציבה של גל עיני לחיפוש מילים בטקסט מודבק, ללא התקנה.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">גע</span>
+      <div>
+        <strong>גל עיני Web</strong>
+        <span>שלב ראשון - חיפוש בדפדפן</span>
+      </div>
+    </div>
+    <nav aria-label="ניווט">
+      <a href="index.html">ראשי</a>
+      <a href="web.html">גרסת Web</a>
+      <a href="examples.html">צפנים לדוגמה</a>
+      <a href="index.html#download">הורדת Windows</a>
+    </nav>
+  </header>
+
+  <main class="web-app">
+    <section class="web-toolbar" aria-label="כלי חיפוש">
+      <div>
+        <p class="eyebrow">עובד מכל מערכת הפעלה</p>
+        <h1>חיפוש ראשוני בדפדפן</h1>
+      </div>
+      <div class="web-status" id="webStatus">מוכן לחיפוש</div>
+    </section>
+
+    <section class="web-grid">
+      <form class="web-form" id="webSearchForm">
+        <label>
+          <span>טקסט לבדיקה</span>
+          <textarea id="sourceText" rows="12" spellcheck="false" placeholder="כאן מדביקים טקסט לבדיקה. בשלב הבא נחבר טקסט תורה מובנה.">בראשית ברא אלהים את השמים ואת הארץ והארץ היתה תהו ובהו וחשך על פני תהום ורוח אלהים מרחפת על פני המים</textarea>
+        </label>
+
+        <div class="web-fields">
+          <label>
+            <span>ראשית</span>
+            <input id="primaryTerm" type="text" value="בראשית" autocomplete="off">
+          </label>
+          <label>
+            <span>משניות</span>
+            <input id="secondaryTerms" type="text" value="אלהים, הארץ" autocomplete="off">
+          </label>
+        </div>
+
+        <div class="web-fields compact">
+          <label>
+            <span>דילוג עד</span>
+            <input id="maxSkip" type="number" min="1" max="200" value="20">
+          </label>
+          <label>
+            <span>מינימום משניות</span>
+            <input id="minSecondaries" type="number" min="0" max="20" value="1">
+          </label>
+        </div>
+
+        <div class="hero-actions">
+          <button class="button primary" type="submit">חפש</button>
+          <button class="button secondary" type="button" id="clearWebResults">נקה תוצאות</button>
+        </div>
+      </form>
+
+      <section class="web-results-panel" aria-label="תוצאות">
+        <div class="section-head">
+          <h2>תוצאות</h2>
+          <p>זהו בסיס יציב: חיפוש מילים רגיל ודילוגים פשוטים בטקסט שמדביקים. בהמשך נוסיף תצוגת תורה מלאה, טבלה ושמירה.</p>
+        </div>
+        <div class="web-results" id="webResults" aria-live="polite"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <span>גל עיני Web - פיתוח בשלבים</span>
+    <span>שלב ראשון יציב ללא התקנה</span>
+  </footer>
+
+  <script>
+    const form = document.getElementById("webSearchForm");
+    const statusBox = document.getElementById("webStatus");
+    const resultsBox = document.getElementById("webResults");
+    const clearButton = document.getElementById("clearWebResults");
+
+    function cleanText(value) {
+      return (value || "").replace(/\s+/g, "");
+    }
+
+    function splitTerms(value) {
+      return (value || "")
+        .split(/[,،\n]+/)
+        .map((term) => term.trim())
+        .filter(Boolean);
+    }
+
+    function findPlain(text, term) {
+      const hits = [];
+      if (!term) return hits;
+      let index = text.indexOf(term);
+      while (index !== -1) {
+        hits.push({ type: "רצף", term, start: index, skip: 1 });
+        index = text.indexOf(term, index + 1);
+      }
+      return hits;
+    }
+
+    function findSkip(text, term, maxSkip) {
+      const hits = [];
+      if (!term || term.length < 2) return hits;
+      for (let skip = 2; skip <= maxSkip; skip += 1) {
+        const span = (term.length - 1) * skip;
+        for (let start = 0; start + span < text.length; start += 1) {
+          let ok = true;
+          for (let i = 0; i < term.length; i += 1) {
+            if (text[start + i * skip] !== term[i]) {
+              ok = false;
+              break;
+            }
+          }
+          if (ok) hits.push({ type: "דילוג", term, start, skip });
+        }
+      }
+      return hits;
+    }
+
+    function renderResults(results, primary, secondaryCount) {
+      if (!results.length) {
+        resultsBox.innerHTML = '<div class="empty-state">לא נמצאו ממצאים בתנאים שהוגדרו.</div>';
+        return;
+      }
+
+      resultsBox.innerHTML = results.map((item, index) => `
+        <article class="result-row">
+          <strong>${index + 1}. ${item.term}</strong>
+          <span>${item.type} | מיקום ${item.start + 1} | דילוג ${item.skip}</span>
+          <small>ראשית: ${primary || "לא הוגדרה"} | משניות שנבדקו: ${secondaryCount}</small>
+        </article>
+      `).join("");
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const text = cleanText(document.getElementById("sourceText").value);
+      const primary = cleanText(document.getElementById("primaryTerm").value);
+      const secondaries = splitTerms(document.getElementById("secondaryTerms").value).map(cleanText);
+      const maxSkip = Math.max(1, Math.min(200, Number(document.getElementById("maxSkip").value) || 1));
+      const minSecondaries = Math.max(0, Number(document.getElementById("minSecondaries").value) || 0);
+
+      if (!text || !primary) {
+        statusBox.textContent = "חסר טקסט או ראשית";
+        resultsBox.innerHTML = '<div class="empty-state">יש להכניס טקסט וראשית.</div>';
+        return;
+      }
+
+      const primaryHits = [...findPlain(text, primary), ...findSkip(text, primary, maxSkip)];
+      const secondaryHits = secondaries.flatMap((term) => [...findPlain(text, term), ...findSkip(text, term, maxSkip)]);
+      const results = [...primaryHits, ...secondaryHits];
+
+      if (secondaryHits.length < minSecondaries) {
+        statusBox.textContent = `נמצאו ${secondaryHits.length} משניות, פחות מהמינימום`;
+      } else {
+        statusBox.textContent = `נמצאו ${results.length} ממצאים`;
+      }
+
+      renderResults(results, primary, secondaries.length);
+    });
+
+    clearButton.addEventListener("click", () => {
+      resultsBox.innerHTML = "";
+      statusBox.textContent = "מוכן לחיפוש";
+    });
+  </script>
+</body>
+</html>
