@@ -79,6 +79,10 @@
         </div>
         <div class="torah-meta" id="torahMeta">טוען טקסט מובנה...</div>
         <div class="web-results" id="webResults" aria-live="polite"></div>
+        <div class="torah-preview" id="torahPreview" aria-label="תצוגת טקסט סביב הממצא">
+          <div class="preview-title">תצוגת ממצא</div>
+          <div class="preview-text">לא נבחר ממצא עדיין.</div>
+        </div>
       </section>
     </section>
   </main>
@@ -97,8 +101,11 @@
     const torahMeta = document.getElementById("torahMeta");
     const useBuiltInText = document.getElementById("useBuiltInText");
     const useManualText = document.getElementById("useManualText");
+    const torahPreview = document.getElementById("torahPreview");
     let builtInTorah = "";
     let usingBuiltIn = true;
+    let latestText = "";
+    let latestResults = [];
 
     function cleanText(value) {
       return (value || "").replace(/\s+/g, "");
@@ -177,19 +184,72 @@
       return hits;
     }
 
-    function renderResults(results, primary, secondaryCount) {
-      if (!results.length) {
-        resultsBox.innerHTML = '<div class="empty-state">לא נמצאו ממצאים בתנאים שהוגדרו.</div>';
+    function resultKind(item, primary) {
+      return item.term === primary ? "ראשית" : "משנית";
+    }
+
+    function renderPreview(text, item, primary) {
+      if (!item) {
+        torahPreview.innerHTML = '<div class="preview-title">תצוגת ממצא</div><div class="preview-text">לא נבחר ממצא עדיין.</div>';
         return;
       }
 
-      resultsBox.innerHTML = results.map((item, index) => `
-        <article class="result-row">
-          <strong>${index + 1}. ${item.term}</strong>
-          <span>${item.type} | מיקום ${item.start + 1} | דילוג ${item.skip}</span>
-          <small>ראשית: ${primary || "לא הוגדרה"} | משניות שנבדקו: ${secondaryCount}</small>
-        </article>
-      `).join("");
+      const beforeStart = Math.max(0, item.start - 90);
+      const afterEnd = Math.min(text.length, item.start + Math.max(1, item.term.length * item.skip) + 90);
+      const before = text.slice(beforeStart, item.start);
+      const letters = [];
+      const usedPositions = new Set();
+      for (let i = 0; i < item.term.length; i += 1) {
+        usedPositions.add(item.start + i * item.skip);
+      }
+      for (let pos = item.start; pos < Math.min(afterEnd, item.start + item.term.length * item.skip); pos += 1) {
+        const letter = text[pos] || "";
+        if (usedPositions.has(pos)) {
+          letters.push(`<mark>${letter}</mark>`);
+        } else {
+          letters.push(`<span>${letter}</span>`);
+        }
+      }
+      const after = text.slice(item.start + Math.max(1, item.term.length * item.skip), afterEnd);
+
+      torahPreview.innerHTML = `
+        <div class="preview-title">${resultKind(item, primary)}: ${item.term} | מיקום ${item.start + 1} | דילוג ${item.skip}</div>
+        <div class="preview-text"><span>${before}</span><strong>${letters.join("")}</strong><span>${after}</span></div>
+      `;
+    }
+
+    function renderResults(results, primary, secondaryCount) {
+      if (!results.length) {
+        resultsBox.innerHTML = '<div class="empty-state">לא נמצאו ממצאים בתנאים שהוגדרו.</div>';
+        renderPreview("", null, primary);
+        return;
+      }
+
+      resultsBox.innerHTML = `
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>סוג</th>
+              <th>מילה</th>
+              <th>דילוג</th>
+              <th>מיקום</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${results.map((item, index) => `
+              <tr data-result-index="${index}" class="${index === 0 ? "active" : ""}" tabindex="0">
+                <td>${index + 1}</td>
+                <td>${resultKind(item, primary)}</td>
+                <td>${item.term}</td>
+                <td>${item.skip}</td>
+                <td>${item.start + 1}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+      renderPreview(latestText, results[0], primary);
     }
 
     form.addEventListener("submit", (event) => {
@@ -209,6 +269,8 @@
       const primaryHits = [...findPlain(text, primary), ...findSkip(text, primary, maxSkip)];
       const secondaryHits = secondaries.flatMap((term) => [...findPlain(text, term), ...findSkip(text, term, maxSkip)]);
       const results = [...primaryHits, ...secondaryHits];
+      latestText = text;
+      latestResults = results;
 
       if (secondaryHits.length < minSecondaries) {
         statusBox.textContent = `נמצאו ${secondaryHits.length} משניות, פחות מהמינימום`;
@@ -221,7 +283,25 @@
 
     clearButton.addEventListener("click", () => {
       resultsBox.innerHTML = "";
+      latestResults = [];
+      renderPreview("", null, "");
       statusBox.textContent = "מוכן לחיפוש";
+    });
+
+    resultsBox.addEventListener("click", (event) => {
+      const row = event.target.closest("[data-result-index]");
+      if (!row) return;
+      const index = Number(row.dataset.resultIndex);
+      const primary = cleanText(document.getElementById("primaryTerm").value);
+      resultsBox.querySelectorAll("[data-result-index]").forEach((item) => item.classList.remove("active"));
+      row.classList.add("active");
+      renderPreview(latestText, latestResults[index], primary);
+    });
+
+    resultsBox.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      const row = event.target.closest("[data-result-index]");
+      if (row) row.click();
     });
 
     useBuiltInText.addEventListener("click", () => setSourceMode("built-in"));
