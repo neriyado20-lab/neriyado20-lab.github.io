@@ -35,9 +35,13 @@
 
     <section class="web-grid">
       <form class="web-form" id="webSearchForm">
+        <div class="source-switch" role="group" aria-label="בחירת מקור טקסט">
+          <button class="source-option active" type="button" id="useBuiltInText">תורה מובנית</button>
+          <button class="source-option" type="button" id="useManualText">טקסט ידני</button>
+        </div>
         <label>
           <span>טקסט לבדיקה</span>
-          <textarea id="sourceText" rows="12" spellcheck="false" placeholder="כאן מדביקים טקסט לבדיקה. בשלב הבא נחבר טקסט תורה מובנה.">בראשית ברא אלהים את השמים ואת הארץ והארץ היתה תהו ובהו וחשך על פני תהום ורוח אלהים מרחפת על פני המים</textarea>
+          <textarea id="sourceText" rows="12" spellcheck="false" placeholder="טקסט התורה נטען אוטומטית. אפשר לעבור לטקסט ידני ולהדביק כאן.">טוען טקסט תורה...</textarea>
         </label>
 
         <div class="web-fields">
@@ -71,8 +75,9 @@
       <section class="web-results-panel" aria-label="תוצאות">
         <div class="section-head">
           <h2>תוצאות</h2>
-          <p>זהו בסיס יציב: חיפוש מילים רגיל ודילוגים פשוטים בטקסט שמדביקים. בהמשך נוסיף תצוגת תורה מלאה, טבלה ושמירה.</p>
+          <p>זהו בסיס יציב: חיפוש מילים רגיל ודילוגים פשוטים בטקסט התורה המובנה, עם אפשרות לעבור לטקסט ידני. בהמשך נוסיף תצוגת תורה מלאה, טבלה ושמירה.</p>
         </div>
+        <div class="torah-meta" id="torahMeta">טוען טקסט מובנה...</div>
         <div class="web-results" id="webResults" aria-live="polite"></div>
       </section>
     </section>
@@ -88,6 +93,12 @@
     const statusBox = document.getElementById("webStatus");
     const resultsBox = document.getElementById("webResults");
     const clearButton = document.getElementById("clearWebResults");
+    const sourceText = document.getElementById("sourceText");
+    const torahMeta = document.getElementById("torahMeta");
+    const useBuiltInText = document.getElementById("useBuiltInText");
+    const useManualText = document.getElementById("useManualText");
+    let builtInTorah = "";
+    let usingBuiltIn = true;
 
     function cleanText(value) {
       return (value || "").replace(/\s+/g, "");
@@ -98,6 +109,42 @@
         .split(/[,،\n]+/)
         .map((term) => term.trim())
         .filter(Boolean);
+    }
+
+    function setSourceMode(mode) {
+      usingBuiltIn = mode === "built-in";
+      useBuiltInText.classList.toggle("active", usingBuiltIn);
+      useManualText.classList.toggle("active", !usingBuiltIn);
+      sourceText.readOnly = usingBuiltIn;
+      if (usingBuiltIn && builtInTorah) {
+        sourceText.value = builtInTorah;
+        statusBox.textContent = "טקסט תורה מובנה מוכן";
+      }
+      if (!usingBuiltIn) {
+        statusBox.textContent = "מצב טקסט ידני";
+        sourceText.focus();
+      }
+    }
+
+    async function loadBuiltInTorah() {
+      try {
+        statusBox.textContent = "טוען טקסט תורה...";
+        const response = await fetch("assets/torah_clean.txt", { cache: "force-cache" });
+        if (!response.ok) throw new Error("load failed");
+        builtInTorah = (await response.text()).trim();
+        sourceText.value = builtInTorah;
+        sourceText.readOnly = true;
+        torahMeta.textContent = `טקסט תורה מובנה נטען: ${builtInTorah.length.toLocaleString("he-IL")} אותיות`;
+        statusBox.textContent = "טקסט תורה מובנה מוכן";
+      } catch (error) {
+        builtInTorah = "";
+        usingBuiltIn = false;
+        sourceText.readOnly = false;
+        sourceText.value = "בראשית ברא אלהים את השמים ואת הארץ";
+        torahMeta.textContent = "לא הצלחנו לטעון את הטקסט המובנה. אפשר להדביק טקסט ידנית.";
+        statusBox.textContent = "טקסט ידני זמין";
+        setSourceMode("manual");
+      }
     }
 
     function findPlain(text, term) {
@@ -176,6 +223,10 @@
       resultsBox.innerHTML = "";
       statusBox.textContent = "מוכן לחיפוש";
     });
+
+    useBuiltInText.addEventListener("click", () => setSourceMode("built-in"));
+    useManualText.addEventListener("click", () => setSourceMode("manual"));
+    loadBuiltInTorah();
   </script>
 </body>
 </html>
