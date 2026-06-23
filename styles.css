@@ -425,6 +425,51 @@ h2 {
   max-width: 840px;
 }
 
+.pricing-band {
+  background:
+    linear-gradient(90deg, rgba(13, 109, 86, 0.08), rgba(63, 127, 180, 0.10)),
+    #f8fbf8;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.pricing-grid article {
+  padding: 22px;
+  border: 1px solid rgba(13, 109, 86, 0.22);
+  border-top: 4px solid var(--accent);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 12px 30px rgba(23, 33, 29, 0.08);
+}
+
+.pricing-grid h3,
+.pricing-grid p {
+  margin-bottom: 8px;
+}
+
+.pricing-grid strong {
+  display: block;
+  color: var(--accent-dark);
+  font-size: 28px;
+}
+
+.plan-label {
+  color: var(--wine);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.pricing-note {
+  margin: 18px 0 0;
+  font-weight: 800;
+  color: var(--accent-dark);
+}
+
 .download-box {
   display: flex;
   align-items: center;
@@ -515,6 +560,7 @@ footer {
   .hero,
   .content-grid,
   .feature-strip,
+  .pricing-grid,
   .sample-card {
     grid-template-columns: 1fr;
   }
