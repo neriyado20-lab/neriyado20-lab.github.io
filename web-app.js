@@ -28,6 +28,8 @@
     search: $("searchButton"),
     stop: $("stopButton"),
     clear: $("clearButton"),
+    openProject: $("openProjectButton"),
+    projectFile: $("projectFileInput"),
     progress: $("searchProgress"),
     status: $("statusText"),
     count: $("resultCount"),
@@ -124,6 +126,11 @@
     return out;
   }
 
+  function positionsForMatch(match) {
+    if (Array.isArray(match.positions) && match.positions.length) return match.positions;
+    return matchPositions(match);
+  }
+
   async function findWord(word, skips, onProgress) {
     const normalized = normalizeWord(word);
     if (!normalized) return [];
@@ -197,7 +204,7 @@
       for (const skip of skips) {
         if (!checkWordAt(normalized, pos, skip)) continue;
         const match = { word: normalized, start: pos, skip, kind: "secondary" };
-        const allInside = matchPositions(match).every((p) => windowInfo.set.has(p));
+        const allInside = positionsForMatch(match).every((p) => windowInfo.set.has(p));
         if (allInside) found.push(match);
       }
     }
@@ -218,6 +225,74 @@
       out.push(match);
     }
     return out;
+  }
+
+  function cleanMatch(raw, fallbackKind = "secondary") {
+    if (!raw || typeof raw !== "object") return null;
+    const word = normalizeWord(raw.word || "");
+    const start = Number.parseInt(raw.start, 10);
+    const skip = Number.parseInt(raw.skip, 10) || 1;
+    if (!word || !Number.isFinite(start)) return null;
+    return {
+      word,
+      start,
+      skip,
+      kind: raw.kind || fallbackKind,
+      color: raw.color || stableColor(word),
+      positions: Array.isArray(raw.positions) ? raw.positions.filter((p) => Number.isFinite(Number(p))).map(Number) : null,
+    };
+  }
+
+  function countSecondaryWords(matches) {
+    const words = new Set();
+    matches.forEach((match) => {
+      if (match.kind !== "primary") words.add(match.word);
+    });
+    return words.size;
+  }
+
+  function resultFromSavedItem(item) {
+    const primary = cleanMatch(item?.primary, "primary");
+    if (!primary) return null;
+    primary.kind = "primary";
+    const matches = dedupeMatches([primary, ...(Array.isArray(item.matches) ? item.matches.map((m) => cleanMatch(m)).filter(Boolean) : [])]);
+    const windowInfo = positionsForPrimary(primary);
+    windowInfo.primarySkip = primary.skip;
+    return {
+      primary,
+      matches,
+      secondaryCount: countSecondaryWords(matches),
+      windowInfo,
+    };
+  }
+
+  function loadProjectData(data, sourceName = "קובץ צופן") {
+    if (!data || typeof data !== "object") throw new Error("קובץ הצופן אינו תקין");
+    els.primary.value = data.primary || "";
+    els.secondary.value = data.secondary || "";
+    els.skipFrom.value = data.skip_from ?? els.skipFrom.value;
+    els.skipTo.value = data.skip_to ?? els.skipTo.value;
+    els.minSecondary.value = data.min_secondary ?? els.minSecondary.value;
+    const saved = Array.isArray(data.saved) ? data.saved : [];
+    state.results = saved.map(resultFromSavedItem).filter(Boolean).slice(0, MAX_RESULTS);
+    state.current = Math.max(0, Math.min(Number.parseInt(data.current, 10) || 0, Math.max(0, state.results.length - 1)));
+    renderResults();
+    renderCurrent();
+    setStatus(`צופן נטען: ${sourceName} | ממצאים ${state.results.length}`, 100);
+  }
+
+  async function loadProjectFromUrl(url) {
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) throw new Error("לא הצלחתי לטעון את קובץ הצופן");
+    const data = await response.json();
+    loadProjectData(data, url.split("/").pop() || "צופן מהאתר");
+  }
+
+  async function loadProjectFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const project = params.get("project");
+    if (!project) return;
+    await loadProjectFromUrl(project);
   }
 
   function requiredCount(secondaries) {
@@ -379,7 +454,7 @@
     const { grid, cols, center } = result.windowInfo;
     const markByPos = new Map();
     result.matches.forEach((match) => {
-      matchPositions(match).forEach((pos) => {
+      positionsForMatch(match).forEach((pos) => {
         markByPos.set(pos, match);
       });
     });
@@ -397,7 +472,7 @@
           const match = markByPos.get(pos);
           if (match) {
             cell.classList.add(match.kind === "primary" ? "mark-primary" : "mark-secondary");
-            if (match.kind !== "primary") cell.style.setProperty("--mark-color", stableColor(match.word));
+            if (match.kind !== "primary") cell.style.setProperty("--mark-color", match.color || stableColor(match.word));
             cell.title = `${match.word} | דילוג ${Math.abs(match.skip || 1)} | מיקום ${(match.start + 1).toLocaleString("he-IL")}`;
           }
           if (pos === center) cell.classList.add("center");
@@ -444,6 +519,21 @@
     setStatus("בקשת עצירה התקבלה...", els.progress.value);
   });
   els.clear.addEventListener("click", clearAll);
+  els.openProject.addEventListener("click", () => {
+    els.projectFile.click();
+  });
+  els.projectFile.addEventListener("change", async () => {
+    const file = els.projectFile.files && els.projectFile.files[0];
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      loadProjectData(data, file.name);
+    } catch (error) {
+      setStatus(`שגיאה בפתיחת צופן: ${error.message}`, 0);
+    } finally {
+      els.projectFile.value = "";
+    }
+  });
   els.prev.addEventListener("click", () => moveResult(-1));
   els.next.addEventListener("click", () => moveResult(1));
   els.zoomIn.addEventListener("click", () => {
@@ -455,5 +545,7 @@
     renderCurrent();
   });
 
-  loadTorah().catch((error) => setStatus(`שגיאה בטעינת התורה: ${error.message}`, 0));
+  loadTorah()
+    .then(() => loadProjectFromQuery().catch((error) => setStatus(`שגיאה בטעינת צופן: ${error.message}`, 0)))
+    .catch((error) => setStatus(`שגיאה בטעינת התורה: ${error.message}`, 0));
 })();
