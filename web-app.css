@@ -297,13 +297,15 @@
   line-height: 1;
 }
 
-.letter-cell.primary {
+.letter-cell.primary,
+.letter-cell.mark-primary {
   background: #ff3c2f;
   color: #101010;
   outline: 1px solid rgba(0, 0, 0, 0.35);
 }
 
-.letter-cell.secondary {
+.letter-cell.secondary,
+.letter-cell.mark-secondary {
   background: var(--mark-color, #ffe15c);
   color: #111;
   outline: 1px solid rgba(0, 0, 0, 0.18);
