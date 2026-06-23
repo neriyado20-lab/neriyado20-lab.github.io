@@ -311,9 +311,9 @@
     renderResults();
     renderEmptyGrid("מחפש...");
     try {
-      const primary = normalizeWord(els.primary.value);
+      const primaryWords = splitWords(els.primary.value);
       const secondaries = splitWords(els.secondary.value, { keepRequired: true });
-      if (!primary) {
+      if (!primaryWords.length) {
         setStatus("יש להקליד ראשית לחיפוש", 0);
         return;
       }
@@ -325,21 +325,29 @@
       }
       setStatus("מחפש ראשיות...", 0);
       await nextFrame();
-      const primaries = await findWord(primary, skips, (done, total, foundCount, skip) => {
-        const percent = Math.floor((done / Math.max(1, total)) * 60);
-        setStatus(`מחפש ראשיות | נמצאו ${foundCount} | דילוג ${skip}`, percent);
-      });
-      const minRequired = requiredCount(secondaries);
-      const requiredWords = secondaries.filter((item) => item.required).map((item) => item.word);
+      const primaries = [];
+      for (let p = 0; p < primaryWords.length; p += 1) {
+        const primaryWord = primaryWords[p];
+        const foundForPrimary = await findWord(primaryWord, skips, (done, total, foundCount, skip) => {
+          const primaryBase = p / Math.max(1, primaryWords.length);
+          const primaryShare = done / Math.max(1, total) / Math.max(1, primaryWords.length);
+          const percent = Math.floor((primaryBase + primaryShare) * 60);
+          setStatus(`מחפש ראשיות ${p + 1}/${primaryWords.length} | נמצאו ${primaries.length + foundCount} | דילוג ${skip}`, percent);
+        });
+        primaries.push(...foundForPrimary);
+      }
       const total = Math.max(1, primaries.length);
       for (let i = 0; i < primaries.length; i += 1) {
         if (state.stop) break;
         const primaryMatch = primaries[i];
+        const activeSecondaries = secondaries.filter((item) => item.word !== primaryMatch.word);
+        const minRequired = requiredCount(activeSecondaries);
+        const requiredWords = activeSecondaries.filter((item) => item.required).map((item) => item.word);
         const windowInfo = positionsForPrimary(primaryMatch);
         windowInfo.primarySkip = primaryMatch.skip;
         const local = [primaryMatch];
         const foundWords = new Set();
-        for (const secondary of secondaries) {
+        for (const secondary of activeSecondaries) {
           const matches = findInWindow(secondary.word, windowInfo);
           if (matches.length) foundWords.add(secondary.word);
           local.push(...matches);
