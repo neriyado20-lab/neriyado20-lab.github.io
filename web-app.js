@@ -27,6 +27,7 @@
     skipTo: $("skipToInput"),
     minSecondary: $("minSecondaryInput"),
     search: $("searchButton"),
+    secondaryScan: $("secondaryScanButton"),
     stop: $("stopButton"),
     clear: $("clearButton"),
     openProject: $("openProjectButton"),
@@ -89,6 +90,7 @@
   function setBusy(value) {
     state.searching = value;
     els.search.disabled = value;
+    els.secondaryScan.disabled = value;
     els.stop.disabled = !value;
   }
 
@@ -313,33 +315,38 @@
     return JSON.stringify({ primaryWords, from, to });
   }
 
-  async function search(event) {
+  async function search(event, { cacheOnly = false } = {}) {
     if (event) event.preventDefault();
     if (!state.torah) return;
+    const primaryWords = splitWords(els.primary.value);
+    const secondaries = splitWords(els.secondary.value, { keepRequired: true });
+    if (!primaryWords.length) {
+      setStatus("יש להקליד ראשית לחיפוש", 0);
+      return;
+    }
+    const from = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || "1", 10) || 1));
+    const to = Math.max(from, Math.abs(Number.parseInt(els.skipTo.value || String(from), 10) || from));
+    const cacheKey = primaryCacheKey(primaryWords, from, to);
+    const hasMatchingCache = state.primaryCache && state.primaryCache.key === cacheKey;
+    if (cacheOnly && !hasMatchingCache) {
+      setStatus("אין ראשיות מתאימות בזיכרון. יש לבצע תחילה חיפוש ראשיות או לפתוח צופן.", 0);
+      return;
+    }
     state.stop = false;
     setBusy(true);
     state.results = [];
     state.current = 0;
     renderResults();
-    renderEmptyGrid("מחפש...");
+    renderEmptyGrid(cacheOnly ? "סורק משניות בראשיות שנשמרו..." : "מחפש...");
     try {
-      const primaryWords = splitWords(els.primary.value);
-      const secondaries = splitWords(els.secondary.value, { keepRequired: true });
-      if (!primaryWords.length) {
-        setStatus("יש להקליד ראשית לחיפוש", 0);
-        return;
-      }
-      const from = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || "1", 10) || 1));
-      const to = Math.max(from, Math.abs(Number.parseInt(els.skipTo.value || String(from), 10) || from));
-      const cacheKey = primaryCacheKey(primaryWords, from, to);
       const skips = [];
       for (let s = from; s <= to; s += 1) {
         skips.push(s, -s);
       }
       let primaries = [];
-      if (state.primaryCache && state.primaryCache.key === cacheKey) {
+      if (hasMatchingCache) {
         primaries = state.primaryCache.matches.slice();
-        setStatus(`משתמש בראשיות שנמצאו בזיכרון: ${primaries.length}`, 60);
+        setStatus(`${cacheOnly ? "סורק משניות בלבד" : "משתמש בראשיות מהזיכרון"} | ראשיות ${primaries.length}`, 60);
         await nextFrame();
       } else {
         setStatus("מחפש ראשיות...", 0);
@@ -552,7 +559,8 @@
     window.print();
   }
 
-  els.form.addEventListener("submit", search);
+  els.form.addEventListener("submit", (event) => search(event));
+  els.secondaryScan.addEventListener("click", () => search(null, { cacheOnly: true }));
   els.stop.addEventListener("click", () => {
     state.stop = true;
     setStatus("בקשת עצירה התקבלה...", els.progress.value);
