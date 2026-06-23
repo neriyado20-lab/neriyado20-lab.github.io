@@ -406,6 +406,10 @@
       });
     });
     els.grid.replaceChildren(inner);
+    requestAnimationFrame(() => {
+      const centerCell = inner.querySelector(".letter-cell.center");
+      if (centerCell) centerCell.scrollIntoView({ block: "center", inline: "center" });
+    });
   }
 
   function renderEmptyGrid(text) {
