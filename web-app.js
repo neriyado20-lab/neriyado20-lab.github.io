@@ -8,6 +8,10 @@
   const DRAFT_KEY = "gal-einai-web-draft-v1";
   const LIBRARY_KEY = "gal-einai-web-library-v1";
   const LIBRARY_LIMIT = 20;
+  const FREE_MAX_SKIP = 400;
+  const PRO_MAX_SKIP = 5000;
+  const FREE_MAX_SECONDARIES = 5;
+  const PRO_MAX_SECONDARIES = 30;
   const pageParams = new URLSearchParams(window.location.search);
   const edition = pageParams.get("edition") === "free" ? "free" : "pro";
   const COLORS = ["#3ddc84", "#42d7f5", "#ffe15c", "#f78acb", "#b9f35d", "#ffb347", "#9db4ff"];
@@ -55,6 +59,7 @@
     zoomOut: $("zoomOutButton"),
     editionBadge: $("editionBadge"),
     editionSwitch: $("editionSwitch"),
+    editionLimitNote: $("editionLimitNote"),
     libraryDialog: $("libraryDialog"),
     libraryClose: $("closeLibraryButton"),
     libraryForm: $("librarySaveForm"),
@@ -74,6 +79,16 @@
     els.editionBadge.textContent = edition === "free" ? "חינמית" : "מקצועית | בטא פתוחה";
     els.editionSwitch.textContent = edition === "free" ? "נסה מקצועית" : "עבור לחינמית";
     els.editionSwitch.href = `web.html?${nextParams.toString()}`;
+    const maxSkip = edition === "free" ? FREE_MAX_SKIP : PRO_MAX_SKIP;
+    const maxSecondaries = edition === "free" ? FREE_MAX_SECONDARIES : PRO_MAX_SECONDARIES;
+    els.skipFrom.max = String(maxSkip);
+    els.skipTo.max = String(maxSkip);
+    els.minSecondary.max = String(maxSecondaries);
+    if (edition === "free") {
+      els.editionLimitNote.innerHTML = `בחינמית: עד דילוג ${FREE_MAX_SKIP} ועד ${FREE_MAX_SECONDARIES} משניות. <a href="web.html?edition=pro">במקצועית: עד דילוג ${PRO_MAX_SKIP} ועד ${PRO_MAX_SECONDARIES} משניות</a>.`;
+    } else {
+      els.editionLimitNote.textContent = `המקצועית מאפשרת עד דילוג ${PRO_MAX_SKIP} ועד ${PRO_MAX_SECONDARIES} משניות. בתקופת הבטא היא פתוחה ללא חיוב.`;
+    }
   }
 
   function normalizeWord(value) {
@@ -137,7 +152,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W012",
+      version: "W013",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -349,7 +364,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W012",
+      version: "W013",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -629,8 +644,30 @@
       setStatus("יש להקליד ראשית לחיפוש", 0);
       return;
     }
+    const editionMaxSecondaries = edition === "free" ? FREE_MAX_SECONDARIES : PRO_MAX_SECONDARIES;
+    if (secondaries.length > editionMaxSecondaries) {
+      setStatus(
+        edition === "free"
+          ? `המהדורה החינמית מאפשרת עד ${FREE_MAX_SECONDARIES} משניות בחיפוש. ניתן לעבור למקצועית לעד ${PRO_MAX_SECONDARIES}.`
+          : `ניתן לחפש עד ${PRO_MAX_SECONDARIES} משניות בכל חיפוש.`,
+        0
+      );
+      els.secondary.focus();
+      return;
+    }
     const from = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || "1", 10) || 1));
     const to = Math.max(from, Math.abs(Number.parseInt(els.skipTo.value || String(from), 10) || from));
+    const editionMaxSkip = edition === "free" ? FREE_MAX_SKIP : PRO_MAX_SKIP;
+    if (from > editionMaxSkip || to > editionMaxSkip) {
+      setStatus(
+        edition === "free"
+          ? `המהדורה החינמית מאפשרת חיפוש עד דילוג ${FREE_MAX_SKIP}. ניתן לעבור למקצועית להמשך הטווח.`
+          : `טווח החיפוש המרבי הוא ${PRO_MAX_SKIP}.`,
+        0
+      );
+      els.skipTo.focus();
+      return;
+    }
     const cacheKey = primaryCacheKey(primaryWords, from, to);
     const hasMatchingCache = state.primaryCache && state.primaryCache.key === cacheKey;
     if (cacheOnly && !hasMatchingCache) {
