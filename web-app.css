@@ -95,6 +95,23 @@ body[data-edition="free"] .pro-only {
   padding: 7px;
 }
 
+.edition-limit-note {
+  min-height: 18px;
+  margin-top: 4px;
+  color: #52645c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+body[data-edition="free"] .edition-limit-note {
+  color: #704f0d;
+}
+
+.edition-limit-note a {
+  color: #0a5c49;
+  font-weight: 900;
+}
+
 .search-panel {
   display: grid;
   grid-template-columns: minmax(160px, 1fr) minmax(260px, 1.45fr) 82px 82px 96px minmax(570px, auto);
