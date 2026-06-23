@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W010 | שמירה ושחזור עבודה</span>
+          <span>W011 | ספריית הצפנים שלי</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -25,9 +25,9 @@
     </nav>
   </header>
 
-  <main class="web-shell desktop-like" data-app-version="W010">
+  <main class="web-shell desktop-like" data-app-version="W011">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W010</div>
+      <div class="app-version">גל עיני Web W011</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -66,6 +66,7 @@
           <button id="clearButton" class="button secondary" type="button">נקה</button>
           <button id="openProjectButton" class="button secondary" type="button">פתח צופן</button>
           <button id="saveProjectButton" class="button secondary save-project pro-only" type="button" title="שמור את השדות ואת כל הממצאים לקובץ צופן">שמור צופן</button>
+          <button id="libraryButton" class="button secondary library-button pro-only" type="button" title="פתח את ספריית הצפנים השמורים בדפדפן">הצפנים שלי</button>
           <button id="printButton" class="button secondary pro-only" type="button">הדפס</button>
           <input id="projectFileInput" type="file" accept=".json,.gal_einai.json,application/json" hidden>
         </div>
@@ -106,6 +107,25 @@
   <template id="emptyResultsTemplate">
     <tr><td colspan="5">אין ממצאים להצגה.</td></tr>
   </template>
+
+  <dialog id="libraryDialog" class="library-dialog pro-only" aria-labelledby="libraryTitle">
+    <div class="library-head">
+      <div>
+        <h2 id="libraryTitle">הצפנים שלי</h2>
+        <span id="libraryCount">0 מתוך 20 צפנים</span>
+      </div>
+      <button id="closeLibraryButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
+    </div>
+    <form id="librarySaveForm" class="library-save-row">
+      <label>
+        <span>שם הצופן</span>
+        <input id="libraryNameInput" maxlength="80" autocomplete="off" placeholder="לדוגמה: אטום פצצה אירן">
+      </label>
+      <button class="button primary" type="submit">שמור בספרייה</button>
+    </form>
+    <div id="libraryList" class="library-list" aria-live="polite"></div>
+    <p class="library-note">הצפנים נשמרים בדפדפן הזה בלבד. שמירה בענן תתווסף בהמשך.</p>
+  </dialog>
 
   <script src="web-app.js"></script>
 </body>
