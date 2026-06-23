@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W011 | ספריית הצפנים שלי</span>
+          <span>W012 | גיבוי ושחזור ספרייה</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -25,9 +25,9 @@
     </nav>
   </header>
 
-  <main class="web-shell desktop-like" data-app-version="W011">
+  <main class="web-shell desktop-like" data-app-version="W012">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W011</div>
+      <div class="app-version">גל עיני Web W012</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -123,8 +123,17 @@
       </label>
       <button class="button primary" type="submit">שמור בספרייה</button>
     </form>
+    <div class="library-tools">
+      <label class="library-search">
+        <span>חיפוש בספרייה</span>
+        <input id="librarySearchInput" type="search" autocomplete="off" placeholder="שם צופן או מילה">
+      </label>
+      <button id="backupLibraryButton" class="button secondary" type="button">גבה ספרייה</button>
+      <button id="restoreLibraryButton" class="button secondary" type="button">שחזר גיבוי</button>
+      <input id="libraryBackupInput" type="file" accept=".json,.gal_einai_library.json,application/json" hidden>
+    </div>
     <div id="libraryList" class="library-list" aria-live="polite"></div>
-    <p class="library-note">הצפנים נשמרים בדפדפן הזה בלבד. שמירה בענן תתווסף בהמשך.</p>
+    <p class="library-note">הצפנים נשמרים בדפדפן הזה. מומלץ להוריד גיבוי; שמירה בענן תתווסף בהמשך.</p>
   </dialog>
 
   <script src="web-app.js"></script>
