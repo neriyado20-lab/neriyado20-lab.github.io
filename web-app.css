@@ -77,7 +77,7 @@
 
 .search-panel {
   display: grid;
-  grid-template-columns: minmax(160px, 1fr) minmax(260px, 1.45fr) 82px 82px 96px minmax(190px, auto);
+  grid-template-columns: minmax(160px, 1fr) minmax(260px, 1.45fr) 82px 82px 96px minmax(300px, auto);
   gap: 7px;
   align-items: end;
 }
@@ -114,7 +114,7 @@
 
 .search-actions {
   display: grid;
-  grid-template-columns: repeat(4, minmax(56px, 1fr));
+  grid-template-columns: repeat(5, minmax(52px, 1fr));
   gap: 6px;
 }
 
@@ -340,5 +340,83 @@
 
   .torah-panel {
     min-height: 62vh;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+
+  html,
+  body {
+    width: 100%;
+    min-height: 0;
+    background: #ffffff !important;
+  }
+
+  .topbar,
+  .app-command-bar,
+  .search-dock,
+  .results-panel,
+  .display-controls {
+    display: none !important;
+  }
+
+  .web-shell,
+  .desktop-like,
+  .workspace {
+    display: block;
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .torah-panel {
+    display: block;
+    overflow: visible;
+    border: 2mm solid #000000;
+    border-radius: 0;
+    box-shadow: none;
+    background: #ffffff;
+    page-break-inside: avoid;
+  }
+
+  .panel-head,
+  .top-words {
+    background: #ffffff !important;
+    border-color: #000000;
+  }
+
+  .top-words {
+    min-height: 0;
+    padding: 2mm;
+  }
+
+  .word-chip {
+    break-inside: avoid;
+    font-size: 10px;
+    padding: 1mm 2mm;
+  }
+
+  .torah-grid {
+    overflow: visible;
+    padding: 2mm;
+    background: #ffffff;
+  }
+
+  .grid-inner {
+    gap: 1px;
+  }
+
+  .letter-cell {
+    width: 11px;
+    height: 11px;
+    font-size: 9px;
+    color: #003078;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }
