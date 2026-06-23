@@ -5,6 +5,9 @@
   const MAX_RESULTS = 250;
   const DEFAULT_ROWS = 27;
   const DEFAULT_EXTRA_COLS = 10;
+  const DRAFT_KEY = "gal-einai-web-draft-v1";
+  const pageParams = new URLSearchParams(window.location.search);
+  const edition = pageParams.get("edition") === "free" ? "free" : "pro";
   const COLORS = ["#3ddc84", "#42d7f5", "#ffe15c", "#f78acb", "#b9f35d", "#ffb347", "#9db4ff"];
 
   const state = {
@@ -31,6 +34,7 @@
     stop: $("stopButton"),
     clear: $("clearButton"),
     openProject: $("openProjectButton"),
+    saveProject: $("saveProjectButton"),
     print: $("printButton"),
     projectFile: $("projectFileInput"),
     progress: $("searchProgress"),
@@ -46,7 +50,18 @@
     next: $("nextResultButton"),
     zoomIn: $("zoomInButton"),
     zoomOut: $("zoomOutButton"),
+    editionBadge: $("editionBadge"),
+    editionSwitch: $("editionSwitch"),
   };
+
+  function applyEdition() {
+    document.body.dataset.edition = edition;
+    const nextParams = new URLSearchParams(window.location.search);
+    nextParams.set("edition", edition === "free" ? "pro" : "free");
+    els.editionBadge.textContent = edition === "free" ? "חינמית" : "מקצועית | בטא פתוחה";
+    els.editionSwitch.textContent = edition === "free" ? "נסה מקצועית" : "עבור לחינמית";
+    els.editionSwitch.href = `web.html?${nextParams.toString()}`;
+  }
 
   function normalizeWord(value) {
     return String(value || "")
@@ -91,7 +106,87 @@
     state.searching = value;
     els.search.disabled = value;
     els.secondaryScan.disabled = value;
+    els.saveProject.disabled = value;
     els.stop.disabled = !value;
+  }
+
+  function serializableMatch(match) {
+    return {
+      word: match.word,
+      start: match.start,
+      skip: match.skip,
+      kind: match.kind,
+      color: match.color || stableColor(match.word),
+      positions: Array.isArray(match.positions) ? match.positions : positionsForMatch(match),
+    };
+  }
+
+  function projectData() {
+    return {
+      format: "gal_einai_web",
+      version: "W010",
+      saved_at: new Date().toISOString(),
+      primary: els.primary.value.trim(),
+      secondary: els.secondary.value.trim(),
+      skip_from: Number.parseInt(els.skipFrom.value || "1", 10) || 1,
+      skip_to: Number.parseInt(els.skipTo.value || "1", 10) || 1,
+      min_secondary: Number.parseInt(els.minSecondary.value || "0", 10) || 0,
+      current: state.current,
+      saved: state.results.map((result) => ({
+        primary: serializableMatch(result.primary),
+        matches: result.matches.map(serializableMatch),
+      })),
+    };
+  }
+
+  function saveDraft() {
+    if (edition !== "pro") return;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(projectData()));
+    } catch {
+      // A downloadable file remains available even when browser storage is blocked.
+    }
+  }
+
+  function restoreDraft() {
+    if (edition !== "pro") return false;
+    if (pageParams.has("project")) return false;
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return false;
+      loadProjectData(JSON.parse(raw), "העבודה האחרונה בדפדפן");
+      return true;
+    } catch {
+      localStorage.removeItem(DRAFT_KEY);
+      return false;
+    }
+  }
+
+  function safeFileName(value) {
+    const name = String(value || "צופן")
+      .replace(/[<>:"/\\|?*\u0000-\u001f]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    return name || "צופן";
+  }
+
+  function saveProjectFile() {
+    if (!state.results.length) {
+      setStatus("אין ממצאים לשמירה. יש לבצע חיפוש או לפתוח צופן.", 0);
+      return;
+    }
+    const data = projectData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${safeFileName(data.primary)}.gal_einai.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    saveDraft();
+    setStatus(`הצופן נשמר | ממצאים ${state.results.length}`, 100);
   }
 
   async function loadTorah() {
@@ -288,6 +383,7 @@
       : null;
     renderResults();
     renderCurrent();
+    saveDraft();
     setStatus(`צופן נטען: ${sourceName} | ממצאים ${state.results.length}`, 100);
   }
 
@@ -398,6 +494,7 @@
       setStatus(`החיפוש הסתיים | ראשיות ${primaries.length} | צפנים ${state.results.length}`, 100);
       renderResults();
       renderCurrent();
+      saveDraft();
     } catch (error) {
       setStatus(`שגיאה: ${error.message}`, 0);
     } finally {
@@ -537,6 +634,11 @@
     state.results = [];
     state.current = 0;
     state.primaryCache = null;
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      // Clearing the visible work still succeeds when browser storage is blocked.
+    }
     renderResults();
     renderEmptyGrid("לא בוצע חיפוש.");
     setStatus("השדות נוקו.", 0);
@@ -569,6 +671,7 @@
   els.openProject.addEventListener("click", () => {
     els.projectFile.click();
   });
+  els.saveProject.addEventListener("click", saveProjectFile);
   els.projectFile.addEventListener("change", async () => {
     const file = els.projectFile.files && els.projectFile.files[0];
     if (!file) return;
@@ -594,6 +697,14 @@
   });
 
   loadTorah()
-    .then(() => loadProjectFromQuery().catch((error) => setStatus(`שגיאה בטעינת צופן: ${error.message}`, 0)))
+    .then(async () => {
+      if (pageParams.has("project")) {
+        await loadProjectFromQuery().catch((error) => setStatus(`שגיאה בטעינת צופן: ${error.message}`, 0));
+      } else {
+        restoreDraft();
+      }
+    })
     .catch((error) => setStatus(`שגיאה בטעינת התורה: ${error.message}`, 0));
+
+  applyEdition();
 })();
