@@ -557,7 +557,7 @@ footer {
   align-items: flex-end;
   padding: clamp(36px, 7vw, 96px) clamp(16px, 5vw, 72px);
   background:
-    linear-gradient(90deg, rgba(16, 42, 36, 0.92), rgba(16, 42, 36, 0.62) 46%, rgba(16, 42, 36, 0.16)),
+    linear-gradient(90deg, rgba(255, 253, 246, 0.96), rgba(255, 253, 246, 0.86) 44%, rgba(255, 253, 246, 0.48)),
     url("examples/atom-petzatza-iran.png") center / cover no-repeat;
   border-bottom: 1px solid rgba(13, 109, 86, 0.24);
 }
@@ -575,12 +575,12 @@ footer {
   position: relative;
   z-index: 1;
   width: min(720px, 100%);
-  color: #fffdf6;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+  color: var(--ink);
+  text-shadow: none;
 }
 
 .hero-overlay .eyebrow {
-  color: #ffe3a2;
+  color: var(--accent);
 }
 
 .hero-overlay h1 {
@@ -591,15 +591,15 @@ footer {
 }
 
 .hero-overlay .lead {
-  color: rgba(255, 253, 246, 0.92);
+  color: var(--muted);
   max-width: 640px;
 }
 
 .hero-overlay .trust-strip span {
-  color: #fffdf6;
-  background: rgba(255, 253, 246, 0.12);
-  border-color: rgba(255, 253, 246, 0.32);
-  box-shadow: none;
+  color: var(--accent-dark);
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(13, 109, 86, 0.22);
+  box-shadow: 0 8px 22px rgba(13, 109, 86, 0.08);
 }
 
 .web-stage {
