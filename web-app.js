@@ -59,8 +59,12 @@
     libraryClose: $("closeLibraryButton"),
     libraryForm: $("librarySaveForm"),
     libraryName: $("libraryNameInput"),
+    librarySearch: $("librarySearchInput"),
     libraryList: $("libraryList"),
     libraryCount: $("libraryCount"),
+    libraryBackup: $("backupLibraryButton"),
+    libraryRestore: $("restoreLibraryButton"),
+    libraryBackupInput: $("libraryBackupInput"),
   };
 
   function applyEdition() {
@@ -133,7 +137,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W011",
+      version: "W012",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -215,6 +219,18 @@
     localStorage.setItem(LIBRARY_KEY, JSON.stringify(items.slice(0, LIBRARY_LIMIT)));
   }
 
+  function validLibraryItem(item) {
+    return Boolean(
+      item
+      && typeof item === "object"
+      && typeof item.name === "string"
+      && item.name.trim()
+      && item.data
+      && typeof item.data === "object"
+      && Array.isArray(item.data.saved)
+    );
+  }
+
   function formatSavedDate(value) {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "";
@@ -226,16 +242,22 @@
 
   function renderLibrary() {
     const items = readLibrary();
-    els.libraryCount.textContent = `${items.length} מתוך ${LIBRARY_LIMIT} צפנים`;
+    const query = normalizeWord(els.librarySearch.value);
+    const visibleItems = query
+      ? items.filter((item) => normalizeWord(`${item.name} ${item.data.primary || ""} ${item.data.secondary || ""}`).includes(query))
+      : items;
+    els.libraryCount.textContent = query
+      ? `${visibleItems.length} תוצאות | ${items.length} מתוך ${LIBRARY_LIMIT}`
+      : `${items.length} מתוך ${LIBRARY_LIMIT} צפנים`;
     els.libraryList.replaceChildren();
-    if (!items.length) {
+    if (!visibleItems.length) {
       const empty = document.createElement("div");
       empty.className = "library-empty";
-      empty.textContent = "עדיין לא נשמרו צפנים בספרייה.";
+      empty.textContent = items.length ? "לא נמצאו צפנים מתאימים לחיפוש." : "עדיין לא נשמרו צפנים בספרייה.";
       els.libraryList.appendChild(empty);
       return;
     }
-    items.forEach((item) => {
+    visibleItems.forEach((item) => {
       const row = document.createElement("div");
       row.className = "library-item";
       const info = document.createElement("div");
@@ -278,6 +300,7 @@
   function openLibrary() {
     if (edition !== "pro") return;
     els.libraryName.value = els.primary.value.trim() || "צופן חדש";
+    els.librarySearch.value = "";
     renderLibrary();
     els.libraryDialog.showModal();
     els.libraryName.focus();
@@ -316,6 +339,63 @@
     } catch {
       setStatus("אין די מקום בדפדפן לשמירת הצופן. אפשר להוריד אותו כקובץ.", 0);
     }
+  }
+
+  function backupLibrary() {
+    const items = readLibrary();
+    if (!items.length) {
+      setStatus("הספרייה ריקה ואין מה לגבות.", 0);
+      return;
+    }
+    const backup = {
+      format: "gal_einai_library",
+      version: "W012",
+      exported_at: new Date().toISOString(),
+      items,
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `גל עיני - גיבוי ספרייה ${new Date().toISOString().slice(0, 10)}.gal_einai_library.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setStatus(`גובו ${items.length} צפנים לקובץ`, 100);
+  }
+
+  function mergeLibraryBackup(data) {
+    if (!data || data.format !== "gal_einai_library" || !Array.isArray(data.items)) {
+      throw new Error("קובץ הגיבוי אינו קובץ ספרייה תקין של גל עיני");
+    }
+    const imported = data.items.filter(validLibraryItem);
+    if (!imported.length) throw new Error("לא נמצאו צפנים תקינים בקובץ הגיבוי");
+    const merged = readLibrary();
+    let added = 0;
+    let updated = 0;
+    imported.forEach((rawItem) => {
+      const item = {
+        id: rawItem.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name: rawItem.name.trim().slice(0, 80),
+        savedAt: rawItem.savedAt || new Date().toISOString(),
+        data: rawItem.data,
+      };
+      const normalizedName = item.name.toLocaleLowerCase("he-IL");
+      const existingIndex = merged.findIndex((saved) => saved.name.toLocaleLowerCase("he-IL") === normalizedName);
+      if (existingIndex >= 0) {
+        merged.splice(existingIndex, 1);
+        updated += 1;
+      } else if (merged.length >= LIBRARY_LIMIT) {
+        return;
+      } else {
+        added += 1;
+      }
+      merged.unshift(item);
+    });
+    writeLibrary(merged);
+    renderLibrary();
+    setStatus(`שחזור הושלם | נוספו ${added} | עודכנו ${updated} | בספרייה ${readLibrary().length}`, 100);
   }
 
   async function loadTorah() {
@@ -804,6 +884,20 @@
   els.library.addEventListener("click", openLibrary);
   els.libraryClose.addEventListener("click", () => els.libraryDialog.close());
   els.libraryForm.addEventListener("submit", saveToLibrary);
+  els.librarySearch.addEventListener("input", renderLibrary);
+  els.libraryBackup.addEventListener("click", backupLibrary);
+  els.libraryRestore.addEventListener("click", () => els.libraryBackupInput.click());
+  els.libraryBackupInput.addEventListener("change", async () => {
+    const file = els.libraryBackupInput.files && els.libraryBackupInput.files[0];
+    if (!file) return;
+    try {
+      mergeLibraryBackup(JSON.parse(await file.text()));
+    } catch (error) {
+      setStatus(`שגיאה בשחזור הספרייה: ${error.message}`, 0);
+    } finally {
+      els.libraryBackupInput.value = "";
+    }
+  });
   els.libraryDialog.addEventListener("click", (event) => {
     if (event.target === els.libraryDialog) els.libraryDialog.close();
   });
