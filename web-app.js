@@ -15,6 +15,7 @@
     stop: false,
     searching: false,
     zoom: 22,
+    primaryCache: null,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -277,6 +278,12 @@
     const saved = Array.isArray(data.saved) ? data.saved : [];
     state.results = saved.map(resultFromSavedItem).filter(Boolean).slice(0, MAX_RESULTS);
     state.current = Math.max(0, Math.min(Number.parseInt(data.current, 10) || 0, Math.max(0, state.results.length - 1)));
+    const loadedPrimaryWords = splitWords(els.primary.value);
+    const loadedFrom = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || "1", 10) || 1));
+    const loadedTo = Math.max(loadedFrom, Math.abs(Number.parseInt(els.skipTo.value || String(loadedFrom), 10) || loadedFrom));
+    state.primaryCache = state.results.length
+      ? { key: primaryCacheKey(loadedPrimaryWords, loadedFrom, loadedTo), matches: state.results.map((result) => result.primary) }
+      : null;
     renderResults();
     renderCurrent();
     setStatus(`צופן נטען: ${sourceName} | ממצאים ${state.results.length}`, 100);
@@ -302,6 +309,10 @@
     return Math.min(total, required);
   }
 
+  function primaryCacheKey(primaryWords, from, to) {
+    return JSON.stringify({ primaryWords, from, to });
+  }
+
   async function search(event) {
     if (event) event.preventDefault();
     if (!state.torah) return;
@@ -320,22 +331,30 @@
       }
       const from = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || "1", 10) || 1));
       const to = Math.max(from, Math.abs(Number.parseInt(els.skipTo.value || String(from), 10) || from));
+      const cacheKey = primaryCacheKey(primaryWords, from, to);
       const skips = [];
       for (let s = from; s <= to; s += 1) {
         skips.push(s, -s);
       }
-      setStatus("מחפש ראשיות...", 0);
-      await nextFrame();
-      const primaries = [];
-      for (let p = 0; p < primaryWords.length; p += 1) {
-        const primaryWord = primaryWords[p];
-        const foundForPrimary = await findWord(primaryWord, skips, (done, total, foundCount, skip) => {
-          const primaryBase = p / Math.max(1, primaryWords.length);
-          const primaryShare = done / Math.max(1, total) / Math.max(1, primaryWords.length);
-          const percent = Math.floor((primaryBase + primaryShare) * 60);
-          setStatus(`מחפש ראשיות ${p + 1}/${primaryWords.length} | נמצאו ${primaries.length + foundCount} | דילוג ${skip}`, percent);
-        });
-        primaries.push(...foundForPrimary);
+      let primaries = [];
+      if (state.primaryCache && state.primaryCache.key === cacheKey) {
+        primaries = state.primaryCache.matches.slice();
+        setStatus(`משתמש בראשיות שנמצאו בזיכרון: ${primaries.length}`, 60);
+        await nextFrame();
+      } else {
+        setStatus("מחפש ראשיות...", 0);
+        await nextFrame();
+        for (let p = 0; p < primaryWords.length; p += 1) {
+          const primaryWord = primaryWords[p];
+          const foundForPrimary = await findWord(primaryWord, skips, (done, total, foundCount, skip) => {
+            const primaryBase = p / Math.max(1, primaryWords.length);
+            const primaryShare = done / Math.max(1, total) / Math.max(1, primaryWords.length);
+            const percent = Math.floor((primaryBase + primaryShare) * 60);
+            setStatus(`מחפש ראשיות ${p + 1}/${primaryWords.length} | נמצאו ${primaries.length + foundCount} | דילוג ${skip}`, percent);
+          });
+          primaries.push(...foundForPrimary);
+        }
+        state.primaryCache = { key: cacheKey, matches: primaries.slice() };
       }
       const total = Math.max(1, primaries.length);
       for (let i = 0; i < primaries.length; i += 1) {
@@ -510,6 +529,7 @@
     els.secondary.value = "";
     state.results = [];
     state.current = 0;
+    state.primaryCache = null;
     renderResults();
     renderEmptyGrid("לא בוצע חיפוש.");
     setStatus("השדות נוקו.", 0);
