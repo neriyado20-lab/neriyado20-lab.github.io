@@ -114,7 +114,7 @@
 
 .search-actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(56px, 1fr));
+  grid-template-columns: repeat(4, minmax(56px, 1fr));
   gap: 6px;
 }
 
