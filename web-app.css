@@ -1,82 +1,126 @@
 .web-app-page {
   min-height: 100vh;
+  background:
+    linear-gradient(90deg, rgba(10, 92, 73, 0.045) 1px, transparent 1px),
+    linear-gradient(rgba(10, 92, 73, 0.035) 1px, transparent 1px),
+    #f5ead4;
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.app-topbar {
+  padding-block: 8px;
 }
 
 .web-shell {
-  width: min(1800px, 100%);
+  width: min(1920px, 100%);
   margin: 0 auto;
-  padding: 14px clamp(10px, 2vw, 24px) 22px;
+  padding: 8px clamp(6px, 1.5vw, 16px) 12px;
 }
 
-.web-toolbar {
+.desktop-like {
+  min-height: calc(100vh - 58px);
   display: grid;
-  grid-template-columns: minmax(180px, 260px) 1fr;
-  gap: 12px;
-  align-items: end;
-  padding: 10px;
-  border: 1px solid rgba(13, 109, 86, 0.22);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 14px 32px rgba(23, 33, 29, 0.08);
+  grid-template-rows: auto auto 1fr;
+  gap: 8px;
 }
 
-.web-title h1 {
-  margin: 0;
-  font-size: 32px;
-  line-height: 1;
+.app-command-bar {
+  display: grid;
+  grid-template-columns: auto minmax(170px, 1fr) auto minmax(280px, 460px);
+  gap: 8px;
+  align-items: center;
+  min-height: 34px;
+  padding: 4px 8px;
+  border: 1px solid #c9b981;
+  border-radius: 6px;
+  background: #fff4c8;
+  color: #4b340e;
+  font-weight: 800;
 }
 
-.web-title .eyebrow {
-  margin: 0 0 6px;
+.app-version {
+  color: #7c3b14;
+}
+
+.app-current-skip {
+  text-align: center;
+  color: #0a5c49;
+}
+
+.app-blessing {
+  white-space: nowrap;
+}
+
+.compact-status {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 8px;
+  align-items: center;
+  min-height: 24px;
+  color: #0a5c49;
   font-size: 13px;
+}
+
+.compact-status progress {
+  width: 100%;
+  height: 10px;
+  accent-color: #0a8f6f;
+}
+
+.search-dock {
+  border: 1px solid #b8c7bd;
+  border-radius: 6px;
+  background: rgba(255, 253, 246, 0.95);
+  box-shadow: 0 8px 24px rgba(44, 31, 12, 0.08);
+  padding: 7px;
 }
 
 .search-panel {
   display: grid;
-  grid-template-columns: minmax(170px, 1.1fr) minmax(230px, 1.6fr) 88px 88px 96px auto;
-  gap: 8px;
+  grid-template-columns: minmax(160px, 1fr) minmax(260px, 1.45fr) 82px 82px 96px minmax(190px, auto);
+  gap: 7px;
   align-items: end;
 }
 
 .search-panel label {
   display: grid;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
 }
 
 .search-panel label span {
-  color: var(--muted);
+  color: #425b50;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .search-panel input,
 .search-panel textarea {
   width: 100%;
-  min-height: 36px;
-  padding: 6px 8px;
-  border: 1px solid #becbc3;
-  border-radius: 5px;
+  min-height: 34px;
+  padding: 5px 7px;
+  border: 1px solid #b7c5bd;
+  border-radius: 4px;
   background: #fffef9;
-  color: var(--ink);
+  color: #17211d;
   font: 15px Arial, "Noto Sans Hebrew", sans-serif;
 }
 
 .search-panel textarea {
   resize: vertical;
-  min-height: 36px;
-  max-height: 90px;
+  min-height: 34px;
+  max-height: 78px;
 }
 
 .search-actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(58px, 1fr));
+  grid-template-columns: repeat(3, minmax(56px, 1fr));
   gap: 6px;
 }
 
 .search-actions .button {
-  min-height: 36px;
-  padding: 6px 10px;
+  min-height: 34px;
+  padding: 5px 9px;
   border-radius: 5px;
   cursor: pointer;
 }
@@ -86,38 +130,20 @@
   opacity: 0.55;
 }
 
-.status-row {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(160px, 340px) 1fr;
-  gap: 10px;
-  align-items: center;
-  min-height: 28px;
-  color: var(--accent-dark);
-  font-weight: 700;
-}
-
-.status-row progress {
-  width: 100%;
-  height: 12px;
-  accent-color: var(--accent);
-}
-
 .workspace {
   display: grid;
-  grid-template-columns: minmax(300px, 410px) minmax(0, 1fr);
-  gap: 12px;
-  margin-top: 12px;
-  min-height: calc(100vh - 205px);
+  grid-template-columns: minmax(310px, 420px) minmax(0, 1fr);
+  gap: 8px;
+  min-height: 0;
 }
 
 .results-panel,
 .torah-panel {
   min-width: 0;
-  border: 1px solid rgba(13, 109, 86, 0.22);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: 0 14px 32px rgba(23, 33, 29, 0.08);
+  border: 1px solid #b8c7bd;
+  border-radius: 6px;
+  background: rgba(255, 253, 246, 0.96);
+  box-shadow: 0 8px 24px rgba(44, 31, 12, 0.08);
 }
 
 .results-panel {
@@ -128,7 +154,7 @@
 
 .torah-panel {
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto minmax(0, 1fr);
   overflow: hidden;
 }
 
@@ -137,33 +163,37 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  min-height: 40px;
-  padding: 8px 10px;
-  border-bottom: 1px solid #dbe4dd;
-  background: linear-gradient(90deg, #f3faf5, #fff5dc);
+  min-height: 36px;
+  padding: 6px 9px;
+  border-bottom: 1px solid #d8d0b6;
+  background: #fff1bd;
+}
+
+.torah-head {
+  background: linear-gradient(90deg, #fff1bd, #ddf3ea);
 }
 
 .panel-head h2 {
   margin: 0;
-  font-size: 17px;
+  font-size: 16px;
 }
 
 #resultCount {
   display: inline-grid;
   place-items: center;
-  min-width: 32px;
-  height: 26px;
+  min-width: 30px;
+  height: 24px;
   padding: 0 8px;
   border-radius: 999px;
-  background: var(--accent);
+  background: #0a8f6f;
   color: white;
   font-weight: 800;
 }
 
 .result-summary {
-  padding: 7px 10px;
-  border-bottom: 1px solid #e3ebe6;
-  color: var(--muted);
+  padding: 6px 9px;
+  border-bottom: 1px solid #e6dfc7;
+  color: #52645c;
   font-size: 13px;
 }
 
@@ -180,8 +210,8 @@
 
 .result-table th,
 .result-table td {
-  padding: 6px 7px;
-  border-bottom: 1px solid #edf2ef;
+  padding: 5px 6px;
+  border-bottom: 1px solid #ede7d3;
   text-align: right;
 }
 
@@ -189,8 +219,8 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  background: #f9fbf7;
-  color: var(--accent-dark);
+  background: #fff8dd;
+  color: #084838;
 }
 
 .result-table tr {
@@ -209,11 +239,11 @@
 
 .display-controls button {
   min-width: 34px;
-  height: 30px;
-  border: 1px solid #bdd1c7;
-  border-radius: 5px;
+  height: 29px;
+  border: 1px solid #aabeb4;
+  border-radius: 4px;
   background: #ffffff;
-  color: var(--accent-dark);
+  color: #084838;
   font-weight: 800;
   cursor: pointer;
 }
@@ -222,9 +252,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  min-height: 34px;
-  padding: 6px 10px;
-  border-bottom: 1px solid #e3ebe6;
+  min-height: 32px;
+  padding: 5px 9px;
+  border-bottom: 1px solid #e6dfc7;
   background: #fffdf6;
 }
 
@@ -233,8 +263,8 @@
   align-items: center;
   gap: 5px;
   padding: 3px 8px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 4px;
   background: #ffffff;
   font-weight: 700;
   font-size: 13px;
@@ -242,9 +272,9 @@
 
 .torah-grid {
   overflow: auto;
-  padding: 10px;
+  padding: 8px;
   direction: ltr;
-  background: #fbf1dc;
+  background: #f7ecd6;
 }
 
 .grid-inner {
@@ -259,55 +289,54 @@
   place-items: center;
   width: var(--cell-size, 22px);
   height: var(--cell-size, 22px);
-  border: 1px solid rgba(0, 0, 0, 0.07);
-  background: rgba(255, 255, 255, 0.42);
-  color: #0f2b5c;
-  font: 700 var(--letter-size, 16px) Arial, "Noto Sans Hebrew", sans-serif;
+  border-radius: 2px;
+  color: #002f7c;
+  font-family: Arial, "Noto Sans Hebrew", sans-serif;
+  font-size: calc(var(--cell-size, 22px) * 0.82);
+  font-weight: 800;
   line-height: 1;
 }
 
-.letter-cell.mark-primary {
-  background: #ff4d3d;
-  color: #111;
-  border-color: #b21f18;
+.letter-cell.primary {
+  background: #ff3c2f;
+  color: #101010;
+  outline: 1px solid rgba(0, 0, 0, 0.35);
 }
 
-.letter-cell.mark-secondary {
-  background: var(--mark-color, #49d06d);
+.letter-cell.secondary {
+  background: var(--mark-color, #ffe15c);
   color: #111;
-  border-color: rgba(0, 0, 0, 0.35);
+  outline: 1px solid rgba(0, 0, 0, 0.18);
 }
 
 .letter-cell.center {
-  outline: 3px solid #111;
-  outline-offset: -2px;
+  box-shadow: 0 0 0 2px #111 inset;
+}
+
+.letter-cell.empty {
+  background: rgba(120, 108, 86, 0.08);
 }
 
 @media (max-width: 980px) {
-  .web-toolbar,
+  .app-command-bar,
+  .search-panel,
   .workspace {
     grid-template-columns: 1fr;
   }
 
-  .search-panel {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .search-actions {
-    grid-column: 1 / -1;
+  .compact-status {
+    grid-template-columns: 1fr;
   }
 
   .workspace {
     min-height: auto;
   }
-}
 
-@media (max-width: 640px) {
-  .search-panel {
-    grid-template-columns: 1fr;
+  .results-panel {
+    min-height: 260px;
   }
 
-  .status-row {
-    grid-template-columns: 1fr;
+  .torah-panel {
+    min-height: 62vh;
   }
 }
