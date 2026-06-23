@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>גל עיני Web - חיפוש צפנים בדפדפן</title>
+  <title>גל עיני Web - חיפוש צפנים בתורה</title>
   <meta name="description" content="גרסת Web ראשונה של גל עיני: חיפוש ראשית ומשניות בדילוגים בתורה ישירות בדפדפן.">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="web-app.css">
 </head>
 <body class="web-app-page">
-  <header class="topbar">
+  <header class="topbar app-topbar">
     <div class="brand">
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
-        <strong>גל עיני</strong>
-        <span>גרסת Web ראשונה</span>
+        <strong>גל עיני Web</strong>
+        <span>W003 | דמוי תוכנת ההורדה</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -24,19 +24,24 @@
     </nav>
   </header>
 
-  <main class="web-shell" data-app-version="W001">
-    <section class="web-toolbar" aria-label="חיפוש">
-      <div class="web-title">
-        <p class="eyebrow">W001 | פועל בדפדפן ללא התקנה</p>
-        <h1>גל עיני Web</h1>
+  <main class="web-shell desktop-like" data-app-version="W003">
+    <section class="app-command-bar" aria-label="סרגל מצב">
+      <div class="app-version">גל עיני Web W003</div>
+      <div class="app-current-skip">טבלה בדילוג</div>
+      <div class="app-blessing">בסיעתא דשמיא</div>
+      <div class="status-row compact-status" aria-live="polite">
+        <progress id="searchProgress" max="100" value="0"></progress>
+        <span id="statusText">טוען את טקסט התורה...</span>
       </div>
+    </section>
 
+    <section class="search-dock" aria-label="חיפוש">
       <form id="searchForm" class="search-panel">
-        <label>
+        <label class="primary-field">
           <span>ראשית</span>
           <input id="primaryInput" name="primary" autocomplete="off" placeholder="לדוגמה: משיח">
         </label>
-        <label>
+        <label class="secondary-field">
           <span>משניות</span>
           <textarea id="secondaryInput" name="secondary" rows="2" placeholder="לדוגמה: ישראל גאולה !תורה"></textarea>
         </label>
@@ -58,11 +63,6 @@
           <button id="clearButton" class="button secondary" type="button">נקה</button>
         </div>
       </form>
-
-      <div class="status-row" aria-live="polite">
-        <progress id="searchProgress" max="100" value="0"></progress>
-        <span id="statusText">טוען את טקסט התורה...</span>
-      </div>
     </section>
 
     <section class="workspace">
@@ -81,7 +81,7 @@
       </aside>
 
       <section class="torah-panel" aria-label="תצוגת התורה">
-        <div class="panel-head">
+        <div class="panel-head torah-head">
           <h2 id="displayTitle">תצוגת התורה</h2>
           <div class="display-controls">
             <button id="prevResultButton" type="button" title="ממצא קודם">‹</button>
