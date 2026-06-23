@@ -3,75 +3,103 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>גל עיני Web - בפיתוח</title>
-  <meta name="description" content="תכנון גרסת Web רצינית של גל עיני, כדי לאפשר בעתיד שימוש מכל מערכת הפעלה.">
+  <title>גל עיני Web - חיפוש צפנים בדפדפן</title>
+  <meta name="description" content="גרסת Web ראשונה של גל עיני: חיפוש ראשית ומשניות בדילוגים בתורה ישירות בדפדפן.">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="web-app.css">
 </head>
-<body>
+<body class="web-app-page">
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני</strong>
-        <span>גרסת Web בפיתוח</span>
+        <span>גרסת Web ראשונה</span>
       </div>
     </div>
     <nav aria-label="ניווט">
       <a href="index.html">ראשי</a>
-      <a href="index.html#download">הורדת Windows</a>
       <a href="examples.html">צפנים לדוגמה</a>
-      <a href="web.html">פיתוח Web</a>
+      <a href="index.html#download">הורדת Windows</a>
     </nav>
   </header>
 
-  <main>
-    <section class="page-hero">
-      <p class="eyebrow">פיתוח עתידי רציני</p>
-      <h1>גל עיני Web</h1>
-      <p class="lead">
-        גרסת הדפדפן תיבנה כפרויקט מסודר ולא כקיצור דרך: מנוע חיפוש מדויק,
-        טקסט תורה מאומת, תצוגת ממצאים יציבה, טבלאות, שמירה ופתיחת צפנים.
-        עד להשלמתה, הגרסה המומלצת להפצה היא תוכנת Windows.
-      </p>
-      <div class="hero-actions">
-        <a class="button primary" href="index.html#download">הורד את גרסת Windows</a>
-        <a class="button secondary" href="examples.html">ראה צפנים לדוגמה</a>
+  <main class="web-shell" data-app-version="W001">
+    <section class="web-toolbar" aria-label="חיפוש">
+      <div class="web-title">
+        <p class="eyebrow">W001 | פועל בדפדפן ללא התקנה</p>
+        <h1>גל עיני Web</h1>
       </div>
-    </section>
 
-    <section class="content-grid roadmap-grid">
-      <article>
-        <h2>בסיס חיפוש</h2>
-        <p>בניית מנוע חיפוש לדפדפן עם בדיקות מול תוצאות התוכנה הקיימת, כדי למנוע סטיות בין Windows לבין Web.</p>
-      </article>
-      <article>
-        <h2>תצוגת תורה</h2>
-        <p>תצוגה יציבה סביב הראשית, טבלת ממצאים, מעבר בלחיצה, צבעים וקווים, בלי שממצאים יקפצו או ייעלמו.</p>
-      </article>
-      <article>
-        <h2>שמירה ושיתוף</h2>
-        <p>פתיחת קבצי צופן, שמירה, הדפסה, קישורים לצפנים לדוגמה, ובהמשך אפשרות שיתוף מסודרת.</p>
-      </article>
-    </section>
-
-    <section class="band">
-      <div class="section-head">
-        <h2>מצב נוכחי</h2>
-        <p>האתר משמש כרגע להפצה מכובדת של התוכנה, להצגת דוגמאות, ולהכנת תשתית לגרסת Web עתידית. אין כאן התחייבות לגרסת דפדפן מלאה עד שהיא תיבדק כראוי.</p>
-      </div>
-      <div class="download-box">
-        <div>
-          <strong>התוכנה המלאה זמינה ל-Windows</strong>
-          <span>קובץ ZIP להורדה, עם טקסט תורה מובנה ודוגמאות באתר.</span>
+      <form id="searchForm" class="search-panel">
+        <label>
+          <span>ראשית</span>
+          <input id="primaryInput" name="primary" autocomplete="off" placeholder="לדוגמה: משיח">
+        </label>
+        <label>
+          <span>משניות</span>
+          <textarea id="secondaryInput" name="secondary" rows="2" placeholder="לדוגמה: ישראל גאולה !תורה"></textarea>
+        </label>
+        <label>
+          <span>דילוג מ־</span>
+          <input id="skipFromInput" name="skipFrom" type="number" value="1" min="1" max="5000">
+        </label>
+        <label>
+          <span>עד</span>
+          <input id="skipToInput" name="skipTo" type="number" value="400" min="1" max="5000">
+        </label>
+        <label>
+          <span>מינ' משניות</span>
+          <input id="minSecondaryInput" name="minSecondary" type="number" value="1" min="0" max="20">
+        </label>
+        <div class="search-actions">
+          <button id="searchButton" class="button primary" type="submit">חפש</button>
+          <button id="stopButton" class="button secondary" type="button" disabled>עצור</button>
+          <button id="clearButton" class="button secondary" type="button">נקה</button>
         </div>
-        <a class="button primary" href="https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v236/gal_einai_V236_no_AI.zip">הורד עכשיו</a>
+      </form>
+
+      <div class="status-row" aria-live="polite">
+        <progress id="searchProgress" max="100" value="0"></progress>
+        <span id="statusText">טוען את טקסט התורה...</span>
       </div>
+    </section>
+
+    <section class="workspace">
+      <aside class="results-panel" aria-label="טבלת ממצאים">
+        <div class="panel-head">
+          <h2>טבלת ממצאים</h2>
+          <span id="resultCount">0</span>
+        </div>
+        <div id="resultSummary" class="result-summary">לא בוצע חיפוש.</div>
+        <div class="result-table-wrap">
+          <table class="result-table">
+            <thead id="resultsHead"></thead>
+            <tbody id="resultsBody"></tbody>
+          </table>
+        </div>
+      </aside>
+
+      <section class="torah-panel" aria-label="תצוגת התורה">
+        <div class="panel-head">
+          <h2 id="displayTitle">תצוגת התורה</h2>
+          <div class="display-controls">
+            <button id="prevResultButton" type="button" title="ממצא קודם">‹</button>
+            <button id="nextResultButton" type="button" title="ממצא הבא">›</button>
+            <button id="zoomOutButton" type="button" title="הקטן אותיות">A−</button>
+            <button id="zoomInButton" type="button" title="הגדל אותיות">A+</button>
+          </div>
+        </div>
+        <div id="topWords" class="top-words"></div>
+        <div id="torahGrid" class="torah-grid" tabindex="0" aria-label="אותיות התורה סביב הממצא"></div>
+      </section>
     </section>
   </main>
 
-  <footer>
-    <span>גל עיני - פיתוח Web בשלבים רציניים</span>
-    <span><a href="index.html">חזרה לעמוד הראשי</a></span>
-  </footer>
+  <template id="emptyResultsTemplate">
+    <tr><td colspan="5">אין ממצאים להצגה.</td></tr>
+  </template>
+
+  <script src="web-app.js"></script>
 </body>
 </html>
