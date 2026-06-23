@@ -14,19 +14,21 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W009 | סריקת משניות מהזיכרון</span>
+          <span>W010 | שמירה ושחזור עבודה</span>
       </div>
     </div>
     <nav aria-label="ניווט">
       <a href="index.html">ראשי</a>
       <a href="examples.html">צפנים לדוגמה</a>
       <a href="index.html#download">הורדת Windows</a>
+      <a id="editionSwitch" href="web.html?edition=free">עבור לחינמית</a>
     </nav>
   </header>
 
-  <main class="web-shell desktop-like" data-app-version="W009">
+  <main class="web-shell desktop-like" data-app-version="W010">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W009</div>
+      <div class="app-version">גל עיני Web W010</div>
+      <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
       <div class="status-row compact-status" aria-live="polite">
@@ -59,11 +61,12 @@
         </label>
         <div class="search-actions">
           <button id="searchButton" class="button primary" type="submit">חפש</button>
-          <button id="secondaryScanButton" class="button secondary scan-secondary" type="button" title="סרוק את המשניות הנוכחיות בכל הראשיות שכבר נמצאו, ללא חיפוש ראשיות חוזר">סרוק משניות</button>
+          <button id="secondaryScanButton" class="button secondary scan-secondary pro-only" type="button" title="סרוק את המשניות הנוכחיות בכל הראשיות שכבר נמצאו, ללא חיפוש ראשיות חוזר">סרוק משניות</button>
           <button id="stopButton" class="button secondary" type="button" disabled>עצור</button>
           <button id="clearButton" class="button secondary" type="button">נקה</button>
           <button id="openProjectButton" class="button secondary" type="button">פתח צופן</button>
-          <button id="printButton" class="button secondary" type="button">הדפס</button>
+          <button id="saveProjectButton" class="button secondary save-project pro-only" type="button" title="שמור את השדות ואת כל הממצאים לקובץ צופן">שמור צופן</button>
+          <button id="printButton" class="button secondary pro-only" type="button">הדפס</button>
           <input id="projectFileInput" type="file" accept=".json,.gal_einai.json,application/json" hidden>
         </div>
       </form>
