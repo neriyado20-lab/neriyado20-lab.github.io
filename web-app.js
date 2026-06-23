@@ -6,6 +6,8 @@
   const DEFAULT_ROWS = 27;
   const DEFAULT_EXTRA_COLS = 10;
   const DRAFT_KEY = "gal-einai-web-draft-v1";
+  const LIBRARY_KEY = "gal-einai-web-library-v1";
+  const LIBRARY_LIMIT = 20;
   const pageParams = new URLSearchParams(window.location.search);
   const edition = pageParams.get("edition") === "free" ? "free" : "pro";
   const COLORS = ["#3ddc84", "#42d7f5", "#ffe15c", "#f78acb", "#b9f35d", "#ffb347", "#9db4ff"];
@@ -35,6 +37,7 @@
     clear: $("clearButton"),
     openProject: $("openProjectButton"),
     saveProject: $("saveProjectButton"),
+    library: $("libraryButton"),
     print: $("printButton"),
     projectFile: $("projectFileInput"),
     progress: $("searchProgress"),
@@ -52,6 +55,12 @@
     zoomOut: $("zoomOutButton"),
     editionBadge: $("editionBadge"),
     editionSwitch: $("editionSwitch"),
+    libraryDialog: $("libraryDialog"),
+    libraryClose: $("closeLibraryButton"),
+    libraryForm: $("librarySaveForm"),
+    libraryName: $("libraryNameInput"),
+    libraryList: $("libraryList"),
+    libraryCount: $("libraryCount"),
   };
 
   function applyEdition() {
@@ -124,7 +133,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W010",
+      version: "W011",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -170,23 +179,143 @@
     return name || "צופן";
   }
 
+  function downloadProject(data, name = data.primary) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${safeFileName(name)}.gal_einai.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
   function saveProjectFile() {
     if (!state.results.length) {
       setStatus("אין ממצאים לשמירה. יש לבצע חיפוש או לפתוח צופן.", 0);
       return;
     }
     const data = projectData();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${safeFileName(data.primary)}.gal_einai.json`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
+    downloadProject(data);
     saveDraft();
     setStatus(`הצופן נשמר | ממצאים ${state.results.length}`, 100);
+  }
+
+  function readLibrary() {
+    try {
+      const items = JSON.parse(localStorage.getItem(LIBRARY_KEY) || "[]");
+      return Array.isArray(items) ? items.filter((item) => item && item.id && item.data).slice(0, LIBRARY_LIMIT) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function writeLibrary(items) {
+    localStorage.setItem(LIBRARY_KEY, JSON.stringify(items.slice(0, LIBRARY_LIMIT)));
+  }
+
+  function formatSavedDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return new Intl.DateTimeFormat("he-IL", {
+      dateStyle: "short",
+      timeStyle: "short",
+    }).format(date);
+  }
+
+  function renderLibrary() {
+    const items = readLibrary();
+    els.libraryCount.textContent = `${items.length} מתוך ${LIBRARY_LIMIT} צפנים`;
+    els.libraryList.replaceChildren();
+    if (!items.length) {
+      const empty = document.createElement("div");
+      empty.className = "library-empty";
+      empty.textContent = "עדיין לא נשמרו צפנים בספרייה.";
+      els.libraryList.appendChild(empty);
+      return;
+    }
+    items.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "library-item";
+      const info = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = item.name;
+      const meta = document.createElement("span");
+      const resultCount = Array.isArray(item.data.saved) ? item.data.saved.length : 0;
+      meta.textContent = `${formatSavedDate(item.savedAt)} | ${resultCount} ממצאים`;
+      info.append(title, meta);
+
+      const actions = document.createElement("div");
+      actions.className = "library-actions";
+      const openButton = document.createElement("button");
+      openButton.type = "button";
+      openButton.textContent = "פתח";
+      openButton.addEventListener("click", () => {
+        loadProjectData(item.data, `הספרייה: ${item.name}`);
+        els.libraryDialog.close();
+      });
+      const downloadButton = document.createElement("button");
+      downloadButton.type = "button";
+      downloadButton.textContent = "הורד";
+      downloadButton.addEventListener("click", () => downloadProject(item.data, item.name));
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "delete-library-item";
+      deleteButton.textContent = "מחק";
+      deleteButton.addEventListener("click", () => {
+        if (!window.confirm(`למחוק את הצופן "${item.name}" מהספרייה?`)) return;
+        writeLibrary(readLibrary().filter((saved) => saved.id !== item.id));
+        renderLibrary();
+        setStatus(`הצופן "${item.name}" נמחק מהספרייה`, 0);
+      });
+      actions.append(openButton, downloadButton, deleteButton);
+      row.append(info, actions);
+      els.libraryList.appendChild(row);
+    });
+  }
+
+  function openLibrary() {
+    if (edition !== "pro") return;
+    els.libraryName.value = els.primary.value.trim() || "צופן חדש";
+    renderLibrary();
+    els.libraryDialog.showModal();
+    els.libraryName.focus();
+    els.libraryName.select();
+  }
+
+  function saveToLibrary(event) {
+    event.preventDefault();
+    if (!state.results.length) {
+      setStatus("אין ממצאים לשמירה בספרייה.", 0);
+      els.libraryDialog.close();
+      return;
+    }
+    const name = els.libraryName.value.trim() || els.primary.value.trim() || "צופן";
+    const items = readLibrary();
+    const normalizedName = name.toLocaleLowerCase("he-IL");
+    const existingIndex = items.findIndex((item) => item.name.toLocaleLowerCase("he-IL") === normalizedName);
+    const savedItem = {
+      id: existingIndex >= 0 ? items[existingIndex].id : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name,
+      savedAt: new Date().toISOString(),
+      data: projectData(),
+    };
+    if (existingIndex >= 0) {
+      items.splice(existingIndex, 1);
+    } else if (items.length >= LIBRARY_LIMIT) {
+      setStatus(`הספרייה מלאה. ניתן לשמור עד ${LIBRARY_LIMIT} צפנים.`, 0);
+      return;
+    }
+    items.unshift(savedItem);
+    try {
+      writeLibrary(items);
+      saveDraft();
+      renderLibrary();
+      setStatus(`הצופן "${name}" נשמר בספרייה`, 100);
+    } catch {
+      setStatus("אין די מקום בדפדפן לשמירת הצופן. אפשר להוריד אותו כקובץ.", 0);
+    }
   }
 
   async function loadTorah() {
@@ -672,6 +801,12 @@
     els.projectFile.click();
   });
   els.saveProject.addEventListener("click", saveProjectFile);
+  els.library.addEventListener("click", openLibrary);
+  els.libraryClose.addEventListener("click", () => els.libraryDialog.close());
+  els.libraryForm.addEventListener("submit", saveToLibrary);
+  els.libraryDialog.addEventListener("click", (event) => {
+    if (event.target === els.libraryDialog) els.libraryDialog.close();
+  });
   els.projectFile.addEventListener("change", async () => {
     const file = els.projectFile.files && els.projectFile.files[0];
     if (!file) return;
