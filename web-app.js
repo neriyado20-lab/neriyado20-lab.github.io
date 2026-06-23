@@ -29,6 +29,7 @@
     stop: $("stopButton"),
     clear: $("clearButton"),
     openProject: $("openProjectButton"),
+    print: $("printButton"),
     projectFile: $("projectFileInput"),
     progress: $("searchProgress"),
     status: $("statusText"),
@@ -521,6 +522,16 @@
     renderCurrent();
   }
 
+  function printCurrent() {
+    if (!state.results.length) {
+      setStatus("אין צופן להצגה בהדפסה", 0);
+      return;
+    }
+    renderCurrent();
+    setStatus("פותח תצוגת הדפסה...", els.progress.value);
+    window.print();
+  }
+
   els.form.addEventListener("submit", search);
   els.stop.addEventListener("click", () => {
     state.stop = true;
@@ -542,6 +553,7 @@
       els.projectFile.value = "";
     }
   });
+  els.print.addEventListener("click", printCurrent);
   els.prev.addEventListener("click", () => moveResult(-1));
   els.next.addEventListener("click", () => moveResult(1));
   els.zoomIn.addEventListener("click", () => {
