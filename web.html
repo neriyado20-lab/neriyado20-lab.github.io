@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W016 | ייצוא דוחות מקצועי</span>
+          <span>W017 | תצוגת תורה ופעולות צבע</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -25,9 +25,9 @@
     </nav>
   </header>
 
-  <main class="web-shell desktop-like" data-app-version="W016">
+  <main class="web-shell desktop-like" data-app-version="W017">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W016</div>
+      <div class="app-version">גל עיני Web W017</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -96,15 +96,22 @@
       <section class="torah-panel" aria-label="תצוגת התורה">
         <div class="panel-head torah-head">
           <h2 id="displayTitle">תצוגת התורה</h2>
-          <div class="display-controls">
-            <button id="prevResultButton" type="button" title="ממצא קודם">‹</button>
-            <button id="nextResultButton" type="button" title="ממצא הבא">›</button>
-            <button id="zoomOutButton" type="button" title="הקטן אותיות">A−</button>
-            <button id="zoomInButton" type="button" title="הגדל אותיות">A+</button>
-          </div>
         </div>
         <div id="topWords" class="top-words"></div>
         <div id="torahGrid" class="torah-grid" tabindex="0" aria-label="אותיות התורה סביב הממצא"></div>
+        <div class="display-controls" aria-label="כלי ניווט בתצוגה">
+          <button id="prevResultButton" type="button" title="ממצא קודם" aria-label="ממצא קודם">◀</button>
+          <button id="nextResultButton" type="button" title="ממצא הבא" aria-label="ממצא הבא">▶</button>
+          <span class="control-separator" aria-hidden="true"></span>
+          <button id="scrollRightButton" type="button" title="הזז את התורה ימינה באות אחת" aria-label="הזז ימינה">→</button>
+          <button id="scrollLeftButton" type="button" title="הזז את התורה שמאלה באות אחת" aria-label="הזז שמאלה">←</button>
+          <button id="scrollUpButton" type="button" title="הזז את התצוגה למעלה בשורה אחת" aria-label="הזז למעלה">↑</button>
+          <button id="scrollDownButton" type="button" title="הזז את התצוגה למטה בשורה אחת" aria-label="הזז למטה">↓</button>
+          <span class="control-separator" aria-hidden="true"></span>
+          <button id="zoomOutButton" type="button" title="הקטן אותיות" aria-label="הקטן אותיות">A−</button>
+          <button id="zoomInButton" type="button" title="הגדל אותיות" aria-label="הגדל אותיות">A+</button>
+        </div>
+        <svg id="connectionOverlay" class="connection-overlay" aria-hidden="true"></svg>
       </section>
     </section>
   </main>
@@ -175,6 +182,14 @@
       </div>
     </div>
   </dialog>
+
+  <div id="wordMenu" class="word-menu" role="menu" hidden>
+    <button id="changeWordColorButton" type="button" role="menuitem">שנה צבע בכל הצופן</button>
+    <button id="toggleWordLineButton" type="button" role="menuitem">הצג קו למילה</button>
+    <button id="removeWordButton" type="button" role="menuitem">הסר מהממצא הנוכחי</button>
+    <button id="removeAllWordButton" type="button" role="menuitem">הסר מכל תוצאות החיפוש</button>
+    <input id="wordColorInput" type="color" hidden>
+  </div>
 
   <script src="web-app.js"></script>
 </body>
