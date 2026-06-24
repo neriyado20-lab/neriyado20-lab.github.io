@@ -102,6 +102,10 @@
     removeWord: $("removeWordButton"),
     removeAllWord: $("removeAllWordButton"),
     wordColor: $("wordColorInput"),
+    help: $("helpButton"),
+    helpDialog: $("helpDialog"),
+    helpClose: $("closeHelpButton"),
+    helpEdition: $("helpEditionText"),
   };
 
   function applyEdition() {
@@ -121,6 +125,9 @@
     } else {
       els.editionLimitNote.textContent = `המקצועית: עד ${PRO_MAX_PRIMARIES} ראשיות, ${PRO_MAX_SECONDARIES} משניות, דילוג ${PRO_MAX_SKIP} ו-${PRO_MAX_RESULTS} צפנים בחיפוש. הבטא פתוחה ללא חיוב.`;
     }
+    els.helpEdition.textContent = edition === "free"
+      ? "הוראות למהדורה החינמית"
+      : "הוראות למהדורה המקצועית";
   }
 
   function normalizeWord(value) {
@@ -185,7 +192,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W017",
+      version: "W018",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -397,7 +404,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W017",
+      version: "W018",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1466,6 +1473,11 @@
     const key = state.activeWordKey;
     hideWordMenu();
     if (key) removeWordFromAllResults(key);
+  });
+  els.help.addEventListener("click", () => els.helpDialog.showModal());
+  els.helpClose.addEventListener("click", () => els.helpDialog.close());
+  els.helpDialog.addEventListener("click", (event) => {
+    if (event.target === els.helpDialog) els.helpDialog.close();
   });
   document.addEventListener("pointerdown", (event) => {
     if (!els.wordMenu.hidden && !els.wordMenu.contains(event.target)) hideWordMenu();
