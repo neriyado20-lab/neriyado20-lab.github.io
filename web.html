@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W015 | חיפושים אחרונים</span>
+          <span>W016 | ייצוא דוחות מקצועי</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -25,9 +25,9 @@
     </nav>
   </header>
 
-  <main class="web-shell desktop-like" data-app-version="W015">
+  <main class="web-shell desktop-like" data-app-version="W016">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W015</div>
+      <div class="app-version">גל עיני Web W016</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -79,7 +79,10 @@
       <aside class="results-panel" aria-label="טבלת ממצאים">
         <div class="panel-head">
           <h2>טבלת ממצאים</h2>
-          <span id="resultCount">0</span>
+          <div class="panel-head-actions">
+            <button id="exportButton" class="table-tool-button pro-only" type="button" title="ייצוא טבלת הממצאים וסיכום החיפוש">ייצוא</button>
+            <span id="resultCount">0</span>
+          </div>
         </div>
         <div id="resultSummary" class="result-summary">לא בוצע חיפוש.</div>
         <div class="result-table-wrap">
@@ -151,6 +154,26 @@
       <button id="clearHistoryButton" class="button secondary" type="button">נקה היסטוריה</button>
     </div>
     <div id="historyList" class="library-list history-list" aria-live="polite"></div>
+  </dialog>
+
+  <dialog id="exportDialog" class="library-dialog export-dialog pro-only" aria-labelledby="exportTitle">
+    <div class="library-head">
+      <div>
+        <h2 id="exportTitle">ייצוא דוח ממצאים</h2>
+        <span id="exportCount">0 ממצאים</span>
+      </div>
+      <button id="closeExportButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
+    </div>
+    <div class="export-content">
+      <label>
+        <span>סיכום להעתקה</span>
+        <textarea id="exportSummaryText" readonly rows="12"></textarea>
+      </label>
+      <div class="export-actions">
+        <button id="copySummaryButton" class="button secondary" type="button">העתק סיכום</button>
+        <button id="downloadCsvButton" class="button primary" type="button">הורד CSV ל־Excel</button>
+      </div>
+    </div>
   </dialog>
 
   <script src="web-app.js"></script>
