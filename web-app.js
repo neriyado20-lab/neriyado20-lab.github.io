@@ -4,7 +4,7 @@
   const TARGET_COUNT = 304805;
   const FREE_MAX_RESULTS = 30;
   const PRO_MAX_RESULTS = 250;
-  const DEFAULT_ROWS = 27;
+  const DEFAULT_ROWS = 45;
   const DEFAULT_EXTRA_COLS = 10;
   const DRAFT_KEY = "gal-einai-web-draft-v1";
   const LIBRARY_KEY = "gal-einai-web-library-v1";
@@ -30,6 +30,9 @@
     searching: false,
     zoom: 22,
     primaryCache: null,
+    lineKeys: new Set(),
+    activeWordKey: null,
+    draggedWordKey: null,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -64,6 +67,10 @@
     next: $("nextResultButton"),
     zoomIn: $("zoomInButton"),
     zoomOut: $("zoomOutButton"),
+    scrollRight: $("scrollRightButton"),
+    scrollLeft: $("scrollLeftButton"),
+    scrollUp: $("scrollUpButton"),
+    scrollDown: $("scrollDownButton"),
     editionBadge: $("editionBadge"),
     editionSwitch: $("editionSwitch"),
     editionLimitNote: $("editionLimitNote"),
@@ -88,6 +95,13 @@
     exportSummary: $("exportSummaryText"),
     copySummary: $("copySummaryButton"),
     downloadCsv: $("downloadCsvButton"),
+    connectionOverlay: $("connectionOverlay"),
+    wordMenu: $("wordMenu"),
+    changeWordColor: $("changeWordColorButton"),
+    toggleWordLine: $("toggleWordLineButton"),
+    removeWord: $("removeWordButton"),
+    removeAllWord: $("removeAllWordButton"),
+    wordColor: $("wordColorInput"),
   };
 
   function applyEdition() {
@@ -171,7 +185,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W016",
+      version: "W017",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -383,7 +397,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W016",
+      version: "W017",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -728,7 +742,7 @@
 
   function positionsForPrimary(primary) {
     const skipAbs = Math.max(1, Math.abs(primary.skip || 1));
-    const cols = Math.min(180, Math.max(24, skipAbs + DEFAULT_EXTRA_COLS));
+    const cols = Math.min(180, Math.max(80, skipAbs + DEFAULT_EXTRA_COLS));
     const rows = DEFAULT_ROWS;
     const centerCol = Math.floor(cols / 2);
     const centerRow = Math.floor(rows / 2);
@@ -1060,20 +1074,148 @@
     renderGrid(current);
   }
 
+  function matchKey(match) {
+    return `${match.word}|${Math.abs(match.skip || 1)}`;
+  }
+
+  function readableTextColor(color) {
+    const hex = String(color || "").replace("#", "");
+    if (!/^[0-9a-f]{6}$/i.test(hex)) return "#111111";
+    const r = Number.parseInt(hex.slice(0, 2), 16);
+    const g = Number.parseInt(hex.slice(2, 4), 16);
+    const b = Number.parseInt(hex.slice(4, 6), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 > 150 ? "#111111" : "#ffffff";
+  }
+
+  function colorForKey(result, key) {
+    const match = result.matches.find((item) => matchKey(item) === key);
+    if (!match) return "#ffe15c";
+    return match.kind === "primary" ? "#ff3c2f" : (match.color || stableColor(match.word));
+  }
+
+  function setWordColor(key, color) {
+    state.results.forEach((result) => {
+      result.matches.forEach((match) => {
+        if (matchKey(match) === key && match.kind !== "primary") match.color = color;
+      });
+    });
+    renderResults();
+    renderCurrent();
+    saveDraft();
+  }
+
+  function removeWordFromCurrent(key) {
+    const current = state.results[state.current];
+    if (!current) return;
+    const target = current.matches.find((match) => matchKey(match) === key);
+    if (!target || target.kind === "primary") {
+      setStatus("לא ניתן להסיר את הראשית מהצופן.", 0);
+      return;
+    }
+    current.matches = current.matches.filter((match) => matchKey(match) !== key);
+    current.secondaryCount = countSecondaryWords(current.matches);
+    state.lineKeys.delete(key);
+    renderResults();
+    renderCurrent();
+    saveDraft();
+    setStatus(`המילה "${target.word}" הוסרה מהצופן הנוכחי`, 0);
+  }
+
+  function removeWordFromAllResults(key) {
+    const current = state.results[state.current];
+    const target = current?.matches.find((match) => matchKey(match) === key);
+    if (!target || target.kind === "primary") {
+      setStatus("לא ניתן להסיר את הראשית מתוצאות החיפוש.", 0);
+      return;
+    }
+    state.results.forEach((result) => {
+      result.matches = result.matches.filter((match) => matchKey(match) !== key);
+      result.secondaryCount = countSecondaryWords(result.matches);
+    });
+    state.lineKeys.delete(key);
+    renderResults();
+    renderCurrent();
+    saveDraft();
+    setStatus(`המילה "${target.word}" הוסרה מכל תוצאות החיפוש`, 0);
+  }
+
+  function openWordMenu(event, key) {
+    event.preventDefault();
+    state.activeWordKey = key;
+    const current = state.results[state.current];
+    const target = current?.matches.find((match) => matchKey(match) === key);
+    els.toggleWordLine.hidden = edition !== "pro";
+    els.removeWord.hidden = edition !== "pro";
+    els.removeAllWord.hidden = edition !== "pro";
+    els.removeWord.disabled = !target || target.kind === "primary";
+    els.removeAllWord.disabled = !target || target.kind === "primary";
+    els.toggleWordLine.textContent = state.lineKeys.has(key) ? "הסר קו למילה" : "הצג קו למילה";
+    els.wordMenu.hidden = false;
+    const menuWidth = 190;
+    const menuHeight = 170;
+    els.wordMenu.style.left = `${Math.max(6, Math.min(event.clientX, window.innerWidth - menuWidth - 6))}px`;
+    els.wordMenu.style.top = `${Math.max(6, Math.min(event.clientY, window.innerHeight - menuHeight - 6))}px`;
+  }
+
+  function hideWordMenu() {
+    els.wordMenu.hidden = true;
+    state.activeWordKey = null;
+  }
+
   function renderTopWords(result) {
     els.topWords.innerHTML = "";
     const grouped = new Map();
     result.matches.forEach((match) => {
-      const key = `${match.word}|${Math.abs(match.skip || 1)}`;
-      grouped.set(key, { word: match.word, skip: Math.abs(match.skip || 1), count: (grouped.get(key)?.count || 0) + 1, kind: match.kind });
+      const key = matchKey(match);
+      grouped.set(key, {
+        key,
+        word: match.word,
+        skip: Math.abs(match.skip || 1),
+        count: (grouped.get(key)?.count || 0) + 1,
+        kind: match.kind,
+        color: match.kind === "primary" ? "#ff3c2f" : (match.color || stableColor(match.word)),
+      });
     });
     grouped.forEach((item) => {
       const chip = document.createElement("span");
       chip.className = "word-chip";
-      chip.style.borderColor = item.kind === "primary" ? "#ff4d3d" : stableColor(item.word);
+      chip.dataset.wordKey = item.key;
+      chip.style.setProperty("--word-color", item.color);
+      chip.style.setProperty("--word-text", readableTextColor(item.color));
+      chip.style.borderColor = item.color;
       chip.textContent = `${item.word} | ${item.skip}${item.count > 1 ? ` ×${item.count}` : ""}`;
+      chip.title = item.kind === "primary"
+        ? "קליק ימני לפעולות"
+        : "קליק ימני לפעולות; גרור למילה אחרת כדי להעתיק את הצבע";
+      chip.draggable = edition === "pro" && item.kind !== "primary";
+      chip.addEventListener("contextmenu", (event) => openWordMenu(event, item.key));
+      chip.addEventListener("dragstart", (event) => {
+        state.draggedWordKey = item.key;
+        event.dataTransfer.effectAllowed = "copy";
+        event.dataTransfer.setData("text/plain", item.key);
+      });
+      chip.addEventListener("dragover", (event) => {
+        if (!state.draggedWordKey || state.draggedWordKey === item.key) return;
+        event.preventDefault();
+        chip.classList.add("drag-target");
+      });
+      chip.addEventListener("dragleave", () => chip.classList.remove("drag-target"));
+      chip.addEventListener("drop", (event) => {
+        event.preventDefault();
+        chip.classList.remove("drag-target");
+        const sourceKey = state.draggedWordKey || event.dataTransfer.getData("text/plain");
+        if (!sourceKey || sourceKey === item.key || item.kind === "primary") return;
+        const color = colorForKey(result, sourceKey);
+        setWordColor(item.key, color);
+        setStatus(`הצבע הועתק אל "${item.word}"`, 100);
+      });
+      chip.addEventListener("dragend", () => {
+        state.draggedWordKey = null;
+        document.querySelectorAll(".word-chip.drag-target").forEach((itemNode) => itemNode.classList.remove("drag-target"));
+      });
       els.topWords.appendChild(chip);
     });
+    requestAnimationFrame(drawConnections);
   }
 
   function renderGrid(result) {
@@ -1099,6 +1241,7 @@
           if (match) {
             cell.classList.add(match.kind === "primary" ? "mark-primary" : "mark-secondary");
             if (match.kind !== "primary") cell.style.setProperty("--mark-color", match.color || stableColor(match.word));
+            cell.dataset.wordKey = matchKey(match);
             cell.title = `${match.word} | דילוג ${Math.abs(match.skip || 1)} | מיקום ${(match.start + 1).toLocaleString("he-IL")}`;
           }
           if (pos === center) cell.classList.add("center");
@@ -1110,7 +1253,43 @@
     requestAnimationFrame(() => {
       const centerCell = inner.querySelector(".letter-cell.center");
       if (centerCell) centerCell.scrollIntoView({ block: "center", inline: "center" });
+      drawConnections();
     });
+  }
+
+  function drawConnections() {
+    const current = state.results[state.current];
+    els.connectionOverlay.replaceChildren();
+    if (!current || !state.lineKeys.size) return;
+    const panel = els.connectionOverlay.parentElement;
+    const panelRect = panel.getBoundingClientRect();
+    els.connectionOverlay.setAttribute("viewBox", `0 0 ${panelRect.width} ${panelRect.height}`);
+    state.lineKeys.forEach((key) => {
+      const chip = Array.from(els.topWords.querySelectorAll("[data-word-key]"))
+        .find((item) => item.dataset.wordKey === key);
+      const cell = Array.from(els.grid.querySelectorAll("[data-word-key]"))
+        .find((item) => item.dataset.wordKey === key);
+      if (!chip || !cell) return;
+      const chipRect = chip.getBoundingClientRect();
+      const cellRect = cell.getBoundingClientRect();
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", String(chipRect.left + chipRect.width / 2 - panelRect.left));
+      line.setAttribute("y1", String(chipRect.bottom - panelRect.top));
+      line.setAttribute("x2", String(cellRect.left + cellRect.width / 2 - panelRect.left));
+      line.setAttribute("y2", String(cellRect.top + cellRect.height / 2 - panelRect.top));
+      line.setAttribute("stroke", colorForKey(current, key));
+      els.connectionOverlay.appendChild(line);
+    });
+  }
+
+  function scrollDisplay(horizontalCells, verticalRows) {
+    const step = state.zoom + 2;
+    els.grid.scrollBy({
+      left: horizontalCells * step,
+      top: verticalRows * step,
+      behavior: "auto",
+    });
+    requestAnimationFrame(drawConnections);
   }
 
   function renderEmptyGrid(text) {
@@ -1141,6 +1320,7 @@
   function moveResult(delta) {
     if (!state.results.length) return;
     state.current = (state.current + delta + state.results.length) % state.results.length;
+    state.lineKeys.clear();
     renderResults();
     renderCurrent();
   }
@@ -1224,6 +1404,10 @@
   els.print.addEventListener("click", printCurrent);
   els.prev.addEventListener("click", () => moveResult(-1));
   els.next.addEventListener("click", () => moveResult(1));
+  els.scrollRight.addEventListener("click", () => scrollDisplay(-1, 0));
+  els.scrollLeft.addEventListener("click", () => scrollDisplay(1, 0));
+  els.scrollUp.addEventListener("click", () => scrollDisplay(0, -1));
+  els.scrollDown.addEventListener("click", () => scrollDisplay(0, 1));
   els.zoomIn.addEventListener("click", () => {
     state.zoom = Math.min(34, state.zoom + 2);
     renderCurrent();
@@ -1232,6 +1416,61 @@
     state.zoom = Math.max(16, state.zoom - 2);
     renderCurrent();
   });
+  els.grid.addEventListener("scroll", () => requestAnimationFrame(drawConnections), { passive: true });
+  els.grid.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    if (event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+      const horizontalDelta = event.deltaX || event.deltaY;
+      scrollDisplay(horizontalDelta > 0 ? 1 : -1, 0);
+    } else {
+      scrollDisplay(0, event.deltaY > 0 ? 1 : -1);
+    }
+  }, { passive: false });
+  els.grid.addEventListener("keydown", (event) => {
+    const moves = {
+      ArrowRight: [-1, 0],
+      ArrowLeft: [1, 0],
+      ArrowUp: [0, -1],
+      ArrowDown: [0, 1],
+    };
+    const move = moves[event.key];
+    if (!move) return;
+    event.preventDefault();
+    scrollDisplay(move[0], move[1]);
+  });
+  els.changeWordColor.addEventListener("click", () => {
+    if (!state.activeWordKey) return;
+    const current = state.results[state.current];
+    els.wordColor.value = colorForKey(current, state.activeWordKey);
+    els.wordColor.click();
+  });
+  els.wordColor.addEventListener("input", () => {
+    if (!state.activeWordKey) return;
+    setWordColor(state.activeWordKey, els.wordColor.value);
+    hideWordMenu();
+  });
+  els.toggleWordLine.addEventListener("click", () => {
+    const key = state.activeWordKey;
+    if (!key) return;
+    if (state.lineKeys.has(key)) state.lineKeys.delete(key);
+    else state.lineKeys.add(key);
+    hideWordMenu();
+    drawConnections();
+  });
+  els.removeWord.addEventListener("click", () => {
+    const key = state.activeWordKey;
+    hideWordMenu();
+    if (key) removeWordFromCurrent(key);
+  });
+  els.removeAllWord.addEventListener("click", () => {
+    const key = state.activeWordKey;
+    hideWordMenu();
+    if (key) removeWordFromAllResults(key);
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (!els.wordMenu.hidden && !els.wordMenu.contains(event.target)) hideWordMenu();
+  });
+  window.addEventListener("resize", () => requestAnimationFrame(drawConnections));
 
   loadTorah()
     .then(async () => {
