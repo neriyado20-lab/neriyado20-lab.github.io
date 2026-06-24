@@ -622,6 +622,9 @@ body[data-edition="free"] .search-actions {
   font-size: 13px;
   cursor: context-menu;
   user-select: none;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .word-chip[draggable="true"] {
