@@ -192,7 +192,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W018",
+      version: "W019",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -404,7 +404,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W018",
+      version: "W019",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1250,6 +1250,7 @@
             if (match.kind !== "primary") cell.style.setProperty("--mark-color", match.color || stableColor(match.word));
             cell.dataset.wordKey = matchKey(match);
             cell.title = `${match.word} | דילוג ${Math.abs(match.skip || 1)} | מיקום ${(match.start + 1).toLocaleString("he-IL")}`;
+            cell.addEventListener("contextmenu", (event) => openWordMenu(event, matchKey(match)));
           }
           if (pos === center) cell.classList.add("center");
         }
@@ -1267,6 +1268,11 @@
   function drawConnections() {
     const current = state.results[state.current];
     els.connectionOverlay.replaceChildren();
+    els.grid.querySelectorAll(".letter-cell.line-target").forEach((cell) => {
+      cell.classList.remove("line-target");
+      cell.style.removeProperty("--line-target-color");
+      cell.style.removeProperty("--line-target-text");
+    });
     if (!current || !state.lineKeys.size) return;
     const panel = els.connectionOverlay.parentElement;
     const panelRect = panel.getBoundingClientRect();
@@ -1274,17 +1280,29 @@
     state.lineKeys.forEach((key) => {
       const chip = Array.from(els.topWords.querySelectorAll("[data-word-key]"))
         .find((item) => item.dataset.wordKey === key);
-      const cell = Array.from(els.grid.querySelectorAll("[data-word-key]"))
-        .find((item) => item.dataset.wordKey === key);
+      const gridRect = els.grid.getBoundingClientRect();
+      const matchingCells = Array.from(els.grid.querySelectorAll("[data-word-key]"))
+        .filter((item) => item.dataset.wordKey === key);
+      const cell = matchingCells.find((item) => {
+        const rect = item.getBoundingClientRect();
+        return rect.right > gridRect.left
+          && rect.left < gridRect.right
+          && rect.bottom > gridRect.top
+          && rect.top < gridRect.bottom;
+      }) || matchingCells[0];
       if (!chip || !cell) return;
       const chipRect = chip.getBoundingClientRect();
       const cellRect = cell.getBoundingClientRect();
+      const color = colorForKey(current, key);
+      cell.classList.add("line-target");
+      cell.style.setProperty("--line-target-color", color);
+      cell.style.setProperty("--line-target-text", readableTextColor(color));
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
       line.setAttribute("x1", String(chipRect.left + chipRect.width / 2 - panelRect.left));
       line.setAttribute("y1", String(chipRect.bottom - panelRect.top));
       line.setAttribute("x2", String(cellRect.left + cellRect.width / 2 - panelRect.left));
       line.setAttribute("y2", String(cellRect.top + cellRect.height / 2 - panelRect.top));
-      line.setAttribute("stroke", colorForKey(current, key));
+      line.setAttribute("stroke", color);
       els.connectionOverlay.appendChild(line);
     });
   }
