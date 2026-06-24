@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W018 | עזרה מעודכנת ומותאמת</span>
+          <span>W019 | ניווט ופעולות ממצא משופרים</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -26,9 +26,9 @@
     </nav>
   </header>
 
-  <main class="web-shell desktop-like" data-app-version="W018">
+  <main class="web-shell desktop-like" data-app-version="W019">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W018</div>
+      <div class="app-version">גל עיני Web W019</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -101,16 +101,16 @@
         <div id="topWords" class="top-words"></div>
         <div id="torahGrid" class="torah-grid" tabindex="0" aria-label="אותיות התורה סביב הממצא"></div>
         <div class="display-controls" aria-label="כלי ניווט בתצוגה">
-          <button id="prevResultButton" type="button" title="ממצא קודם" aria-label="ממצא קודם">◀</button>
-          <button id="nextResultButton" type="button" title="ממצא הבא" aria-label="ממצא הבא">▶</button>
+          <button id="prevResultButton" class="result-nav" type="button" title="ממצא קודם" aria-label="ממצא קודם">◀</button>
+          <button id="nextResultButton" class="result-nav" type="button" title="ממצא הבא" aria-label="ממצא הבא">▶</button>
           <span class="control-separator" aria-hidden="true"></span>
-          <button id="scrollRightButton" type="button" title="הזז את התורה ימינה באות אחת" aria-label="הזז ימינה">→</button>
-          <button id="scrollLeftButton" type="button" title="הזז את התורה שמאלה באות אחת" aria-label="הזז שמאלה">←</button>
-          <button id="scrollUpButton" type="button" title="הזז את התצוגה למעלה בשורה אחת" aria-label="הזז למעלה">↑</button>
-          <button id="scrollDownButton" type="button" title="הזז את התצוגה למטה בשורה אחת" aria-label="הזז למטה">↓</button>
+          <button id="scrollRightButton" class="direction-nav" type="button" title="הזז את התורה ימינה באות אחת" aria-label="הזז ימינה">➜</button>
+          <button id="scrollLeftButton" class="direction-nav" type="button" title="הזז את התורה שמאלה באות אחת" aria-label="הזז שמאלה">⬅</button>
+          <button id="scrollUpButton" class="direction-nav" type="button" title="הזז את התצוגה למעלה בשורה אחת" aria-label="הזז למעלה">⬆</button>
+          <button id="scrollDownButton" class="direction-nav" type="button" title="הזז את התצוגה למטה בשורה אחת" aria-label="הזז למטה">⬇</button>
           <span class="control-separator" aria-hidden="true"></span>
-          <button id="zoomOutButton" type="button" title="הקטן אותיות" aria-label="הקטן אותיות">A−</button>
-          <button id="zoomInButton" type="button" title="הגדל אותיות" aria-label="הגדל אותיות">A+</button>
+          <button id="zoomOutButton" class="zoom-nav" type="button" title="הקטן אותיות" aria-label="הקטן אותיות">−A</button>
+          <button id="zoomInButton" class="zoom-nav" type="button" title="הגדל אותיות" aria-label="הגדל אותיות">+A</button>
         </div>
         <svg id="connectionOverlay" class="connection-overlay" aria-hidden="true"></svg>
       </section>
@@ -231,7 +231,8 @@
         <h3>מילים, צבעים וקווים</h3>
         <ul>
           <li>כל מילה מופיעה למעלה בצבע שבו היא מסומנת בצופן.</li>
-          <li>קליק ימני על מילה מאפשר שינוי צבע. במקצועית אפשר גם להציג קו ולהסיר ממצאים.</li>
+          <li>קליק ימני על מילה למעלה או על אות צבועה בתורה פותח את אותן פעולות.</li>
+          <li>שינוי צבע זמין בשתי נקודות הפעולה. במקצועית אפשר גם להציג קו ולהסיר ממצאים.</li>
           <li class="pro-help">גרירת מילה על מילה אחרת מעתיקה אליה את הצבע.</li>
           <li>שינוי צבע חל על כל מופעי אותה מילה בתוצאות החיפוש.</li>
         </ul>
