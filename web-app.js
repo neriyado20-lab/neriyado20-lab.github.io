@@ -1082,7 +1082,7 @@
   }
 
   function matchKey(match) {
-    return `${match.word}|${Math.abs(match.skip || 1)}`;
+    return match.word;
   }
 
   function readableTextColor(color) {
@@ -1174,14 +1174,22 @@
     const grouped = new Map();
     result.matches.forEach((match) => {
       const key = matchKey(match);
-      grouped.set(key, {
-        key,
-        word: match.word,
-        skip: Math.abs(match.skip || 1),
-        count: (grouped.get(key)?.count || 0) + 1,
-        kind: match.kind,
-        color: match.kind === "primary" ? "#ff3c2f" : (match.color || stableColor(match.word)),
-      });
+      const existing = grouped.get(key);
+      const skip = Math.abs(match.skip || 1);
+      if (existing) {
+        existing.count += 1;
+        existing.skips.set(skip, (existing.skips.get(skip) || 0) + 1);
+        if (match.kind === "primary") existing.kind = "primary";
+      } else {
+        grouped.set(key, {
+          key,
+          word: match.word,
+          count: 1,
+          skips: new Map([[skip, 1]]),
+          kind: match.kind,
+          color: match.kind === "primary" ? "#ff3c2f" : (match.color || stableColor(match.word)),
+        });
+      }
     });
     grouped.forEach((item) => {
       const chip = document.createElement("span");
@@ -1190,7 +1198,11 @@
       chip.style.setProperty("--word-color", item.color);
       chip.style.setProperty("--word-text", readableTextColor(item.color));
       chip.style.borderColor = item.color;
-      chip.textContent = `${item.word} | ${item.skip}${item.count > 1 ? ` ×${item.count}` : ""}`;
+      const skipText = Array.from(item.skips.entries())
+        .sort((a, b) => a[0] - b[0])
+        .map(([skip, count]) => `${skip}${count > 1 ? ` ×${count}` : ""}`)
+        .join(", ");
+      chip.textContent = `${item.word} | ${skipText}${item.count > 1 ? ` | סה"כ ×${item.count}` : ""}`;
       chip.title = item.kind === "primary"
         ? "קליק ימני לפעולות"
         : "קליק ימני לפעולות; גרור למילה אחרת כדי להעתיק את הצבע";
