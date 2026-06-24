@@ -48,6 +48,7 @@
     saveProject: $("saveProjectButton"),
     library: $("libraryButton"),
     history: $("historyButton"),
+    export: $("exportButton"),
     print: $("printButton"),
     projectFile: $("projectFileInput"),
     progress: $("searchProgress"),
@@ -81,6 +82,12 @@
     historyClear: $("clearHistoryButton"),
     historyList: $("historyList"),
     historyCount: $("historyCount"),
+    exportDialog: $("exportDialog"),
+    exportClose: $("closeExportButton"),
+    exportCount: $("exportCount"),
+    exportSummary: $("exportSummaryText"),
+    copySummary: $("copySummaryButton"),
+    downloadCsv: $("downloadCsvButton"),
   };
 
   function applyEdition() {
@@ -146,6 +153,7 @@
     els.search.disabled = value;
     els.secondaryScan.disabled = value;
     els.saveProject.disabled = value;
+    els.export.disabled = value;
     els.stop.disabled = !value;
   }
 
@@ -163,7 +171,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W015",
+      version: "W016",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -375,7 +383,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W015",
+      version: "W016",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -539,6 +547,104 @@
     if (edition !== "pro") return;
     renderHistory();
     els.historyDialog.showModal();
+  }
+
+  function resultWords(result) {
+    const words = new Map();
+    result.matches.forEach((match) => {
+      if (match.kind === "primary") return;
+      const key = `${match.word}|${Math.abs(match.skip || 1)}`;
+      const current = words.get(key);
+      words.set(key, {
+        word: match.word,
+        skip: Math.abs(match.skip || 1),
+        count: (current?.count || 0) + 1,
+      });
+    });
+    return Array.from(words.values());
+  }
+
+  function exportSummaryText() {
+    const lines = [
+      "גל עיני - דוח ממצאים",
+      `ראשיות: ${els.primary.value.trim() || "-"}`,
+      `משניות: ${els.secondary.value.trim() || "-"}`,
+      `טווח דילוגים: ${els.skipFrom.value}-${els.skipTo.value}`,
+      `מינימום משניות: ${els.minSecondary.value}`,
+      `מספר צפנים: ${state.results.length}`,
+      "",
+    ];
+    state.results.forEach((result, index) => {
+      const words = resultWords(result)
+        .map((item) => `${item.word} (${item.skip}${item.count > 1 ? ` ×${item.count}` : ""})`)
+        .join(", ");
+      lines.push(
+        `${index + 1}. ראשית: ${result.primary.word} | דילוג: ${Math.abs(result.primary.skip)} | משניות: ${result.secondaryCount} | מיקום: ${result.primary.start + 1}`,
+        `   ${words || "ללא משניות"}`,
+      );
+    });
+    return lines.join("\n");
+  }
+
+  function csvValue(value) {
+    return `"${String(value ?? "").replaceAll("\"", "\"\"")}"`;
+  }
+
+  function exportCsvText() {
+    const rows = [
+      ["מספר", "ראשית", "דילוג ראשית", "מספר משניות", "מיקום", "מילים שנמצאו"],
+    ];
+    state.results.forEach((result, index) => {
+      const words = resultWords(result)
+        .map((item) => `${item.word} | דילוג ${item.skip}${item.count > 1 ? ` ×${item.count}` : ""}`)
+        .join("; ");
+      rows.push([
+        index + 1,
+        result.primary.word,
+        Math.abs(result.primary.skip),
+        result.secondaryCount,
+        result.primary.start + 1,
+        words,
+      ]);
+    });
+    return rows.map((row) => row.map(csvValue).join(",")).join("\r\n");
+  }
+
+  function openExport() {
+    if (edition !== "pro") return;
+    if (!state.results.length) {
+      setStatus("אין ממצאים לייצוא.", 0);
+      return;
+    }
+    els.exportCount.textContent = `${state.results.length} ממצאים`;
+    els.exportSummary.value = exportSummaryText();
+    els.exportDialog.showModal();
+  }
+
+  async function copyExportSummary() {
+    const text = els.exportSummary.value;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      els.exportSummary.focus();
+      els.exportSummary.select();
+      document.execCommand("copy");
+    }
+    setStatus("סיכום הממצאים הועתק", 100);
+  }
+
+  function downloadResultsCsv() {
+    if (!state.results.length) return;
+    const blob = new Blob(["\ufeff", exportCsvText()], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${safeFileName(els.primary.value || "ממצאים")} - דוח ממצאים.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setStatus(`יוצאו ${state.results.length} ממצאים ל-CSV`, 100);
   }
 
   async function loadTorah() {
@@ -1062,6 +1168,7 @@
   els.saveProject.addEventListener("click", saveProjectFile);
   els.library.addEventListener("click", openLibrary);
   els.history.addEventListener("click", openHistory);
+  els.export.addEventListener("click", openExport);
   els.libraryClose.addEventListener("click", () => els.libraryDialog.close());
   els.libraryForm.addEventListener("submit", saveToLibrary);
   els.librarySearch.addEventListener("input", renderLibrary);
@@ -1095,6 +1202,12 @@
   });
   els.historyDialog.addEventListener("click", (event) => {
     if (event.target === els.historyDialog) els.historyDialog.close();
+  });
+  els.exportClose.addEventListener("click", () => els.exportDialog.close());
+  els.copySummary.addEventListener("click", copyExportSummary);
+  els.downloadCsv.addEventListener("click", downloadResultsCsv);
+  els.exportDialog.addEventListener("click", (event) => {
+    if (event.target === els.exportDialog) els.exportDialog.close();
   });
   els.projectFile.addEventListener("change", async () => {
     const file = els.projectFile.files && els.projectFile.files[0];
