@@ -2,7 +2,8 @@
   "use strict";
 
   const TARGET_COUNT = 304805;
-  const MAX_RESULTS = 250;
+  const FREE_MAX_RESULTS = 30;
+  const PRO_MAX_RESULTS = 250;
   const DEFAULT_ROWS = 27;
   const DEFAULT_EXTRA_COLS = 10;
   const DRAFT_KEY = "gal-einai-web-draft-v1";
@@ -12,6 +13,8 @@
   const PRO_MAX_SKIP = 5000;
   const FREE_MAX_SECONDARIES = 5;
   const PRO_MAX_SECONDARIES = 30;
+  const FREE_MAX_PRIMARIES = 1;
+  const PRO_MAX_PRIMARIES = 10;
   const pageParams = new URLSearchParams(window.location.search);
   const edition = pageParams.get("edition") === "free" ? "free" : "pro";
   const COLORS = ["#3ddc84", "#42d7f5", "#ffe15c", "#f78acb", "#b9f35d", "#ffb347", "#9db4ff"];
@@ -85,9 +88,9 @@
     els.skipTo.max = String(maxSkip);
     els.minSecondary.max = String(maxSecondaries);
     if (edition === "free") {
-      els.editionLimitNote.innerHTML = `בחינמית: עד דילוג ${FREE_MAX_SKIP} ועד ${FREE_MAX_SECONDARIES} משניות. <a href="web.html?edition=pro">במקצועית: עד דילוג ${PRO_MAX_SKIP} ועד ${PRO_MAX_SECONDARIES} משניות</a>.`;
+      els.editionLimitNote.innerHTML = `בחינמית: ראשית אחת, עד ${FREE_MAX_SECONDARIES} משניות, דילוג ${FREE_MAX_SKIP} ו-${FREE_MAX_RESULTS} צפנים בחיפוש. <a href="web.html?edition=pro">ראה את המקצועית</a>.`;
     } else {
-      els.editionLimitNote.textContent = `המקצועית מאפשרת עד דילוג ${PRO_MAX_SKIP} ועד ${PRO_MAX_SECONDARIES} משניות. בתקופת הבטא היא פתוחה ללא חיוב.`;
+      els.editionLimitNote.textContent = `המקצועית: עד ${PRO_MAX_PRIMARIES} ראשיות, ${PRO_MAX_SECONDARIES} משניות, דילוג ${PRO_MAX_SKIP} ו-${PRO_MAX_RESULTS} צפנים בחיפוש. הבטא פתוחה ללא חיוב.`;
     }
   }
 
@@ -152,7 +155,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W013",
+      version: "W014",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -364,7 +367,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W013",
+      version: "W014",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -597,7 +600,7 @@
     els.skipTo.value = data.skip_to ?? els.skipTo.value;
     els.minSecondary.value = data.min_secondary ?? els.minSecondary.value;
     const saved = Array.isArray(data.saved) ? data.saved : [];
-    state.results = saved.map(resultFromSavedItem).filter(Boolean).slice(0, MAX_RESULTS);
+    state.results = saved.map(resultFromSavedItem).filter(Boolean).slice(0, PRO_MAX_RESULTS);
     state.current = Math.max(0, Math.min(Number.parseInt(data.current, 10) || 0, Math.max(0, state.results.length - 1)));
     const loadedPrimaryWords = splitWords(els.primary.value);
     const loadedFrom = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || "1", 10) || 1));
@@ -644,6 +647,17 @@
       setStatus("יש להקליד ראשית לחיפוש", 0);
       return;
     }
+    const editionMaxPrimaries = edition === "free" ? FREE_MAX_PRIMARIES : PRO_MAX_PRIMARIES;
+    if (primaryWords.length > editionMaxPrimaries) {
+      setStatus(
+        edition === "free"
+          ? `המהדורה החינמית מאפשרת ראשית אחת בחיפוש. המקצועית מאפשרת עד ${PRO_MAX_PRIMARIES} ראשיות במקביל.`
+          : `ניתן לחפש עד ${PRO_MAX_PRIMARIES} ראשיות במקביל.`,
+        0
+      );
+      els.primary.focus();
+      return;
+    }
     const editionMaxSecondaries = edition === "free" ? FREE_MAX_SECONDARIES : PRO_MAX_SECONDARIES;
     if (secondaries.length > editionMaxSecondaries) {
       setStatus(
@@ -669,6 +683,7 @@
       return;
     }
     const cacheKey = primaryCacheKey(primaryWords, from, to);
+    const resultLimit = edition === "free" ? FREE_MAX_RESULTS : PRO_MAX_RESULTS;
     const hasMatchingCache = state.primaryCache && state.primaryCache.key === cacheKey;
     if (cacheOnly && !hasMatchingCache) {
       setStatus("אין ראשיות מתאימות בזיכרון. יש לבצע תחילה חיפוש ראשיות או לפתוח צופן.", 0);
@@ -734,10 +749,11 @@
           setStatus(`בודק משניות ${i + 1}/${primaries.length} | נשמרו ${state.results.length}`, 60 + Math.floor(((i + 1) / total) * 40));
           await nextFrame();
         }
-        if (state.results.length >= MAX_RESULTS) break;
+        if (state.results.length >= resultLimit) break;
       }
       state.results.sort((a, b) => b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
-      setStatus(`החיפוש הסתיים | ראשיות ${primaries.length} | צפנים ${state.results.length}`, 100);
+      const limitNotice = state.results.length >= resultLimit ? ` | הוצגו עד ${resultLimit}` : "";
+      setStatus(`החיפוש הסתיים | ראשיות ${primaries.length} | צפנים ${state.results.length}${limitNotice}`, 100);
       renderResults();
       renderCurrent();
       saveDraft();
