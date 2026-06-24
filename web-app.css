@@ -11,6 +11,21 @@
   padding-block: 8px;
 }
 
+.nav-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nav-button:hover,
+.nav-button:focus-visible {
+  color: #0a5c49;
+}
+
 .web-shell {
   width: min(1920px, 100%);
   margin: 0 auto;
@@ -680,6 +695,65 @@ body[data-edition="free"] .search-actions {
   background: #e7f2ec;
 }
 
+.help-dialog {
+  width: min(820px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #809d8d;
+  border-radius: 8px;
+  background: #fffdf7;
+  color: #17211d;
+  box-shadow: 0 24px 70px rgba(23, 33, 29, 0.3);
+}
+
+.help-dialog::backdrop {
+  background: rgba(20, 30, 26, 0.5);
+}
+
+.help-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.help-body {
+  max-height: calc(100dvh - 112px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 18px 20px;
+  scrollbar-gutter: stable;
+}
+
+.help-body section {
+  padding: 12px 0;
+  border-bottom: 1px solid #dfe6e1;
+}
+
+.help-body section:last-child {
+  border-bottom: 0;
+}
+
+.help-body h3 {
+  margin: 0 0 7px;
+  color: #0a5c49;
+  font-size: 18px;
+}
+
+.help-body p,
+.help-body ul,
+.help-body ol {
+  margin: 0;
+}
+
+.help-body li + li {
+  margin-top: 5px;
+}
+
+body[data-edition="free"] .help-body .pro-help {
+  display: none;
+}
+
 .letter-cell.primary,
 .letter-cell.mark-primary {
   background: #ff3c2f;
@@ -740,6 +814,16 @@ body[data-edition="free"] .search-actions {
   .export-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .help-dialog {
+    width: calc(100vw - 12px);
+    max-height: calc(100dvh - 12px);
+  }
+
+  .help-body {
+    max-height: calc(100dvh - 96px);
+    padding-inline: 12px;
   }
 
   .library-actions {
