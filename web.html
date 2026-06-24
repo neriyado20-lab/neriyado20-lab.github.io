@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>גל עיני Web - חיפוש צפנים בתורה</title>
-  <meta name="description" content="גרסת Web ראשונה של גל עיני: חיפוש ראשית ומשניות בדילוגים בתורה ישירות בדפדפן.">
+  <meta name="description" content="גל עיני Web: חיפוש ראשיות ומשניות, תצוגת צפנים, שמירה, ניווט וכלי עבודה מקצועיים ישירות בדפדפן.">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="web-app.css">
 </head>
@@ -14,20 +14,21 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W017 | תצוגת תורה ופעולות צבע</span>
+          <span>W018 | עזרה מעודכנת ומותאמת</span>
       </div>
     </div>
     <nav aria-label="ניווט">
       <a href="index.html">ראשי</a>
       <a href="examples.html">צפנים לדוגמה</a>
       <a href="index.html#download">הורדת Windows</a>
+      <button id="helpButton" class="nav-button" type="button">עזרה</button>
       <a id="editionSwitch" href="web.html?edition=free">עבור לחינמית</a>
     </nav>
   </header>
 
-  <main class="web-shell desktop-like" data-app-version="W017">
+  <main class="web-shell desktop-like" data-app-version="W018">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W017</div>
+      <div class="app-version">גל עיני Web W018</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -190,6 +191,66 @@
     <button id="removeAllWordButton" type="button" role="menuitem">הסר מכל תוצאות החיפוש</button>
     <input id="wordColorInput" type="color" hidden>
   </div>
+
+  <dialog id="helpDialog" class="help-dialog" aria-labelledby="helpTitle">
+    <div class="library-head help-head">
+      <div>
+        <h2 id="helpTitle">עזרה - גל עיני Web</h2>
+        <span id="helpEditionText">הוראות למהדורה המקצועית</span>
+      </div>
+      <button id="closeHelpButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
+    </div>
+    <div class="help-body">
+      <section>
+        <h3>חיפוש</h3>
+        <ol>
+          <li>הקלד ראשית אחת או יותר בהתאם למהדורה.</li>
+          <li>הקלד משניות כשהן מופרדות ברווח. כתיבת <b>!</b> לפני מילה מחייבת את הופעתה בצופן.</li>
+          <li>בחר טווח דילוגים ומספר מינימלי של משניות ולחץ <b>חפש</b>.</li>
+          <li class="pro-help">אם הראשיות כבר נמצאו, <b>סרוק משניות</b> בודק משניות חדשות בלי לחפש שוב את הראשיות.</li>
+        </ol>
+      </section>
+      <section>
+        <h3>טבלת הממצאים</h3>
+        <ul>
+          <li>לחיצה על שורה מציגה את הצופן. החצים ◀ ▶ עוברים ממצא אחד בכל פעם.</li>
+          <li>הממצאים מדורגים לפי מספר המשניות ולאחר מכן לפי גודל הדילוג.</li>
+          <li class="pro-help"><b>ייצוא</b> מוריד CSV ל־Excel או מעתיק דוח טקסט.</li>
+        </ul>
+      </section>
+      <section>
+        <h3>תצוגת התורה</h3>
+        <ul>
+          <li>הראשית ממורכזת בעת פתיחת ממצא.</li>
+          <li>החצים → ← מזיזים אות אחת; ↑ ↓ מזיזים שורה אחת.</li>
+          <li>גלגלת העכבר מזיזה שורה אנכית. Shift+גלגלת או גלילה אופקית מזיזים אות אחת לרוחב.</li>
+          <li>A+ ו־A− משנים את גודל האותיות.</li>
+        </ul>
+      </section>
+      <section>
+        <h3>מילים, צבעים וקווים</h3>
+        <ul>
+          <li>כל מילה מופיעה למעלה בצבע שבו היא מסומנת בצופן.</li>
+          <li>קליק ימני על מילה מאפשר שינוי צבע. במקצועית אפשר גם להציג קו ולהסיר ממצאים.</li>
+          <li class="pro-help">גרירת מילה על מילה אחרת מעתיקה אליה את הצבע.</li>
+          <li>שינוי צבע חל על כל מופעי אותה מילה בתוצאות החיפוש.</li>
+        </ul>
+      </section>
+      <section class="pro-help">
+        <h3>כלים מקצועיים</h3>
+        <ul>
+          <li><b>הצפנים שלי</b>: שמירה מקומית של עד 20 צפנים, חיפוש, הורדה ומחיקה.</li>
+          <li><b>גבה ספרייה</b> מוריד גיבוי אחד; <b>שחזר גיבוי</b> ממזג אותו בלי כפילויות שמיות.</li>
+          <li><b>אחרונים</b>: 20 חיפושים מוצלחים אחרונים, טעינה והפעלה חוזרת.</li>
+          <li><b>שמור צופן</b> מוריד קובץ; <b>הדפס</b> מפיק תצוגה נקייה במסגרת שחורה.</li>
+        </ul>
+      </section>
+      <section>
+        <h3>חשוב לדעת</h3>
+        <p>פתיחת צופן קיים מותרת גם אם הוא חורג ממגבלות החיפוש. פעולות תצוגה, צבע או הסרה אינן משנות את טקסט התורה.</p>
+      </section>
+    </div>
+  </dialog>
 
   <script src="web-app.js"></script>
 </body>
