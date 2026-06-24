@@ -470,6 +470,50 @@ h2 {
   color: var(--accent-dark);
 }
 
+.edition-comparison {
+  margin-top: 22px;
+  overflow-x: auto;
+  border: 1px solid rgba(13, 109, 86, 0.22);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(23, 33, 29, 0.07);
+}
+
+.edition-comparison table {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+}
+
+.edition-comparison th,
+.edition-comparison td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #dce5df;
+  text-align: right;
+}
+
+.edition-comparison th {
+  background: #e7f2ec;
+  color: var(--accent-dark);
+  font-size: 15px;
+}
+
+.edition-comparison th:nth-child(2),
+.edition-comparison td:nth-child(2),
+.edition-comparison th:nth-child(3),
+.edition-comparison td:nth-child(3) {
+  text-align: center;
+}
+
+.edition-comparison td:nth-child(3) {
+  color: var(--accent-dark);
+  font-weight: 800;
+}
+
+.edition-comparison tr:last-child td {
+  border-bottom: 0;
+}
+
 .download-box {
   display: flex;
   align-items: center;
