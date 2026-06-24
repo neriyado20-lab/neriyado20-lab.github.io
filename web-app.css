@@ -253,6 +253,38 @@ body[data-edition="free"] .search-actions {
   font-size: 13px !important;
 }
 
+.export-content {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.export-content label {
+  display: grid;
+  gap: 5px;
+  color: #304a3f;
+  font-weight: 800;
+}
+
+.export-content textarea {
+  width: 100%;
+  min-height: 260px;
+  resize: vertical;
+  padding: 10px;
+  border: 1px solid #aebcb4;
+  border-radius: 5px;
+  background: #ffffff;
+  color: #17211d;
+  direction: rtl;
+  font: 14px/1.55 Arial, "Noto Sans Hebrew", sans-serif;
+}
+
+.export-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
 .icon-button {
   width: 34px;
   height: 34px;
@@ -421,6 +453,23 @@ body[data-edition="free"] .search-actions {
   padding: 6px 9px;
   border-bottom: 1px solid #d8d0b6;
   background: #fff1bd;
+}
+
+.panel-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.table-tool-button {
+  min-height: 28px;
+  padding: 3px 9px;
+  border: 1px solid #8ca4c7;
+  border-radius: 4px;
+  background: #eef3fa;
+  color: #203f67;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .torah-head {
@@ -608,6 +657,11 @@ body[data-edition="free"] .search-actions {
     flex-direction: column;
   }
 
+  .export-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .library-actions {
     flex-wrap: wrap;
   }
@@ -635,7 +689,8 @@ body[data-edition="free"] .search-actions {
   }
 
   .library-dialog,
-  .history-dialog {
+  .history-dialog,
+  .export-dialog {
     display: none !important;
   }
 
