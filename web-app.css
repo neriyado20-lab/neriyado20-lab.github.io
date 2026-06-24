@@ -439,8 +439,9 @@ body[data-edition="free"] .search-actions {
 }
 
 .torah-panel {
+  position: relative;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   overflow: hidden;
 }
 
@@ -537,18 +538,36 @@ body[data-edition="free"] .search-actions {
 
 .display-controls {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 4px;
+  padding: 5px 8px;
+  border-top: 1px solid #d8d0b6;
+  background: #edf5f0;
 }
 
 .display-controls button {
-  min-width: 34px;
-  height: 29px;
+  width: 36px;
+  height: 32px;
   border: 1px solid #aabeb4;
   border-radius: 4px;
   background: #ffffff;
   color: #084838;
-  font-weight: 800;
+  font-size: 18px;
+  font-weight: 900;
   cursor: pointer;
+}
+
+.display-controls button:active {
+  background: #dcece4;
+  transform: translateY(1px);
+}
+
+.control-separator {
+  width: 1px;
+  height: 26px;
+  margin: 3px 2px;
+  background: #c4cdbf;
 }
 
 .top-words {
@@ -568,15 +587,28 @@ body[data-edition="free"] .search-actions {
   padding: 3px 8px;
   border: 1px solid rgba(0, 0, 0, 0.14);
   border-radius: 4px;
-  background: #ffffff;
-  font-weight: 700;
+  background: var(--word-color, #ffffff);
+  color: var(--word-text, #111111);
+  font-weight: 800;
   font-size: 13px;
+  cursor: context-menu;
+  user-select: none;
+}
+
+.word-chip[draggable="true"] {
+  cursor: grab;
+}
+
+.word-chip.drag-target {
+  outline: 3px solid #17211d;
+  outline-offset: 2px;
 }
 
 .torah-grid {
   overflow: auto;
   padding: 8px;
-  direction: ltr;
+  direction: rtl;
+  scroll-behavior: auto;
   background: #f7ecd6;
 }
 
@@ -584,7 +616,7 @@ body[data-edition="free"] .search-actions {
   display: grid;
   justify-content: start;
   gap: 2px;
-  direction: ltr;
+  direction: rtl;
 }
 
 .letter-cell {
@@ -595,9 +627,57 @@ body[data-edition="free"] .search-actions {
   border-radius: 2px;
   color: #002f7c;
   font-family: Arial, "Noto Sans Hebrew", sans-serif;
-  font-size: calc(var(--cell-size, 22px) * 0.82);
-  font-weight: 800;
+  font-size: calc(var(--cell-size, 22px) * 0.94);
+  font-weight: 900;
   line-height: 1;
+}
+
+.connection-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.connection-overlay line {
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  opacity: 0.88;
+}
+
+.word-menu {
+  position: fixed;
+  z-index: 1000;
+  display: grid;
+  min-width: 170px;
+  padding: 5px;
+  border: 1px solid #7d9589;
+  border-radius: 6px;
+  background: #fffdf7;
+  box-shadow: 0 14px 34px rgba(23, 33, 29, 0.28);
+}
+
+.word-menu[hidden] {
+  display: none;
+}
+
+.word-menu button {
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #243a31;
+  text-align: right;
+  font: 14px Arial, "Noto Sans Hebrew", sans-serif;
+  cursor: pointer;
+}
+
+.word-menu button:hover,
+.word-menu button:focus {
+  background: #e7f2ec;
 }
 
 .letter-cell.primary,
