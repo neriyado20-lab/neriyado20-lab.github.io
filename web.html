@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W014 | מהדורה מקצועית מורחבת</span>
+          <span>W015 | חיפושים אחרונים</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -25,9 +25,9 @@
     </nav>
   </header>
 
-  <main class="web-shell desktop-like" data-app-version="W014">
+  <main class="web-shell desktop-like" data-app-version="W015">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W014</div>
+      <div class="app-version">גל עיני Web W015</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -67,6 +67,7 @@
           <button id="openProjectButton" class="button secondary" type="button">פתח צופן</button>
           <button id="saveProjectButton" class="button secondary save-project pro-only" type="button" title="שמור את השדות ואת כל הממצאים לקובץ צופן">שמור צופן</button>
           <button id="libraryButton" class="button secondary library-button pro-only" type="button" title="פתח את ספריית הצפנים השמורים בדפדפן">הצפנים שלי</button>
+          <button id="historyButton" class="button secondary history-button pro-only" type="button" title="פתח את 20 החיפושים האחרונים">אחרונים</button>
           <button id="printButton" class="button secondary pro-only" type="button">הדפס</button>
           <input id="projectFileInput" type="file" accept=".json,.gal_einai.json,application/json" hidden>
         </div>
@@ -135,6 +136,21 @@
     </div>
     <div id="libraryList" class="library-list" aria-live="polite"></div>
     <p class="library-note">הצפנים נשמרים בדפדפן הזה. מומלץ להוריד גיבוי; שמירה בענן תתווסף בהמשך.</p>
+  </dialog>
+
+  <dialog id="historyDialog" class="library-dialog history-dialog pro-only" aria-labelledby="historyTitle">
+    <div class="library-head">
+      <div>
+        <h2 id="historyTitle">חיפושים אחרונים</h2>
+        <span id="historyCount">0 מתוך 20 חיפושים</span>
+      </div>
+      <button id="closeHistoryButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
+    </div>
+    <div class="history-toolbar">
+      <span>החיפושים נשמרים בדפדפן הזה.</span>
+      <button id="clearHistoryButton" class="button secondary" type="button">נקה היסטוריה</button>
+    </div>
+    <div id="historyList" class="library-list history-list" aria-live="polite"></div>
   </dialog>
 
   <script src="web-app.js"></script>
