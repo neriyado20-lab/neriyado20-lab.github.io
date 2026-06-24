@@ -9,6 +9,8 @@
   const DRAFT_KEY = "gal-einai-web-draft-v1";
   const LIBRARY_KEY = "gal-einai-web-library-v1";
   const LIBRARY_LIMIT = 20;
+  const HISTORY_KEY = "gal-einai-web-history-v1";
+  const HISTORY_LIMIT = 20;
   const FREE_MAX_SKIP = 400;
   const PRO_MAX_SKIP = 5000;
   const FREE_MAX_SECONDARIES = 5;
@@ -45,6 +47,7 @@
     openProject: $("openProjectButton"),
     saveProject: $("saveProjectButton"),
     library: $("libraryButton"),
+    history: $("historyButton"),
     print: $("printButton"),
     projectFile: $("projectFileInput"),
     progress: $("searchProgress"),
@@ -73,6 +76,11 @@
     libraryBackup: $("backupLibraryButton"),
     libraryRestore: $("restoreLibraryButton"),
     libraryBackupInput: $("libraryBackupInput"),
+    historyDialog: $("historyDialog"),
+    historyClose: $("closeHistoryButton"),
+    historyClear: $("clearHistoryButton"),
+    historyList: $("historyList"),
+    historyCount: $("historyCount"),
   };
 
   function applyEdition() {
@@ -155,7 +163,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W014",
+      version: "W015",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -367,7 +375,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W014",
+      version: "W015",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -414,6 +422,123 @@
     writeLibrary(merged);
     renderLibrary();
     setStatus(`שחזור הושלם | נוספו ${added} | עודכנו ${updated} | בספרייה ${readLibrary().length}`, 100);
+  }
+
+  function readHistory() {
+    if (edition !== "pro") return [];
+    try {
+      const items = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+      return Array.isArray(items) ? items.filter((item) => item && item.id && item.primary).slice(0, HISTORY_LIMIT) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function writeHistory(items) {
+    if (edition !== "pro") return;
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
+  }
+
+  function historyKey(item) {
+    return JSON.stringify({
+      primary: String(item.primary || "").trim(),
+      secondary: String(item.secondary || "").trim(),
+      skipFrom: Number(item.skipFrom) || 1,
+      skipTo: Number(item.skipTo) || 1,
+      minSecondary: Number(item.minSecondary) || 0,
+    });
+  }
+
+  function rememberSearch() {
+    if (edition !== "pro" || !state.results.length) return;
+    const item = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      searchedAt: new Date().toISOString(),
+      primary: els.primary.value.trim(),
+      secondary: els.secondary.value.trim(),
+      skipFrom: Number.parseInt(els.skipFrom.value || "1", 10) || 1,
+      skipTo: Number.parseInt(els.skipTo.value || "1", 10) || 1,
+      minSecondary: Number.parseInt(els.minSecondary.value || "0", 10) || 0,
+      resultCount: state.results.length,
+    };
+    const key = historyKey(item);
+    const items = readHistory().filter((saved) => historyKey(saved) !== key);
+    items.unshift(item);
+    try {
+      writeHistory(items);
+    } catch {
+      // Search completion is not interrupted when browser storage is full.
+    }
+  }
+
+  function loadHistoryFields(item) {
+    els.primary.value = item.primary || "";
+    els.secondary.value = item.secondary || "";
+    els.skipFrom.value = String(item.skipFrom || 1);
+    els.skipTo.value = String(item.skipTo || 1);
+    els.minSecondary.value = String(item.minSecondary || 0);
+  }
+
+  function renderHistory() {
+    const items = readHistory();
+    els.historyCount.textContent = `${items.length} מתוך ${HISTORY_LIMIT} חיפושים`;
+    els.historyList.replaceChildren();
+    if (!items.length) {
+      const empty = document.createElement("div");
+      empty.className = "library-empty";
+      empty.textContent = "עדיין לא נשמרו חיפושים מוצלחים.";
+      els.historyList.appendChild(empty);
+      return;
+    }
+    items.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "library-item history-item";
+      const info = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = item.primary;
+      const terms = document.createElement("span");
+      terms.className = "history-terms";
+      terms.textContent = item.secondary || "ללא משניות";
+      const meta = document.createElement("span");
+      meta.textContent = `${formatSavedDate(item.searchedAt)} | דילוג ${item.skipFrom}-${item.skipTo} | ${item.resultCount} צפנים`;
+      info.append(title, terms, meta);
+
+      const actions = document.createElement("div");
+      actions.className = "library-actions";
+      const loadButton = document.createElement("button");
+      loadButton.type = "button";
+      loadButton.textContent = "טען";
+      loadButton.addEventListener("click", () => {
+        loadHistoryFields(item);
+        els.historyDialog.close();
+        setStatus("תנאי החיפוש נטענו מההיסטוריה", 0);
+      });
+      const rerunButton = document.createElement("button");
+      rerunButton.type = "button";
+      rerunButton.textContent = "חפש שוב";
+      rerunButton.addEventListener("click", () => {
+        loadHistoryFields(item);
+        els.historyDialog.close();
+        search(null);
+      });
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "delete-library-item";
+      deleteButton.textContent = "מחק";
+      deleteButton.addEventListener("click", () => {
+        writeHistory(readHistory().filter((saved) => saved.id !== item.id));
+        renderHistory();
+      });
+      actions.append(loadButton, rerunButton, deleteButton);
+      row.append(info, actions);
+      els.historyList.appendChild(row);
+    });
+  }
+
+  function openHistory() {
+    if (edition !== "pro") return;
+    renderHistory();
+    els.historyDialog.showModal();
   }
 
   async function loadTorah() {
@@ -757,6 +882,7 @@
       renderResults();
       renderCurrent();
       saveDraft();
+      rememberSearch();
     } catch (error) {
       setStatus(`שגיאה: ${error.message}`, 0);
     } finally {
@@ -935,6 +1061,7 @@
   });
   els.saveProject.addEventListener("click", saveProjectFile);
   els.library.addEventListener("click", openLibrary);
+  els.history.addEventListener("click", openHistory);
   els.libraryClose.addEventListener("click", () => els.libraryDialog.close());
   els.libraryForm.addEventListener("submit", saveToLibrary);
   els.librarySearch.addEventListener("input", renderLibrary);
@@ -953,6 +1080,21 @@
   });
   els.libraryDialog.addEventListener("click", (event) => {
     if (event.target === els.libraryDialog) els.libraryDialog.close();
+  });
+  els.historyClose.addEventListener("click", () => els.historyDialog.close());
+  els.historyClear.addEventListener("click", () => {
+    if (!readHistory().length) return;
+    if (!window.confirm("למחוק את כל היסטוריית החיפושים?")) return;
+    try {
+      localStorage.removeItem(HISTORY_KEY);
+    } catch {
+      // The dialog remains usable even if storage access is blocked.
+    }
+    renderHistory();
+    setStatus("היסטוריית החיפושים נוקתה", 0);
+  });
+  els.historyDialog.addEventListener("click", (event) => {
+    if (event.target === els.historyDialog) els.historyDialog.close();
   });
   els.projectFile.addEventListener("change", async () => {
     const file = els.projectFile.files && els.projectFile.files[0];
