@@ -11,6 +11,7 @@
   const LIBRARY_LIMIT = 20;
   const HISTORY_KEY = "gal-einai-web-history-v1";
   const DISPLAY_CONTROLS_KEY = "gal-einai-web-display-controls-v1";
+  const TOP_WORDS_KEY = "gal-einai-web-top-words-v1";
   const AVOT_SETTINGS_KEY = "gal-einai-web-avot-v1";
   const HISTORY_LIMIT = 20;
   const FREE_MAX_SKIP = 400;
@@ -37,6 +38,7 @@
     activeWordKey: null,
     draggedWordKey: null,
     displayControlsVisible: true,
+    topWordsVisible: true,
     avotLines: [],
     avotIndex: 0,
     avotSpeed: 4,
@@ -77,6 +79,8 @@
     grid: $("torahGrid"),
     title: $("displayTitle"),
     topWords: $("topWords"),
+    toggleTopWords: $("toggleTopWordsButton"),
+    showTopWords: $("showTopWordsInput"),
     displayControls: document.querySelector(".display-controls"),
     toggleDisplayControls: $("toggleDisplayControlsButton"),
     toggleDisplayControlsText: $("toggleDisplayControlsText"),
@@ -224,6 +228,30 @@
     applyDisplayControlsVisibility();
   }
 
+  function applyTopWordsVisibility() {
+    els.topWords.hidden = !state.topWordsVisible;
+    els.showTopWords.checked = state.topWordsVisible;
+    els.toggleTopWords.setAttribute("aria-pressed", String(!state.topWordsVisible));
+    els.toggleTopWords.title = state.topWordsVisible
+      ? "הסתר את מילות הצופן העליונות"
+      : "הצג את מילות הצופן העליונות";
+    try {
+      localStorage.setItem(TOP_WORDS_KEY, state.topWordsVisible ? "visible" : "hidden");
+    } catch {
+      // The current session still keeps the selected layout.
+    }
+    if (state.topWordsVisible) {
+      const current = state.results[state.current];
+      if (current) renderTopWords(current);
+    }
+    requestAnimationFrame(drawConnections);
+  }
+
+  function toggleTopWords() {
+    state.topWordsVisible = !state.topWordsVisible;
+    applyTopWordsVisibility();
+  }
+
   function saveAvotSettings() {
     try {
       localStorage.setItem(AVOT_SETTINGS_KEY, JSON.stringify({
@@ -349,7 +377,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W030",
+      version: "W031",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -561,7 +589,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W030",
+      version: "W031",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1815,6 +1843,11 @@
   els.print.addEventListener("click", printCurrent);
   els.saveImage.addEventListener("click", saveCurrentImage);
   els.toggleDisplayControls.addEventListener("click", toggleDisplayControls);
+  els.toggleTopWords.addEventListener("click", toggleTopWords);
+  els.showTopWords.addEventListener("change", () => {
+    state.topWordsVisible = els.showTopWords.checked;
+    applyTopWordsVisibility();
+  });
   bindRepeatingButton(els.prev, () => moveResult(-1));
   bindRepeatingButton(els.next, () => moveResult(1));
   bindRepeatingButton(els.scrollRight, () => scrollDisplay(-1, 0));
@@ -1934,18 +1967,21 @@
 
   try {
     state.displayControlsVisible = localStorage.getItem(DISPLAY_CONTROLS_KEY) !== "hidden";
+    state.topWordsVisible = localStorage.getItem(TOP_WORDS_KEY) !== "hidden";
     const avotSettings = JSON.parse(localStorage.getItem(AVOT_SETTINGS_KEY) || "{}");
     state.avotVisible = avotSettings.visible !== false;
     state.avotSpeed = Number(avotSettings.speed) || 4;
     state.avotOrder = avotSettings.order === "random" ? "random" : "ordered";
   } catch {
     state.displayControlsVisible = true;
+    state.topWordsVisible = true;
     state.avotVisible = true;
     state.avotSpeed = 4;
     state.avotOrder = "ordered";
   }
   applyEdition();
   applyDisplayControlsVisibility();
+  applyTopWordsVisibility();
   applyAvotSettings();
   loadAvot();
   requestAnimationFrame(animateAvot);
