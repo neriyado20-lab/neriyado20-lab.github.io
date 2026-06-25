@@ -23,6 +23,7 @@
 
   const state = {
     torah: "",
+    verses: [],
     index: new Map(),
     results: [],
     current: 0,
@@ -52,6 +53,7 @@
     library: $("libraryButton"),
     history: $("historyButton"),
     export: $("exportButton"),
+    saveImage: $("saveImageButton"),
     print: $("printButton"),
     projectFile: $("projectFileInput"),
     progress: $("searchProgress"),
@@ -192,7 +194,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W020",
+      version: "W021",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -404,7 +406,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W020",
+      version: "W021",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -669,13 +671,23 @@
   }
 
   async function loadTorah() {
-    const response = await fetch("assets/torah_clean.txt", { cache: "force-cache" });
+    const [response, displayResponse] = await Promise.all([
+      fetch("assets/torah_clean.txt", { cache: "force-cache" }),
+      fetch("assets/torah_display.txt", { cache: "force-cache" }),
+    ]);
     if (!response.ok) throw new Error("לא הצלחתי לטעון את טקסט התורה");
     const raw = await response.text();
     state.torah = raw.replace(/[^\u05d0-\u05ea]/g, "");
+    if (displayResponse.ok) {
+      buildVerseMap(await displayResponse.text());
+    }
     buildIndex();
     const ok = state.torah.length === TARGET_COUNT;
-    setStatus(ok ? `טקסט התורה נטען: ${state.torah.length.toLocaleString("he-IL")} אותיות` : `טקסט התורה נטען, אך האורך אינו צפוי: ${state.torah.length.toLocaleString("he-IL")}`, 0);
+    if (ok) {
+      setStatus("", 0);
+    } else {
+      setStatus(`טקסט התורה נטען, אך האורך אינו צפוי: ${state.torah.length.toLocaleString("he-IL")}`, 0);
+    }
   }
 
   function buildIndex() {
@@ -702,6 +714,62 @@
     const out = [];
     for (let i = 0; i < match.word.length; i += 1) out.push(match.start + i * match.skip);
     return out;
+  }
+
+  function buildVerseMap(raw) {
+    const verses = [];
+    const built = [];
+    let book = "";
+    let chapter = "";
+    let position = 0;
+    String(raw || "").split(/\r?\n/).forEach((rawLine) => {
+      const line = rawLine.trim();
+      const chapterMatch = line.match(/^([א-ת]+)\s+פרק-([א-ת]+)$/);
+      if (chapterMatch) {
+        [book, chapter] = chapterMatch.slice(1);
+        return;
+      }
+      const parts = line.split(/(\{[א-ת]+\})/);
+      let verse = "";
+      let buffer = "";
+      const flush = () => {
+        const letters = buffer.replace(/[\u0591-\u05c7]/g, "").replace(/[^\u05d0-\u05ea]/g, "");
+        if (!verse || !letters) return;
+        const start = position;
+        position += letters.length;
+        built.push(letters);
+        verses.push({ book, chapter, verse, start, end: position - 1 });
+      };
+      parts.forEach((part) => {
+        const marker = part.trim().match(/^\{([א-ת]+)\}$/);
+        if (marker) {
+          flush();
+          verse = marker[1];
+          buffer = "";
+        } else {
+          buffer += ` ${part}`;
+        }
+      });
+      flush();
+    });
+    state.verses = built.join("") === state.torah ? verses : [];
+  }
+
+  function sppAt(position) {
+    let low = 0;
+    let high = state.verses.length - 1;
+    while (low <= high) {
+      const middle = Math.floor((low + high) / 2);
+      const verse = state.verses[middle];
+      if (position < verse.start) {
+        high = middle - 1;
+      } else if (position > verse.end) {
+        low = middle + 1;
+      } else {
+        return `${verse.book} ${verse.chapter}:${verse.verse}`;
+      }
+    }
+    return "";
   }
 
   function positionsForMatch(match) {
@@ -1076,7 +1144,8 @@
       renderEmptyGrid("אין ממצא להצגה.");
       return;
     }
-    els.title.textContent = `טבלה בדילוג ${Math.abs(current.primary.skip)} | ממצא ${state.current + 1}/${state.results.length}`;
+    const spp = sppAt(current.primary.start);
+    els.title.textContent = `טבלה בדילוג ${Math.abs(current.primary.skip)}${spp ? ` | ספ״פ ${spp}` : ""} | ממצא ${state.current + 1}/${state.results.length}`;
     renderTopWords(current);
     renderGrid(current);
   }
@@ -1372,6 +1441,92 @@
     window.print();
   }
 
+  function exportStyleText() {
+    const parts = [];
+    Array.from(document.styleSheets).forEach((sheet) => {
+      try {
+        Array.from(sheet.cssRules || []).forEach((rule) => parts.push(rule.cssText));
+      } catch {
+        // Only same-origin styles are needed for this page.
+      }
+    });
+    return parts.join("\n");
+  }
+
+  async function saveCurrentImage() {
+    if (!state.results.length) {
+      setStatus("אין צופן לשמירה כתמונה", 0);
+      return;
+    }
+    renderCurrent();
+    const source = document.querySelector(".torah-panel");
+    const clone = source.cloneNode(true);
+    clone.querySelector(".display-controls")?.remove();
+    clone.style.cssText = [
+      "display:block",
+      "position:static",
+      "width:max-content",
+      "min-width:1100px",
+      "height:auto",
+      "max-height:none",
+      "overflow:visible",
+      "border:8px solid #000",
+      "border-radius:0",
+      "box-shadow:none",
+      "background:#fff",
+      "direction:rtl",
+    ].join(";");
+    const clonedGrid = clone.querySelector(".torah-grid");
+    if (clonedGrid) {
+      clonedGrid.style.cssText += ";height:auto;max-height:none;overflow:visible;background:#fff";
+    }
+    const host = document.createElement("div");
+    host.style.cssText = "position:fixed;left:-100000px;top:0;background:#fff";
+    host.appendChild(clone);
+    document.body.appendChild(host);
+    const width = Math.ceil(Math.max(clone.scrollWidth, clone.getBoundingClientRect().width));
+    const height = Math.ceil(Math.max(clone.scrollHeight, clone.getBoundingClientRect().height));
+    const markup = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+        <foreignObject width="100%" height="100%">
+          <div xmlns="http://www.w3.org/1999/xhtml">
+            <style>${exportStyleText()}</style>
+            ${clone.outerHTML}
+          </div>
+        </foreignObject>
+      </svg>`;
+    host.remove();
+    const blob = new Blob([markup], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    try {
+      const image = new Image();
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = reject;
+        image.src = url;
+      });
+      const scale = Math.min(2, Math.max(1, 1800 / width));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.ceil(width * scale);
+      canvas.height = Math.ceil(height * scale);
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const link = document.createElement("a");
+      link.download = `${safeFileName(state.results[state.current].primary.word || "gal-einai")}.png`;
+      link.href = canvas.toDataURL("image/png");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setStatus("תמונת הצופן נשמרה ללא כפתורי הניווט", 100);
+    } catch {
+      setStatus("הדפדפן לא הצליח להכין את התמונה. אפשר להשתמש בהדפסה ל-PDF.", 0);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
   els.form.addEventListener("submit", (event) => search(event));
   els.secondaryScan.addEventListener("click", () => search(null, { cacheOnly: true }));
   els.stop.addEventListener("click", () => {
@@ -1439,6 +1594,7 @@
     }
   });
   els.print.addEventListener("click", printCurrent);
+  els.saveImage.addEventListener("click", saveCurrentImage);
   els.prev.addEventListener("click", () => moveResult(-1));
   els.next.addEventListener("click", () => moveResult(1));
   els.scrollRight.addEventListener("click", () => scrollDisplay(-1, 0));
