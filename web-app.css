@@ -100,6 +100,30 @@
   align-items: center;
 }
 
+.avot-order-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 18px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #b8c9c1;
+  border-radius: 6px;
+}
+
+.avot-order-options legend {
+  padding-inline: 6px;
+  font-weight: 700;
+}
+
+.avot-order-options label {
+  display: flex;
+  grid-template-columns: none;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
 .nav-button {
   padding: 0;
   border: 0;
