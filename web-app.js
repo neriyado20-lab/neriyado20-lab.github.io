@@ -31,7 +31,7 @@
     current: 0,
     stop: false,
     searching: false,
-    zoom: 22,
+    zoom: 24,
     primaryCache: null,
     lineKeys: new Set(),
     activeWordKey: null,
@@ -242,7 +242,7 @@
 
   function showAvotLine() {
     if (!state.avotLines.length) return;
-    els.avotText.textContent = state.avotLines[state.avotIndex % state.avotLines.length];
+    els.avotText.textContent = String(state.avotLines[state.avotIndex % state.avotLines.length]).replace(/\s+/g, " ").trim();
     requestAnimationFrame(() => {
       state.avotX = -Math.max(1, els.avotText.offsetWidth);
       els.avotText.style.transform = `translateX(${state.avotX}px)`;
@@ -294,7 +294,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W023",
+      version: "W024",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -506,7 +506,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W023",
+      version: "W024",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1415,7 +1415,7 @@
       });
     });
     els.grid.style.setProperty("--cell-size", `${state.zoom}px`);
-    els.grid.style.setProperty("--letter-size", `${Math.max(12, state.zoom - 6)}px`);
+    els.grid.style.setProperty("--letter-size", `${Math.max(14, state.zoom - 1)}px`);
     const inner = document.createElement("div");
     inner.className = "grid-inner";
     inner.style.gridTemplateColumns = `repeat(${cols}, var(--cell-size, 22px))`;
