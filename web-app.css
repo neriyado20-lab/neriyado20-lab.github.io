@@ -505,6 +505,29 @@ body[data-edition="free"] .search-actions {
   background: linear-gradient(90deg, #fff1bd, #ddf3ea);
 }
 
+.display-tools-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 3px 9px;
+  border: 2px solid #315f55;
+  border-radius: 4px;
+  background: #d4e8df;
+  color: #073f33;
+  font: 800 12px Arial, sans-serif;
+  cursor: pointer;
+}
+
+.display-tools-toggle span:first-child {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.display-tools-toggle:hover {
+  background: #b8d7ca;
+}
+
 .panel-head h2 {
   margin: 0;
   font-size: 16px;
@@ -577,35 +600,47 @@ body[data-edition="free"] .search-actions {
   background: #edf5f0;
 }
 
+.display-controls[hidden] {
+  display: none !important;
+}
+
 .display-controls button {
   width: 40px;
   height: 34px;
-  border: 1px solid #aabeb4;
+  border: 2px solid currentColor;
   border-radius: 4px;
-  background: #ffffff;
   color: #084838;
-  font-size: 21px;
+  font-size: 23px;
   font-weight: 900;
+  line-height: 1;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 55%), 0 1px 2px rgb(29 55 47 / 18%);
 }
 
 .display-controls .result-nav {
-  color: #7a3d10;
+  background: #f2c99e;
+  color: #61300a;
 }
 
 .display-controls .direction-nav {
-  color: #064f3d;
-  font-size: 23px;
+  background: #a9d7c5;
+  color: #043f31;
+  font-size: 25px;
 }
 
 .display-controls .zoom-nav {
-  color: #244c79;
-  font-size: 16px;
+  background: #aec8e8;
+  color: #153f70;
+  font-size: 18px;
+}
+
+.display-controls button:hover {
+  filter: saturate(1.18) brightness(0.94);
 }
 
 .display-controls button:active {
-  background: #dcece4;
   transform: translateY(1px);
+  box-shadow: inset 0 2px 3px rgb(0 0 0 / 18%);
 }
 
 .control-separator {
@@ -909,7 +944,8 @@ body[data-edition="free"] .help-body .pro-help {
   .app-command-bar,
   .search-dock,
   .results-panel,
-  .display-controls {
+  .display-controls,
+  .display-tools-toggle {
     display: none !important;
   }
 
