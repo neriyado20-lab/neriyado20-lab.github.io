@@ -6,7 +6,7 @@
   <title>גל עיני Web - חיפוש צפנים בתורה</title>
   <meta name="description" content="גל עיני Web: חיפוש ראשיות ומשניות, תצוגת צפנים, שמירה, ניווט וכלי עבודה מקצועיים ישירות בדפדפן.">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="web-app.css?v=28">
+  <link rel="stylesheet" href="web-app.css?v=29">
 </head>
 <body class="web-app-page">
   <header class="topbar app-topbar">
@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W028 | הכנה מאובטחת למסלולי תשלום</span>
+          <span>W029 | פרקי אבות רציפים וכלי ניווט משופרים</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -30,13 +30,13 @@
 
   <section id="avotTicker" class="avot-ticker" aria-label="פרקי אבות">
     <button id="avotPrevButton" type="button" title="משנה קודמת" aria-label="משנה קודמת">›</button>
-    <div id="avotTrack" class="avot-track"><span id="avotText"></span></div>
+    <div id="avotTrack" class="avot-track"></div>
     <button id="avotNextButton" type="button" title="משנה הבאה" aria-label="משנה הבאה">‹</button>
   </section>
 
-  <main class="web-shell desktop-like" data-app-version="W028">
+  <main class="web-shell desktop-like" data-app-version="W029">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W028</div>
+      <div class="app-version">גל עיני Web W029</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -123,6 +123,7 @@
           <button id="scrollDownButton" class="direction-nav" type="button" title="הזז את התצוגה למטה בשורה אחת" aria-label="הזז למטה">↓</button>
           <span class="control-separator" aria-hidden="true"></span>
           <button id="zoomOutButton" class="zoom-nav" type="button" title="הקטן אותיות" aria-label="הקטן אותיות">−A</button>
+          <button id="zoomResetButton" class="zoom-nav" type="button" title="אפס גודל אותיות" aria-label="אפס גודל אותיות">A</button>
           <button id="zoomInButton" class="zoom-nav" type="button" title="הגדל אותיות" aria-label="הגדל אותיות">+A</button>
         </div>
         <svg id="connectionOverlay" class="connection-overlay" aria-hidden="true"></svg>
@@ -235,8 +236,8 @@
         <h3>תצוגת התורה</h3>
         <ul>
           <li>הראשית ממורכזת בעת פתיחת ממצא.</li>
-          <li>פרקי אבות נעים בשורה אחת משמאל לימין; עמידת העכבר עוצרת, החצים מחליפים משנה והמהירות נקבעת ב<b>כלים</b>.</li>
-          <li>החצים → ← מזיזים אות אחת; ↑ ↓ מזיזים שורה אחת.</li>
+          <li>פרקי אבות נעים ברצף משמאל לימין. המשנה הבאה נכנסת לאחר רווח של כ־15 אותיות; עמידת העכבר עוצרת, והסדר והמהירות נקבעים ב<b>כלים</b>.</li>
+          <li>החצים → ← מזיזים אות אחת; ↑ ↓ מזיזים שורה אחת. לחיצה ארוכה ממשיכה לנוע עד השחרור.</li>
           <li>גלגלת העכבר מזיזה שורה אנכית. Shift+גלגלת או גלילה אופקית מזיזים אות אחת לרוחב.</li>
           <li>A+ ו־A− משנים את גודל האותיות.</li>
         </ul>
@@ -288,6 +289,6 @@
     </div>
   </dialog>
 
-  <script src="web-app.js?v=28"></script>
+  <script src="web-app.js?v=29"></script>
 </body>
 </html>
