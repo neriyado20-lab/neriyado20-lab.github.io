@@ -6,7 +6,7 @@
   <title>גל עיני Web - חיפוש צפנים בתורה</title>
   <meta name="description" content="גל עיני Web: חיפוש ראשיות ומשניות, תצוגת צפנים, שמירה, ניווט וכלי עבודה מקצועיים ישירות בדפדפן.">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="web-app.css?v=30">
+  <link rel="stylesheet" href="web-app.css?v=31">
 </head>
 <body class="web-app-page">
   <header class="topbar app-topbar">
@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W030 | אייקוני ניווט מקצועיים ומעודנים</span>
+          <span>W031 | הסתרת מילים עליונות להרחבת התצוגה</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -34,9 +34,9 @@
     <button id="avotNextButton" type="button" title="משנה הבאה" aria-label="משנה הבאה">‹</button>
   </section>
 
-  <main class="web-shell desktop-like" data-app-version="W030">
+  <main class="web-shell desktop-like" data-app-version="W031">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W030</div>
+      <div class="app-version">גל עיני Web W031</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -106,6 +106,9 @@
       <section class="torah-panel" aria-label="תצוגת התורה">
         <div class="panel-head torah-head">
           <h2 id="displayTitle">תצוגת התורה</h2>
+          <button id="toggleTopWordsButton" class="icon-button no-export-control" type="button" title="הסתר או הצג את מילות הצופן העליונות" aria-label="הסתר או הצג מילים עליונות" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/><path d="M18 16l3 3-3 3"/></svg>
+          </button>
           <button id="toggleDisplayControlsButton" class="display-tools-toggle no-export-control" type="button" title="הסתר או הצג את כלי הניווט התחתונים" aria-label="הסתר או הצג כלי תצוגה">
             <span aria-hidden="true">☷</span>
             <span id="toggleDisplayControlsText">הסתר כלים</span>
@@ -275,6 +278,7 @@
       <button id="closeToolsButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
     </div>
     <div class="tools-content">
+      <label class="tools-check"><input id="showTopWordsInput" type="checkbox" checked> הצג מילים עליונות</label>
       <label class="tools-check"><input id="showAvotTickerInput" type="checkbox" checked> הצג פרקי אבות</label>
       <fieldset class="avot-order-options">
         <legend>סדר המשניות</legend>
@@ -289,6 +293,6 @@
     </div>
   </dialog>
 
-  <script src="web-app.js?v=30"></script>
+  <script src="web-app.js?v=31"></script>
 </body>
 </html>
