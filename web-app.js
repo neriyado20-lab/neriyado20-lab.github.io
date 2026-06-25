@@ -10,6 +10,7 @@
   const LIBRARY_KEY = "gal-einai-web-library-v1";
   const LIBRARY_LIMIT = 20;
   const HISTORY_KEY = "gal-einai-web-history-v1";
+  const DISPLAY_CONTROLS_KEY = "gal-einai-web-display-controls-v1";
   const HISTORY_LIMIT = 20;
   const FREE_MAX_SKIP = 400;
   const PRO_MAX_SKIP = 5000;
@@ -34,6 +35,7 @@
     lineKeys: new Set(),
     activeWordKey: null,
     draggedWordKey: null,
+    displayControlsVisible: true,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -65,6 +67,9 @@
     grid: $("torahGrid"),
     title: $("displayTitle"),
     topWords: $("topWords"),
+    displayControls: document.querySelector(".display-controls"),
+    toggleDisplayControls: $("toggleDisplayControlsButton"),
+    toggleDisplayControlsText: $("toggleDisplayControlsText"),
     prev: $("prevResultButton"),
     next: $("nextResultButton"),
     zoomIn: $("zoomInButton"),
@@ -180,6 +185,22 @@
     els.stop.disabled = !value;
   }
 
+  function applyDisplayControlsVisibility() {
+    els.displayControls.hidden = !state.displayControlsVisible;
+    els.toggleDisplayControlsText.textContent = state.displayControlsVisible ? "הסתר כלים" : "הצג כלים";
+    els.toggleDisplayControls.setAttribute("aria-expanded", String(state.displayControlsVisible));
+    try {
+      localStorage.setItem(DISPLAY_CONTROLS_KEY, state.displayControlsVisible ? "visible" : "hidden");
+    } catch {
+      // The current session still keeps the selected layout.
+    }
+  }
+
+  function toggleDisplayControls() {
+    state.displayControlsVisible = !state.displayControlsVisible;
+    applyDisplayControlsVisibility();
+  }
+
   function serializableMatch(match) {
     return {
       word: match.word,
@@ -194,7 +215,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W021",
+      version: "W022",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -406,7 +427,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W021",
+      version: "W022",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1462,6 +1483,7 @@
     const source = document.querySelector(".torah-panel");
     const clone = source.cloneNode(true);
     clone.querySelector(".display-controls")?.remove();
+    clone.querySelectorAll(".no-export-control").forEach((node) => node.remove());
     clone.style.cssText = [
       "display:block",
       "position:static",
@@ -1595,6 +1617,7 @@
   });
   els.print.addEventListener("click", printCurrent);
   els.saveImage.addEventListener("click", saveCurrentImage);
+  els.toggleDisplayControls.addEventListener("click", toggleDisplayControls);
   els.prev.addEventListener("click", () => moveResult(-1));
   els.next.addEventListener("click", () => moveResult(1));
   els.scrollRight.addEventListener("click", () => scrollDisplay(-1, 0));
@@ -1680,5 +1703,11 @@
     })
     .catch((error) => setStatus(`שגיאה בטעינת התורה: ${error.message}`, 0));
 
+  try {
+    state.displayControlsVisible = localStorage.getItem(DISPLAY_CONTROLS_KEY) !== "hidden";
+  } catch {
+    state.displayControlsVisible = true;
+  }
   applyEdition();
+  applyDisplayControlsVisibility();
 })();
