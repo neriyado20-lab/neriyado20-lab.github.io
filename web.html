@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W022 | כלי תצוגה ברורים וחסכוניים במקום</span>
+          <span>W023 | פרקי אבות בשורה נעה</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -22,13 +22,20 @@
       <a href="examples.html">צפנים לדוגמה</a>
       <a href="index.html#download">הורדת Windows</a>
       <button id="helpButton" class="nav-button" type="button">עזרה</button>
+      <button id="toolsButton" class="nav-button" type="button">כלים</button>
       <a id="editionSwitch" href="web.html?edition=free">עבור לחינמית</a>
     </nav>
   </header>
 
-  <main class="web-shell desktop-like" data-app-version="W022">
+  <section id="avotTicker" class="avot-ticker" aria-label="פרקי אבות">
+    <button id="avotPrevButton" type="button" title="משנה קודמת" aria-label="משנה קודמת">›</button>
+    <div id="avotTrack" class="avot-track"><span id="avotText"></span></div>
+    <button id="avotNextButton" type="button" title="משנה הבאה" aria-label="משנה הבאה">‹</button>
+  </section>
+
+  <main class="web-shell desktop-like" data-app-version="W023">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W022</div>
+      <div class="app-version">גל עיני Web W023</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -227,6 +234,7 @@
         <h3>תצוגת התורה</h3>
         <ul>
           <li>הראשית ממורכזת בעת פתיחת ממצא.</li>
+          <li>פרקי אבות נעים בשורה אחת משמאל לימין; עמידת העכבר עוצרת, החצים מחליפים משנה והמהירות נקבעת ב<b>כלים</b>.</li>
           <li>החצים → ← מזיזים אות אחת; ↑ ↓ מזיזים שורה אחת.</li>
           <li>גלגלת העכבר מזיזה שורה אנכית. Shift+גלגלת או גלילה אופקית מזיזים אות אחת לרוחב.</li>
           <li>A+ ו־A− משנים את גודל האותיות.</li>
@@ -256,6 +264,21 @@
         <h3>חשוב לדעת</h3>
         <p>פתיחת צופן קיים מותרת גם אם הוא חורג ממגבלות החיפוש. פעולות תצוגה, צבע או הסרה אינן משנות את טקסט התורה.</p>
       </section>
+    </div>
+  </dialog>
+
+  <dialog id="toolsDialog" class="tools-dialog" aria-labelledby="toolsTitle">
+    <div class="library-head">
+      <h2 id="toolsTitle">כלי תצוגה</h2>
+      <button id="closeToolsButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
+    </div>
+    <div class="tools-content">
+      <label class="tools-check"><input id="showAvotTickerInput" type="checkbox" checked> הצג פרקי אבות</label>
+      <label>
+        <span>מהירות תנועה: <b id="avotSpeedValue">4</b></span>
+        <input id="avotSpeedInput" type="range" min="1" max="10" value="4">
+        <small>1 איטי מאוד — 10 מהיר</small>
+      </label>
     </div>
   </dialog>
 
