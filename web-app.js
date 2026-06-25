@@ -317,7 +317,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W025",
+      version: "W026",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -529,7 +529,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W025",
+      version: "W026",
       exported_at: new Date().toISOString(),
       items,
     };
