@@ -11,6 +11,7 @@
   const LIBRARY_LIMIT = 20;
   const HISTORY_KEY = "gal-einai-web-history-v1";
   const DISPLAY_CONTROLS_KEY = "gal-einai-web-display-controls-v1";
+  const AVOT_SETTINGS_KEY = "gal-einai-web-avot-v1";
   const HISTORY_LIMIT = 20;
   const FREE_MAX_SKIP = 400;
   const PRO_MAX_SKIP = 5000;
@@ -36,6 +37,13 @@
     activeWordKey: null,
     draggedWordKey: null,
     displayControlsVisible: true,
+    avotLines: [],
+    avotIndex: 0,
+    avotSpeed: 4,
+    avotVisible: true,
+    avotPaused: false,
+    avotX: 0,
+    avotLastFrame: 0,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -113,6 +121,17 @@
     helpDialog: $("helpDialog"),
     helpClose: $("closeHelpButton"),
     helpEdition: $("helpEditionText"),
+    tools: $("toolsButton"),
+    toolsDialog: $("toolsDialog"),
+    toolsClose: $("closeToolsButton"),
+    avotTicker: $("avotTicker"),
+    avotTrack: $("avotTrack"),
+    avotText: $("avotText"),
+    avotPrev: $("avotPrevButton"),
+    avotNext: $("avotNextButton"),
+    avotVisible: $("showAvotTickerInput"),
+    avotSpeed: $("avotSpeedInput"),
+    avotSpeedValue: $("avotSpeedValue"),
   };
 
   function applyEdition() {
@@ -201,6 +220,66 @@
     applyDisplayControlsVisibility();
   }
 
+  function saveAvotSettings() {
+    try {
+      localStorage.setItem(AVOT_SETTINGS_KEY, JSON.stringify({
+        visible: state.avotVisible,
+        speed: state.avotSpeed,
+      }));
+    } catch {
+      // The selected settings remain active for the current session.
+    }
+  }
+
+  function applyAvotSettings() {
+    state.avotSpeed = Math.max(1, Math.min(10, Number(state.avotSpeed) || 4));
+    els.avotTicker.hidden = !state.avotVisible;
+    els.avotVisible.checked = state.avotVisible;
+    els.avotSpeed.value = String(state.avotSpeed);
+    els.avotSpeedValue.textContent = String(state.avotSpeed);
+    saveAvotSettings();
+  }
+
+  function showAvotLine() {
+    if (!state.avotLines.length) return;
+    els.avotText.textContent = state.avotLines[state.avotIndex % state.avotLines.length];
+    requestAnimationFrame(() => {
+      state.avotX = -Math.max(1, els.avotText.offsetWidth);
+      els.avotText.style.transform = `translateX(${state.avotX}px)`;
+    });
+  }
+
+  function stepAvot(direction) {
+    if (!state.avotLines.length) return;
+    state.avotIndex = (state.avotIndex + direction + state.avotLines.length) % state.avotLines.length;
+    showAvotLine();
+  }
+
+  function animateAvot(timestamp) {
+    if (!state.avotLastFrame) state.avotLastFrame = timestamp;
+    const elapsed = Math.min(80, timestamp - state.avotLastFrame);
+    state.avotLastFrame = timestamp;
+    if (state.avotVisible && !state.avotPaused && state.avotLines.length) {
+      const pixelsPerSecond = 10 + state.avotSpeed * 4;
+      state.avotX += (pixelsPerSecond * elapsed) / 1000;
+      els.avotText.style.transform = `translateX(${state.avotX}px)`;
+      if (state.avotX > els.avotTrack.clientWidth) stepAvot(1);
+    }
+    requestAnimationFrame(animateAvot);
+  }
+
+  async function loadAvot() {
+    try {
+      const response = await fetch("assets/pirkei_avot_mishnayot.json", { cache: "force-cache" });
+      if (!response.ok) return;
+      const data = await response.json();
+      state.avotLines = Array.isArray(data) ? data.filter((line) => String(line || "").trim()) : [];
+      if (state.avotLines.length) showAvotLine();
+    } catch {
+      els.avotTicker.hidden = true;
+    }
+  }
+
   function serializableMatch(match) {
     return {
       word: match.word,
@@ -215,7 +294,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W022",
+      version: "W023",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -427,7 +506,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W022",
+      version: "W023",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1688,6 +1767,23 @@
   els.helpDialog.addEventListener("click", (event) => {
     if (event.target === els.helpDialog) els.helpDialog.close();
   });
+  els.tools.addEventListener("click", () => els.toolsDialog.showModal());
+  els.toolsClose.addEventListener("click", () => els.toolsDialog.close());
+  els.toolsDialog.addEventListener("click", (event) => {
+    if (event.target === els.toolsDialog) els.toolsDialog.close();
+  });
+  els.avotPrev.addEventListener("click", () => stepAvot(-1));
+  els.avotNext.addEventListener("click", () => stepAvot(1));
+  els.avotTicker.addEventListener("mouseenter", () => { state.avotPaused = true; });
+  els.avotTicker.addEventListener("mouseleave", () => { state.avotPaused = false; });
+  els.avotVisible.addEventListener("change", () => {
+    state.avotVisible = els.avotVisible.checked;
+    applyAvotSettings();
+  });
+  els.avotSpeed.addEventListener("input", () => {
+    state.avotSpeed = Number(els.avotSpeed.value) || 4;
+    applyAvotSettings();
+  });
   document.addEventListener("pointerdown", (event) => {
     if (!els.wordMenu.hidden && !els.wordMenu.contains(event.target)) hideWordMenu();
   });
@@ -1705,9 +1801,17 @@
 
   try {
     state.displayControlsVisible = localStorage.getItem(DISPLAY_CONTROLS_KEY) !== "hidden";
+    const avotSettings = JSON.parse(localStorage.getItem(AVOT_SETTINGS_KEY) || "{}");
+    state.avotVisible = avotSettings.visible !== false;
+    state.avotSpeed = Number(avotSettings.speed) || 4;
   } catch {
     state.displayControlsVisible = true;
+    state.avotVisible = true;
+    state.avotSpeed = 4;
   }
   applyEdition();
   applyDisplayControlsVisibility();
+  applyAvotSettings();
+  loadAvot();
+  requestAnimationFrame(animateAvot);
 })();
