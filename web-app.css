@@ -104,6 +104,10 @@ body[data-edition="free"] .pro-only {
   font-size: 13px;
 }
 
+.compact-status:has(#statusText:empty) {
+  display: none;
+}
+
 .compact-status progress {
   width: 100%;
   height: 10px;
