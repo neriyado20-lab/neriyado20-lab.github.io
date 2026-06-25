@@ -45,6 +45,7 @@
     avotPaused: false,
     avotX: 0,
     avotLastFrame: 0,
+    avotGroups: [],
   };
 
   const $ = (id) => document.getElementById(id);
@@ -83,6 +84,7 @@
     next: $("nextResultButton"),
     zoomIn: $("zoomInButton"),
     zoomOut: $("zoomOutButton"),
+    zoomReset: $("zoomResetButton"),
     scrollRight: $("scrollRightButton"),
     scrollLeft: $("scrollLeftButton"),
     scrollUp: $("scrollUpButton"),
@@ -127,7 +129,6 @@
     toolsClose: $("closeToolsButton"),
     avotTicker: $("avotTicker"),
     avotTrack: $("avotTrack"),
-    avotText: $("avotText"),
     avotPrev: $("avotPrevButton"),
     avotNext: $("avotNextButton"),
     avotVisible: $("showAvotTickerInput"),
@@ -247,13 +248,30 @@
     saveAvotSettings();
   }
 
+  function createAvotGroup(index) {
+    const caption = document.createElement("span");
+    caption.className = "avot-caption";
+    caption.textContent = String(state.avotLines[index] || "").replace(/\s+/g, " ").trim();
+    els.avotTrack.appendChild(caption);
+    const group = {
+      element: caption,
+      index,
+      x: 0,
+      spawnedNext: false,
+    };
+    state.avotGroups.push(group);
+    requestAnimationFrame(() => {
+      group.x = -Math.max(1, caption.offsetWidth);
+      caption.style.transform = `translateX(${group.x}px)`;
+    });
+    return group;
+  }
+
   function showAvotLine() {
     if (!state.avotLines.length) return;
-    els.avotText.textContent = String(state.avotLines[state.avotIndex % state.avotLines.length]).replace(/\s+/g, " ").trim();
-    requestAnimationFrame(() => {
-      state.avotX = -Math.max(1, els.avotText.offsetWidth);
-      els.avotText.style.transform = `translateX(${state.avotX}px)`;
-    });
+    els.avotTrack.replaceChildren();
+    state.avotGroups = [];
+    createAvotGroup(state.avotIndex % state.avotLines.length);
   }
 
   function stepAvot(direction) {
@@ -262,20 +280,22 @@
     showAvotLine();
   }
 
-  function nextAutomaticAvotIndex() {
+  function nextAutomaticAvotIndex(currentIndex = state.avotIndex) {
     const count = state.avotLines.length;
     if (count <= 1) return 0;
     if (state.avotOrder === "random") {
       const offset = 1 + Math.floor(Math.random() * (count - 1));
-      return (state.avotIndex + offset) % count;
+      return (currentIndex + offset) % count;
     }
-    return (state.avotIndex + 1) % count;
+    return (currentIndex + 1) % count;
   }
 
-  function advanceAvotAutomatically() {
-    if (!state.avotLines.length) return;
-    state.avotIndex = nextAutomaticAvotIndex();
-    showAvotLine();
+  function avotGapWidth() {
+    const probe = document.createElement("canvas");
+    const context = probe.getContext("2d");
+    const style = getComputedStyle(els.avotTrack);
+    context.font = `13px ${style.fontFamily || "Arial"}`;
+    return Math.max(90, context.measureText("א".repeat(15)).width);
   }
 
   function animateAvot(timestamp) {
@@ -284,9 +304,21 @@
     state.avotLastFrame = timestamp;
     if (state.avotVisible && !state.avotPaused && state.avotLines.length) {
       const pixelsPerSecond = 10 + state.avotSpeed * 4;
-      state.avotX += (pixelsPerSecond * elapsed) / 1000;
-      els.avotText.style.transform = `translateX(${state.avotX}px)`;
-      if (state.avotX > els.avotTrack.clientWidth) advanceAvotAutomatically();
+      const delta = (pixelsPerSecond * elapsed) / 1000;
+      const gapWidth = avotGapWidth();
+      state.avotGroups.slice().forEach((group) => {
+        group.x += delta;
+        group.element.style.transform = `translateX(${group.x}px)`;
+        if (!group.spawnedNext && group.x >= gapWidth) {
+          group.spawnedNext = true;
+          state.avotIndex = nextAutomaticAvotIndex(group.index);
+          createAvotGroup(state.avotIndex);
+        }
+        if (group.x > els.avotTrack.clientWidth) {
+          group.element.remove();
+          state.avotGroups = state.avotGroups.filter((item) => item !== group);
+        }
+      });
     }
     requestAnimationFrame(animateAvot);
   }
@@ -317,7 +349,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W028",
+      version: "W029",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -529,7 +561,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W028",
+      version: "W029",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1553,6 +1585,37 @@
     requestAnimationFrame(drawConnections);
   }
 
+  function bindRepeatingButton(button, action) {
+    let delayTimer = 0;
+    let repeatTimer = 0;
+    let pressed = false;
+
+    const stop = () => {
+      pressed = false;
+      window.clearTimeout(delayTimer);
+      window.clearInterval(repeatTimer);
+      delayTimer = 0;
+      repeatTimer = 0;
+    };
+    button.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      pressed = true;
+      button.setPointerCapture?.(event.pointerId);
+      action();
+      delayTimer = window.setTimeout(() => {
+        if (!pressed) return;
+        repeatTimer = window.setInterval(action, 65);
+      }, 180);
+    });
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach((name) => {
+      button.addEventListener(name, stop);
+    });
+    button.addEventListener("click", (event) => {
+      if (event.detail === 0) action();
+    });
+  }
+
   function renderEmptyGrid(text) {
     els.title.textContent = "תצוגת התורה";
     els.topWords.innerHTML = "";
@@ -1752,18 +1815,22 @@
   els.print.addEventListener("click", printCurrent);
   els.saveImage.addEventListener("click", saveCurrentImage);
   els.toggleDisplayControls.addEventListener("click", toggleDisplayControls);
-  els.prev.addEventListener("click", () => moveResult(-1));
-  els.next.addEventListener("click", () => moveResult(1));
-  els.scrollRight.addEventListener("click", () => scrollDisplay(-1, 0));
-  els.scrollLeft.addEventListener("click", () => scrollDisplay(1, 0));
-  els.scrollUp.addEventListener("click", () => scrollDisplay(0, -1));
-  els.scrollDown.addEventListener("click", () => scrollDisplay(0, 1));
+  bindRepeatingButton(els.prev, () => moveResult(-1));
+  bindRepeatingButton(els.next, () => moveResult(1));
+  bindRepeatingButton(els.scrollRight, () => scrollDisplay(-1, 0));
+  bindRepeatingButton(els.scrollLeft, () => scrollDisplay(1, 0));
+  bindRepeatingButton(els.scrollUp, () => scrollDisplay(0, -1));
+  bindRepeatingButton(els.scrollDown, () => scrollDisplay(0, 1));
   els.zoomIn.addEventListener("click", () => {
     state.zoom = Math.min(34, state.zoom + 2);
     renderCurrent();
   });
   els.zoomOut.addEventListener("click", () => {
     state.zoom = Math.max(16, state.zoom - 2);
+    renderCurrent();
+  });
+  els.zoomReset.addEventListener("click", () => {
+    state.zoom = 24;
     renderCurrent();
   });
   els.grid.addEventListener("scroll", () => requestAnimationFrame(drawConnections), { passive: true });
