@@ -795,7 +795,7 @@ body[data-edition="free"] .search-actions {
   border-radius: 2px;
   color: #002f7c;
   font-family: Arial, "Noto Sans Hebrew", sans-serif;
-  font-size: calc(var(--cell-size, 22px) * 0.94);
+  font-size: var(--letter-size, calc(var(--cell-size, 22px) * 0.98));
   font-weight: 900;
   line-height: 1;
 }
