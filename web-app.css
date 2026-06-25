@@ -41,7 +41,8 @@
   background: #e7dcc0;
   color: #493b18;
   font-size: 23px;
-  font-weight: 900;
+  font-family: "Segoe UI Symbol", "Arial", sans-serif;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -728,12 +729,15 @@ body[data-edition="free"] .search-actions {
 .display-controls .result-nav {
   background: #f2c99e;
   color: #61300a;
+  font-size: 28px;
+  font-weight: 400;
 }
 
 .display-controls .direction-nav {
   background: #a9d7c5;
   color: #043f31;
-  font-size: 25px;
+  font-size: 24px;
+  font-weight: 400;
 }
 
 .display-controls .zoom-nav {
