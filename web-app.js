@@ -41,6 +41,7 @@
     avotIndex: 0,
     avotSpeed: 4,
     avotVisible: true,
+    avotOrder: "ordered",
     avotPaused: false,
     avotX: 0,
     avotLastFrame: 0,
@@ -132,6 +133,8 @@
     avotVisible: $("showAvotTickerInput"),
     avotSpeed: $("avotSpeedInput"),
     avotSpeedValue: $("avotSpeedValue"),
+    avotOrdered: $("avotOrderedInput"),
+    avotRandom: $("avotRandomInput"),
   };
 
   function applyEdition() {
@@ -225,6 +228,7 @@
       localStorage.setItem(AVOT_SETTINGS_KEY, JSON.stringify({
         visible: state.avotVisible,
         speed: state.avotSpeed,
+        order: state.avotOrder,
       }));
     } catch {
       // The selected settings remain active for the current session.
@@ -233,10 +237,13 @@
 
   function applyAvotSettings() {
     state.avotSpeed = Math.max(1, Math.min(10, Number(state.avotSpeed) || 4));
+    state.avotOrder = state.avotOrder === "random" ? "random" : "ordered";
     els.avotTicker.hidden = !state.avotVisible;
     els.avotVisible.checked = state.avotVisible;
     els.avotSpeed.value = String(state.avotSpeed);
     els.avotSpeedValue.textContent = String(state.avotSpeed);
+    els.avotOrdered.checked = state.avotOrder === "ordered";
+    els.avotRandom.checked = state.avotOrder === "random";
     saveAvotSettings();
   }
 
@@ -255,6 +262,22 @@
     showAvotLine();
   }
 
+  function nextAutomaticAvotIndex() {
+    const count = state.avotLines.length;
+    if (count <= 1) return 0;
+    if (state.avotOrder === "random") {
+      const offset = 1 + Math.floor(Math.random() * (count - 1));
+      return (state.avotIndex + offset) % count;
+    }
+    return (state.avotIndex + 1) % count;
+  }
+
+  function advanceAvotAutomatically() {
+    if (!state.avotLines.length) return;
+    state.avotIndex = nextAutomaticAvotIndex();
+    showAvotLine();
+  }
+
   function animateAvot(timestamp) {
     if (!state.avotLastFrame) state.avotLastFrame = timestamp;
     const elapsed = Math.min(80, timestamp - state.avotLastFrame);
@@ -263,7 +286,7 @@
       const pixelsPerSecond = 10 + state.avotSpeed * 4;
       state.avotX += (pixelsPerSecond * elapsed) / 1000;
       els.avotText.style.transform = `translateX(${state.avotX}px)`;
-      if (state.avotX > els.avotTrack.clientWidth) stepAvot(1);
+      if (state.avotX > els.avotTrack.clientWidth) advanceAvotAutomatically();
     }
     requestAnimationFrame(animateAvot);
   }
@@ -294,7 +317,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W024",
+      version: "W025",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -506,7 +529,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W024",
+      version: "W025",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1784,6 +1807,13 @@
     state.avotSpeed = Number(els.avotSpeed.value) || 4;
     applyAvotSettings();
   });
+  [els.avotOrdered, els.avotRandom].forEach((input) => {
+    input.addEventListener("change", () => {
+      if (!input.checked) return;
+      state.avotOrder = input.value;
+      applyAvotSettings();
+    });
+  });
   document.addEventListener("pointerdown", (event) => {
     if (!els.wordMenu.hidden && !els.wordMenu.contains(event.target)) hideWordMenu();
   });
@@ -1804,10 +1834,12 @@
     const avotSettings = JSON.parse(localStorage.getItem(AVOT_SETTINGS_KEY) || "{}");
     state.avotVisible = avotSettings.visible !== false;
     state.avotSpeed = Number(avotSettings.speed) || 4;
+    state.avotOrder = avotSettings.order === "random" ? "random" : "ordered";
   } catch {
     state.displayControlsVisible = true;
     state.avotVisible = true;
     state.avotSpeed = 4;
+    state.avotOrder = "ordered";
   }
   applyEdition();
   applyDisplayControlsVisibility();
