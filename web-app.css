@@ -763,13 +763,21 @@ body[data-edition="free"] .search-actions {
 }
 
 .top-words {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 5px;
   min-height: 32px;
   padding: 5px 9px;
   border-bottom: 1px solid #e6dfc7;
   background: #fffdf6;
+}
+
+.top-words-row {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  min-width: 0;
 }
 
 .word-chip {
