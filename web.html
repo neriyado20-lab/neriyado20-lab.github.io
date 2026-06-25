@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W024 | משנה שלמה ואותיות תצוגה מוגדלות</span>
+          <span>W025 | שליטה בסדר ובקצב פרקי אבות</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -33,9 +33,9 @@
     <button id="avotNextButton" type="button" title="משנה הבאה" aria-label="משנה הבאה">‹</button>
   </section>
 
-  <main class="web-shell desktop-like" data-app-version="W024">
+  <main class="web-shell desktop-like" data-app-version="W025">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W024</div>
+      <div class="app-version">גל עיני Web W025</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -274,6 +274,11 @@
     </div>
     <div class="tools-content">
       <label class="tools-check"><input id="showAvotTickerInput" type="checkbox" checked> הצג פרקי אבות</label>
+      <fieldset class="avot-order-options">
+        <legend>סדר המשניות</legend>
+        <label><input id="avotOrderedInput" name="avotOrder" type="radio" value="ordered" checked> לפי הסדר</label>
+        <label><input id="avotRandomInput" name="avotOrder" type="radio" value="random"> אקראי</label>
+      </fieldset>
       <label>
         <span>מהירות תנועה: <b id="avotSpeedValue">4</b></span>
         <input id="avotSpeedInput" type="range" min="1" max="10" value="4">
