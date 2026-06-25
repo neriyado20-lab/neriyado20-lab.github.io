@@ -16,6 +16,90 @@
   padding-block: 8px;
 }
 
+.avot-ticker {
+  flex: 0 0 30px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  align-items: center;
+  width: 100%;
+  min-height: 30px;
+  border-block: 1px solid #d6c898;
+  background: #f8f3e5;
+  color: #493b18;
+  overflow: hidden;
+}
+
+.avot-ticker[hidden] {
+  display: none;
+}
+
+.avot-ticker button {
+  position: relative;
+  z-index: 2;
+  height: 28px;
+  border: 0;
+  background: #e7dcc0;
+  color: #493b18;
+  font-size: 23px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.avot-ticker button:hover {
+  background: #d8c99e;
+}
+
+.avot-track {
+  position: relative;
+  height: 28px;
+  overflow: hidden;
+  direction: ltr;
+}
+
+.avot-track span {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  width: max-content;
+  max-width: none;
+  white-space: nowrap;
+  direction: rtl;
+  unicode-bidi: isolate;
+  font-size: 13px;
+  line-height: 18px;
+  will-change: transform;
+}
+
+.tools-dialog {
+  width: min(430px, calc(100vw - 24px));
+  padding: 0;
+  border: 1px solid #8fa79c;
+  border-radius: 6px;
+  color: #183e34;
+}
+
+.tools-content {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.tools-content label {
+  display: grid;
+  gap: 7px;
+}
+
+.tools-content input[type="range"] {
+  width: 100%;
+  accent-color: #0a8f6f;
+}
+
+.tools-check {
+  grid-template-columns: auto 1fr;
+  justify-content: end;
+  align-items: center;
+}
+
 .nav-button {
   padding: 0;
   border: 0;
@@ -941,6 +1025,7 @@ body[data-edition="free"] .help-body .pro-help {
   }
 
   .topbar,
+  .avot-ticker,
   .app-command-bar,
   .search-dock,
   .results-panel,
