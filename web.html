@@ -6,7 +6,7 @@
   <title>גל עיני Web - חיפוש צפנים בתורה</title>
   <meta name="description" content="גל עיני Web: חיפוש ראשיות ומשניות, תצוגת צפנים, שמירה, ניווט וכלי עבודה מקצועיים ישירות בדפדפן.">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="web-app.css?v=29">
+  <link rel="stylesheet" href="web-app.css?v=30">
 </head>
 <body class="web-app-page">
   <header class="topbar app-topbar">
@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W029 | פרקי אבות רציפים וכלי ניווט משופרים</span>
+          <span>W030 | אייקוני ניווט מקצועיים ומעודנים</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -34,9 +34,9 @@
     <button id="avotNextButton" type="button" title="משנה הבאה" aria-label="משנה הבאה">‹</button>
   </section>
 
-  <main class="web-shell desktop-like" data-app-version="W029">
+  <main class="web-shell desktop-like" data-app-version="W030">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W029</div>
+      <div class="app-version">גל עיני Web W030</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -114,17 +114,17 @@
         <div id="topWords" class="top-words"></div>
         <div id="torahGrid" class="torah-grid" tabindex="0" aria-label="אותיות התורה סביב הממצא"></div>
         <div class="display-controls" aria-label="כלי ניווט בתצוגה">
-          <button id="prevResultButton" class="result-nav" type="button" title="ממצא קודם" aria-label="ממצא קודם">‹</button>
-          <button id="nextResultButton" class="result-nav" type="button" title="ממצא הבא" aria-label="ממצא הבא">›</button>
+          <button id="prevResultButton" class="result-nav" type="button" title="ממצא קודם" aria-label="ממצא קודם"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/><path d="M5 4v16"/></svg></button>
+          <button id="nextResultButton" class="result-nav" type="button" title="ממצא הבא" aria-label="ממצא הבא"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/><path d="M19 4v16"/></svg></button>
           <span class="control-separator" aria-hidden="true"></span>
-          <button id="scrollRightButton" class="direction-nav" type="button" title="הזז את התורה ימינה באות אחת" aria-label="הזז ימינה">→</button>
-          <button id="scrollLeftButton" class="direction-nav" type="button" title="הזז את התורה שמאלה באות אחת" aria-label="הזז שמאלה">←</button>
-          <button id="scrollUpButton" class="direction-nav" type="button" title="הזז את התצוגה למעלה בשורה אחת" aria-label="הזז למעלה">↑</button>
-          <button id="scrollDownButton" class="direction-nav" type="button" title="הזז את התצוגה למטה בשורה אחת" aria-label="הזז למטה">↓</button>
+          <button id="scrollRightButton" class="direction-nav" type="button" title="הזז את התורה ימינה באות אחת" aria-label="הזז ימינה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M14 7l5 5-5 5"/></svg></button>
+          <button id="scrollLeftButton" class="direction-nav" type="button" title="הזז את התורה שמאלה באות אחת" aria-label="הזז שמאלה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5"/><path d="M10 7l-5 5 5 5"/></svg></button>
+          <button id="scrollUpButton" class="direction-nav" type="button" title="הזז את התצוגה למעלה בשורה אחת" aria-label="הזז למעלה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5"/><path d="M7 10l5-5 5 5"/></svg></button>
+          <button id="scrollDownButton" class="direction-nav" type="button" title="הזז את התצוגה למטה בשורה אחת" aria-label="הזז למטה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M7 14l5 5 5-5"/></svg></button>
           <span class="control-separator" aria-hidden="true"></span>
-          <button id="zoomOutButton" class="zoom-nav" type="button" title="הקטן אותיות" aria-label="הקטן אותיות">−A</button>
-          <button id="zoomResetButton" class="zoom-nav" type="button" title="אפס גודל אותיות" aria-label="אפס גודל אותיות">A</button>
-          <button id="zoomInButton" class="zoom-nav" type="button" title="הגדל אותיות" aria-label="הגדל אותיות">+A</button>
+          <button id="zoomOutButton" class="zoom-nav" type="button" title="הקטן אותיות" aria-label="הקטן אותיות"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M7.5 10.5h6"/></svg></button>
+          <button id="zoomResetButton" class="zoom-nav" type="button" title="אפס גודל אותיות" aria-label="אפס גודל אותיות"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L10.5 6h3L18 18"/><path d="M8 13.5h8"/><path d="M4 4h16v16H4z"/></svg></button>
+          <button id="zoomInButton" class="zoom-nav" type="button" title="הגדל אותיות" aria-label="הגדל אותיות"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M7.5 10.5h6"/><path d="M10.5 7.5v6"/></svg></button>
         </div>
         <svg id="connectionOverlay" class="connection-overlay" aria-hidden="true"></svg>
       </section>
@@ -289,6 +289,6 @@
     </div>
   </dialog>
 
-  <script src="web-app.js?v=29"></script>
+  <script src="web-app.js?v=30"></script>
 </body>
 </html>
