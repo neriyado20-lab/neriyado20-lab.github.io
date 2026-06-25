@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>רכישת גל עיני מקצועית</title>
+  <meta name="description" content="בחירת מסלול לגל עיני מקצועית ומעבר מאובטח לסליקה.">
+  <link rel="stylesheet" href="styles.css?v=28">
+</head>
+<body class="purchase-page">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">גע</span>
+      <div><strong>גל עיני מקצועית</strong><span>בחירת מסלול ורכישה מאובטחת</span></div>
+    </div>
+    <nav aria-label="ניווט">
+      <a href="index.html">ראשי</a>
+      <a href="web.html?edition=free">גרסה חינמית</a>
+    </nav>
+  </header>
+
+  <main class="purchase-shell">
+    <section class="purchase-intro">
+      <p class="eyebrow">מנוי מקצועי</p>
+      <h1>בחר מסלול</h1>
+      <p>הגרסה החינמית נשארת זמינה. המסלול המקצועי מיועד לחיפוש רחב, שמירה, ספרייה, דוחות והדפסה.</p>
+    </section>
+
+    <section class="purchase-plans" aria-label="בחירת מסלול">
+      <button class="purchase-plan" type="button" data-plan="monthly">
+        <span>חודשי</span><strong>29 ₪</strong><small>חיוב מדי חודש</small>
+      </button>
+      <button class="purchase-plan" type="button" data-plan="annual">
+        <span>שנתי</span><strong>249 ₪</strong><small>חיסכון של 99 ₪ בשנה</small>
+      </button>
+    </section>
+
+    <section class="checkout-summary">
+      <div><span id="selectedPlan">גל עיני מקצועית</span><strong id="selectedPrice"></strong></div>
+      <button id="payButton" class="button primary" type="button" disabled>הסליקה תיפתח בקרוב</button>
+      <p id="paymentStatus" class="payment-status" aria-live="polite"></p>
+      <p id="paymentSupport" class="payment-support"></p>
+      <small>לא נשמרים באתר פרטי כרטיס אשראי. לאחר ההפעלה התשלום יתבצע אצל ספק סליקה מאובטח.</small>
+    </section>
+  </main>
+
+  <script src="payments-config.js?v=28"></script>
+  <script src="purchase.js?v=28"></script>
+</body>
+</html>
