@@ -779,6 +779,20 @@ body[data-edition="free"] .search-actions {
   background: #fffdf6;
 }
 
+.top-words[hidden] {
+  display: none !important;
+}
+
+.torah-head .icon-button svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.45;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .top-words-row {
   display: flex;
   flex-wrap: nowrap;
@@ -1111,8 +1125,13 @@ body[data-edition="free"] .help-body .pro-help {
   }
 
   .top-words {
+    display: grid !important;
     min-height: 0;
     padding: 2mm;
+  }
+
+  .top-words[hidden] {
+    display: grid !important;
   }
 
   .word-chip {
