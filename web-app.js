@@ -317,7 +317,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W026",
+      version: "W027",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -529,7 +529,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W026",
+      version: "W027",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1363,6 +1363,7 @@
 
   function renderTopWords(result) {
     els.topWords.innerHTML = "";
+    const chips = [];
     const grouped = new Map();
     result.matches.forEach((match) => {
       const key = matchKey(match);
@@ -1424,7 +1425,38 @@
         state.draggedWordKey = null;
         document.querySelectorAll(".word-chip.drag-target").forEach((itemNode) => itemNode.classList.remove("drag-target"));
       });
-      els.topWords.appendChild(chip);
+      chips.push(chip);
+    });
+    const measureRow = document.createElement("div");
+    measureRow.className = "top-words-row";
+    measureRow.style.position = "absolute";
+    measureRow.style.visibility = "hidden";
+    measureRow.style.width = "max-content";
+    chips.forEach((chip) => measureRow.appendChild(chip));
+    els.topWords.appendChild(measureRow);
+    const widths = chips.map((chip) => chip.getBoundingClientRect().width + 5);
+    const available = Math.max(1, els.topWords.clientWidth - 18);
+    let split = chips.length;
+    if (widths.reduce((sum, width) => sum + width, 0) > available && chips.length > 1) {
+      let bestWidth = Infinity;
+      for (let index = 1; index < chips.length; index += 1) {
+        const widest = Math.max(
+          widths.slice(0, index).reduce((sum, width) => sum + width, 0),
+          widths.slice(index).reduce((sum, width) => sum + width, 0),
+        );
+        if (widest < bestWidth) {
+          bestWidth = widest;
+          split = index;
+        }
+      }
+    }
+    measureRow.remove();
+    const groups = split < chips.length ? [chips.slice(0, split), chips.slice(split)] : [chips];
+    groups.forEach((group) => {
+      const row = document.createElement("div");
+      row.className = "top-words-row";
+      group.forEach((chip) => row.appendChild(chip));
+      els.topWords.appendChild(row);
     });
     requestAnimationFrame(drawConnections);
   }
@@ -1817,7 +1849,11 @@
   document.addEventListener("pointerdown", (event) => {
     if (!els.wordMenu.hidden && !els.wordMenu.contains(event.target)) hideWordMenu();
   });
-  window.addEventListener("resize", () => requestAnimationFrame(drawConnections));
+  window.addEventListener("resize", () => {
+    const current = state.results[state.current];
+    if (current) renderTopWords(current);
+    requestAnimationFrame(drawConnections);
+  });
 
   loadTorah()
     .then(async () => {
