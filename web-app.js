@@ -36,6 +36,7 @@
     primaryCache: null,
     lineKeys: new Set(),
     activeWordKey: null,
+    pendingColorKey: null,
     draggedWordKey: null,
     pointerZone: "torah",
     displayControlsVisible: true,
@@ -1939,12 +1940,20 @@
   els.changeWordColor.addEventListener("click", () => {
     if (!state.activeWordKey) return;
     const current = state.results[state.current];
+    state.pendingColorKey = state.activeWordKey;
     els.wordColor.value = colorForKey(current, state.activeWordKey);
     els.wordColor.click();
   });
   els.wordColor.addEventListener("input", () => {
-    if (!state.activeWordKey) return;
-    setWordColor(state.activeWordKey, els.wordColor.value);
+    const key = state.pendingColorKey || state.activeWordKey;
+    if (!key) return;
+    setWordColor(key, els.wordColor.value);
+  });
+  els.wordColor.addEventListener("change", () => {
+    const key = state.pendingColorKey || state.activeWordKey;
+    if (!key) return;
+    setWordColor(key, els.wordColor.value);
+    state.pendingColorKey = null;
     hideWordMenu();
   });
   els.toggleWordLine.addEventListener("click", () => {
@@ -1995,6 +2004,7 @@
     });
   });
   document.addEventListener("pointerdown", (event) => {
+    if (event.target === els.wordColor) return;
     if (!els.wordMenu.hidden && !els.wordMenu.contains(event.target)) hideWordMenu();
   });
   window.addEventListener("resize", () => {
