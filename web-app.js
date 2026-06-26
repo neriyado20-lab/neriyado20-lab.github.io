@@ -37,6 +37,7 @@
     lineKeys: new Set(),
     activeWordKey: null,
     draggedWordKey: null,
+    pointerZone: "torah",
     displayControlsVisible: true,
     topWordsVisible: true,
     avotLines: [],
@@ -74,6 +75,8 @@
     status: $("statusText"),
     count: $("resultCount"),
     summary: $("resultSummary"),
+    resultsPanel: $("resultsPanel"),
+    resultWrap: $("resultTableWrap"),
     head: $("resultsHead"),
     body: $("resultsBody"),
     grid: $("torahGrid"),
@@ -1303,6 +1306,8 @@
     state.results.forEach((result, index) => {
       const tr = document.createElement("tr");
       tr.className = index === state.current ? "active" : "";
+      tr.dataset.resultIndex = String(index);
+      tr.tabIndex = 0;
       tr.addEventListener("click", () => {
         state.current = index;
         renderResults();
@@ -1319,6 +1324,8 @@
       });
       els.body.appendChild(tr);
     });
+    const activeRow = els.body.querySelector("tr.active");
+    if (activeRow) activeRow.scrollIntoView({ block: "nearest", inline: "nearest" });
   }
 
   function renderCurrent() {
@@ -1677,6 +1684,27 @@
     renderCurrent();
   }
 
+  function pointerIsOverResults() {
+    const hovered = document.querySelector(":hover");
+    return Boolean(hovered && els.resultsPanel && els.resultsPanel.contains(hovered));
+  }
+
+  function focusResultsTable() {
+    state.pointerZone = "results";
+    if (els.resultWrap) els.resultWrap.focus({ preventScroll: true });
+  }
+
+  function focusTorahGrid() {
+    state.pointerZone = "torah";
+    if (els.grid) els.grid.focus({ preventScroll: true });
+  }
+
+  function moveResultFromTable(delta) {
+    if (!state.results.length) return;
+    moveResult(delta);
+    setStatus(`צופן ${state.current + 1}/${state.results.length}`, els.progress.value);
+  }
+
   function printCurrent() {
     if (!state.results.length) {
       setStatus("אין צופן להצגה בהדפסה", 0);
@@ -1867,7 +1895,21 @@
     renderCurrent();
   });
   els.grid.addEventListener("scroll", () => requestAnimationFrame(drawConnections), { passive: true });
+  if (els.resultsPanel) {
+    els.resultsPanel.addEventListener("mouseenter", focusResultsTable);
+    els.resultsPanel.addEventListener("mousemove", () => { state.pointerZone = "results"; });
+    els.resultsPanel.addEventListener("mouseleave", () => { state.pointerZone = ""; });
+    els.resultsPanel.addEventListener("wheel", (event) => {
+      if (!state.results.length) return;
+      event.preventDefault();
+      const verticalDelta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      moveResultFromTable(verticalDelta > 0 ? 1 : -1);
+    }, { passive: false });
+  }
+  els.grid.addEventListener("mouseenter", focusTorahGrid);
+  els.grid.addEventListener("mousemove", () => { state.pointerZone = "torah"; });
   els.grid.addEventListener("wheel", (event) => {
+    if (pointerIsOverResults()) return;
     event.preventDefault();
     if (event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
       const horizontalDelta = event.deltaX || event.deltaY;
@@ -1887,6 +1929,12 @@
     if (!move) return;
     event.preventDefault();
     scrollDisplay(move[0], move[1]);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (!pointerIsOverResults() && state.pointerZone !== "results") return;
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    event.preventDefault();
+    moveResultFromTable(event.key === "ArrowDown" ? 1 : -1);
   });
   els.changeWordColor.addEventListener("click", () => {
     if (!state.activeWordKey) return;
