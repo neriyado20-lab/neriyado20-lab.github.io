@@ -663,6 +663,11 @@ body[data-edition="free"] .search-actions {
 
 .result-table-wrap {
   overflow: auto;
+  outline: none;
+}
+
+.result-table-wrap:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(13, 109, 86, 0.28);
 }
 
 .result-table {
