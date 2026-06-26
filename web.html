@@ -6,7 +6,7 @@
   <title>גל עיני Web - חיפוש צפנים בתורה</title>
   <meta name="description" content="גל עיני Web: חיפוש ראשיות ומשניות, תצוגת צפנים, שמירה, ניווט וכלי עבודה מקצועיים ישירות בדפדפן.">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="web-app.css?v=31">
+  <link rel="stylesheet" href="web-app.css?v=33">
 </head>
 <body class="web-app-page">
   <header class="topbar app-topbar">
@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W031 | הסתרת מילים עליונות להרחבת התצוגה</span>
+          <span>W033 | חצים וגלילה לטבלת הממצאים</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -34,9 +34,9 @@
     <button id="avotNextButton" type="button" title="משנה הבאה" aria-label="משנה הבאה">‹</button>
   </section>
 
-  <main class="web-shell desktop-like" data-app-version="W031">
+  <main class="web-shell desktop-like" data-app-version="W033">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W031</div>
+      <div class="app-version">גל עיני Web W033</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -86,7 +86,7 @@
     </section>
 
     <section class="workspace">
-      <aside class="results-panel" aria-label="טבלת ממצאים">
+      <aside id="resultsPanel" class="results-panel" aria-label="טבלת ממצאים">
         <div class="panel-head">
           <h2>טבלת ממצאים</h2>
           <div class="panel-head-actions">
@@ -95,7 +95,7 @@
           </div>
         </div>
         <div id="resultSummary" class="result-summary">לא בוצע חיפוש.</div>
-        <div class="result-table-wrap">
+        <div id="resultTableWrap" class="result-table-wrap" tabindex="0" title="כאשר העכבר מעל הטבלה: גלגלת וחצים למעלה/למטה עוברים בין הצפנים.">
           <table class="result-table">
             <thead id="resultsHead"></thead>
             <tbody id="resultsBody"></tbody>
@@ -293,6 +293,6 @@
     </div>
   </dialog>
 
-  <script src="web-app.js?v=31"></script>
+  <script src="web-app.js?v=33"></script>
 </body>
 </html>
