@@ -1,4 +1,4 @@
-(() => {
+﻿(() => {
   "use strict";
 
   const TARGET_COUNT = 304805;
@@ -35,6 +35,7 @@
     searching: false,
     zoom: 24,
     primaryCache: null,
+    primaryResume: null,
     lineKeys: new Set(),
     activeWordKey: null,
     pendingColorKey: null,
@@ -965,7 +966,7 @@
     return matchPositions(match);
   }
 
-  async function findWord(word, skips, onProgress) {
+  async function findWord(word, skips, onProgress, resume = null) {
     const normalized = normalizeWord(word);
     if (!normalized) return [];
     let anchorIndex = 0;
@@ -983,10 +984,23 @@
     if (!anchorPositions) anchorPositions = Array.from({ length: state.torah.length }, (_v, i) => i);
     const total = Math.max(1, skips.length * anchorPositions.length);
     const results = [];
-    let done = 0;
-    for (const skip of skips) {
-      for (const anchorPos of anchorPositions) {
-        if (state.stop) return results;
+    const startSkipIndex = Math.max(0, Number.parseInt(resume?.skipIndex || "0", 10) || 0);
+    const startAnchorIndex = Math.max(0, Number.parseInt(resume?.anchorIndex || "0", 10) || 0);
+    let done = Math.min(total, startSkipIndex * anchorPositions.length + startAnchorIndex);
+    for (let skipIndex = startSkipIndex; skipIndex < skips.length; skipIndex += 1) {
+      const skip = skips[skipIndex];
+      const anchorStart = skipIndex === startSkipIndex ? startAnchorIndex : 0;
+      for (let anchorPosIndex = anchorStart; anchorPosIndex < anchorPositions.length; anchorPosIndex += 1) {
+        const anchorPos = anchorPositions[anchorPosIndex];
+        if (state.stop) {
+          state.primaryResumePosition = {
+            word: normalized,
+            skipIndex,
+            anchorIndex: anchorPosIndex,
+            skip,
+          };
+          return results;
+        }
         done += 1;
         const start = anchorPos - anchorIndex * skip;
         const end = start + (normalized.length - 1) * skip;
@@ -1114,8 +1128,9 @@
     const loadedFrom = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || "1", 10) || 1));
     const loadedTo = Math.max(loadedFrom, Math.abs(Number.parseInt(els.skipTo.value || String(loadedFrom), 10) || loadedFrom));
     state.primaryCache = state.results.length
-      ? { key: primaryCacheKey(loadedPrimaryWords, loadedFrom, loadedTo), matches: state.results.map((result) => result.primary) }
+      ? { key: primaryCacheKey(loadedPrimaryWords, loadedFrom, loadedTo), matches: state.results.map((result) => result.primary), complete: true }
       : null;
+    state.primaryResume = null;
     renderResults();
     renderCurrent();
     saveDraft();
@@ -1209,24 +1224,48 @@
         skips.push(s, -s);
       }
       let primaries = [];
-      if (hasMatchingCache) {
+      const cacheIsComplete = hasMatchingCache && state.primaryCache.complete !== false;
+      const canResumePrimary = hasMatchingCache && state.primaryCache.complete === false && state.primaryResume?.key === cacheKey;
+      if (cacheOnly && hasMatchingCache) {
         primaries = state.primaryCache.matches.slice();
-        setStatus(`${cacheOnly ? "סורק משניות בלבד" : "משתמש בראשיות מהזיכרון"} | ראשיות ${primaries.length}`, 60);
+        setStatus(`סורק משניות בלבד | ראשיות ${primaries.length}`, 60);
+        await nextFrame();
+      } else if (cacheIsComplete) {
+        primaries = state.primaryCache.matches.slice();
+        setStatus(`משתמש בראשיות מהזיכרון | ראשיות ${primaries.length}`, 60);
         await nextFrame();
       } else {
-        setStatus("מחפש ראשיות...", 0);
+        primaries = canResumePrimary ? state.primaryCache.matches.slice() : [];
+        const resumeIndex = canResumePrimary ? Math.max(0, Number.parseInt(state.primaryResume.primaryIndex || "0", 10) || 0) : 0;
+        setStatus(canResumePrimary ? "ממשיך חיפוש ראשיות מהמקום שנעצר..." : "מחפש ראשיות...", 0);
         await nextFrame();
-        for (let p = 0; p < primaryWords.length; p += 1) {
+        state.primaryResumePosition = null;
+        for (let p = resumeIndex; p < primaryWords.length; p += 1) {
           const primaryWord = primaryWords[p];
+          const resumeForWord = canResumePrimary && p === resumeIndex ? state.primaryResume.position : null;
           const foundForPrimary = await findWord(primaryWord, skips, (done, total, foundCount, skip) => {
             const primaryBase = p / Math.max(1, primaryWords.length);
             const primaryShare = done / Math.max(1, total) / Math.max(1, primaryWords.length);
             const percent = Math.floor((primaryBase + primaryShare) * 60);
             setStatus(`מחפש ראשיות ${p + 1}/${primaryWords.length} | נמצאו ${primaries.length + foundCount} | דילוג ${skip}`, percent);
-          });
+          }, resumeForWord);
           primaries.push(...foundForPrimary);
+          state.primaryCache = { key: cacheKey, matches: primaries.slice(), complete: false };
+          if (state.stop && state.primaryResumePosition) {
+            state.primaryResume = { key: cacheKey, primaryIndex: p, position: state.primaryResumePosition };
+            break;
+          }
         }
-        state.primaryCache = { key: cacheKey, matches: primaries.slice() };
+        if (!state.stop) {
+          state.primaryCache = { key: cacheKey, matches: primaries.slice(), complete: true };
+          state.primaryResume = null;
+        }
+      }
+      if (state.stop) {
+        setStatus(`החיפוש נעצר | נשמר המשך מהמקום האחרון | ראשיות ${primaries.length}`, 60);
+        renderResults();
+        saveDraft();
+        return;
       }
       const total = Math.max(1, primaries.length);
       for (let i = 0; i < primaries.length; i += 1) {
@@ -2086,3 +2125,4 @@
   loadAvot();
   requestAnimationFrame(animateAvot);
 })();
+
