@@ -30,6 +30,7 @@
     index: new Map(),
     results: [],
     current: 0,
+    resultSort: "",
     stop: false,
     searching: false,
     zoom: 24,
@@ -1259,6 +1260,7 @@
         if (state.results.length >= resultLimit) break;
       }
       state.results.sort((a, b) => b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
+      state.resultSort = "";
       const limitNotice = state.results.length >= resultLimit ? ` | הוצגו עד ${resultLimit}` : "";
       setStatus(`החיפוש הסתיים | ראשיות ${primaries.length} | צפנים ${state.results.length}${limitNotice}`, 100);
       renderResults();
@@ -1296,11 +1298,17 @@
     const columns = ["מס'"];
     if (showPrimary) columns.push("ראשית");
     if (showSkip) columns.push("דילוג");
-    columns.push("משניות", "מיקום");
+    columns.push("משניות", "איכות", "מיקום");
     const headRow = document.createElement("tr");
     columns.forEach((name) => {
       const th = document.createElement("th");
       th.textContent = name;
+      const sortKey = resultSortKeyForColumn(name);
+      if (sortKey) {
+        th.dataset.sortKey = sortKey;
+        th.title = `דאבל קליק למיון לפי ${name}`;
+        th.addEventListener("dblclick", () => sortResultsBy(sortKey));
+      }
       headRow.appendChild(th);
     });
     els.head.appendChild(headRow);
@@ -1317,7 +1325,7 @@
       const values = [String(index + 1)];
       if (showPrimary) values.push(result.primary.word);
       if (showSkip) values.push(String(Math.abs(result.primary.skip)));
-      values.push(String(result.secondaryCount), (result.primary.start + 1).toLocaleString("he-IL"));
+      values.push(String(result.secondaryCount), `${qualityScore(result)}/100`, (result.primary.start + 1).toLocaleString("he-IL"));
       values.forEach((value) => {
         const td = document.createElement("td");
         td.textContent = value;
@@ -1327,6 +1335,40 @@
     });
     const activeRow = els.body.querySelector("tr.active");
     if (activeRow) activeRow.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+
+  function qualityScore(result) {
+    const skip = Math.max(1, Math.abs(result.primary.skip || 1));
+    const secondaryScore = Math.min(70, (result.secondaryCount || 0) * 12);
+    const skipScore = Math.max(0, 30 - Math.floor(Math.log10(skip) * 8));
+    return Math.max(0, Math.min(100, secondaryScore + skipScore));
+  }
+
+  function resultSortKeyForColumn(name) {
+    if (name === "משניות") return "secondary";
+    if (name === "דילוג") return "skip";
+    if (name === "איכות") return "quality";
+    return "";
+  }
+
+  function sortResultsBy(sortKey) {
+    const currentPrimary = state.results[state.current]?.primary;
+    if (sortKey === "secondary") {
+      state.results.sort((a, b) => b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
+    } else if (sortKey === "skip") {
+      state.results.sort((a, b) => Math.abs(a.primary.skip) - Math.abs(b.primary.skip) || b.secondaryCount - a.secondaryCount);
+    } else if (sortKey === "quality") {
+      state.results.sort((a, b) => qualityScore(b) - qualityScore(a) || b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
+    } else {
+      return;
+    }
+    if (currentPrimary) {
+      const nextIndex = state.results.findIndex((item) => item.primary.start === currentPrimary.start && item.primary.skip === currentPrimary.skip && item.primary.word === currentPrimary.word);
+      state.current = nextIndex >= 0 ? nextIndex : 0;
+    }
+    state.resultSort = sortKey;
+    renderResults();
+    setStatus(`טבלת הממצאים מוינה לפי ${sortKey === "secondary" ? "משניות" : sortKey === "skip" ? "דילוג" : "איכות"}`, els.progress.value);
   }
 
   function renderCurrent() {
