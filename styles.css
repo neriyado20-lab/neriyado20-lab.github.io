@@ -741,14 +741,53 @@ footer {
   position: absolute;
   inset-block: clamp(38px, 8vw, 92px);
   inset-inline-end: clamp(16px, 5vw, 72px);
-  width: min(49vw, 760px);
-  border: 1px solid rgba(13, 109, 86, 0.24);
-  border-radius: 10px;
+  width: min(52vw, 820px);
+  padding: clamp(8px, 1vw, 14px);
+  border: 2px solid #151515;
+  outline: 1px solid rgba(185, 132, 35, 0.86);
+  outline-offset: 7px;
+  border-radius: 6px;
   background:
-    linear-gradient(180deg, rgba(255, 253, 246, 0.24), rgba(255, 253, 246, 0.03)),
-    url("examples/atom-petzatza-iran.png") top center / cover no-repeat;
-  box-shadow: 0 28px 68px rgba(23, 33, 29, 0.18);
-  opacity: 0.9;
+    url("examples/hero-v305.png") center center / contain no-repeat,
+    linear-gradient(135deg, rgba(255, 247, 214, 0.96), rgba(224, 194, 123, 0.72)),
+    #f8efdc;
+  background-origin: content-box, border-box, border-box;
+  background-clip: content-box, border-box, border-box;
+  box-shadow:
+    0 0 0 1px rgba(255, 253, 246, 0.9),
+    0 0 0 10px rgba(24, 24, 20, 0.06),
+    0 24px 56px rgba(23, 33, 29, 0.22),
+    inset 0 0 0 1px rgba(255, 253, 246, 0.7);
+  opacity: 0.98;
+}
+
+.hero-showcase {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  justify-self: stretch;
+  margin: 0;
+  padding: clamp(8px, 1vw, 14px);
+  border: 2px solid #151515;
+  outline: 1px solid rgba(185, 132, 35, 0.86);
+  outline-offset: 7px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(255, 247, 214, 0.96), rgba(224, 194, 123, 0.72));
+  box-shadow:
+    0 0 0 1px rgba(255, 253, 246, 0.9),
+    0 0 0 10px rgba(24, 24, 20, 0.06),
+    0 24px 56px rgba(23, 33, 29, 0.22),
+    inset 0 0 0 1px rgba(255, 253, 246, 0.7);
+}
+
+.hero-showcase img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(70vh, 650px);
+  object-fit: contain;
+  border: 1px solid rgba(21, 21, 21, 0.35);
+  background: #f8efdc;
 }
 
 .home-hero::after {
@@ -900,10 +939,12 @@ footer {
   }
 
   .home-hero::before {
-    inset-block: 22px auto;
-    inset-inline: 16px;
-    width: auto;
-    height: 31vh;
+    display: none;
+  }
+
+  .hero-showcase {
+    order: -1;
+    outline-offset: 4px;
   }
 
   .stage-grid,
