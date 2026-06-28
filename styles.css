@@ -737,28 +737,7 @@ footer {
 }
 
 .home-hero::before {
-  content: "";
-  position: absolute;
-  inset-block: clamp(38px, 8vw, 92px);
-  inset-inline-end: clamp(16px, 5vw, 72px);
-  width: min(52vw, 820px);
-  padding: clamp(8px, 1vw, 14px);
-  border: 2px solid #151515;
-  outline: 1px solid rgba(185, 132, 35, 0.86);
-  outline-offset: 7px;
-  border-radius: 6px;
-  background:
-    url("examples/hero-v305.png") center center / contain no-repeat,
-    linear-gradient(135deg, rgba(255, 247, 214, 0.96), rgba(224, 194, 123, 0.72)),
-    #f8efdc;
-  background-origin: content-box, border-box, border-box;
-  background-clip: content-box, border-box, border-box;
-  box-shadow:
-    0 0 0 1px rgba(255, 253, 246, 0.9),
-    0 0 0 10px rgba(24, 24, 20, 0.06),
-    0 24px 56px rgba(23, 33, 29, 0.22),
-    inset 0 0 0 1px rgba(255, 253, 246, 0.7);
-  opacity: 0.98;
+  content: none;
 }
 
 .hero-showcase {
