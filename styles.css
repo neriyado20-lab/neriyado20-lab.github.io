@@ -761,18 +761,19 @@ footer {
   justify-self: stretch;
   margin: 0;
   padding: clamp(12px, 1.3vw, 20px);
-  border: 2px solid #12100b;
-  outline: 1px solid rgba(217, 170, 73, 0.92);
+  border: 1px solid rgba(63, 36, 12, 0.78);
+  outline: 1px solid rgba(231, 184, 82, 0.82);
   outline-offset: 8px;
   border-radius: 4px;
   background:
-    linear-gradient(90deg, rgba(130, 9, 27, 0.18), transparent 10%, transparent 90%, rgba(130, 9, 27, 0.18)),
-    linear-gradient(135deg, rgba(255, 249, 224, 0.98), rgba(226, 194, 116, 0.78));
+    radial-gradient(ellipse at 50% 50%, rgba(255, 248, 219, 0.9), rgba(226, 194, 116, 0.58)),
+    linear-gradient(90deg, rgba(90, 34, 12, 0.18), transparent 12%, transparent 88%, rgba(90, 34, 12, 0.18));
   box-shadow:
-    0 0 0 1px rgba(255, 253, 246, 0.9),
-    0 0 0 12px rgba(65, 35, 16, 0.08),
-    0 30px 70px rgba(32, 14, 10, 0.3),
-    inset 0 0 0 1px rgba(255, 253, 246, 0.7);
+    0 0 0 1px rgba(255, 250, 225, 0.78),
+    0 0 34px rgba(255, 222, 142, 0.28),
+    0 28px 66px rgba(32, 14, 10, 0.28),
+    inset 0 0 0 1px rgba(255, 253, 246, 0.62);
+  transform: rotate(-0.15deg);
 }
 
 .hero-showcase::before,
@@ -786,7 +787,7 @@ footer {
 
 .hero-showcase::after {
   inset: 15px;
-  border-color: rgba(214, 156, 37, 0.44);
+  border-color: rgba(170, 110, 29, 0.34);
 }
 
 .hero-showcase img {
@@ -795,8 +796,11 @@ footer {
   height: auto;
   max-height: min(70vh, 650px);
   object-fit: contain;
-  border: 1px solid rgba(21, 21, 21, 0.35);
-  background: #f8efdc;
+  border: 1px solid rgba(78, 49, 17, 0.42);
+  background: rgba(248, 239, 220, 0.92);
+  box-shadow:
+    0 0 0 5px rgba(255, 247, 215, 0.28),
+    inset 0 0 24px rgba(80, 45, 16, 0.08);
 }
 
 .home-hero::after {
@@ -812,20 +816,41 @@ footer {
   position: relative;
   width: min(700px, 100%);
   padding: clamp(22px, 4vw, 44px);
-  border: 1px solid rgba(125, 83, 23, 0.28);
-  border-radius: 8px;
+  border: 1px solid rgba(146, 99, 34, 0.34);
+  border-radius: 6px;
   background:
-    linear-gradient(135deg, rgba(255, 253, 246, 0.96), rgba(255, 244, 215, 0.92)),
-    radial-gradient(circle at top right, rgba(214, 156, 37, 0.16), transparent 36%);
+    radial-gradient(ellipse at 68% 45%, rgba(255, 255, 245, 0.84), rgba(255, 246, 218, 0.64) 58%, rgba(255, 235, 180, 0.38)),
+    linear-gradient(135deg, rgba(255, 252, 237, 0.78), rgba(255, 240, 198, 0.5));
   color: var(--ink);
-  text-shadow: none;
+  text-shadow: 0 1px 0 rgba(255, 255, 245, 0.82);
   box-shadow:
-    0 22px 64px rgba(32, 14, 10, 0.2),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.62);
+    0 0 48px rgba(255, 230, 165, 0.24),
+    0 20px 62px rgba(47, 19, 9, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(2px) saturate(1.08);
+}
+
+.hero-overlay::before,
+.hero-overlay::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.hero-overlay::before {
+  inset: 10px;
+  border: 1px solid rgba(172, 117, 35, 0.2);
+}
+
+.hero-overlay::after {
+  inset-inline: 22px;
+  top: 18px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(156, 103, 30, 0.48), transparent);
 }
 
 .hero-overlay .eyebrow {
-  color: var(--accent);
+  color: #0a6a53;
 }
 
 .hero-overlay h1 {
@@ -833,18 +858,23 @@ footer {
   font-size: clamp(52px, 9vw, 118px);
   line-height: 0.95;
   letter-spacing: 0;
+  color: #103c32;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 245, 0.9),
+    0 14px 34px rgba(76, 45, 11, 0.16);
 }
 
 .hero-overlay .lead {
-  color: var(--muted);
+  color: #354740;
   max-width: 640px;
 }
 
 .hero-overlay .trust-strip span {
-  color: var(--accent-dark);
-  background: rgba(255, 255, 255, 0.72);
-  border-color: rgba(13, 109, 86, 0.22);
-  box-shadow: 0 8px 22px rgba(13, 109, 86, 0.08);
+  color: #0b4c3d;
+  background: rgba(255, 252, 236, 0.58);
+  border-color: rgba(125, 83, 23, 0.26);
+  box-shadow: 0 8px 22px rgba(77, 37, 10, 0.08);
+  backdrop-filter: blur(1px);
 }
 
 .web-stage {
