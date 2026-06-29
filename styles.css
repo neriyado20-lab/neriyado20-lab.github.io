@@ -773,7 +773,7 @@ footer {
 .hero-showcase {
   position: relative;
   justify-self: center;
-  width: min(700px, 72vw);
+  width: min(820px, 78vw);
   margin: 0;
   padding: 0;
   border: 0;
@@ -783,7 +783,7 @@ footer {
   box-shadow:
     0 18px 48px rgba(32, 14, 10, 0.20);
   transform: rotate(-0.15deg);
-  margin-top: clamp(-28px, -2.6vw, -16px);
+  margin-top: clamp(-24px, -2.2vw, -12px);
 }
 
 .hero-showcase::before,
@@ -799,7 +799,7 @@ footer {
   display: block;
   width: 100%;
   height: auto;
-  max-height: min(75vh, 710px);
+  max-height: min(44vh, 380px);
   object-fit: contain;
   border: 0;
   background: transparent;
