@@ -730,9 +730,10 @@ footer {
   align-items: center;
   padding: clamp(36px, 7vw, 96px) clamp(16px, 5vw, 72px);
   background:
-    linear-gradient(90deg, rgba(80, 5, 16, 0.96) 0%, rgba(121, 18, 32, 0.88) 8%, transparent 22%, transparent 78%, rgba(121, 18, 32, 0.88) 92%, rgba(80, 5, 16, 0.96) 100%),
-    radial-gradient(ellipse at 50% 42%, rgba(255, 246, 210, 0.94) 0%, rgba(248, 232, 186, 0.86) 38%, rgba(210, 155, 55, 0.18) 70%, transparent 100%),
-    linear-gradient(135deg, #fff8df 0%, #f2ead1 48%, #dfc17a 100%);
+    linear-gradient(90deg, rgba(42, 4, 10, 0.34), transparent 18%, transparent 82%, rgba(42, 4, 10, 0.34)),
+    radial-gradient(ellipse at 50% 45%, rgba(255, 246, 210, 0.24), rgba(255, 246, 210, 0.08) 45%, rgba(0, 0, 0, 0.08) 100%),
+    url("assets/hero-curtain-torah-v1.png?v=1") center / cover no-repeat,
+    linear-gradient(135deg, #fff8df 0%, #f2ead1 48%, #7c1321 100%);
   border-bottom: 1px solid rgba(13, 109, 86, 0.24);
   overflow: hidden;
 }
@@ -743,12 +744,10 @@ footer {
   inset: 0;
   pointer-events: none;
   background:
-    repeating-linear-gradient(90deg, rgba(255, 235, 190, 0.16) 0 1px, transparent 1px 13px),
-    radial-gradient(ellipse at 6% 38%, rgba(255, 210, 150, 0.28), transparent 24%),
-    radial-gradient(ellipse at 94% 38%, rgba(255, 210, 150, 0.28), transparent 24%),
-    linear-gradient(90deg, rgba(27, 3, 8, 0.18), transparent 18%, transparent 82%, rgba(27, 3, 8, 0.18));
+    radial-gradient(ellipse at 50% 50%, rgba(255, 247, 221, 0.18), transparent 46%),
+    linear-gradient(90deg, rgba(20, 2, 6, 0.18), transparent 24%, transparent 76%, rgba(20, 2, 6, 0.18));
   mix-blend-mode: multiply;
-  opacity: 0.86;
+  opacity: 0.72;
 }
 
 .home-hero > * {
