@@ -194,6 +194,11 @@ body[data-edition="free"] .pro-only {
   display: none;
 }
 
+body[data-downloads="disabled"] #downloadCsvButton,
+body[data-downloads="disabled"] #backupLibraryButton {
+  display: none !important;
+}
+
 .app-current-skip {
   text-align: center;
   color: #0a5c49;
