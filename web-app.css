@@ -13,16 +13,51 @@
 
 .app-topbar {
   flex: 0 0 auto;
-  padding-block: 8px;
+  gap: 8px;
+  padding: 3px 8px;
+  min-height: 34px;
+}
+
+.app-topbar .brand {
+  gap: 6px;
+}
+
+.app-topbar .brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.app-topbar .brand strong {
+  font-size: 15px;
+  line-height: 1.1;
+}
+
+.app-topbar .brand span,
+.app-topbar nav a,
+.app-topbar .nav-button {
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.app-topbar nav {
+  gap: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.app-topbar nav a {
+  padding: 2px 1px;
 }
 
 .avot-ticker {
-  flex: 0 0 30px;
+  flex: 0 0 24px;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  grid-template-columns: 30px minmax(0, 1fr) 30px;
   align-items: center;
   width: 100%;
-  min-height: 30px;
+  min-height: 24px;
   border-block: 1px solid #d6c898;
   background: #f8f3e5;
   color: #493b18;
@@ -36,7 +71,7 @@
 .avot-ticker button {
   position: relative;
   z-index: 2;
-  height: 28px;
+  height: 22px;
   border: 0;
   background: #e7dcc0;
   color: #493b18;
@@ -52,14 +87,14 @@
 
 .avot-track {
   position: relative;
-  height: 28px;
+  height: 22px;
   overflow: hidden;
   direction: ltr;
 }
 
 .avot-caption {
   position: absolute;
-  top: 5px;
+  top: 2px;
   left: 0;
   width: max-content;
   max-width: none;
@@ -145,29 +180,48 @@
   min-height: 0;
   width: min(1920px, 100%);
   margin: 0 auto;
-  padding: 8px clamp(6px, 1.5vw, 16px) 12px;
+  padding: 3px clamp(3px, 0.7vw, 8px) 5px;
 }
 
 .desktop-like {
   height: 100%;
   min-height: 0;
   display: grid;
-  grid-template-rows: auto auto 1fr;
-  gap: 8px;
+  grid-template-columns: minmax(282px, 326px) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  gap: 4px;
+  direction: rtl;
+}
+
+.app-command-bar {
+  grid-column: 1 / -1;
+}
+
+.search-dock {
+  grid-column: 1;
+  grid-row: 2;
+  min-height: 0;
+  overflow: auto;
+}
+
+.workspace {
+  grid-column: 2;
+  grid-row: 2;
 }
 
 .app-command-bar {
   display: grid;
-  grid-template-columns: auto auto minmax(150px, 1fr) auto minmax(280px, 460px);
-  gap: 8px;
+  grid-template-columns: auto auto minmax(120px, 1fr) auto minmax(220px, 360px);
+  gap: 5px;
   align-items: center;
-  min-height: 34px;
-  padding: 4px 8px;
+  min-height: 28px;
+  padding: 2px 6px;
   border: 1px solid #c9b981;
   border-radius: 6px;
   background: #fff4c8;
   color: #4b340e;
   font-weight: 800;
+  font-size: 12px;
 }
 
 .app-version {
@@ -175,12 +229,12 @@
 }
 
 .edition-badge {
-  padding: 3px 7px;
+  padding: 2px 5px;
   border: 1px solid #79a38e;
   border-radius: 4px;
   background: #e4f1eb;
   color: #174f39;
-  font-size: 12px;
+  font-size: 11px;
   white-space: nowrap;
 }
 
@@ -211,9 +265,9 @@ body[data-downloads="disabled"] #backupLibraryButton {
 .compact-status {
   display: grid;
   grid-template-columns: 150px 1fr;
-  gap: 8px;
+  gap: 5px;
   align-items: center;
-  min-height: 24px;
+  min-height: 20px;
   color: #0a5c49;
   font-size: 13px;
 }
@@ -224,7 +278,7 @@ body[data-downloads="disabled"] #backupLibraryButton {
 
 .compact-status progress {
   width: 100%;
-  height: 10px;
+  height: 8px;
   accent-color: #0a8f6f;
 }
 
@@ -233,12 +287,12 @@ body[data-downloads="disabled"] #backupLibraryButton {
   border-radius: 6px;
   background: rgba(255, 253, 246, 0.95);
   box-shadow: 0 8px 24px rgba(44, 31, 12, 0.08);
-  padding: 7px;
+  padding: 4px;
 }
 
 .edition-limit-note {
-  min-height: 18px;
-  margin-top: 4px;
+  min-height: 14px;
+  margin-top: 2px;
   color: #52645c;
   font-size: 12px;
   font-weight: 700;
@@ -255,9 +309,15 @@ body[data-edition="free"] .edition-limit-note {
 
 .search-panel {
   display: grid;
-  grid-template-columns: minmax(160px, 1fr) minmax(260px, 1.45fr) 82px 82px 96px minmax(640px, auto);
-  gap: 7px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
   align-items: end;
+}
+
+.search-panel .primary-field,
+.search-panel .secondary-field,
+.search-actions {
+  grid-column: 1 / -1;
 }
 
 .search-panel label {
@@ -268,32 +328,32 @@ body[data-edition="free"] .edition-limit-note {
 
 .search-panel label span {
   color: #425b50;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
 }
 
 .search-panel input,
 .search-panel textarea {
   width: 100%;
-  min-height: 34px;
-  padding: 5px 7px;
+  min-height: 28px;
+  padding: 3px 6px;
   border: 1px solid #b7c5bd;
   border-radius: 4px;
   background: #fffef9;
   color: #17211d;
-  font: 15px Arial, "Noto Sans Hebrew", sans-serif;
+  font: 14px Arial, "Noto Sans Hebrew", sans-serif;
 }
 
 .search-panel textarea {
   resize: vertical;
-  min-height: 34px;
-  max-height: 78px;
+  min-height: 28px;
+  max-height: 60px;
 }
 
 .search-actions {
   display: grid;
-  grid-template-columns: repeat(9, minmax(46px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px;
 }
 
 body[data-edition="free"] .search-actions {
@@ -301,7 +361,7 @@ body[data-edition="free"] .search-actions {
 }
 
 .search-actions .scan-secondary {
-  min-width: 96px;
+  min-width: 0;
   background: #e4f1eb;
   border-color: #8db39f;
   color: #183f2e;
@@ -326,8 +386,8 @@ body[data-edition="free"] .search-actions {
 }
 
 .search-actions .button {
-  min-height: 34px;
-  padding: 5px 9px;
+  min-height: 28px;
+  padding: 3px 6px;
   border-radius: 5px;
   cursor: pointer;
 }
@@ -559,8 +619,8 @@ body[data-edition="free"] .search-actions {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(310px, 420px) minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: minmax(250px, 360px) minmax(0, 1fr);
+  gap: 4px;
   min-height: 0;
   overflow: hidden;
 }
@@ -591,9 +651,9 @@ body[data-edition="free"] .search-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  min-height: 36px;
-  padding: 6px 9px;
+  gap: 5px;
+  min-height: 28px;
+  padding: 3px 6px;
   border-bottom: 1px solid #d8d0b6;
   background: #fff1bd;
 }
@@ -644,7 +704,7 @@ body[data-edition="free"] .search-actions {
 
 .panel-head h2 {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 #resultCount {
@@ -660,7 +720,7 @@ body[data-edition="free"] .search-actions {
 }
 
 .result-summary {
-  padding: 6px 9px;
+  padding: 3px 6px;
   border-bottom: 1px solid #e6dfc7;
   color: #52645c;
   font-size: 13px;
@@ -684,7 +744,7 @@ body[data-edition="free"] .search-actions {
 
 .result-table th,
 .result-table td {
-  padding: 5px 6px;
+  padding: 3px 4px;
   border-bottom: 1px solid #ede7d3;
   text-align: right;
 }
@@ -713,8 +773,8 @@ body[data-edition="free"] .search-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 4px;
-  padding: 5px 8px;
+  gap: 2px;
+  padding: 3px 5px;
   border-top: 1px solid #d8d0b6;
   background: #edf5f0;
 }
@@ -724,8 +784,8 @@ body[data-edition="free"] .search-actions {
 }
 
 .display-controls button {
-  width: 40px;
-  height: 34px;
+  width: 36px;
+  height: 30px;
   display: grid;
   place-items: center;
   border: 1px solid color-mix(in srgb, currentColor 72%, transparent);
@@ -782,9 +842,9 @@ body[data-edition="free"] .search-actions {
 
 .top-words {
   display: grid;
-  gap: 5px;
-  min-height: 32px;
-  padding: 5px 9px;
+  gap: 3px;
+  min-height: 26px;
+  padding: 3px 6px;
   border-bottom: 1px solid #e6dfc7;
   background: #fffdf6;
 }
@@ -807,7 +867,7 @@ body[data-edition="free"] .search-actions {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
-  gap: 5px;
+  gap: 3px;
   width: 100%;
   min-width: 0;
 }
@@ -815,14 +875,14 @@ body[data-edition="free"] .search-actions {
 .word-chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 8px;
+  gap: 3px;
+  padding: 2px 6px;
   border: 1px solid rgba(0, 0, 0, 0.14);
   border-radius: 4px;
   background: var(--word-color, #ffffff);
   color: var(--word-text, #111111);
   font-weight: 800;
-  font-size: 13px;
+  font-size: 12px;
   cursor: context-menu;
   user-select: none;
   max-width: 100%;
@@ -842,7 +902,7 @@ body[data-edition="free"] .search-actions {
 .torah-grid {
   min-height: 0;
   overflow: auto;
-  padding: 8px;
+  padding: 2px;
   direction: rtl;
   scroll-behavior: auto;
   background: #f7ecd6;
@@ -851,7 +911,7 @@ body[data-edition="free"] .search-actions {
 .grid-inner {
   display: grid;
   justify-content: start;
-  gap: 2px;
+  gap: 0;
   direction: rtl;
 }
 
@@ -860,12 +920,13 @@ body[data-edition="free"] .search-actions {
   place-items: center;
   width: var(--cell-size, 22px);
   height: var(--cell-size, 22px);
-  border-radius: 2px;
+  border-radius: 0;
   color: #002f7c;
   font-family: Arial, "Noto Sans Hebrew", sans-serif;
   font-size: var(--letter-size, calc(var(--cell-size, 22px) * 0.98));
   font-weight: 900;
-  line-height: 1;
+  line-height: 0.94;
+  letter-spacing: 0;
 }
 
 .connection-overlay {
@@ -1021,12 +1082,21 @@ body[data-edition="free"] .help-body .pro-help {
 
   .desktop-like {
     height: auto;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
   }
 
   .app-command-bar,
   .search-panel,
   .workspace {
     grid-template-columns: 1fr;
+  }
+
+  .app-command-bar,
+  .search-dock,
+  .workspace {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .compact-status {
