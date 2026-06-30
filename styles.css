@@ -536,6 +536,12 @@ h2 {
   color: var(--muted);
 }
 
+body:not(.purchase-page) a[download],
+body:not(.purchase-page) a[href^="downloads/"],
+body:not(.purchase-page) a[href*="purchase.html"] {
+  display: none !important;
+}
+
 .content-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
