@@ -3,82 +3,82 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>×’×œ ×¢×™× ×™ Web - ×—×™×¤×•×© ×¦×¤× ×™× ×‘×ª×•×¨×”</title>
-  <meta name="description" content="×’×œ ×¢×™× ×™ Web: ×—×™×¤×•×© ×¨××©×™×•×ª ×•×ž×©× ×™×•×ª, ×ª×¦×•×’×ª ×¦×¤× ×™×, ×©×ž×™×¨×”, × ×™×•×•×˜ ×•×›×œ×™ ×¢×‘×•×“×” ×ž×§×¦×•×¢×™×™× ×™×©×™×¨×•×ª ×‘×“×¤×“×¤×Ÿ.">
+  <title>גל עיני Web - חיפוש צפנים בתורה</title>
+  <meta name="description" content="גל עיני Web: חיפוש ראשיות ומשניות, תצוגת צפנים, שמירה, ניווט וכלי עבודה מקצועיים ישירות בדפדפן.">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="web-app.css?v=39">
+  <link rel="stylesheet" href="web-app.css?v=40">
 </head>
 <body class="web-app-page">
   <header class="topbar app-topbar">
     <div class="brand">
-      <span class="brand-mark" aria-hidden="true">×’×¢</span>
+      <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
-        <strong>×’×œ ×¢×™× ×™ Web</strong>
-          <span>W039 | ×©×™×ž×•×© ×ž×œ× ×‘××ª×¨, ×”×•×¨×“×•×ª ×—×¡×•×ž×•×ª ×–×ž× ×™×ª</span>
+        <strong>גל עיני Web</strong>
+          <span>W040 | שימוש מלא באתר, הורדות חסומות זמנית</span>
       </div>
     </div>
-    <nav aria-label="× ×™×•×•×˜">
-      <a href="index.html">×¨××©×™</a>
-      <a href="examples.html">×¦×¤× ×™× ×œ×“×•×’×ž×”</a>
-      <a href="index.html#download">×”×•×¨×“×ª Windows</a>
-      <a href="purchase.html">×¨×›×™×©×”</a>
-      <button id="helpButton" class="nav-button" type="button">×¢×–×¨×”</button>
-      <button id="toolsButton" class="nav-button" type="button">×›×œ×™×</button>
-      <a id="editionSwitch" href="web.html?edition=free">×¢×‘×•×¨ ×œ×—×™× ×ž×™×ª</a>
+    <nav aria-label="ניווט">
+      <a href="index.html">ראשי</a>
+      <a href="examples.html">צפנים לדוגמה</a>
+      <a href="index.html#download">הורדת Windows</a>
+      <a href="purchase.html">רכישה</a>
+      <button id="helpButton" class="nav-button" type="button">עזרה</button>
+      <button id="toolsButton" class="nav-button" type="button">כלים</button>
+      <a id="editionSwitch" href="web.html?edition=free">עבור לחינמית</a>
     </nav>
   </header>
 
-  <section id="avotTicker" class="avot-ticker" aria-label="×¤×¨×§×™ ××‘×•×ª">
-    <button id="avotPrevButton" type="button" title="×ž×©× ×” ×§×•×“×ž×ª" aria-label="×ž×©× ×” ×§×•×“×ž×ª">â€º</button>
+  <section id="avotTicker" class="avot-ticker" aria-label="פרקי אבות">
+    <button id="avotPrevButton" type="button" title="משנה קודמת" aria-label="משנה קודמת">›</button>
     <div id="avotTrack" class="avot-track"></div>
-    <button id="avotNextButton" type="button" title="×ž×©× ×” ×”×‘××”" aria-label="×ž×©× ×” ×”×‘××”">â€¹</button>
+    <button id="avotNextButton" type="button" title="משנה הבאה" aria-label="משנה הבאה">‹</button>
   </section>
 
-  <main class="web-shell desktop-like" data-app-version="W039">
-    <section class="app-command-bar" aria-label="×¡×¨×’×œ ×ž×¦×‘">
-      <div class="app-version">×’×œ ×¢×™× ×™ Web W039</div>
-      <div id="editionBadge" class="edition-badge">×ž×§×¦×•×¢×™×ª | ×‘×˜× ×¤×ª×•×—×”</div>
-      <div class="app-current-skip">×˜×‘×œ×” ×‘×“×™×œ×•×’</div>
-      <div class="app-blessing">×‘×¡×™×¢×ª× ×“×©×ž×™×</div>
+  <main class="web-shell desktop-like" data-app-version="W040">
+    <section class="app-command-bar" aria-label="סרגל מצב">
+      <div class="app-version">גל עיני Web W040</div>
+      <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
+      <div class="app-current-skip">טבלה בדילוג</div>
+      <div class="app-blessing">בסיעתא דשמיא</div>
       <div class="status-row compact-status" aria-live="polite">
         <progress id="searchProgress" max="100" value="0"></progress>
-        <span id="statusText">×˜×•×¢×Ÿ ××ª ×˜×§×¡×˜ ×”×ª×•×¨×”...</span>
+        <span id="statusText">טוען את טקסט התורה...</span>
       </div>
     </section>
 
-    <section class="search-dock" aria-label="×—×™×¤×•×©">
+    <section class="search-dock" aria-label="חיפוש">
       <form id="searchForm" class="search-panel">
         <label class="primary-field">
-          <span>×¨××©×™×ª</span>
-          <input id="primaryInput" name="primary" autocomplete="off" placeholder="×œ×“×•×’×ž×”: ×ž×©×™×—">
+          <span>ראשית</span>
+          <input id="primaryInput" name="primary" autocomplete="off" placeholder="לדוגמה: משיח">
         </label>
         <label class="secondary-field">
-          <span>×ž×©× ×™×•×ª</span>
-          <textarea id="secondaryInput" name="secondary" rows="2" placeholder="×œ×“×•×’×ž×”: ×™×©×¨××œ ×’××•×œ×” !×ª×•×¨×”"></textarea>
+          <span>משניות</span>
+          <textarea id="secondaryInput" name="secondary" rows="2" placeholder="לדוגמה: ישראל גאולה !תורה"></textarea>
         </label>
         <label>
-          <span>×“×™×œ×•×’ ×žÖ¾</span>
+          <span>דילוג מ־</span>
           <input id="skipFromInput" name="skipFrom" type="number" value="1" min="1" max="5000">
         </label>
         <label>
-          <span>×¢×“</span>
+          <span>עד</span>
           <input id="skipToInput" name="skipTo" type="number" value="400" min="1" max="5000">
         </label>
         <label>
-          <span>×ž×™× ' ×ž×©× ×™×•×ª</span>
+          <span>מינ' משניות</span>
           <input id="minSecondaryInput" name="minSecondary" type="number" value="1" min="0" max="20">
         </label>
         <div class="search-actions">
-          <button id="searchButton" class="button primary" type="submit">×—×¤×©</button>
-          <button id="secondaryScanButton" class="button secondary scan-secondary pro-only" type="button" title="×¡×¨×•×§ ××ª ×”×ž×©× ×™×•×ª ×”× ×•×›×—×™×•×ª ×‘×›×œ ×”×¨××©×™×•×ª ×©×›×‘×¨ × ×ž×¦××•, ×œ×œ× ×—×™×¤×•×© ×¨××©×™×•×ª ×—×•×–×¨">×¡×¨×•×§ ×ž×©× ×™×•×ª</button>
-          <button id="stopButton" class="button secondary" type="button" disabled>×¢×¦×•×¨</button>
-          <button id="clearButton" class="button secondary" type="button">× ×§×”</button>
-          <button id="openProjectButton" class="button secondary" type="button">×¤×ª×— ×¦×•×¤×Ÿ</button>
-          <button id="saveProjectButton" class="button secondary save-project pro-only" type="button" title="×©×ž×•×¨ ××ª ×”×©×“×•×ª ×•××ª ×›×œ ×”×ž×ž×¦××™× ×œ×§×•×‘×¥ ×¦×•×¤×Ÿ">×©×ž×•×¨ ×¦×•×¤×Ÿ</button>
-          <button id="libraryButton" class="button secondary library-button pro-only" type="button" title="×¤×ª×— ××ª ×¡×¤×¨×™×™×ª ×”×¦×¤× ×™× ×”×©×ž×•×¨×™× ×‘×“×¤×“×¤×Ÿ">×”×¦×¤× ×™× ×©×œ×™</button>
-          <button id="historyButton" class="button secondary history-button pro-only" type="button" title="×¤×ª×— ××ª 20 ×”×—×™×¤×•×©×™× ×”××—×¨×•× ×™×">××—×¨×•× ×™×</button>
-          <button id="saveImageButton" class="button secondary pro-only" type="button" title="×©×ž×•×¨ ××ª ×”×¦×•×¤×Ÿ ×›×ª×ž×•× ×ª PNG × ×§×™×™×” ×‘×ž×¡×’×¨×ª ×©×—×•×¨×”">×©×ž×•×¨ ×ª×ž×•× ×”</button>
-          <button id="printButton" class="button secondary pro-only" type="button">×”×“×¤×¡</button>
+          <button id="searchButton" class="button primary" type="submit">חפש</button>
+          <button id="secondaryScanButton" class="button secondary scan-secondary pro-only" type="button" title="סרוק את המשניות הנוכחיות בכל הראשיות שכבר נמצאו, ללא חיפוש ראשיות חוזר">סרוק משניות</button>
+          <button id="stopButton" class="button secondary" type="button" disabled>עצור</button>
+          <button id="clearButton" class="button secondary" type="button">נקה</button>
+          <button id="openProjectButton" class="button secondary" type="button">פתח צופן</button>
+          <button id="saveProjectButton" class="button secondary save-project pro-only" type="button" title="שמור את השדות ואת כל הממצאים לקובץ צופן">שמור צופן</button>
+          <button id="libraryButton" class="button secondary library-button pro-only" type="button" title="פתח את ספריית הצפנים השמורים בדפדפן">הצפנים שלי</button>
+          <button id="historyButton" class="button secondary history-button pro-only" type="button" title="פתח את 20 החיפושים האחרונים">אחרונים</button>
+          <button id="saveImageButton" class="button secondary pro-only" type="button" title="שמור את הצופן כתמונת PNG נקייה במסגרת שחורה">שמור תמונה</button>
+          <button id="printButton" class="button secondary pro-only" type="button">הדפס</button>
           <input id="projectFileInput" type="file" accept=".json,.gal_einai.json,application/json" hidden>
         </div>
       </form>
@@ -86,16 +86,16 @@
     </section>
 
     <section class="workspace">
-      <aside id="resultsPanel" class="results-panel" aria-label="×˜×‘×œ×ª ×ž×ž×¦××™×">
+      <aside id="resultsPanel" class="results-panel" aria-label="טבלת ממצאים">
         <div class="panel-head">
-          <h2>×˜×‘×œ×ª ×ž×ž×¦××™×</h2>
+          <h2>טבלת ממצאים</h2>
           <div class="panel-head-actions">
-            <button id="exportButton" class="table-tool-button pro-only" type="button" title="×™×™×¦×•× ×˜×‘×œ×ª ×”×ž×ž×¦××™× ×•×¡×™×›×•× ×”×—×™×¤×•×©">×™×™×¦×•×</button>
+            <button id="exportButton" class="table-tool-button pro-only" type="button" title="ייצוא טבלת הממצאים וסיכום החיפוש">ייצוא</button>
             <span id="resultCount">0</span>
           </div>
         </div>
-        <div id="resultSummary" class="result-summary">×œ× ×‘×•×¦×¢ ×—×™×¤×•×©.</div>
-        <div id="resultTableWrap" class="result-table-wrap" tabindex="0" title="×›××©×¨ ×”×¢×›×‘×¨ ×ž×¢×œ ×”×˜×‘×œ×”: ×’×œ×’×œ×ª ×•×—×¦×™× ×œ×ž×¢×œ×”/×œ×ž×˜×” ×¢×•×‘×¨×™× ×‘×™×Ÿ ×”×¦×¤× ×™×.">
+        <div id="resultSummary" class="result-summary">לא בוצע חיפוש.</div>
+        <div id="resultTableWrap" class="result-table-wrap" tabindex="0" title="כאשר העכבר מעל הטבלה: גלגלת וחצים למעלה/למטה עוברים בין הצפנים.">
           <table class="result-table">
             <thead id="resultsHead"></thead>
             <tbody id="resultsBody"></tbody>
@@ -103,31 +103,31 @@
         </div>
       </aside>
 
-      <section class="torah-panel" aria-label="×ª×¦×•×’×ª ×”×ª×•×¨×”">
+      <section class="torah-panel" aria-label="תצוגת התורה">
         <div class="panel-head torah-head">
-          <h2 id="displayTitle">×ª×¦×•×’×ª ×”×ª×•×¨×”</h2>
-          <button id="toggleTopWordsButton" class="icon-button no-export-control" type="button" title="×”×¡×ª×¨ ××• ×”×¦×’ ××ª ×ž×™×œ×•×ª ×”×¦×•×¤×Ÿ ×”×¢×œ×™×•× ×•×ª" aria-label="×”×¡×ª×¨ ××• ×”×¦×’ ×ž×™×œ×™× ×¢×œ×™×•× ×•×ª" aria-pressed="false">
+          <h2 id="displayTitle">תצוגת התורה</h2>
+          <button id="toggleTopWordsButton" class="icon-button no-export-control" type="button" title="הסתר או הצג את מילות הצופן העליונות" aria-label="הסתר או הצג מילים עליונות" aria-pressed="false">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/><path d="M18 16l3 3-3 3"/></svg>
           </button>
-          <button id="toggleDisplayControlsButton" class="display-tools-toggle no-export-control" type="button" title="×”×¡×ª×¨ ××• ×”×¦×’ ××ª ×›×œ×™ ×”× ×™×•×•×˜ ×”×ª×—×ª×•× ×™×" aria-label="×”×¡×ª×¨ ××• ×”×¦×’ ×›×œ×™ ×ª×¦×•×’×”">
-            <span aria-hidden="true">â˜·</span>
-            <span id="toggleDisplayControlsText">×”×¡×ª×¨ ×›×œ×™×</span>
+          <button id="toggleDisplayControlsButton" class="display-tools-toggle no-export-control" type="button" title="הסתר או הצג את כלי הניווט התחתונים" aria-label="הסתר או הצג כלי תצוגה">
+            <span aria-hidden="true">☷</span>
+            <span id="toggleDisplayControlsText">הסתר כלים</span>
           </button>
         </div>
         <div id="topWords" class="top-words"></div>
-        <div id="torahGrid" class="torah-grid" tabindex="0" aria-label="××•×ª×™×•×ª ×”×ª×•×¨×” ×¡×‘×™×‘ ×”×ž×ž×¦×"></div>
-        <div class="display-controls" aria-label="×›×œ×™ × ×™×•×•×˜ ×‘×ª×¦×•×’×”">
-          <button id="prevResultButton" class="result-nav" type="button" title="×ž×ž×¦× ×§×•×“×" aria-label="×ž×ž×¦× ×§×•×“×"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/><path d="M5 4v16"/></svg></button>
-          <button id="nextResultButton" class="result-nav" type="button" title="×ž×ž×¦× ×”×‘×" aria-label="×ž×ž×¦× ×”×‘×"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/><path d="M19 4v16"/></svg></button>
+        <div id="torahGrid" class="torah-grid" tabindex="0" aria-label="אותיות התורה סביב הממצא"></div>
+        <div class="display-controls" aria-label="כלי ניווט בתצוגה">
+          <button id="prevResultButton" class="result-nav" type="button" title="ממצא קודם" aria-label="ממצא קודם"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/><path d="M5 4v16"/></svg></button>
+          <button id="nextResultButton" class="result-nav" type="button" title="ממצא הבא" aria-label="ממצא הבא"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/><path d="M19 4v16"/></svg></button>
           <span class="control-separator" aria-hidden="true"></span>
-          <button id="scrollRightButton" class="direction-nav" type="button" title="×”×–×– ××ª ×”×ª×•×¨×” ×™×ž×™× ×” ×‘××•×ª ××—×ª" aria-label="×”×–×– ×™×ž×™× ×”"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M14 7l5 5-5 5"/></svg></button>
-          <button id="scrollLeftButton" class="direction-nav" type="button" title="×”×–×– ××ª ×”×ª×•×¨×” ×©×ž××œ×” ×‘××•×ª ××—×ª" aria-label="×”×–×– ×©×ž××œ×”"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5"/><path d="M10 7l-5 5 5 5"/></svg></button>
-          <button id="scrollUpButton" class="direction-nav" type="button" title="×”×–×– ××ª ×”×ª×¦×•×’×” ×œ×ž×¢×œ×” ×‘×©×•×¨×” ××—×ª" aria-label="×”×–×– ×œ×ž×¢×œ×”"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5"/><path d="M7 10l5-5 5 5"/></svg></button>
-          <button id="scrollDownButton" class="direction-nav" type="button" title="×”×–×– ××ª ×”×ª×¦×•×’×” ×œ×ž×˜×” ×‘×©×•×¨×” ××—×ª" aria-label="×”×–×– ×œ×ž×˜×”"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M7 14l5 5 5-5"/></svg></button>
+          <button id="scrollRightButton" class="direction-nav" type="button" title="הזז את התורה ימינה באות אחת" aria-label="הזז ימינה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M14 7l5 5-5 5"/></svg></button>
+          <button id="scrollLeftButton" class="direction-nav" type="button" title="הזז את התורה שמאלה באות אחת" aria-label="הזז שמאלה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5"/><path d="M10 7l-5 5 5 5"/></svg></button>
+          <button id="scrollUpButton" class="direction-nav" type="button" title="הזז את התצוגה למעלה בשורה אחת" aria-label="הזז למעלה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5"/><path d="M7 10l5-5 5 5"/></svg></button>
+          <button id="scrollDownButton" class="direction-nav" type="button" title="הזז את התצוגה למטה בשורה אחת" aria-label="הזז למטה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M7 14l5 5 5-5"/></svg></button>
           <span class="control-separator" aria-hidden="true"></span>
-          <button id="zoomOutButton" class="zoom-nav" type="button" title="×”×§×˜×Ÿ ××•×ª×™×•×ª" aria-label="×”×§×˜×Ÿ ××•×ª×™×•×ª"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M7.5 10.5h6"/></svg></button>
-          <button id="zoomResetButton" class="zoom-nav" type="button" title="××¤×¡ ×’×•×“×œ ××•×ª×™×•×ª" aria-label="××¤×¡ ×’×•×“×œ ××•×ª×™×•×ª"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L10.5 6h3L18 18"/><path d="M8 13.5h8"/><path d="M4 4h16v16H4z"/></svg></button>
-          <button id="zoomInButton" class="zoom-nav" type="button" title="×”×’×“×œ ××•×ª×™×•×ª" aria-label="×”×’×“×œ ××•×ª×™×•×ª"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M7.5 10.5h6"/><path d="M10.5 7.5v6"/></svg></button>
+          <button id="zoomOutButton" class="zoom-nav" type="button" title="הקטן אותיות" aria-label="הקטן אותיות"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M7.5 10.5h6"/></svg></button>
+          <button id="zoomResetButton" class="zoom-nav" type="button" title="אפס גודל אותיות" aria-label="אפס גודל אותיות"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L10.5 6h3L18 18"/><path d="M8 13.5h8"/><path d="M4 4h16v16H4z"/></svg></button>
+          <button id="zoomInButton" class="zoom-nav" type="button" title="הגדל אותיות" aria-label="הגדל אותיות"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M7.5 10.5h6"/><path d="M10.5 7.5v6"/></svg></button>
         </div>
         <svg id="connectionOverlay" class="connection-overlay" aria-hidden="true"></svg>
       </section>
@@ -135,48 +135,48 @@
   </main>
 
   <template id="emptyResultsTemplate">
-    <tr><td colspan="5">××™×Ÿ ×ž×ž×¦××™× ×œ×”×¦×’×”.</td></tr>
+    <tr><td colspan="5">אין ממצאים להצגה.</td></tr>
   </template>
 
   <dialog id="libraryDialog" class="library-dialog pro-only" aria-labelledby="libraryTitle">
     <div class="library-head">
       <div>
-        <h2 id="libraryTitle">×”×¦×¤× ×™× ×©×œ×™</h2>
-        <span id="libraryCount">0 ×ž×ª×•×š 20 ×¦×¤× ×™×</span>
+        <h2 id="libraryTitle">הצפנים שלי</h2>
+        <span id="libraryCount">0 מתוך 20 צפנים</span>
       </div>
-      <button id="closeLibraryButton" class="icon-button" type="button" aria-label="×¡×’×•×¨" title="×¡×’×•×¨">Ã—</button>
+      <button id="closeLibraryButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
     </div>
     <form id="librarySaveForm" class="library-save-row">
       <label>
-        <span>×©× ×”×¦×•×¤×Ÿ</span>
-        <input id="libraryNameInput" maxlength="80" autocomplete="off" placeholder="×œ×“×•×’×ž×”: ××˜×•× ×¤×¦×¦×” ××™×¨×Ÿ">
+        <span>שם הצופן</span>
+        <input id="libraryNameInput" maxlength="80" autocomplete="off" placeholder="לדוגמה: אטום פצצה אירן">
       </label>
-      <button class="button primary" type="submit">×©×ž×•×¨ ×‘×¡×¤×¨×™×™×”</button>
+      <button class="button primary" type="submit">שמור בספרייה</button>
     </form>
     <div class="library-tools">
       <label class="library-search">
-        <span>×—×™×¤×•×© ×‘×¡×¤×¨×™×™×”</span>
-        <input id="librarySearchInput" type="search" autocomplete="off" placeholder="×©× ×¦×•×¤×Ÿ ××• ×ž×™×œ×”">
+        <span>חיפוש בספרייה</span>
+        <input id="librarySearchInput" type="search" autocomplete="off" placeholder="שם צופן או מילה">
       </label>
-      <button id="backupLibraryButton" class="button secondary" type="button">×’×‘×” ×¡×¤×¨×™×™×”</button>
-      <button id="restoreLibraryButton" class="button secondary" type="button">×©×—×–×¨ ×’×™×‘×•×™</button>
+      <button id="backupLibraryButton" class="button secondary" type="button">גבה ספרייה</button>
+      <button id="restoreLibraryButton" class="button secondary" type="button">שחזר גיבוי</button>
       <input id="libraryBackupInput" type="file" accept=".json,.gal_einai_library.json,application/json" hidden>
     </div>
     <div id="libraryList" class="library-list" aria-live="polite"></div>
-    <p class="library-note">×”×¦×¤× ×™× × ×©×ž×¨×™× ×‘×“×¤×“×¤×Ÿ ×”×–×”. ×ž×•×ž×œ×¥ ×œ×”×•×¨×™×“ ×’×™×‘×•×™; ×©×ž×™×¨×” ×‘×¢× ×Ÿ ×ª×ª×•×•×¡×£ ×‘×”×ž×©×š.</p>
+    <p class="library-note">הצפנים נשמרים בדפדפן הזה. מומלץ להוריד גיבוי; שמירה בענן תתווסף בהמשך.</p>
   </dialog>
 
   <dialog id="historyDialog" class="library-dialog history-dialog pro-only" aria-labelledby="historyTitle">
     <div class="library-head">
       <div>
-        <h2 id="historyTitle">×—×™×¤×•×©×™× ××—×¨×•× ×™×</h2>
-        <span id="historyCount">0 ×ž×ª×•×š 20 ×—×™×¤×•×©×™×</span>
+        <h2 id="historyTitle">חיפושים אחרונים</h2>
+        <span id="historyCount">0 מתוך 20 חיפושים</span>
       </div>
-      <button id="closeHistoryButton" class="icon-button" type="button" aria-label="×¡×’×•×¨" title="×¡×’×•×¨">Ã—</button>
+      <button id="closeHistoryButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
     </div>
     <div class="history-toolbar">
-      <span>×”×—×™×¤×•×©×™× × ×©×ž×¨×™× ×‘×“×¤×“×¤×Ÿ ×”×–×”.</span>
-      <button id="clearHistoryButton" class="button secondary" type="button">× ×§×” ×”×™×¡×˜×•×¨×™×”</button>
+      <span>החיפושים נשמרים בדפדפן הזה.</span>
+      <button id="clearHistoryButton" class="button secondary" type="button">נקה היסטוריה</button>
     </div>
     <div id="historyList" class="library-list history-list" aria-live="polite"></div>
   </dialog>
@@ -184,115 +184,115 @@
   <dialog id="exportDialog" class="library-dialog export-dialog pro-only" aria-labelledby="exportTitle">
     <div class="library-head">
       <div>
-        <h2 id="exportTitle">×™×™×¦×•× ×“×•×— ×ž×ž×¦××™×</h2>
-        <span id="exportCount">0 ×ž×ž×¦××™×</span>
+        <h2 id="exportTitle">ייצוא דוח ממצאים</h2>
+        <span id="exportCount">0 ממצאים</span>
       </div>
-      <button id="closeExportButton" class="icon-button" type="button" aria-label="×¡×’×•×¨" title="×¡×’×•×¨">Ã—</button>
+      <button id="closeExportButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
     </div>
     <div class="export-content">
       <label>
-        <span>×¡×™×›×•× ×œ×”×¢×ª×§×”</span>
+        <span>סיכום להעתקה</span>
         <textarea id="exportSummaryText" readonly rows="12"></textarea>
       </label>
       <div class="export-actions">
-        <button id="copySummaryButton" class="button secondary" type="button">×”×¢×ª×§ ×¡×™×›×•×</button>
-        <button id="downloadCsvButton" class="button primary" type="button">×”×•×¨×“ CSV ×œÖ¾Excel</button>
+        <button id="copySummaryButton" class="button secondary" type="button">העתק סיכום</button>
+        <button id="downloadCsvButton" class="button primary" type="button">הורד CSV ל־Excel</button>
       </div>
     </div>
   </dialog>
 
   <div id="wordMenu" class="word-menu" role="menu" hidden>
-    <button id="changeWordColorButton" type="button" role="menuitem">×©× ×” ×¦×‘×¢ ×‘×›×œ ×”×¦×•×¤×Ÿ</button>
-    <button id="toggleWordLineButton" type="button" role="menuitem">×”×¦×’ ×§×• ×œ×ž×™×œ×”</button>
-    <button id="removeWordButton" type="button" role="menuitem">×”×¡×¨ ×ž×”×ž×ž×¦× ×”× ×•×›×—×™</button>
-    <button id="removeAllWordButton" type="button" role="menuitem">×”×¡×¨ ×ž×›×œ ×ª×•×¦××•×ª ×”×—×™×¤×•×©</button>
+    <button id="changeWordColorButton" type="button" role="menuitem">שנה צבע בכל הצופן</button>
+    <button id="toggleWordLineButton" type="button" role="menuitem">הצג קו למילה</button>
+    <button id="removeWordButton" type="button" role="menuitem">הסר מהממצא הנוכחי</button>
+    <button id="removeAllWordButton" type="button" role="menuitem">הסר מכל תוצאות החיפוש</button>
     <input id="wordColorInput" type="color" hidden>
   </div>
 
   <dialog id="helpDialog" class="help-dialog" aria-labelledby="helpTitle">
     <div class="library-head help-head">
       <div>
-        <h2 id="helpTitle">×¢×–×¨×” - ×’×œ ×¢×™× ×™ Web</h2>
-        <span id="helpEditionText">×”×•×¨××•×ª ×œ×ž×”×“×•×¨×” ×”×ž×§×¦×•×¢×™×ª</span>
+        <h2 id="helpTitle">עזרה - גל עיני Web</h2>
+        <span id="helpEditionText">הוראות למהדורה המקצועית</span>
       </div>
-      <button id="closeHelpButton" class="icon-button" type="button" aria-label="×¡×’×•×¨" title="×¡×’×•×¨">Ã—</button>
+      <button id="closeHelpButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
     </div>
     <div class="help-body">
       <section>
-        <h3>×—×™×¤×•×©</h3>
+        <h3>חיפוש</h3>
         <ol>
-          <li>×”×§×œ×“ ×¨××©×™×ª ××—×ª ××• ×™×•×ª×¨ ×‘×”×ª×× ×œ×ž×”×“×•×¨×”.</li>
-          <li>×”×§×œ×“ ×ž×©× ×™×•×ª ×›×©×”×Ÿ ×ž×•×¤×¨×“×•×ª ×‘×¨×•×•×—. ×›×ª×™×‘×ª <b>!</b> ×œ×¤× ×™ ×ž×™×œ×” ×ž×—×™×™×‘×ª ××ª ×”×•×¤×¢×ª×” ×‘×¦×•×¤×Ÿ.</li>
-          <li>×‘×—×¨ ×˜×•×•×— ×“×™×œ×•×’×™× ×•×ž×¡×¤×¨ ×ž×™× ×™×ž×œ×™ ×©×œ ×ž×©× ×™×•×ª ×•×œ×—×¥ <b>×—×¤×©</b>.</li>
-          <li class="pro-help">×× ×”×¨××©×™×•×ª ×›×‘×¨ × ×ž×¦××•, <b>×¡×¨×•×§ ×ž×©× ×™×•×ª</b> ×‘×•×“×§ ×ž×©× ×™×•×ª ×—×“×©×•×ª ×‘×œ×™ ×œ×—×¤×© ×©×•×‘ ××ª ×”×¨××©×™×•×ª.</li>
+          <li>הקלד ראשית אחת או יותר בהתאם למהדורה.</li>
+          <li>הקלד משניות כשהן מופרדות ברווח. כתיבת <b>!</b> לפני מילה מחייבת את הופעתה בצופן.</li>
+          <li>בחר טווח דילוגים ומספר מינימלי של משניות ולחץ <b>חפש</b>.</li>
+          <li class="pro-help">אם הראשיות כבר נמצאו, <b>סרוק משניות</b> בודק משניות חדשות בלי לחפש שוב את הראשיות.</li>
         </ol>
       </section>
       <section>
-        <h3>×˜×‘×œ×ª ×”×ž×ž×¦××™×</h3>
+        <h3>טבלת הממצאים</h3>
         <ul>
-          <li>×œ×—×™×¦×” ×¢×œ ×©×•×¨×” ×ž×¦×™×’×” ××ª ×”×¦×•×¤×Ÿ. ×”×—×¦×™× â—€ â–¶ ×¢×•×‘×¨×™× ×ž×ž×¦× ××—×“ ×‘×›×œ ×¤×¢×.</li>
-          <li>×”×ž×ž×¦××™× ×ž×“×•×¨×’×™× ×œ×¤×™ ×ž×¡×¤×¨ ×”×ž×©× ×™×•×ª ×•×œ××—×¨ ×ž×›×Ÿ ×œ×¤×™ ×’×•×“×œ ×”×“×™×œ×•×’.</li>
-          <li class="pro-help"><b>×™×™×¦×•×</b> ×ž×•×¨×™×“ CSV ×œÖ¾Excel ××• ×ž×¢×ª×™×§ ×“×•×— ×˜×§×¡×˜.</li>
+          <li>לחיצה על שורה מציגה את הצופן. החצים ◀ ▶ עוברים ממצא אחד בכל פעם.</li>
+          <li>הממצאים מדורגים לפי מספר המשניות ולאחר מכן לפי גודל הדילוג.</li>
+          <li class="pro-help"><b>ייצוא</b> מוריד CSV ל־Excel או מעתיק דוח טקסט.</li>
         </ul>
       </section>
       <section>
-        <h3>×ª×¦×•×’×ª ×”×ª×•×¨×”</h3>
+        <h3>תצוגת התורה</h3>
         <ul>
-          <li>×”×¨××©×™×ª ×ž×ž×•×¨×›×–×ª ×‘×¢×ª ×¤×ª×™×—×ª ×ž×ž×¦×.</li>
-          <li>×¤×¨×§×™ ××‘×•×ª × ×¢×™× ×‘×¨×¦×£ ×ž×©×ž××œ ×œ×™×ž×™×Ÿ. ×”×ž×©× ×” ×”×‘××” × ×›× ×¡×ª ×œ××—×¨ ×¨×•×•×— ×©×œ ×›Ö¾15 ××•×ª×™×•×ª; ×¢×ž×™×“×ª ×”×¢×›×‘×¨ ×¢×•×¦×¨×ª, ×•×”×¡×“×¨ ×•×”×ž×”×™×¨×•×ª × ×§×‘×¢×™× ×‘<b>×›×œ×™×</b>.</li>
-          <li>×”×—×¦×™× â†’ â† ×ž×–×™×–×™× ××•×ª ××—×ª; â†‘ â†“ ×ž×–×™×–×™× ×©×•×¨×” ××—×ª. ×œ×—×™×¦×” ××¨×•×›×” ×ž×ž×©×™×›×” ×œ× ×•×¢ ×¢×“ ×”×©×—×¨×•×¨.</li>
-          <li>×’×œ×’×œ×ª ×”×¢×›×‘×¨ ×ž×–×™×–×” ×©×•×¨×” ×× ×›×™×ª. Shift+×’×œ×’×œ×ª ××• ×’×œ×™×œ×” ××•×¤×§×™×ª ×ž×–×™×–×™× ××•×ª ××—×ª ×œ×¨×•×—×‘.</li>
-          <li>A+ ×•Ö¾Aâˆ’ ×ž×©× ×™× ××ª ×’×•×“×œ ×”××•×ª×™×•×ª.</li>
+          <li>הראשית ממורכזת בעת פתיחת ממצא.</li>
+          <li>פרקי אבות נעים ברצף משמאל לימין. המשנה הבאה נכנסת לאחר רווח של כ־15 אותיות; עמידת העכבר עוצרת, והסדר והמהירות נקבעים ב<b>כלים</b>.</li>
+          <li>החצים → ← מזיזים אות אחת; ↑ ↓ מזיזים שורה אחת. לחיצה ארוכה ממשיכה לנוע עד השחרור.</li>
+          <li>גלגלת העכבר מזיזה שורה אנכית. Shift+גלגלת או גלילה אופקית מזיזים אות אחת לרוחב.</li>
+          <li>A+ ו־A− משנים את גודל האותיות.</li>
         </ul>
       </section>
       <section>
-        <h3>×ž×™×œ×™×, ×¦×‘×¢×™× ×•×§×•×•×™×</h3>
+        <h3>מילים, צבעים וקווים</h3>
         <ul>
-          <li>×›×œ ×ž×™×œ×” ×ž×•×¤×™×¢×” ×œ×ž×¢×œ×” ×‘×¦×‘×¢ ×©×‘×• ×”×™× ×ž×¡×•×ž× ×ª ×‘×¦×•×¤×Ÿ.</li>
-          <li>×›×œ ×ž×™×œ×” ××• ×‘×™×˜×•×™ ×ž×•×¤×™×¢×™× ×¤×¢× ××—×ª ×‘×œ×‘×“ ×œ×ž×¢×œ×”; ×× × ×ž×¦××• ×›×ž×” ×¤×¢×ž×™× ××• ×‘×›×ž×” ×“×™×œ×•×’×™×, ×”×›×ž×•×™×•×ª ×•×”×“×™×œ×•×’×™× ×ž×¨×•×›×–×™× ×‘××•×ª×• ×›×¨×˜×™×¡.</li>
-          <li>×§×œ×™×§ ×™×ž× ×™ ×¢×œ ×ž×™×œ×” ×œ×ž×¢×œ×” ××• ×¢×œ ××•×ª ×¦×‘×•×¢×” ×‘×ª×•×¨×” ×¤×•×ª×— ××ª ××•×ª×Ÿ ×¤×¢×•×œ×•×ª.</li>
-          <li>×©×™× ×•×™ ×¦×‘×¢ ×–×ž×™×Ÿ ×‘×©×ª×™ × ×§×•×“×•×ª ×”×¤×¢×•×œ×”. ×‘×ž×§×¦×•×¢×™×ª ××¤×©×¨ ×’× ×œ×”×¦×™×’ ×§×• ×•×œ×”×¡×™×¨ ×ž×ž×¦××™×.</li>
-          <li class="pro-help">×’×¨×™×¨×ª ×ž×™×œ×” ×¢×œ ×ž×™×œ×” ××—×¨×ª ×ž×¢×ª×™×§×” ××œ×™×” ××ª ×”×¦×‘×¢.</li>
-          <li>×©×™× ×•×™ ×¦×‘×¢ ×—×œ ×¢×œ ×›×œ ×ž×•×¤×¢×™ ××•×ª×” ×ž×™×œ×” ×‘×ª×•×¦××•×ª ×”×—×™×¤×•×©.</li>
+          <li>כל מילה מופיעה למעלה בצבע שבו היא מסומנת בצופן.</li>
+          <li>כל מילה או ביטוי מופיעים פעם אחת בלבד למעלה; אם נמצאו כמה פעמים או בכמה דילוגים, הכמויות והדילוגים מרוכזים באותו כרטיס.</li>
+          <li>קליק ימני על מילה למעלה או על אות צבועה בתורה פותח את אותן פעולות.</li>
+          <li>שינוי צבע זמין בשתי נקודות הפעולה. במקצועית אפשר גם להציג קו ולהסיר ממצאים.</li>
+          <li class="pro-help">גרירת מילה על מילה אחרת מעתיקה אליה את הצבע.</li>
+          <li>שינוי צבע חל על כל מופעי אותה מילה בתוצאות החיפוש.</li>
         </ul>
       </section>
       <section class="pro-help">
-        <h3>×›×œ×™× ×ž×§×¦×•×¢×™×™×</h3>
+        <h3>כלים מקצועיים</h3>
         <ul>
-          <li><b>×”×¦×¤× ×™× ×©×œ×™</b>: ×©×ž×™×¨×” ×ž×§×•×ž×™×ª ×©×œ ×¢×“ 20 ×¦×¤× ×™×, ×—×™×¤×•×©, ×”×•×¨×“×” ×•×ž×—×™×§×”.</li>
-          <li><b>×’×‘×” ×¡×¤×¨×™×™×”</b> ×ž×•×¨×™×“ ×’×™×‘×•×™ ××—×“; <b>×©×—×–×¨ ×’×™×‘×•×™</b> ×ž×ž×–×’ ××•×ª×• ×‘×œ×™ ×›×¤×™×œ×•×™×•×ª ×©×ž×™×•×ª.</li>
-          <li><b>××—×¨×•× ×™×</b>: 20 ×—×™×¤×•×©×™× ×ž×•×¦×œ×—×™× ××—×¨×•× ×™×, ×˜×¢×™× ×” ×•×”×¤×¢×œ×” ×—×•×–×¨×ª.</li>
-          <li><b>×©×ž×•×¨ ×¦×•×¤×Ÿ</b> ×ž×•×¨×™×“ ×§×•×‘×¥; <b>×”×“×¤×¡</b> ×ž×¤×™×§ ×ª×¦×•×’×” × ×§×™×™×” ×‘×ž×¡×’×¨×ª ×©×—×•×¨×”.</li>
+          <li><b>הצפנים שלי</b>: שמירה מקומית של עד 20 צפנים, חיפוש, הורדה ומחיקה.</li>
+          <li><b>גבה ספרייה</b> מוריד גיבוי אחד; <b>שחזר גיבוי</b> ממזג אותו בלי כפילויות שמיות.</li>
+          <li><b>אחרונים</b>: 20 חיפושים מוצלחים אחרונים, טעינה והפעלה חוזרת.</li>
+          <li><b>שמור צופן</b> מוריד קובץ; <b>הדפס</b> מפיק תצוגה נקייה במסגרת שחורה.</li>
         </ul>
       </section>
       <section>
-        <h3>×—×©×•×‘ ×œ×“×¢×ª</h3>
-        <p>×¤×ª×™×—×ª ×¦×•×¤×Ÿ ×§×™×™× ×ž×•×ª×¨×ª ×’× ×× ×”×•× ×—×•×¨×’ ×ž×ž×’×‘×œ×•×ª ×”×—×™×¤×•×©. ×¤×¢×•×œ×•×ª ×ª×¦×•×’×”, ×¦×‘×¢ ××• ×”×¡×¨×” ××™× ×Ÿ ×ž×©× ×•×ª ××ª ×˜×§×¡×˜ ×”×ª×•×¨×”.</p>
+        <h3>חשוב לדעת</h3>
+        <p>פתיחת צופן קיים מותרת גם אם הוא חורג ממגבלות החיפוש. פעולות תצוגה, צבע או הסרה אינן משנות את טקסט התורה.</p>
       </section>
     </div>
   </dialog>
 
   <dialog id="toolsDialog" class="tools-dialog" aria-labelledby="toolsTitle">
     <div class="library-head">
-      <h2 id="toolsTitle">×›×œ×™ ×ª×¦×•×’×”</h2>
-      <button id="closeToolsButton" class="icon-button" type="button" aria-label="×¡×’×•×¨" title="×¡×’×•×¨">Ã—</button>
+      <h2 id="toolsTitle">כלי תצוגה</h2>
+      <button id="closeToolsButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
     </div>
     <div class="tools-content">
-      <label class="tools-check"><input id="showTopWordsInput" type="checkbox" checked> ×”×¦×’ ×ž×™×œ×™× ×¢×œ×™×•× ×•×ª</label>
-      <label class="tools-check"><input id="showAvotTickerInput" type="checkbox" checked> ×”×¦×’ ×¤×¨×§×™ ××‘×•×ª</label>
+      <label class="tools-check"><input id="showTopWordsInput" type="checkbox" checked> הצג מילים עליונות</label>
+      <label class="tools-check"><input id="showAvotTickerInput" type="checkbox" checked> הצג פרקי אבות</label>
       <fieldset class="avot-order-options">
-        <legend>×¡×“×¨ ×”×ž×©× ×™×•×ª</legend>
-        <label><input id="avotOrderedInput" name="avotOrder" type="radio" value="ordered" checked> ×œ×¤×™ ×”×¡×“×¨</label>
-        <label><input id="avotRandomInput" name="avotOrder" type="radio" value="random"> ××§×¨××™</label>
+        <legend>סדר המשניות</legend>
+        <label><input id="avotOrderedInput" name="avotOrder" type="radio" value="ordered" checked> לפי הסדר</label>
+        <label><input id="avotRandomInput" name="avotOrder" type="radio" value="random"> אקראי</label>
       </fieldset>
       <label>
-        <span>×ž×”×™×¨×•×ª ×ª× ×•×¢×”: <b id="avotSpeedValue">4</b></span>
+        <span>מהירות תנועה: <b id="avotSpeedValue">4</b></span>
         <input id="avotSpeedInput" type="range" min="1" max="10" value="4">
-        <small>1 ××™×˜×™ ×ž××•×“ â€” 10 ×ž×”×™×¨</small>
+        <small>1 איטי מאוד — 10 מהיר</small>
       </label>
     </div>
   </dialog>
 
-  <script src="web-app.js?v=39"></script>
+  <script src="web-app.js?v=40"></script>
 </body>
 </html>
