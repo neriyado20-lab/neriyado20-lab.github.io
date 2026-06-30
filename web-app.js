@@ -20,8 +20,9 @@
   const PRO_MAX_SECONDARIES = 30;
   const FREE_MAX_PRIMARIES = 1;
   const PRO_MAX_PRIMARIES = 10;
+  const WEB_DOWNLOADS_ENABLED = false;
   const pageParams = new URLSearchParams(window.location.search);
-  const edition = pageParams.get("edition") === "free" ? "free" : "pro";
+  const edition = "pro";
   const COLORS = ["#3ddc84", "#42d7f5", "#ffe15c", "#f78acb", "#b9f35d", "#ffb347", "#9db4ff"];
 
   const state = {
@@ -150,24 +151,19 @@
 
   function applyEdition() {
     document.body.dataset.edition = edition;
+    document.body.dataset.downloads = WEB_DOWNLOADS_ENABLED ? "enabled" : "disabled";
     const nextParams = new URLSearchParams(window.location.search);
-    nextParams.set("edition", edition === "free" ? "pro" : "free");
-    els.editionBadge.textContent = edition === "free" ? "חינמית" : "מקצועית | בטא פתוחה";
-    els.editionSwitch.textContent = edition === "free" ? "נסה מקצועית" : "עבור לחינמית";
-    els.editionSwitch.href = `web.html?${nextParams.toString()}`;
-    const maxSkip = edition === "free" ? FREE_MAX_SKIP : PRO_MAX_SKIP;
-    const maxSecondaries = edition === "free" ? FREE_MAX_SECONDARIES : PRO_MAX_SECONDARIES;
+    nextParams.delete("edition");
+    els.editionBadge.textContent = "בטא פתוחה | שימוש מלא באתר";
+    els.editionSwitch.textContent = "הורדות חסומות זמנית";
+    els.editionSwitch.href = "index.html#download";
+    const maxSkip = PRO_MAX_SKIP;
+    const maxSecondaries = PRO_MAX_SECONDARIES;
     els.skipFrom.max = String(maxSkip);
     els.skipTo.max = String(maxSkip);
     els.minSecondary.max = String(maxSecondaries);
-    if (edition === "free") {
-      els.editionLimitNote.innerHTML = `בחינמית: ראשית אחת, עד ${FREE_MAX_SECONDARIES} משניות, דילוג ${FREE_MAX_SKIP} ו-${FREE_MAX_RESULTS} צפנים בחיפוש. <a href="web.html?edition=pro">ראה את המקצועית</a>.`;
-    } else {
-      els.editionLimitNote.textContent = `המקצועית: עד ${PRO_MAX_PRIMARIES} ראשיות, ${PRO_MAX_SECONDARIES} משניות, דילוג ${PRO_MAX_SKIP} ו-${PRO_MAX_RESULTS} צפנים בחיפוש. הבטא פתוחה ללא חיוב.`;
-    }
-    els.helpEdition.textContent = edition === "free"
-      ? "הוראות למהדורה החינמית"
-      : "הוראות למהדורה המקצועית";
+    els.editionLimitNote.textContent = `בטא פתוחה: עד ${PRO_MAX_PRIMARIES} ראשיות, ${PRO_MAX_SECONDARIES} משניות, דילוג ${PRO_MAX_SKIP} ו-${PRO_MAX_RESULTS} צפנים בחיפוש. הורדות חסומות זמנית עד הסדרת הצד החשבונאי.`;
+    els.helpEdition.textContent = "הוראות לשימוש מלא באתר. הורדות קבצים חסומות זמנית.";
   }
 
   function normalizeWord(value) {
@@ -216,6 +212,10 @@
     els.saveProject.disabled = value;
     els.export.disabled = value;
     els.stop.disabled = !value;
+  }
+
+  function downloadsPaused() {
+    setStatus("הורדות קבצים חסומות זמנית באתר עד הסדרת הצד החשבונאי. אפשר לעבוד באתר, לפתוח צפנים ולשמור בספרייה המקומית.", 0);
   }
 
   function applyDisplayControlsVisibility() {
@@ -383,7 +383,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W031",
+      version: "W038",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -399,16 +399,14 @@
   }
 
   function saveDraft() {
-    if (edition !== "pro") return;
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(projectData()));
     } catch {
-      // A downloadable file remains available even when browser storage is blocked.
+      // Browser storage may be blocked; downloads are intentionally paused at this stage.
     }
   }
 
   function restoreDraft() {
-    if (edition !== "pro") return false;
     if (pageParams.has("project")) return false;
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
@@ -430,6 +428,10 @@
   }
 
   function downloadProject(data, name = data.primary) {
+    if (!WEB_DOWNLOADS_ENABLED) {
+      downloadsPaused();
+      return;
+    }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -526,6 +528,8 @@
       const downloadButton = document.createElement("button");
       downloadButton.type = "button";
       downloadButton.textContent = "הורד";
+      downloadButton.disabled = !WEB_DOWNLOADS_ENABLED;
+      downloadButton.title = "הורדות חסומות זמנית באתר";
       downloadButton.addEventListener("click", () => downloadProject(item.data, item.name));
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
@@ -544,7 +548,6 @@
   }
 
   function openLibrary() {
-    if (edition !== "pro") return;
     els.libraryName.value = els.primary.value.trim() || "צופן חדש";
     els.librarySearch.value = "";
     renderLibrary();
@@ -583,11 +586,15 @@
       renderLibrary();
       setStatus(`הצופן "${name}" נשמר בספרייה`, 100);
     } catch {
-      setStatus("אין די מקום בדפדפן לשמירת הצופן. אפשר להוריד אותו כקובץ.", 0);
+      setStatus("אין די מקום בדפדפן לשמירת הצופן. הורדת קבצים חסומה זמנית באתר.", 0);
     }
   }
 
   function backupLibrary() {
+    if (!WEB_DOWNLOADS_ENABLED) {
+      downloadsPaused();
+      return;
+    }
     const items = readLibrary();
     if (!items.length) {
       setStatus("הספרייה ריקה ואין מה לגבות.", 0);
@@ -595,7 +602,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W031",
+      version: "W038",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -645,7 +652,6 @@
   }
 
   function readHistory() {
-    if (edition !== "pro") return [];
     try {
       const items = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
       return Array.isArray(items) ? items.filter((item) => item && item.id && item.primary).slice(0, HISTORY_LIMIT) : [];
@@ -655,7 +661,6 @@
   }
 
   function writeHistory(items) {
-    if (edition !== "pro") return;
     localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
   }
 
@@ -670,7 +675,7 @@
   }
 
   function rememberSearch() {
-    if (edition !== "pro" || !state.results.length) return;
+    if (!state.results.length) return;
     const item = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       searchedAt: new Date().toISOString(),
@@ -756,7 +761,6 @@
   }
 
   function openHistory() {
-    if (edition !== "pro") return;
     renderHistory();
     els.historyDialog.showModal();
   }
@@ -823,7 +827,6 @@
   }
 
   function openExport() {
-    if (edition !== "pro") return;
     if (!state.results.length) {
       setStatus("אין ממצאים לייצוא.", 0);
       return;
@@ -846,6 +849,10 @@
   }
 
   function downloadResultsCsv() {
+    if (!WEB_DOWNLOADS_ENABLED) {
+      downloadsPaused();
+      return;
+    }
     if (!state.results.length) return;
     const blob = new Blob(["\ufeff", exportCsvText()], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -1170,23 +1177,19 @@
       setStatus("יש להקליד ראשית לחיפוש", 0);
       return;
     }
-    const editionMaxPrimaries = edition === "free" ? FREE_MAX_PRIMARIES : PRO_MAX_PRIMARIES;
+    const editionMaxPrimaries = PRO_MAX_PRIMARIES;
     if (primaryWords.length > editionMaxPrimaries) {
       setStatus(
-        edition === "free"
-          ? `המהדורה החינמית מאפשרת ראשית אחת בחיפוש. המקצועית מאפשרת עד ${PRO_MAX_PRIMARIES} ראשיות במקביל.`
-          : `ניתן לחפש עד ${PRO_MAX_PRIMARIES} ראשיות במקביל.`,
+        `ניתן לחפש עד ${PRO_MAX_PRIMARIES} ראשיות במקביל באתר.`,
         0
       );
       els.primary.focus();
       return;
     }
-    const editionMaxSecondaries = edition === "free" ? FREE_MAX_SECONDARIES : PRO_MAX_SECONDARIES;
+    const editionMaxSecondaries = PRO_MAX_SECONDARIES;
     if (secondaries.length > editionMaxSecondaries) {
       setStatus(
-        edition === "free"
-          ? `המהדורה החינמית מאפשרת עד ${FREE_MAX_SECONDARIES} משניות בחיפוש. ניתן לעבור למקצועית לעד ${PRO_MAX_SECONDARIES}.`
-          : `ניתן לחפש עד ${PRO_MAX_SECONDARIES} משניות בכל חיפוש.`,
+        `ניתן לחפש עד ${PRO_MAX_SECONDARIES} משניות בכל חיפוש באתר.`,
         0
       );
       els.secondary.focus();
@@ -1194,19 +1197,17 @@
     }
     const from = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || "1", 10) || 1));
     const to = Math.max(from, Math.abs(Number.parseInt(els.skipTo.value || String(from), 10) || from));
-    const editionMaxSkip = edition === "free" ? FREE_MAX_SKIP : PRO_MAX_SKIP;
+    const editionMaxSkip = PRO_MAX_SKIP;
     if (from > editionMaxSkip || to > editionMaxSkip) {
       setStatus(
-        edition === "free"
-          ? `המהדורה החינמית מאפשרת חיפוש עד דילוג ${FREE_MAX_SKIP}. ניתן לעבור למקצועית להמשך הטווח.`
-          : `טווח החיפוש המרבי הוא ${PRO_MAX_SKIP}.`,
+        `טווח החיפוש המרבי באתר הוא ${PRO_MAX_SKIP}.`,
         0
       );
       els.skipTo.focus();
       return;
     }
     const cacheKey = primaryCacheKey(primaryWords, from, to);
-    const resultLimit = edition === "free" ? FREE_MAX_RESULTS : PRO_MAX_RESULTS;
+    const resultLimit = PRO_MAX_RESULTS;
     const hasMatchingCache = state.primaryCache && state.primaryCache.key === cacheKey;
     if (cacheOnly && !hasMatchingCache) {
       setStatus("אין ראשיות מתאימות בזיכרון. יש לבצע תחילה חיפוש ראשיות או לפתוח צופן.", 0);
@@ -1492,9 +1493,9 @@
     state.activeWordKey = key;
     const current = state.results[state.current];
     const target = current?.matches.find((match) => matchKey(match) === key);
-    els.toggleWordLine.hidden = edition !== "pro";
-    els.removeWord.hidden = edition !== "pro";
-    els.removeAllWord.hidden = edition !== "pro";
+    els.toggleWordLine.hidden = false;
+    els.removeWord.hidden = false;
+    els.removeAllWord.hidden = false;
     els.removeWord.disabled = !target || target.kind === "primary";
     els.removeAllWord.disabled = !target || target.kind === "primary";
     els.toggleWordLine.textContent = state.lineKeys.has(key) ? "הסר קו למילה" : "הצג קו למילה";
@@ -1548,7 +1549,7 @@
       chip.title = item.kind === "primary"
         ? "קליק ימני לפעולות"
         : "קליק ימני לפעולות; גרור למילה אחרת כדי להעתיק את הצבע";
-      chip.draggable = edition === "pro" && item.kind !== "primary";
+      chip.draggable = item.kind !== "primary";
       chip.addEventListener("contextmenu", (event) => openWordMenu(event, item.key));
       chip.addEventListener("dragstart", (event) => {
         state.draggedWordKey = item.key;
@@ -1870,6 +1871,10 @@
       context.fillStyle = "#ffffff";
       context.fillRect(0, 0, canvas.width, canvas.height);
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      if (!WEB_DOWNLOADS_ENABLED) {
+        downloadsPaused();
+        return;
+      }
       const link = document.createElement("a");
       link.download = `${safeFileName(state.results[state.current].primary.word || "gal-einai")}.png`;
       link.href = canvas.toDataURL("image/png");
