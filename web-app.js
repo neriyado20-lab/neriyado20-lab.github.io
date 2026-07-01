@@ -383,7 +383,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W041",
+      version: "W042",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -602,7 +602,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W041",
+      version: "W042",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1836,7 +1836,14 @@
     ].join(";");
     const clonedGrid = clone.querySelector(".torah-grid");
     if (clonedGrid) {
-      clonedGrid.style.cssText += ";height:auto;max-height:none;overflow:visible;background:#fff";
+      clonedGrid.style.cssText += ";height:auto;max-height:none;overflow:hidden;background:#fff;scrollbar-width:none";
+    }
+    clone.querySelectorAll(".torah-grid, .result-table-wrap").forEach((node) => {
+      node.style.scrollbarWidth = "none";
+    });
+    const watermark = clone.querySelector(".cipher-watermark");
+    if (watermark) {
+      watermark.style.cssText += ";display:block;position:absolute;left:10px;top:10px;z-index:20";
     }
     const host = document.createElement("div");
     host.style.cssText = "position:fixed;left:-100000px;top:0;background:#fff";
@@ -2130,4 +2137,3 @@
   loadAvot();
   requestAnimationFrame(animateAvot);
 })();
-
