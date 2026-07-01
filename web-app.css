@@ -958,6 +958,22 @@ body[data-edition="free"] .search-actions {
   opacity: 0.88;
 }
 
+.cipher-watermark {
+  position: absolute;
+  left: 8px;
+  top: 34px;
+  z-index: 5;
+  padding: 2px 7px;
+  border: 1px solid rgba(13, 64, 52, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 253, 246, 0.72);
+  color: rgba(7, 63, 51, 0.70);
+  font: 900 12px Arial, "Noto Sans Hebrew", sans-serif;
+  letter-spacing: 0;
+  pointer-events: none;
+  box-shadow: 0 1px 4px rgba(23, 33, 29, 0.08);
+}
+
 .word-menu {
   position: fixed;
   z-index: 1000;
@@ -1211,6 +1227,7 @@ body[data-edition="free"] .help-body .pro-help {
   }
 
   .torah-panel {
+    position: relative;
     display: block;
     overflow: visible;
     border: 2mm solid #000000;
@@ -1243,9 +1260,21 @@ body[data-edition="free"] .help-body .pro-help {
   }
 
   .torah-grid {
-    overflow: visible;
+    overflow: hidden;
     padding: 2mm;
     background: #ffffff;
+  }
+
+  .cipher-watermark {
+    left: 2mm;
+    top: 2mm;
+    padding: 0.7mm 2mm;
+    border-color: rgba(0, 0, 0, 0.30);
+    background: rgba(255, 255, 255, 0.68);
+    color: rgba(0, 0, 0, 0.55);
+    font-size: 9pt;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
   .grid-inner {
