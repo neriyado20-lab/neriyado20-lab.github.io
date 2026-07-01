@@ -13,36 +13,36 @@
 
 .app-topbar {
   flex: 0 0 auto;
-  gap: 8px;
-  padding: 3px 8px;
-  min-height: 34px;
+  gap: 6px;
+  padding: 1px 6px;
+  min-height: 29px;
 }
 
 .app-topbar .brand {
-  gap: 6px;
+  gap: 4px;
 }
 
 .app-topbar .brand-mark {
-  width: 28px;
-  height: 28px;
+  width: 23px;
+  height: 23px;
   border-radius: 4px;
   box-shadow: none;
 }
 
 .app-topbar .brand strong {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.1;
 }
 
 .app-topbar .brand span,
 .app-topbar nav a,
 .app-topbar .nav-button {
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.1;
 }
 
 .app-topbar nav {
-  gap: 8px;
+  gap: 6px;
   flex-wrap: nowrap;
   overflow-x: auto;
 }
@@ -52,12 +52,12 @@
 }
 
 .avot-ticker {
-  flex: 0 0 24px;
+  flex: 0 0 20px;
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) 30px;
+  grid-template-columns: 26px minmax(0, 1fr) 26px;
   align-items: center;
   width: 100%;
-  min-height: 24px;
+  min-height: 20px;
   border-block: 1px solid #d6c898;
   background: #f8f3e5;
   color: #493b18;
@@ -71,11 +71,11 @@
 .avot-ticker button {
   position: relative;
   z-index: 2;
-  height: 22px;
+  height: 18px;
   border: 0;
   background: #e7dcc0;
   color: #493b18;
-  font-size: 23px;
+  font-size: 19px;
   font-family: "Segoe UI Symbol", "Arial", sans-serif;
   font-weight: 500;
   cursor: pointer;
@@ -87,22 +87,22 @@
 
 .avot-track {
   position: relative;
-  height: 22px;
+  height: 18px;
   overflow: hidden;
   direction: ltr;
 }
 
 .avot-caption {
   position: absolute;
-  top: 2px;
+  top: 0;
   left: 0;
   width: max-content;
   max-width: none;
   white-space: nowrap;
   direction: rtl;
   unicode-bidi: isolate;
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 12px;
+  line-height: 17px;
   will-change: transform;
 }
 
@@ -180,7 +180,7 @@
   min-height: 0;
   width: min(1920px, 100%);
   margin: 0 auto;
-  padding: 3px clamp(3px, 0.7vw, 8px) 5px;
+  padding: 2px clamp(2px, 0.5vw, 6px) 3px;
 }
 
 .desktop-like {
@@ -189,7 +189,7 @@
   display: grid;
   grid-template-columns: minmax(282px, 326px) minmax(0, 1fr);
   grid-template-rows: auto auto minmax(0, 1fr);
-  gap: 4px;
+  gap: 2px;
   direction: rtl;
 }
 
@@ -221,16 +221,16 @@
 .app-command-bar {
   display: grid;
   grid-template-columns: auto auto minmax(120px, 1fr) auto minmax(220px, 360px);
-  gap: 5px;
+  gap: 3px;
   align-items: center;
-  min-height: 28px;
-  padding: 2px 6px;
+  min-height: 23px;
+  padding: 1px 4px;
   border: 1px solid #c9b981;
   border-radius: 6px;
   background: #fff4c8;
   color: #4b340e;
   font-weight: 800;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .app-version {
@@ -238,12 +238,12 @@
 }
 
 .edition-badge {
-  padding: 2px 5px;
+  padding: 1px 4px;
   border: 1px solid #79a38e;
   border-radius: 4px;
   background: #e4f1eb;
   color: #174f39;
-  font-size: 11px;
+  font-size: 10px;
   white-space: nowrap;
 }
 
@@ -273,12 +273,12 @@ body[data-downloads="disabled"] #backupLibraryButton {
 
 .compact-status {
   display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 5px;
+  grid-template-columns: 120px 1fr;
+  gap: 3px;
   align-items: center;
-  min-height: 20px;
+  min-height: 17px;
   color: #0a5c49;
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .compact-status:has(#statusText:empty) {
@@ -287,7 +287,7 @@ body[data-downloads="disabled"] #backupLibraryButton {
 
 .compact-status progress {
   width: 100%;
-  height: 8px;
+  height: 6px;
   accent-color: #0a8f6f;
 }
 
@@ -657,9 +657,9 @@ body[data-edition="free"] .search-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 5px;
-  min-height: 28px;
-  padding: 3px 6px;
+  gap: 3px;
+  min-height: 23px;
+  padding: 1px 4px;
   border-bottom: 1px solid #d8d0b6;
   background: #fff1bd;
 }
@@ -667,12 +667,12 @@ body[data-edition="free"] .search-actions {
 .panel-head-actions {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 4px;
 }
 
 .table-tool-button {
-  min-height: 28px;
-  padding: 3px 9px;
+  min-height: 23px;
+  padding: 1px 6px;
   border: 1px solid #8ca4c7;
   border-radius: 4px;
   background: #eef3fa;
@@ -685,22 +685,29 @@ body[data-edition="free"] .search-actions {
   background: linear-gradient(90deg, #fff1bd, #ddf3ea);
 }
 
+.torah-head .icon-button {
+  width: 23px;
+  height: 23px;
+  min-width: 23px;
+  border-radius: 3px;
+}
+
 .display-tools-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  min-height: 28px;
-  padding: 3px 9px;
-  border: 2px solid #315f55;
+  gap: 3px;
+  min-height: 23px;
+  padding: 1px 6px;
+  border: 1px solid #315f55;
   border-radius: 4px;
   background: #d4e8df;
   color: #073f33;
-  font: 800 12px Arial, sans-serif;
+  font: 800 11px Arial, sans-serif;
   cursor: pointer;
 }
 
 .display-tools-toggle span:first-child {
-  font-size: 18px;
+  font-size: 15px;
   line-height: 1;
 }
 
@@ -710,15 +717,15 @@ body[data-edition="free"] .search-actions {
 
 .panel-head h2 {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 #resultCount {
   display: inline-grid;
   place-items: center;
-  min-width: 30px;
-  height: 24px;
-  padding: 0 8px;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 6px;
   border-radius: 999px;
   background: #0a8f6f;
   color: white;
@@ -726,7 +733,7 @@ body[data-edition="free"] .search-actions {
 }
 
 .result-summary {
-  padding: 3px 6px;
+  padding: 2px 4px;
   border-bottom: 1px solid #e6dfc7;
   color: #52645c;
   font-size: 13px;
@@ -779,8 +786,8 @@ body[data-edition="free"] .search-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 2px;
-  padding: 3px 5px;
+  gap: 1px;
+  padding: 1px 3px;
   border-top: 1px solid #d8d0b6;
   background: #edf5f0;
 }
@@ -790,8 +797,8 @@ body[data-edition="free"] .search-actions {
 }
 
 .display-controls button {
-  width: 36px;
-  height: 30px;
+  width: 32px;
+  height: 25px;
   display: grid;
   place-items: center;
   border: 1px solid color-mix(in srgb, currentColor 72%, transparent);
@@ -805,8 +812,8 @@ body[data-edition="free"] .search-actions {
 }
 
 .display-controls svg {
-  width: 22px;
-  height: 22px;
+  width: 19px;
+  height: 19px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.45;
@@ -841,16 +848,16 @@ body[data-edition="free"] .search-actions {
 
 .control-separator {
   width: 1px;
-  height: 26px;
-  margin: 3px 2px;
+  height: 20px;
+  margin: 2px 1px;
   background: #c4cdbf;
 }
 
 .top-words {
   display: grid;
-  gap: 3px;
-  min-height: 26px;
-  padding: 3px 6px;
+  gap: 2px;
+  min-height: 20px;
+  padding: 1px 4px;
   border-bottom: 1px solid #e6dfc7;
   background: #fffdf6;
 }
@@ -860,8 +867,8 @@ body[data-edition="free"] .search-actions {
 }
 
 .torah-head .icon-button svg {
-  width: 18px;
-  height: 18px;
+  width: 15px;
+  height: 15px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.45;
@@ -873,7 +880,7 @@ body[data-edition="free"] .search-actions {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
   width: 100%;
   min-width: 0;
 }
@@ -881,14 +888,14 @@ body[data-edition="free"] .search-actions {
 .word-chip {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px 6px;
+  gap: 2px;
+  padding: 1px 4px;
   border: 1px solid rgba(0, 0, 0, 0.14);
   border-radius: 4px;
   background: var(--word-color, #ffffff);
   color: var(--word-text, #111111);
   font-weight: 800;
-  font-size: 12px;
+  font-size: 11px;
   cursor: context-menu;
   user-select: none;
   max-width: 100%;
@@ -908,7 +915,7 @@ body[data-edition="free"] .search-actions {
 .torah-grid {
   min-height: 0;
   overflow: auto;
-  padding: 2px;
+  padding: 0;
   direction: rtl;
   scroll-behavior: auto;
   background: #f7ecd6;
