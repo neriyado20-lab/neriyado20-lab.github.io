@@ -21,6 +21,8 @@
   const FREE_MAX_PRIMARIES = 1;
   const PRO_MAX_PRIMARIES = 10;
   const WEB_DOWNLOADS_ENABLED = false;
+  const DEFAULT_SKIP_FROM = 0;
+  const DEFAULT_SKIP_TO = 800;
   const pageParams = new URLSearchParams(window.location.search);
   const edition = "pro";
   const COLORS = ["#3ddc84", "#42d7f5", "#ffe15c", "#f78acb", "#b9f35d", "#ffb347", "#9db4ff"];
@@ -40,6 +42,8 @@
     lineKeys: new Set(),
     activeWordKey: null,
     pendingColorKey: null,
+    colorOverrides: {},
+    removedWordKeys: new Set(),
     draggedWordKey: null,
     pointerZone: "torah",
     displayControlsVisible: true,
@@ -62,6 +66,7 @@
     secondary: $("secondaryInput"),
     skipFrom: $("skipFromInput"),
     skipTo: $("skipToInput"),
+    resetRange: $("resetRangeButton"),
     minSecondary: $("minSecondaryInput"),
     search: $("searchButton"),
     secondaryScan: $("secondaryScanButton"),
@@ -383,14 +388,16 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W042",
+      version: "W043",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
-      skip_from: Number.parseInt(els.skipFrom.value || "1", 10) || 1,
-      skip_to: Number.parseInt(els.skipTo.value || "1", 10) || 1,
+      skip_from: Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM,
+      skip_to: Number.parseInt(els.skipTo.value || String(DEFAULT_SKIP_TO), 10) || DEFAULT_SKIP_TO,
       min_secondary: Number.parseInt(els.minSecondary.value || "0", 10) || 0,
       current: state.current,
+      manual_color_overrides: state.colorOverrides,
+      manual_removed_words: Array.from(state.removedWordKeys),
       saved: state.results.map((result) => ({
         primary: serializableMatch(result.primary),
         matches: result.matches.map(serializableMatch),
@@ -602,7 +609,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W042",
+      version: "W043",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -668,8 +675,8 @@
     return JSON.stringify({
       primary: String(item.primary || "").trim(),
       secondary: String(item.secondary || "").trim(),
-      skipFrom: Number(item.skipFrom) || 1,
-      skipTo: Number(item.skipTo) || 1,
+      skipFrom: Number(item.skipFrom) || DEFAULT_SKIP_FROM,
+      skipTo: Number(item.skipTo) || DEFAULT_SKIP_TO,
       minSecondary: Number(item.minSecondary) || 0,
     });
   }
@@ -681,8 +688,8 @@
       searchedAt: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
-      skipFrom: Number.parseInt(els.skipFrom.value || "1", 10) || 1,
-      skipTo: Number.parseInt(els.skipTo.value || "1", 10) || 1,
+      skipFrom: Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM,
+      skipTo: Number.parseInt(els.skipTo.value || String(DEFAULT_SKIP_TO), 10) || DEFAULT_SKIP_TO,
       minSecondary: Number.parseInt(els.minSecondary.value || "0", 10) || 0,
       resultCount: state.results.length,
     };
@@ -699,8 +706,8 @@
   function loadHistoryFields(item) {
     els.primary.value = item.primary || "";
     els.secondary.value = item.secondary || "";
-    els.skipFrom.value = String(item.skipFrom || 1);
-    els.skipTo.value = String(item.skipTo || 1);
+    els.skipFrom.value = String(item.skipFrom ?? DEFAULT_SKIP_FROM);
+    els.skipTo.value = String(item.skipTo ?? DEFAULT_SKIP_TO);
     els.minSecondary.value = String(item.minSecondary || 0);
   }
 
@@ -1113,26 +1120,31 @@
     const matches = dedupeMatches([primary, ...(Array.isArray(item.matches) ? item.matches.map((m) => cleanMatch(m)).filter(Boolean) : [])]);
     const windowInfo = positionsForPrimary(primary);
     windowInfo.primarySkip = primary.skip;
-    return {
+    const result = {
       primary,
       matches,
       secondaryCount: countSecondaryWords(matches),
       windowInfo,
     };
+    return applyManualOverridesToResult(result);
   }
 
   function loadProjectData(data, sourceName = "קובץ צופן") {
     if (!data || typeof data !== "object") throw new Error("קובץ הצופן אינו תקין");
     els.primary.value = data.primary || "";
     els.secondary.value = data.secondary || "";
-    els.skipFrom.value = data.skip_from ?? els.skipFrom.value;
-    els.skipTo.value = data.skip_to ?? els.skipTo.value;
+    els.skipFrom.value = data.skip_from ?? DEFAULT_SKIP_FROM;
+    els.skipTo.value = data.skip_to ?? DEFAULT_SKIP_TO;
     els.minSecondary.value = data.min_secondary ?? els.minSecondary.value;
+    state.colorOverrides = data.manual_color_overrides && typeof data.manual_color_overrides === "object" && !Array.isArray(data.manual_color_overrides)
+      ? { ...data.manual_color_overrides }
+      : {};
+    state.removedWordKeys = new Set(Array.isArray(data.manual_removed_words) ? data.manual_removed_words.map(String) : []);
     const saved = Array.isArray(data.saved) ? data.saved : [];
     state.results = saved.map(resultFromSavedItem).filter(Boolean).slice(0, PRO_MAX_RESULTS);
     state.current = Math.max(0, Math.min(Number.parseInt(data.current, 10) || 0, Math.max(0, state.results.length - 1)));
     const loadedPrimaryWords = splitWords(els.primary.value);
-    const loadedFrom = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || "1", 10) || 1));
+    const loadedFrom = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM));
     const loadedTo = Math.max(loadedFrom, Math.abs(Number.parseInt(els.skipTo.value || String(loadedFrom), 10) || loadedFrom));
     state.primaryCache = state.results.length
       ? { key: primaryCacheKey(loadedPrimaryWords, loadedFrom, loadedTo), matches: state.results.map((result) => result.primary), complete: true }
@@ -1195,7 +1207,7 @@
       els.secondary.focus();
       return;
     }
-    const from = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || "1", 10) || 1));
+    const from = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM));
     const to = Math.max(from, Math.abs(Number.parseInt(els.skipTo.value || String(from), 10) || from));
     const editionMaxSkip = PRO_MAX_SKIP;
     if (from > editionMaxSkip || to > editionMaxSkip) {
@@ -1286,12 +1298,13 @@
         }
         const hasRequired = requiredWords.every((word) => foundWords.has(word));
         if (foundWords.size >= minRequired && hasRequired) {
-          state.results.push({
+          const result = applyManualOverridesToResult({
             primary: primaryMatch,
             matches: dedupeMatches(local),
             secondaryCount: foundWords.size,
             windowInfo,
           });
+          if (result.secondaryCount >= minRequired) state.results.push(result);
         }
         if (i % 5 === 0) {
           setStatus(`בודק משניות ${i + 1}/${primaries.length} | נשמרו ${state.results.length}`, 60 + Math.floor(((i + 1) / total) * 40));
@@ -1427,6 +1440,24 @@
     return match.word;
   }
 
+  function resetSkipRange() {
+    els.skipFrom.value = String(DEFAULT_SKIP_FROM);
+    els.skipTo.value = String(DEFAULT_SKIP_TO);
+    setStatus(`טווח הדילוגים אופס ל־${DEFAULT_SKIP_FROM}-${DEFAULT_SKIP_TO}`, 100);
+    saveDraft();
+  }
+
+  function applyManualOverridesToResult(result) {
+    if (!result) return result;
+    result.matches = result.matches.filter((match) => match.kind === "primary" || !state.removedWordKeys.has(matchKey(match)));
+    result.matches.forEach((match) => {
+      const color = state.colorOverrides[matchKey(match)];
+      if (color && match.kind !== "primary") match.color = color;
+    });
+    result.secondaryCount = countSecondaryWords(result.matches);
+    return result;
+  }
+
   function readableTextColor(color) {
     const hex = String(color || "").replace("#", "");
     if (!/^[0-9a-f]{6}$/i.test(hex)) return "#111111";
@@ -1443,6 +1474,7 @@
   }
 
   function setWordColor(key, color) {
+    state.colorOverrides[key] = color;
     state.results.forEach((result) => {
       result.matches.forEach((match) => {
         if (matchKey(match) === key && match.kind !== "primary") match.color = color;
@@ -1461,6 +1493,7 @@
       setStatus("לא ניתן להסיר את הראשית מהצופן.", 0);
       return;
     }
+    state.removedWordKeys.add(key);
     current.matches = current.matches.filter((match) => matchKey(match) !== key);
     current.secondaryCount = countSecondaryWords(current.matches);
     state.lineKeys.delete(key);
@@ -1477,6 +1510,7 @@
       setStatus("לא ניתן להסיר את הראשית מתוצאות החיפוש.", 0);
       return;
     }
+    state.removedWordKeys.add(key);
     state.results.forEach((result) => {
       result.matches = result.matches.filter((match) => matchKey(match) !== key);
       result.secondaryCount = countSecondaryWords(result.matches);
@@ -1749,6 +1783,10 @@
     state.results = [];
     state.current = 0;
     state.primaryCache = null;
+    state.primaryResume = null;
+    state.colorOverrides = {};
+    state.removedWordKeys = new Set();
+    state.lineKeys.clear();
     try {
       localStorage.removeItem(DRAFT_KEY);
     } catch {
@@ -1898,6 +1936,7 @@
 
   els.form.addEventListener("submit", (event) => search(event));
   els.secondaryScan.addEventListener("click", () => search(null, { cacheOnly: true }));
+  els.resetRange.addEventListener("click", resetSkipRange);
   els.stop.addEventListener("click", () => {
     state.stop = true;
     setStatus("בקשת עצירה התקבלה...", els.progress.value);
