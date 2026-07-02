@@ -942,14 +942,14 @@ body[data-edition="free"] .search-actions {
 .letter-cell {
   display: grid;
   place-items: center;
-  width: var(--cell-size, 22px);
-  height: var(--cell-size, 22px);
+  width: var(--cell-width, 22px);
+  height: var(--cell-height, 28px);
   border-radius: 0;
   color: #002f7c;
-  font-family: Arial, "Noto Sans Hebrew", sans-serif;
-  font-size: var(--letter-size, calc(var(--cell-size, 22px) * 0.98));
-  font-weight: 900;
-  line-height: 0.94;
+  font-family: Arial, "Arial Hebrew", "Noto Sans Hebrew", sans-serif;
+  font-size: var(--letter-size, 23px);
+  font-weight: 700;
+  line-height: 1;
   letter-spacing: 0;
 }
 
