@@ -388,7 +388,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W043",
+      version: "W044",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -609,7 +609,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W043",
+      version: "W044",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1359,8 +1359,10 @@
       const sortKey = resultSortKeyForColumn(name);
       if (sortKey) {
         th.dataset.sortKey = sortKey;
-        th.title = `דאבל קליק למיון לפי ${name}`;
-        th.addEventListener("dblclick", () => sortResultsBy(sortKey));
+        th.title = name === "משניות"
+          ? "לחיצה מסדרת מהצופן עם הכי הרבה משניות ועד הכי מעט"
+          : `לחיצה למיון לפי ${name}`;
+        th.addEventListener("click", () => sortResultsBy(sortKey));
       }
       headRow.appendChild(th);
     });
