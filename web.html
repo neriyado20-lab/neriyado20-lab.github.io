@@ -6,7 +6,7 @@
   <title>גל עיני Web - חיפוש צפנים בתורה</title>
   <meta name="description" content="גל עיני Web: חיפוש ראשיות ומשניות, תצוגת צפנים, שמירה, ניווט וכלי עבודה מקצועיים ישירות בדפדפן.">
   <link rel="stylesheet" href="styles.css?v=52">
-  <link rel="stylesheet" href="web-app.css?v=42">
+  <link rel="stylesheet" href="web-app.css?v=43">
 </head>
 <body class="web-app-page">
   <header class="topbar app-topbar">
@@ -14,7 +14,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני Web</strong>
-          <span>W042 | שימוש מלא באתר, הורדות חסומות זמנית</span>
+          <span>W043 | שימוש מלא באתר, הורדות חסומות זמנית</span>
       </div>
     </div>
     <nav aria-label="ניווט">
@@ -34,9 +34,9 @@
     <button id="avotNextButton" type="button" title="משנה הבאה" aria-label="משנה הבאה">‹</button>
   </section>
 
-  <main class="web-shell desktop-like" data-app-version="W042">
+  <main class="web-shell desktop-like" data-app-version="W043">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W042</div>
+      <div class="app-version">גל עיני Web W043</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -58,12 +58,13 @@
         </label>
         <label>
           <span>דילוג מ־</span>
-          <input id="skipFromInput" name="skipFrom" type="number" value="1" min="1" max="5000">
+          <input id="skipFromInput" name="skipFrom" type="number" value="0" min="0" max="5000">
         </label>
         <label>
           <span>עד</span>
-          <input id="skipToInput" name="skipTo" type="number" value="400" min="1" max="5000">
+          <input id="skipToInput" name="skipTo" type="number" value="800" min="0" max="5000">
         </label>
+        <button id="resetRangeButton" class="button secondary range-reset" type="button" title="אפס את טווח הדילוגים ל־0 עד 800">אפס</button>
         <label>
           <span>מינ' משניות</span>
           <input id="minSecondaryInput" name="minSecondary" type="number" value="1" min="0" max="20">
@@ -294,6 +295,6 @@
     </div>
   </dialog>
 
-  <script src="web-app.js?v=42"></script>
+  <script src="web-app.js?v=43"></script>
 </body>
 </html>
