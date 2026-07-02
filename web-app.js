@@ -40,6 +40,7 @@
     primaryCache: null,
     primaryResume: null,
     lineKeys: new Set(),
+    frameKeys: new Set(),
     activeWordKey: null,
     pendingColorKey: null,
     colorOverrides: {},
@@ -133,6 +134,8 @@
     wordMenu: $("wordMenu"),
     changeWordColor: $("changeWordColorButton"),
     toggleWordLine: $("toggleWordLineButton"),
+    toggleWordFrame: $("toggleWordFrameButton"),
+    keepOnlyWord: $("keepOnlyWordButton"),
     removeWord: $("removeWordButton"),
     removeAllWord: $("removeAllWordButton"),
     wordColor: $("wordColorInput"),
@@ -388,7 +391,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W045",
+      version: "W046",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -398,6 +401,7 @@
       current: state.current,
       manual_color_overrides: state.colorOverrides,
       manual_removed_words: Array.from(state.removedWordKeys),
+      manual_frame_words: Array.from(state.frameKeys),
       saved: state.results.map((result) => ({
         primary: serializableMatch(result.primary),
         matches: result.matches.map(serializableMatch),
@@ -609,7 +613,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W045",
+      version: "W046",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1140,6 +1144,7 @@
       ? { ...data.manual_color_overrides }
       : {};
     state.removedWordKeys = new Set(Array.isArray(data.manual_removed_words) ? data.manual_removed_words.map(String) : []);
+    state.frameKeys = new Set(Array.isArray(data.manual_frame_words) ? data.manual_frame_words.map(String) : []);
     const saved = Array.isArray(data.saved) ? data.saved : [];
     state.results = saved.map(resultFromSavedItem).filter(Boolean).slice(0, PRO_MAX_RESULTS);
     state.current = Math.max(0, Math.min(Number.parseInt(data.current, 10) || 0, Math.max(0, state.results.length - 1)));
@@ -1499,6 +1504,7 @@
     current.matches = current.matches.filter((match) => matchKey(match) !== key);
     current.secondaryCount = countSecondaryWords(current.matches);
     state.lineKeys.delete(key);
+    state.frameKeys.delete(key);
     renderResults();
     renderCurrent();
     saveDraft();
@@ -1518,10 +1524,52 @@
       result.secondaryCount = countSecondaryWords(result.matches);
     });
     state.lineKeys.delete(key);
+    state.frameKeys.delete(key);
     renderResults();
     renderCurrent();
     saveDraft();
     setStatus(`המילה "${target.word}" הוסרה מכל תוצאות החיפוש`, 0);
+  }
+
+  function toggleWordFrame(key) {
+    const current = state.results[state.current];
+    const target = current?.matches.find((match) => matchKey(match) === key);
+    if (!target) return;
+    if (state.frameKeys.has(key)) {
+      state.frameKeys.delete(key);
+      setStatus(`המסגרת הוסרה מהמילה "${target.word}"`, 0);
+    } else {
+      state.frameKeys.add(key);
+      setStatus(`נוספה מסגרת למילה "${target.word}"`, 0);
+    }
+    renderCurrent();
+    saveDraft();
+  }
+
+  function keepOnlyWordInCurrent(key) {
+    const current = state.results[state.current];
+    if (!current) return;
+    const target = current.matches.find((match) => matchKey(match) === key);
+    if (!target || target.kind === "primary") {
+      setStatus("לא ניתן להשאיר מופע יחיד של הראשית.", 0);
+      return;
+    }
+    let kept = false;
+    let removed = 0;
+    current.matches = current.matches.filter((match) => {
+      if (match.kind === "primary" || matchKey(match) !== key) return true;
+      if (!kept) {
+        kept = true;
+        return true;
+      }
+      removed += 1;
+      return false;
+    });
+    current.secondaryCount = countSecondaryWords(current.matches);
+    renderResults();
+    renderCurrent();
+    saveDraft();
+    setStatus(removed ? `נשאר מופע אחד של "${target.word}" והוסרו ${removed}` : `כבר יש מופע אחד של "${target.word}"`, 0);
   }
 
   function openWordMenu(event, key) {
@@ -1530,14 +1578,19 @@
     const current = state.results[state.current];
     const target = current?.matches.find((match) => matchKey(match) === key);
     els.toggleWordLine.hidden = false;
+    els.toggleWordFrame.hidden = false;
+    els.keepOnlyWord.hidden = false;
     els.removeWord.hidden = false;
     els.removeAllWord.hidden = false;
     els.removeWord.disabled = !target || target.kind === "primary";
     els.removeAllWord.disabled = !target || target.kind === "primary";
+    els.toggleWordFrame.disabled = !target;
+    els.keepOnlyWord.disabled = !target || target.kind === "primary";
     els.toggleWordLine.textContent = state.lineKeys.has(key) ? "הסר קו למילה" : "הצג קו למילה";
+    els.toggleWordFrame.textContent = state.frameKeys.has(key) ? "הסר מסגרת מאותיות הממצא" : "הוסף מסגרת לאותיות הממצא";
     els.wordMenu.hidden = false;
     const menuWidth = 190;
-    const menuHeight = 170;
+    const menuHeight = 230;
     els.wordMenu.style.left = `${Math.max(6, Math.min(event.clientX, window.innerWidth - menuWidth - 6))}px`;
     els.wordMenu.style.top = `${Math.max(6, Math.min(event.clientY, window.innerHeight - menuHeight - 6))}px`;
   }
@@ -1668,11 +1721,12 @@
         if (pos !== null) {
           cell.textContent = state.torah[pos] || "";
           const match = markByPos.get(pos);
-          if (match) {
-            cell.classList.add(match.kind === "primary" ? "mark-primary" : "mark-secondary");
-            if (match.kind !== "primary") cell.style.setProperty("--mark-color", match.color || stableColor(match.word));
-            cell.dataset.wordKey = matchKey(match);
-            cell.title = `${match.word} | דילוג ${Math.abs(match.skip || 1)} | מיקום ${(match.start + 1).toLocaleString("he-IL")}`;
+            if (match) {
+              cell.classList.add(match.kind === "primary" ? "mark-primary" : "mark-secondary");
+              if (match.kind !== "primary") cell.style.setProperty("--mark-color", match.color || stableColor(match.word));
+              cell.dataset.wordKey = matchKey(match);
+              if (state.frameKeys.has(matchKey(match))) cell.classList.add("word-frame");
+              cell.title = `${match.word} | דילוג ${Math.abs(match.skip || 1)} | מיקום ${(match.start + 1).toLocaleString("he-IL")}`;
             cell.addEventListener("contextmenu", (event) => openWordMenu(event, matchKey(match)));
           }
           if (pos === center) cell.classList.add("center");
@@ -1790,6 +1844,7 @@
     state.colorOverrides = {};
     state.removedWordKeys = new Set();
     state.lineKeys.clear();
+    state.frameKeys.clear();
     try {
       localStorage.removeItem(DRAFT_KEY);
     } catch {
@@ -2098,6 +2153,16 @@
     else state.lineKeys.add(key);
     hideWordMenu();
     drawConnections();
+  });
+  els.toggleWordFrame.addEventListener("click", () => {
+    const key = state.activeWordKey;
+    hideWordMenu();
+    if (key) toggleWordFrame(key);
+  });
+  els.keepOnlyWord.addEventListener("click", () => {
+    const key = state.activeWordKey;
+    hideWordMenu();
+    if (key) keepOnlyWordInCurrent(key);
   });
   els.removeWord.addEventListener("click", () => {
     const key = state.activeWordKey;
