@@ -406,6 +406,17 @@ body[data-edition="free"] .search-actions {
   opacity: 0.55;
 }
 
+.range-reset {
+  min-height: 28px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: #f5efe2;
+  border-color: #bba36f;
+  color: #4b340e;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .library-dialog {
   width: min(760px, calc(100vw - 24px));
   max-height: min(720px, calc(100vh - 32px));
