@@ -1094,9 +1094,18 @@ body[data-edition="free"] .help-body .pro-help {
   cursor: context-menu;
 }
 
+.letter-cell.word-frame {
+  box-shadow: 0 0 0 2px #111 inset;
+}
+
 .letter-cell.line-target {
   background: var(--line-target-color) !important;
   color: var(--line-target-text, #111111) !important;
+  box-shadow: 0 0 0 3px #111 inset;
+}
+
+.letter-cell.word-frame.line-target,
+.letter-cell.word-frame.center {
   box-shadow: 0 0 0 3px #111 inset;
 }
 
