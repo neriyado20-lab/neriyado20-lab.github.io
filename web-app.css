@@ -1207,6 +1207,22 @@ body[data-edition="free"] .help-body .pro-help {
   }
 }
 
+.web-activity {
+  position: fixed;
+  left: 10px;
+  bottom: 8px;
+  z-index: 20;
+  max-width: min(420px, calc(100vw - 20px));
+  padding: 5px 9px;
+  border: 1px solid rgba(18, 83, 69, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 249, 222, 0.86);
+  color: #53645d;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 8px 20px rgba(25, 31, 28, 0.10);
+}
+
 @media print {
   @page {
     size: A4 landscape;
