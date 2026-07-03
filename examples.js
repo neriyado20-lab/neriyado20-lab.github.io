@@ -51,9 +51,10 @@
   }
 
   const seen = readSeen();
-  document.querySelectorAll(".sample-card[data-example-id]").forEach((card) => {
+  document.querySelectorAll("[data-example-id]").forEach((card) => {
     setCardState(card, seen);
-    card.querySelectorAll(".track-view").forEach((link) => {
+    const trackedLinks = card.matches(".track-view") ? [card] : Array.from(card.querySelectorAll(".track-view"));
+    trackedLinks.forEach((link) => {
       link.addEventListener("click", () => markSeen(card, seen));
     });
     const markButton = card.querySelector(".mark-unseen");
