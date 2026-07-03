@@ -72,13 +72,13 @@
     feedback.className = "cipher-feedback";
     feedback.innerHTML = `
       <div class="feedback-row">
-        <button class="button secondary like-cipher" type="button" aria-pressed="false">♡ לייק</button>
-        <span class="like-count">0 לייקים במכשיר זה</span>
+        <button class="button secondary like-cipher" type="button" aria-pressed="false">ראוי לעיון</button>
+        <span class="like-count">0 סימוני עיון במכשיר זה</span>
       </div>
       <form class="review-form">
         <label>
-          <span>ביקורת קצרה</span>
-          <input maxlength="90" autocomplete="off" placeholder="משפט קצר על הצופן">
+          <span>הערת עיון קצרה</span>
+          <input maxlength="90" autocomplete="off" placeholder="משפט קצר לעיון על הצופן">
         </label>
         <button class="button secondary" type="submit">שמור</button>
       </form>
@@ -97,8 +97,8 @@
     function renderLike() {
       const currentLikes = Object.values(likes).filter(Boolean).length;
       likeButton.setAttribute("aria-pressed", String(Boolean(likes[id])));
-      likeButton.textContent = likes[id] ? "♥ אהבתי" : "♡ לייק";
-      likeCount.textContent = likes[id] ? "סומן שאהבת את הצופן" : `${currentLikes} לייקים במכשיר זה`;
+      likeButton.textContent = likes[id] ? "סומן לעיון" : "ראוי לעיון";
+      likeCount.textContent = likes[id] ? "סימנת צופן זה לעיון" : `${currentLikes} סימוני עיון במכשיר זה`;
     }
 
     function renderReviews() {
@@ -121,7 +121,7 @@
       store.likes = likes;
       writeStore(store);
       renderLike();
-      sendEvent("cipher_like", { id, title, liked: likes[id] });
+      sendEvent("cipher_interest", { id, title, marked: likes[id] });
     });
 
     reviewForm.addEventListener("submit", (event) => {
@@ -134,7 +134,7 @@
       writeStore(store);
       reviewInput.value = "";
       renderReviews();
-      sendEvent("cipher_review", { id, title, text });
+      sendEvent("cipher_note", { id, title, text });
     });
   }
 
