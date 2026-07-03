@@ -136,6 +136,7 @@
     toggleWordLine: $("toggleWordLineButton"),
     toggleWordFrame: $("toggleWordFrameButton"),
     keepOnlyWord: $("keepOnlyWordButton"),
+    removeVisibleWord: $("removeVisibleWordButton"),
     removeWord: $("removeWordButton"),
     removeAllWord: $("removeAllWordButton"),
     wordColor: $("wordColorInput"),
@@ -1511,6 +1512,48 @@
     setStatus(`המילה "${target.word}" הוסרה מהצופן הנוכחי`, 0);
   }
 
+  function visiblePositionSet(result) {
+    const positions = new Set();
+    (result?.windowInfo?.grid || []).forEach((row) => {
+      (row || []).forEach((position) => {
+        if (Number.isInteger(position)) positions.add(position);
+      });
+    });
+    return positions;
+  }
+
+  function matchTouchesPositions(match, positions) {
+    if (!positions.size) return true;
+    return positionsForMatch(match).some((position) => positions.has(position));
+  }
+
+  function removeWordFromVisibleWindow(key) {
+    const current = state.results[state.current];
+    if (!current) return;
+    const target = current.matches.find((match) => matchKey(match) === key);
+    if (!target || target.kind === "primary") {
+      setStatus("לא ניתן להסיר את הראשית מהמסך.", 0);
+      return;
+    }
+    const visible = visiblePositionSet(current);
+    let removed = 0;
+    current.matches = current.matches.filter((match) => {
+      if (match.kind === "primary" || matchKey(match) !== key) return true;
+      if (!matchTouchesPositions(match, visible)) return true;
+      removed += 1;
+      return false;
+    });
+    current.secondaryCount = countSecondaryWords(current.matches);
+    if (!current.matches.some((match) => matchKey(match) === key)) {
+      state.lineKeys.delete(key);
+      state.frameKeys.delete(key);
+    }
+    renderResults();
+    renderCurrent();
+    saveDraft();
+    setStatus(removed ? `הוסרו ${removed} סימוני ממצאי המילה "${target.word}" מהמסך` : `לא נמצאו סימוני "${target.word}" במסך הנוכחי`, 0);
+  }
+
   function removeWordFromAllResults(key) {
     const current = state.results[state.current];
     const target = current?.matches.find((match) => matchKey(match) === key);
@@ -1580,8 +1623,10 @@
     els.toggleWordLine.hidden = false;
     els.toggleWordFrame.hidden = false;
     els.keepOnlyWord.hidden = false;
+    els.removeVisibleWord.hidden = false;
     els.removeWord.hidden = false;
     els.removeAllWord.hidden = false;
+    els.removeVisibleWord.disabled = !target || target.kind === "primary";
     els.removeWord.disabled = !target || target.kind === "primary";
     els.removeAllWord.disabled = !target || target.kind === "primary";
     els.toggleWordFrame.disabled = !target;
@@ -1590,7 +1635,7 @@
     els.toggleWordFrame.textContent = state.frameKeys.has(key) ? "הסר מסגרת מאותיות הממצא" : "הוסף מסגרת לאותיות הממצא";
     els.wordMenu.hidden = false;
     const menuWidth = 190;
-    const menuHeight = 230;
+    const menuHeight = 260;
     els.wordMenu.style.left = `${Math.max(6, Math.min(event.clientX, window.innerWidth - menuWidth - 6))}px`;
     els.wordMenu.style.top = `${Math.max(6, Math.min(event.clientY, window.innerHeight - menuHeight - 6))}px`;
   }
@@ -2163,6 +2208,11 @@
     const key = state.activeWordKey;
     hideWordMenu();
     if (key) keepOnlyWordInCurrent(key);
+  });
+  els.removeVisibleWord.addEventListener("click", () => {
+    const key = state.activeWordKey;
+    hideWordMenu();
+    if (key) removeWordFromVisibleWindow(key);
   });
   els.removeWord.addEventListener("click", () => {
     const key = state.activeWordKey;
