@@ -30,6 +30,7 @@
     const markButton = card.querySelector(".mark-unseen");
     const seenNow = isSeen(card, seen);
     card.classList.toggle("is-new", !seenNow);
+    card.classList.toggle("is-seen", seenNow);
     if (badge) badge.hidden = seenNow;
     if (markButton) markButton.hidden = !seenNow;
   }
@@ -40,6 +41,7 @@
     seen[id] = card.dataset.uploaded || new Date().toISOString().slice(0, 10);
     writeSeen(seen);
     setCardState(card, seen);
+    applyFilter(seen);
   }
 
   function markUnseen(card, seen) {
@@ -48,9 +50,44 @@
     delete seen[id];
     writeSeen(seen);
     setCardState(card, seen);
+    applyFilter(seen);
+  }
+
+  function activeFilter() {
+    return document.querySelector("[data-example-filter].is-active")?.dataset.exampleFilter || "all";
+  }
+
+  function updateCounter(cards, visibleCards) {
+    const counter = document.getElementById("examplesCount");
+    if (!counter) return;
+    const total = cards.length;
+    const visible = visibleCards.length;
+    const newCount = cards.filter((card) => card.classList.contains("is-new")).length;
+    counter.textContent = `מוצגים ${visible} מתוך ${total} צפנים | חדשים: ${newCount}`;
+  }
+
+  function applyFilter(seen) {
+    const filter = activeFilter();
+    const cards = Array.from(document.querySelectorAll(".sample-card[data-example-id]"));
+    const visibleCards = [];
+    cards.forEach((card) => {
+      setCardState(card, seen);
+      const seenNow = isSeen(card, seen);
+      const show = filter === "all" || (filter === "new" && !seenNow) || (filter === "seen" && seenNow);
+      card.hidden = !show;
+      if (show) visibleCards.push(card);
+    });
+    updateCounter(cards, visibleCards);
   }
 
   const seen = readSeen();
+  document.querySelectorAll("[data-example-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll("[data-example-filter]").forEach((item) => item.classList.remove("is-active"));
+      button.classList.add("is-active");
+      applyFilter(seen);
+    });
+  });
   document.querySelectorAll("[data-example-id]").forEach((card) => {
     setCardState(card, seen);
     const trackedLinks = card.matches(".track-view") ? [card] : Array.from(card.querySelectorAll(".track-view"));
@@ -62,4 +99,5 @@
       markButton.addEventListener("click", () => markUnseen(card, seen));
     }
   });
+  applyFilter(seen);
 })();
