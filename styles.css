@@ -1029,8 +1029,24 @@ footer {
 
 .sample-preview strong {
   display: block;
-  padding: 12px 14px;
+  padding: 12px 14px 3px;
   color: var(--accent-dark);
+}
+
+.preview-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 14px 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sample-preview.is-new {
+  border-color: rgba(183, 24, 42, 0.34);
 }
 
 .roadmap {
