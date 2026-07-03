@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ניהול אתר - גל עיני</title>
+  <meta name="description" content="לוח ניהול מקומי לאתר גל עיני: צפיות, שימושים, סימוני עיון, הערות ונרשמים.">
+  <link rel="stylesheet" href="styles.css?v=55">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">גע</span>
+      <div>
+        <strong>גל עיני</strong>
+        <span>לוח ניהול</span>
+      </div>
+    </div>
+    <nav aria-label="ניווט">
+      <a href="index.html">ראשי</a>
+      <a href="web.html">עבודה באתר</a>
+      <a href="examples.html">צפנים לדוגמה</a>
+    </nav>
+  </header>
+
+  <main class="admin-shell">
+    <section class="page-hero admin-hero">
+      <p class="eyebrow">ניהול האתר</p>
+      <h1>לוח ניהול גל עיני</h1>
+      <p class="lead">
+        בשלב זה הלוח מציג את הנתונים שנשמרו בדפדפן הזה. לאחר חיבור שירות נתונים מרכזי,
+        אותו לוח יוכל להציג נתוני אמת מכל המשתמשים.
+      </p>
+    </section>
+
+    <section class="admin-summary" aria-label="סיכום פעילות">
+      <article>
+        <span>כניסות לאתר</span>
+        <strong id="adminSiteVisits">0</strong>
+      </article>
+      <article>
+        <span>שימושים בתוכנה</span>
+        <strong id="adminWebUses">0</strong>
+      </article>
+      <article>
+        <span>צפייה בדוגמאות</span>
+        <strong id="adminExamplesVisits">0</strong>
+      </article>
+      <article>
+        <span>סימוני עיון</span>
+        <strong id="adminInterestCount">0</strong>
+      </article>
+    </section>
+
+    <section class="admin-grid">
+      <article class="admin-panel">
+        <div class="admin-panel-head">
+          <h2>צפנים שסומנו לעיון</h2>
+          <button class="button secondary" id="refreshAdminButton" type="button">רענן</button>
+        </div>
+        <div id="adminInterestList" class="admin-list"></div>
+      </article>
+
+      <article class="admin-panel">
+        <div class="admin-panel-head">
+          <h2>הערות עיון</h2>
+          <button class="button secondary" id="exportAdminButton" type="button">ייצא CSV</button>
+        </div>
+        <div id="adminNotesList" class="admin-list"></div>
+      </article>
+
+      <article class="admin-panel">
+        <div class="admin-panel-head">
+          <h2>הודעות על צופן חדש</h2>
+        </div>
+        <div id="adminNotifyList" class="admin-list"></div>
+      </article>
+
+      <article class="admin-panel">
+        <div class="admin-panel-head">
+          <h2>חיבור עתידי</h2>
+        </div>
+        <p>
+          כאשר נחבר Supabase או שירות דומה, הנתונים שייכנסו לכאן יהיו מכל המשתמשים:
+          צפיות, סימוני עיון, הערות שאפשר לאשר או למחוק, ונרשמים לשליחת הודעה.
+        </p>
+        <p id="adminBackendStatus" class="admin-status"></p>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <span>גל עיני - לוח ניהול מקומי</span>
+    <span>שלב הכנה לחיבור נתונים מרכזי</span>
+  </footer>
+  <script src="site-interactions-config.js?v=1"></script>
+  <script src="admin.js?v=1"></script>
+</body>
+</html>
