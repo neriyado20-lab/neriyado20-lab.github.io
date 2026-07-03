@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>צפנים לדוגמה - גל עיני</title>
   <meta name="description" content="צפנים לדוגמה שנמצאו ונשמרו בתוכנת גל עיני, כולל תמונות מסך וקבצי צופן.">
-  <link rel="stylesheet" href="styles.css?v=53">
+  <link rel="stylesheet" href="styles.css?v=54">
 </head>
 <body>
   <header class="topbar">
@@ -31,6 +31,23 @@
         כאן מוצגות דוגמאות אמיתיות מתוך גל עיני. כל דוגמה מציגה תאריך העלאה, וסימון
         "חדש" נשמר לכל משתמש בדפדפן שלו עד שהוא פותח את הדוגמה.
       </p>
+    </section>
+
+    <section class="examples-toolbar" aria-label="סינון צפנים לדוגמה">
+      <div class="examples-count" id="examplesCount">טוען צפנים...</div>
+      <div class="examples-filter" role="group" aria-label="סינון לפי צפייה">
+        <button class="button secondary is-active" type="button" data-example-filter="all">הכל</button>
+        <button class="button secondary" type="button" data-example-filter="new">חדשים</button>
+        <button class="button secondary" type="button" data-example-filter="seen">כבר ראיתי</button>
+      </div>
+      <form class="notify-form" id="notifyForm">
+        <label>
+          <span>הודעה על צופן חדש</span>
+          <input id="notifyInput" type="text" autocomplete="off" placeholder="מייל או טלפון">
+        </label>
+        <button class="button secondary" type="submit">שמור</button>
+        <small id="notifyStatus" aria-live="polite"></small>
+      </form>
     </section>
 
     <section class="sample-layout">
@@ -237,7 +254,10 @@
   <footer>
     <span>גל עיני - צפנים לדוגמה</span>
     <span><a href="index.html">חזרה לעמוד הראשי</a></span>
+    <span id="siteActivity"></span>
   </footer>
-  <script src="examples.js?v=2"></script>
+  <script src="site-interactions-config.js?v=1"></script>
+  <script src="site-interactions.js?v=1"></script>
+  <script src="examples.js?v=3"></script>
 </body>
 </html>
