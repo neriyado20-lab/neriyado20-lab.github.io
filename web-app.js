@@ -3,7 +3,7 @@
 
   const TARGET_COUNT = 304805;
   const FREE_MAX_RESULTS = 30;
-  const PRO_MAX_RESULTS = 250;
+  const PRO_MAX_RESULTS = Number.MAX_SAFE_INTEGER;
   const DEFAULT_ROWS = 45;
   const DEFAULT_EXTRA_COLS = 10;
   const DRAFT_KEY = "gal-einai-web-draft-v1";
@@ -15,12 +15,12 @@
   const AVOT_SETTINGS_KEY = "gal-einai-web-avot-v1";
   const HISTORY_LIMIT = 20;
   const FREE_MAX_SKIP = 400;
-  const PRO_MAX_SKIP = 5000;
+  const PRO_MAX_SKIP = TARGET_COUNT;
   const FREE_MAX_SECONDARIES = 5;
-  const PRO_MAX_SECONDARIES = 30;
+  const PRO_MAX_SECONDARIES = Number.MAX_SAFE_INTEGER;
   const FREE_MAX_PRIMARIES = 1;
-  const PRO_MAX_PRIMARIES = 10;
-  const WEB_DOWNLOADS_ENABLED = false;
+  const PRO_MAX_PRIMARIES = Number.MAX_SAFE_INTEGER;
+  const WEB_DOWNLOADS_ENABLED = true;
   const DEFAULT_SKIP_FROM = 0;
   const DEFAULT_SKIP_TO = 800;
   const pageParams = new URLSearchParams(window.location.search);
@@ -163,16 +163,16 @@
     document.body.dataset.downloads = WEB_DOWNLOADS_ENABLED ? "enabled" : "disabled";
     const nextParams = new URLSearchParams(window.location.search);
     nextParams.delete("edition");
-    els.editionBadge.textContent = "בטא פתוחה | שימוש מלא באתר";
-    els.editionSwitch.textContent = "הורדות חסומות זמנית";
+    els.editionBadge.textContent = "שימוש מלא באתר | הורדות פתוחות";
+    els.editionSwitch.textContent = "הורדת Windows";
     els.editionSwitch.href = "index.html#download";
     const maxSkip = PRO_MAX_SKIP;
     const maxSecondaries = PRO_MAX_SECONDARIES;
     els.skipFrom.max = String(maxSkip);
     els.skipTo.max = String(maxSkip);
     els.minSecondary.max = String(maxSecondaries);
-    els.editionLimitNote.textContent = `בטא פתוחה: עד ${PRO_MAX_PRIMARIES} ראשיות, ${PRO_MAX_SECONDARIES} משניות, דילוג ${PRO_MAX_SKIP} ו-${PRO_MAX_RESULTS} צפנים בחיפוש. הורדות חסומות זמנית עד הסדרת הצד החשבונאי.`;
-    els.helpEdition.textContent = "הוראות לשימוש מלא באתר. הורדות קבצים חסומות זמנית.";
+    els.editionLimitNote.textContent = "שימוש מלא באתר: אין הגבלת מסלול על מספר מילים או דילוגים; אפשר לשמור, לגבות, לייצא ולהוריד קבצים.";
+    els.helpEdition.textContent = "הוראות לשימוש מלא באתר, כולל שמירה, גיבוי, ייצוא והורדת קבצים.";
   }
 
   function normalizeWord(value) {
@@ -541,7 +541,7 @@
       downloadButton.type = "button";
       downloadButton.textContent = "הורד";
       downloadButton.disabled = !WEB_DOWNLOADS_ENABLED;
-      downloadButton.title = "הורדות חסומות זמנית באתר";
+      downloadButton.title = WEB_DOWNLOADS_ENABLED ? "הורד את הצופן לקובץ" : "הורדות חסומות זמנית באתר";
       downloadButton.addEventListener("click", () => downloadProject(item.data, item.name));
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
