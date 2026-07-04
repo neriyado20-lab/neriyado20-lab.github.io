@@ -1,8 +1,8 @@
 (() => {
   const STORAGE_KEY = "gal-einai-site-interactions-v1";
   const PLANS = {
-    basic: { name: "בדיקה בסיסית", price: 89, minWords: 10 },
-    expanded: { name: "בדיקה מורחבת", price: 180, minWords: 10 },
+    basic: { name: "חיפוש בסיסי", price: 89, minWords: 10 },
+    expanded: { name: "חיפוש מורחב", price: 180, minWords: 10 },
     print: { name: "צופן להדפסה", price: 360, minWords: 10 },
   };
   let selectedPlan = "basic";
@@ -39,8 +39,9 @@
   function buildSummary(data) {
     const plan = PLANS[selectedPlan];
     return [
-      "בקשה לבדיקת צופן אישית - גל עיני",
+      "הזמנת חיפוש צופן - גל עיני",
       "",
+      `סוג בקשה: ${data.kind === "existing-review" ? "עיון בצופן קיים" : "חיפוש צופן חדש לפי הזמנה"}`,
       `מסלול: ${plan.name} (${plan.price} ₪)`,
       `נושא: ${data.topic}`,
       "",
@@ -51,7 +52,7 @@
       `פרטי קשר: ${data.contact}`,
       data.dedication ? `הקדשה: ${data.dedication}` : "",
       "",
-      "הערה: הבדיקה היא עבודת חיפוש ועיון בלבד, ואין לראות בה הכרעה הלכתית או הוראה מעשית.",
+      "הערה: החיפוש הוא עבודת חיפוש ועיון בלבד, ואין לראות בו הכרעה הלכתית או הוראה מעשית.",
     ].filter(Boolean).join("\n");
   }
 
@@ -70,6 +71,7 @@
     event.preventDefault();
     const data = {
       plan: selectedPlan,
+      kind: $("orderKind").value,
       topic: $("orderTopic").value.trim(),
       words: $("orderWords").value.trim(),
       question: $("orderQuestion").value.trim(),
@@ -92,7 +94,7 @@
     store.cipherOrders = Array.isArray(store.cipherOrders) ? store.cipherOrders : [];
     store.cipherOrders.push({ ...data, summary });
     writeStore(store);
-    $("orderStatus").textContent = "הבקשה הוכנה. אפשר להעתיק ולשלוח, ובהמשך נחבר שליחה ותשלום ישירים.";
+    $("orderStatus").textContent = "הזמנת החיפוש הוכנה. אפשר להעתיק ולשלוח, ובהמשך נחבר שליחה ותשלום ישירים.";
   });
 
   $("copyOrderButton").addEventListener("click", async () => {
