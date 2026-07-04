@@ -1002,6 +1002,7 @@ footer {
 }
 
 .order-form input,
+.order-form select,
 .order-form textarea,
 .order-summary {
   width: 100%;
