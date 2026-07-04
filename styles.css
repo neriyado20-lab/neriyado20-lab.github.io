@@ -917,29 +917,38 @@ footer {
   font-weight: 700;
 }
 
-.purchase-shell {
+.purchase-shell,
+.order-shell {
   width: min(920px, calc(100% - 28px));
   margin: 0 auto;
   padding: 56px 0 80px;
 }
 
-.purchase-intro {
+.purchase-intro,
+.order-intro {
   text-align: center;
 }
 
-.purchase-intro h1 {
+.purchase-intro h1,
+.order-intro h1 {
   margin-bottom: 14px;
   font-size: clamp(38px, 7vw, 72px);
 }
 
-.purchase-plans {
+.purchase-plans,
+.order-plans {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   margin: 30px 0 18px;
 }
 
-.purchase-plan {
+.order-plans {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.purchase-plan,
+.order-plan {
   display: grid;
   gap: 6px;
   padding: 24px;
@@ -952,23 +961,66 @@ footer {
   cursor: pointer;
 }
 
-.purchase-plan strong {
+.purchase-plan strong,
+.order-plan strong {
   color: var(--accent-dark);
   font-size: 32px;
 }
 
-.purchase-plan.selected {
+.purchase-plan.selected,
+.order-plan.selected {
   border-color: var(--accent);
   box-shadow: 0 12px 34px rgba(13, 109, 86, 0.16);
 }
 
-.checkout-summary {
+.checkout-summary,
+.order-form {
   display: grid;
   gap: 14px;
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fffdf6;
+}
+
+.order-note {
+  display: inline-block;
+  max-width: 780px;
+  margin: 6px auto 0;
+  padding: 10px 14px;
+  border: 1px solid rgba(156, 63, 71, 0.25);
+  border-radius: 8px;
+  background: #fff7e6;
+  color: #63343a;
+  font-weight: 700;
+}
+
+.order-form label,
+.order-form label span {
+  display: grid;
+  gap: 6px;
+}
+
+.order-form input,
+.order-form textarea,
+.order-summary {
+  width: 100%;
+  border: 1px solid #c8d8d0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+  background: #fff;
+}
+
+.order-form textarea,
+.order-summary {
+  resize: vertical;
+}
+
+.order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .checkout-summary > div {
@@ -985,6 +1037,10 @@ footer {
 
 @media (max-width: 620px) {
   .purchase-plans {
+    grid-template-columns: 1fr;
+  }
+
+  .order-plans {
     grid-template-columns: 1fr;
   }
 
