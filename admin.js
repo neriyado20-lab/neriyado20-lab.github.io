@@ -2,6 +2,8 @@
   const STORAGE_KEY = "gal-einai-site-interactions-v1";
   const CONFIG = window.GAL_EINAI_INTERACTIONS || {};
   const CIPHER_TITLES = {
+    "ketamuz-1407": "כתמוז 1407",
+    "ketamuz-hatashpu": "כתמוז תשפו",
     "rav-amos-hatashpu-milchama": "הרב עמוס התשפו מלחמה",
     "atom-petzatza-iran": "אטום פצצה אירן",
     "vetamuz-hatashpu-yenatzchu": "ותמוז התשפו ינצחו",
@@ -81,6 +83,20 @@
       notifyList.append(row("פרטי הודעה שמורים", store.notifyContact));
     } else {
       notifyList.append(row("אין נרשמים במכשיר זה", "לאחר חיבור שירות מרכזי תופיע כאן רשימת הנרשמים."));
+    }
+
+    const ordersList = $("adminOrdersList");
+    if (ordersList) {
+      const orders = Array.isArray(store.cipherOrders) ? store.cipherOrders : [];
+      ordersList.replaceChildren();
+      if (!orders.length) {
+        ordersList.append(row("אין עדיין בקשות", "בקשות בדיקת צופן שיוכנו במכשיר זה יופיעו כאן."));
+      } else {
+        orders.slice().reverse().forEach((order) => {
+          const date = order.at ? new Date(order.at).toLocaleString("he-IL") : "";
+          ordersList.append(row(order.topic || "בקשת בדיקה", `${order.contact || ""}${date ? ` | ${date}` : ""}`));
+        });
+      }
     }
 
     $("adminBackendStatus").textContent = CONFIG.enabled && CONFIG.endpoint
