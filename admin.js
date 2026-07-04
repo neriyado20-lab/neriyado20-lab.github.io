@@ -99,6 +99,20 @@
       }
     }
 
+    const aiGuidesList = $("adminAiGuidesList");
+    if (aiGuidesList) {
+      const guides = Array.isArray(store.aiGuides) ? store.aiGuides : [];
+      aiGuidesList.replaceChildren();
+      if (!guides.length) {
+        aiGuidesList.append(row("אין עדיין עיוני AI", "רשימות מילים שייבנו במכשיר זה יופיעו כאן."));
+      } else {
+        guides.slice().reverse().forEach((guide) => {
+          const date = guide.at ? new Date(guide.at).toLocaleString("he-IL") : "";
+          aiGuidesList.append(row(guide.topic || "עיון AI", `${guide.words?.length || 0} מילים${date ? ` | ${date}` : ""}`));
+        });
+      }
+    }
+
     $("adminBackendStatus").textContent = CONFIG.enabled && CONFIG.endpoint
       ? "חיבור נתונים מרכזי מוגדר."
       : "מצב נוכחי: נתונים מקומיים בלבד, ללא שליחה לשרת.";
