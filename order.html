@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>הזמנת בדיקת צופן אישית - גל עיני</title>
-  <meta name="description" content="הזמנת בדיקת צופן אישית לפי נושא, מילים ושאלה מנחה, לצד שימוש חופשי באתר גל עיני.">
-  <link rel="stylesheet" href="styles.css?v=57">
+  <title>הזמנת חיפוש צופן חדש - גל עיני</title>
+  <meta name="description" content="הזמנת חיפוש צופן חדש לפי נושא, מילים ושאלה מנחה, לצד אפשרות עיון בצופן קיים.">
+  <link rel="stylesheet" href="styles.css?v=58">
 </head>
 <body class="order-page">
   <header class="topbar">
@@ -13,7 +13,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני</strong>
-        <span>בדיקת צופן אישית</span>
+        <span>חיפוש צופן לפי הזמנה</span>
       </div>
     </a>
     <nav aria-label="ניווט">
@@ -26,24 +26,24 @@
   <main class="order-shell">
     <section class="order-intro">
       <p class="eyebrow">שירות אישי</p>
-      <h1>הזמנת בדיקת צופן לפי נושא</h1>
+      <h1>הזמנת חיפוש צופן חדש לפי נושא</h1>
       <p>
-        האתר נשאר פתוח לשימוש הציבור. שירות זה מיועד למי שמבקש עבודת חיפוש ועיון אישית
-        לפי נושא, מילים ושאלה מנחה.
+        האתר נשאר פתוח לשימוש הציבור. שירות זה מיועד למי שמבקש חיפוש צופן חדש
+        לפי נושא, מילים חשובות ושאלה מנחה. אפשר לבקש גם עיון בצופן קיים, אך עיקר השירות הוא חיפוש חדש.
       </p>
       <p class="order-note">
-        הבדיקה היא עבודת חיפוש ועיון בלבד. אין לראות בממצאים הכרעה הלכתית, הוראה מעשית או הבטחה.
+        החיפוש הוא עבודת חיפוש ועיון בלבד. אין לראות בממצאים הכרעה הלכתית, הוראה מעשית או הבטחה.
       </p>
     </section>
 
-    <section class="order-plans" aria-label="מסלולי בדיקה אישית">
+    <section class="order-plans" aria-label="מסלולי חיפוש אישי">
       <button class="order-plan selected" type="button" data-order-plan="basic">
-        <span>בדיקה בסיסית</span>
+        <span>חיפוש בסיסי</span>
         <strong>89 ₪</strong>
         <small>נושא אחד, לפחות 10 מילים חשובות, צילום צופן מסודר.</small>
       </button>
       <button class="order-plan" type="button" data-order-plan="expanded">
-        <span>בדיקה מורחבת</span>
+        <span>חיפוש מורחב</span>
         <strong>180 ₪</strong>
         <small>נושא אחד, עד 20 מילים, כמה ניסיונות ודוח קצר.</small>
       </button>
@@ -56,7 +56,14 @@
 
     <form id="cipherOrderForm" class="order-form">
       <label>
-        <span>נושא הבדיקה</span>
+        <span>סוג הבקשה</span>
+        <select id="orderKind" name="kind">
+          <option value="new-search">חיפוש צופן חדש לפי הזמנה</option>
+          <option value="existing-review">עיון בצופן קיים</option>
+        </select>
+      </label>
+      <label>
+        <span>נושא החיפוש</span>
         <input id="orderTopic" name="topic" autocomplete="off" required placeholder="לדוגמה: עניין מסוים, שם, תקופה או פרשה">
       </label>
       <label>
@@ -65,7 +72,7 @@
       </label>
       <label>
         <span>שאלה מנחה</span>
-        <textarea id="orderQuestion" name="question" rows="3" required placeholder="מה עיקר הבדיקה המבוקשת?"></textarea>
+        <textarea id="orderQuestion" name="question" rows="3" required placeholder="מה עיקר החיפוש המבוקש?"></textarea>
       </label>
       <label>
         <span>שם ופרטי קשר</span>
@@ -76,11 +83,11 @@
         <input id="orderDedication" name="dedication" autocomplete="off" placeholder="לעילוי נשמת / לרפואה / לזכות">
       </label>
       <div class="order-actions">
-        <button class="button primary" type="submit">הכן בקשה מסודרת</button>
+        <button class="button primary" type="submit">הכן הזמנת חיפוש</button>
         <button id="copyOrderButton" class="button secondary" type="button" disabled>העתק בקשה</button>
       </div>
       <p id="orderStatus" class="payment-status" aria-live="polite"></p>
-      <textarea id="orderSummary" class="order-summary" rows="9" readonly placeholder="לאחר מילוי הטופס יופיע כאן נוסח מסודר לשליחה."></textarea>
+      <textarea id="orderSummary" class="order-summary" rows="9" readonly placeholder="לאחר מילוי הטופס יופיע כאן נוסח מסודר להזמנת החיפוש."></textarea>
     </form>
   </main>
 
@@ -90,6 +97,6 @@
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="site-interactions.js?v=2"></script>
-  <script src="order.js?v=1"></script>
+  <script src="order.js?v=2"></script>
 </body>
 </html>
