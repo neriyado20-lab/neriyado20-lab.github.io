@@ -90,7 +90,7 @@
       const orders = Array.isArray(store.cipherOrders) ? store.cipherOrders : [];
       ordersList.replaceChildren();
       if (!orders.length) {
-        ordersList.append(row("אין עדיין בקשות", "בקשות בדיקת צופן שיוכנו במכשיר זה יופיעו כאן."));
+        ordersList.append(row("אין עדיין בקשות", "בקשות חיפוש צופן שיוכנו במכשיר זה יופיעו כאן."));
       } else {
         orders.slice().reverse().forEach((order) => {
           const date = order.at ? new Date(order.at).toLocaleString("he-IL") : "";
