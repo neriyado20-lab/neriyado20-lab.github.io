@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>הזמנת בדיקת צופן אישית - גל עיני</title>
+  <meta name="description" content="הזמנת בדיקת צופן אישית לפי נושא, מילים ושאלה מנחה, לצד שימוש חופשי באתר גל עיני.">
+  <link rel="stylesheet" href="styles.css?v=57">
+</head>
+<body class="order-page">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="חזרה לשער">
+      <span class="brand-mark" aria-hidden="true">גע</span>
+      <div>
+        <strong>גל עיני</strong>
+        <span>בדיקת צופן אישית</span>
+      </div>
+    </a>
+    <nav aria-label="ניווט">
+      <a href="index.html">ראשי</a>
+      <a href="web.html">עבודה באתר</a>
+      <a href="examples.html">צפנים לדוגמה</a>
+    </nav>
+  </header>
+
+  <main class="order-shell">
+    <section class="order-intro">
+      <p class="eyebrow">שירות אישי</p>
+      <h1>הזמנת בדיקת צופן לפי נושא</h1>
+      <p>
+        האתר נשאר פתוח לשימוש הציבור. שירות זה מיועד למי שמבקש עבודת חיפוש ועיון אישית
+        לפי נושא, מילים ושאלה מנחה.
+      </p>
+      <p class="order-note">
+        הבדיקה היא עבודת חיפוש ועיון בלבד. אין לראות בממצאים הכרעה הלכתית, הוראה מעשית או הבטחה.
+      </p>
+    </section>
+
+    <section class="order-plans" aria-label="מסלולי בדיקה אישית">
+      <button class="order-plan selected" type="button" data-order-plan="basic">
+        <span>בדיקה בסיסית</span>
+        <strong>89 ₪</strong>
+        <small>נושא אחד, לפחות 10 מילים חשובות, צילום צופן מסודר.</small>
+      </button>
+      <button class="order-plan" type="button" data-order-plan="expanded">
+        <span>בדיקה מורחבת</span>
+        <strong>180 ₪</strong>
+        <small>נושא אחד, עד 20 מילים, כמה ניסיונות ודוח קצר.</small>
+      </button>
+      <button class="order-plan" type="button" data-order-plan="print">
+        <span>צופן להדפסה</span>
+        <strong>360 ₪</strong>
+        <small>בדיקה מורחבת עם הכנה מסודרת לתמונה/הדפסה.</small>
+      </button>
+    </section>
+
+    <form id="cipherOrderForm" class="order-form">
+      <label>
+        <span>נושא הבדיקה</span>
+        <input id="orderTopic" name="topic" autocomplete="off" required placeholder="לדוגמה: עניין מסוים, שם, תקופה או פרשה">
+      </label>
+      <label>
+        <span>מילים או ביטויים שחשובים לך</span>
+        <textarea id="orderWords" name="words" rows="4" required placeholder="לפחות 10 מילים חשובות בנושא, עדיף כל מילה בשורה נפרדת"></textarea>
+      </label>
+      <label>
+        <span>שאלה מנחה</span>
+        <textarea id="orderQuestion" name="question" rows="3" required placeholder="מה עיקר הבדיקה המבוקשת?"></textarea>
+      </label>
+      <label>
+        <span>שם ופרטי קשר</span>
+        <input id="orderContact" name="contact" autocomplete="off" required placeholder="שם, טלפון או מייל">
+      </label>
+      <label>
+        <span>הקדשה או נוסח מיוחד, אם יש</span>
+        <input id="orderDedication" name="dedication" autocomplete="off" placeholder="לעילוי נשמת / לרפואה / לזכות">
+      </label>
+      <div class="order-actions">
+        <button class="button primary" type="submit">הכן בקשה מסודרת</button>
+        <button id="copyOrderButton" class="button secondary" type="button" disabled>העתק בקשה</button>
+      </div>
+      <p id="orderStatus" class="payment-status" aria-live="polite"></p>
+      <textarea id="orderSummary" class="order-summary" rows="9" readonly placeholder="לאחר מילוי הטופס יופיע כאן נוסח מסודר לשליחה."></textarea>
+    </form>
+  </main>
+
+  <footer>
+    <span>גל עיני - כלי לחיפוש צפנים ודילוגים בתורה</span>
+    <span id="siteActivity"></span>
+  </footer>
+  <script src="site-interactions-config.js?v=1"></script>
+  <script src="site-interactions.js?v=2"></script>
+  <script src="order.js?v=1"></script>
+</body>
+</html>
