@@ -2,6 +2,7 @@
   const DRIVER_KEY = "gal-einai-rides-v2";
   const REQUEST_KEY = "gal-einai-ride-requests-v1";
   const MESSAGE_KEY = "gal-einai-ride-messages-v1";
+  const FEEDBACK_KEY = "gal-einai-ride-feedback-v1";
   const $ = (id) => document.getElementById(id);
   let pendingDriverGps = null;
 
@@ -57,6 +58,14 @@
     writeList(MESSAGE_KEY, messages, 160);
   }
 
+  function readFeedback() {
+    return readList(FEEDBACK_KEY);
+  }
+
+  function writeFeedback(feedback) {
+    writeList(FEEDBACK_KEY, feedback, 240);
+  }
+
   function genderMatches(driverGender, requestGender) {
     if (driverGender === "family" || requestGender === "family") return true;
     return driverGender === requestGender;
@@ -97,6 +106,71 @@
     return el;
   }
 
+  function normalizePersonName(value) {
+    return String(value || "")
+      .trim()
+      .replace(/[״׳"']/g, "")
+      .replace(/\s+/g, " ")
+      .toLowerCase();
+  }
+
+  function roleLabel(value) {
+    return { driver: "מסיע", passenger: "נוסע" }[value] || value;
+  }
+
+  function ratingValue(id) {
+    const value = Number.parseInt($(id).value, 10);
+    if (!Number.isFinite(value)) return 5;
+    return Math.min(5, Math.max(1, value));
+  }
+
+  function reputationText(name, role) {
+    const key = `${role}:${normalizePersonName(name)}`;
+    const items = readFeedback().filter((item) => item.targetKey === key);
+    if (items.length < 3) return "מדד אמינות: נאספים משובים, עדיין אין מדד ציבורי.";
+    const average = items.reduce((sum, item) => sum + item.average, 0) / items.length;
+    return `מדד אמינות ואווירה: ${average.toFixed(1)} מתוך 5 לפי ${items.length} משובים. אינדיקציה בלבד.`;
+  }
+
+  function renderFeedbackSummary() {
+    const box = $("feedbackSummaryList");
+    if (!box) return;
+    const feedback = readFeedback();
+    box.replaceChildren();
+    if (!feedback.length) {
+      box.textContent = "אין עדיין משובים שמורים במכשיר זה.";
+      return;
+    }
+    const grouped = new Map();
+    feedback.forEach((item) => {
+      if (!grouped.has(item.targetKey)) {
+        grouped.set(item.targetKey, {
+          name: item.targetName,
+          role: item.targetRole,
+          count: 0,
+          sum: 0,
+        });
+      }
+      const group = grouped.get(item.targetKey);
+      group.count += 1;
+      group.sum += item.average;
+    });
+    Array.from(grouped.values())
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "he"))
+      .forEach((group) => {
+        const item = document.createElement("article");
+        item.className = "rides-item";
+        appendText(item, "strong", `${group.name} - ${roleLabel(group.role)}`);
+        if (group.count < 3) {
+          appendText(item, "span", `נאספו ${group.count} משובים. עדיין אין מדד ציבורי עד 3 משובים לפחות.`);
+        } else {
+          appendText(item, "span", `מדד מצטבר: ${(group.sum / group.count).toFixed(1)} מתוך 5`);
+          appendText(item, "small", `${group.count} משובים. אינדיקציה קהילתית בלבד, לא קביעה על אדם.`);
+        }
+        box.appendChild(item);
+      });
+  }
+
   function buildDriverItem(driver, { matchText = "", action = true } = {}) {
     const item = document.createElement("article");
     item.className = "rides-item";
@@ -104,6 +178,7 @@
     appendText(item, "span", `${genderLabel(driver.gender)} | ${frequencyLabel(driver.frequency || "once")} | ${driver.time} | ${driver.seats} מקומות`);
     appendText(item, "small", driver.car ? `רכב / סימן: ${driver.car}` : "רכב / סימן: לא צוין");
     appendText(item, "small", gpsLabel(driver.gps));
+    appendText(item, "small", reputationText(driver.name, "driver"));
     appendText(item, "small", driver.shareContact ? "הרשאת קשר: מותר לחשוף לאחר אישור אחראי" : "הרשאת קשר: דרך האתר בלבד");
     appendText(item, "small", driver.route.join(" ← "));
     if (matchText) appendText(item, "small", matchText);
@@ -153,6 +228,7 @@
       appendText(item, "strong", request.name);
       appendText(item, "span", `${genderLabel(request.gender)} | ${frequencyLabel(request.frequency)} | ${request.time} | ${request.passengers} נוסעים`);
       appendText(item, "small", `${request.from} ← ${request.to}`);
+      appendText(item, "small", reputationText(request.name, "passenger"));
       appendText(item, "small", request.items ? `חפצים / סימנים: ${request.items}` : "חפצים / סימנים: לא צוין");
       appendText(item, "small", request.shareContact ? "הרשאת קשר: מותר לחשוף לאחר אישור אחראי" : "הרשאת קשר: דרך האתר בלבד");
       appendText(item, "small", request.notes ? `הערה: ${request.notes}` : `התאמות שנמצאו: ${request.matchCount}`);
@@ -308,7 +384,43 @@
     renderMessages();
   });
 
+  $("feedbackForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const targetName = $("feedbackName").value.trim();
+    const targetRole = $("feedbackTargetRole").value;
+    const scores = {
+      respect: ratingValue("feedbackRespect"),
+      cleanliness: ratingValue("feedbackCleanliness"),
+      timing: ratingValue("feedbackTiming"),
+      again: ratingValue("feedbackAgain"),
+    };
+    const average = (scores.respect + scores.cleanliness + scores.timing + scores.again) / 4;
+    const feedback = readFeedback();
+    feedback.push({
+      id: `feedback-${Date.now()}`,
+      fromRole: $("feedbackFromRole").value,
+      targetRole,
+      targetName,
+      targetKey: `${targetRole}:${normalizePersonName(targetName)}`,
+      scores,
+      average,
+      privateNote: $("feedbackPrivateNote").value.trim(),
+      at: new Date().toISOString(),
+    });
+    writeFeedback(feedback);
+    event.target.reset();
+    $("feedbackRespect").value = "5";
+    $("feedbackCleanliness").value = "5";
+    $("feedbackTiming").value = "5";
+    $("feedbackAgain").value = "5";
+    $("ridesStatus").textContent = "המשוב נשמר. לציבור יוצג רק מדד מצטבר ועדין, והערות נשמרות לאחראי בלבד.";
+    renderDrivers();
+    renderRequests();
+    renderFeedbackSummary();
+  });
+
   renderDrivers();
   renderRequests();
   renderMessages();
+  renderFeedbackSummary();
 })();

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>גמ"ח תיווך טרמפים - גל עיני</title>
   <meta name="description" content="גמ״ח תיווך טרמפים עם הפרדה בין גברים לנשים ובדיקת התאמה לפי מסלול.">
-  <link rel="stylesheet" href="styles.css?v=70">
+  <link rel="stylesheet" href="styles.css?v=71">
 </head>
 <body class="rides-page">
   <header class="topbar">
@@ -45,6 +45,9 @@
       </p>
       <p class="ai-safety-note">
         האתר מסייע בתיווך בלבד ואינו ערב לזהות, לבטיחות, לנהיגה, לזמינות או להתנהגות המשתמשים.
+      </p>
+      <p class="ai-safety-note">
+        משוב משתמשים הוא אינדיקציה קהילתית בלבד, אינו קביעה על אדם, ואינו מחליף בירור ושיקול דעת של אחראי הגמ"ח.
       </p>
     </section>
 
@@ -162,6 +165,63 @@
       </form>
     </section>
 
+    <section class="rides-feedback-grid" aria-label="משוב ואמינות בגמ״ח טרמפים">
+      <form id="feedbackForm" class="rides-form">
+        <h2>משוב אחרי נסיעה</h2>
+        <label>
+          <span>אני מדרג בתור</span>
+          <select id="feedbackFromRole" required>
+            <option value="passenger">נוסע</option>
+            <option value="driver">מסיע</option>
+          </select>
+        </label>
+        <label>
+          <span>שם המדורג</span>
+          <input id="feedbackName" required autocomplete="off" placeholder="שם פרטי כפי שנרשם בגמ״ח">
+        </label>
+        <label>
+          <span>המדורג הוא</span>
+          <select id="feedbackTargetRole" required>
+            <option value="driver">מסיע</option>
+            <option value="passenger">נוסע</option>
+          </select>
+        </label>
+        <div class="rides-rating-grid" aria-label="דירוג מהיר">
+          <label>
+            <span>התנהגות מכבדת</span>
+            <input id="feedbackRespect" type="number" min="1" max="5" value="5" required>
+          </label>
+          <label>
+            <span>ניקיון ושמירה</span>
+            <input id="feedbackCleanliness" type="number" min="1" max="5" value="5" required>
+          </label>
+          <label>
+            <span>עמידה בזמנים ותקשורת</span>
+            <input id="feedbackTiming" type="number" min="1" max="5" value="5" required>
+          </label>
+          <label>
+            <span>רצון לנסוע שוב</span>
+            <input id="feedbackAgain" type="number" min="1" max="5" value="5" required>
+          </label>
+        </div>
+        <label>
+          <span>הערה לאחראי בלבד</span>
+          <textarea id="feedbackPrivateNote" rows="2" placeholder="לא מוצג לציבור. לכתוב בקצרה ובכבוד."></textarea>
+        </label>
+        <label class="ai-consent">
+          <input id="feedbackConsent" type="checkbox" required>
+          <span>אני מאשר שהמשוב נמסר לאחר נסיעה בפועל, בלשון נקיה, ולצורך שמירה על אווירה בטוחה ומכבדת בלבד.</span>
+        </label>
+        <button class="button primary" type="submit">שמור משוב</button>
+      </form>
+
+      <div class="rides-panel">
+        <h2>מדדי אמינות ואווירה</h2>
+        <p class="payment-status">מוצג רק מדד מצטבר ועדין, בלי הערות מילוליות ובלי מסקנה ודאית על אדם.</p>
+        <div id="feedbackSummaryList" class="rides-list"></div>
+      </div>
+    </section>
+
     <section class="rides-results" aria-label="תוצאות התאמה">
       <div class="rides-panel">
         <h2>רשימת מסיעים מוצעים</h2>
@@ -189,6 +249,6 @@
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="site-interactions.js?v=2"></script>
-  <script src="rides.js?v=5"></script>
+  <script src="rides.js?v=6"></script>
 </body>
 </html>
