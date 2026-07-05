@@ -3,6 +3,7 @@
   const REQUEST_KEY = "gal-einai-ride-requests-v1";
   const MESSAGE_KEY = "gal-einai-ride-messages-v1";
   const FEEDBACK_KEY = "gal-einai-ride-feedback-v1";
+  const SECURITY_REPORT_KEY = "gal-einai-ride-security-reports-v1";
   const $ = (id) => document.getElementById(id);
   let pendingDriverGps = null;
 
@@ -66,6 +67,14 @@
     writeList(FEEDBACK_KEY, feedback, 240);
   }
 
+  function readSecurityReports() {
+    return readList(SECURITY_REPORT_KEY);
+  }
+
+  function writeSecurityReports(reports) {
+    writeList(SECURITY_REPORT_KEY, reports, 160);
+  }
+
   function genderMatches(driverGender, requestGender) {
     if (driverGender === "family" || requestGender === "family") return true;
     return driverGender === requestGender;
@@ -104,6 +113,36 @@
     el.textContent = text;
     parent.appendChild(el);
     return el;
+  }
+
+  function securityFlags(text) {
+    const value = String(text || "").toLowerCase();
+    const terms = [
+      "טרור", "מחבל", "פיגוע", "נשק", "מטען", "חבלה", "ירי", "אלימות",
+      "נקמה", "גבול", "בסיס", "תחנת כוח", "מקום רגיש",
+    ];
+    return terms.filter((term) => value.includes(term));
+  }
+
+  function recentCount(items, personKey, minutes = 20) {
+    const since = Date.now() - minutes * 60 * 1000;
+    return items.filter((item) => {
+      const key = normalizePersonName(`${item.name || ""} ${item.phone || ""}`);
+      const time = item.at ? new Date(item.at).getTime() : 0;
+      return key === personKey && time >= since;
+    }).length;
+  }
+
+  function reviewReasonForRide(entry, existingItems) {
+    const flags = securityFlags([
+      entry.name, entry.phone, entry.time, entry.car, entry.from, entry.to,
+      entry.items, entry.notes, Array.isArray(entry.route) ? entry.route.join(" ") : "",
+    ].join(" "));
+    const key = normalizePersonName(`${entry.name || ""} ${entry.phone || ""}`);
+    const tooMany = recentCount(existingItems, key) >= 4;
+    if (flags.length) return `נעצר לבדיקה בגלל ביטוי חריג: ${flags.slice(0, 3).join(", ")}`;
+    if (tooMany) return "נעצר לבדיקה בגלל ריבוי פעולות בזמן קצר.";
+    return "";
   }
 
   function normalizePersonName(value) {
@@ -179,10 +218,11 @@
     appendText(item, "small", driver.car ? `רכב / סימן: ${driver.car}` : "רכב / סימן: לא צוין");
     appendText(item, "small", gpsLabel(driver.gps));
     appendText(item, "small", reputationText(driver.name, "driver"));
+    if (driver.securityHold) appendText(item, "small", `בדיקה חריגה: ${driver.securityReason}`);
     appendText(item, "small", driver.shareContact ? "הרשאת קשר: מותר לחשוף לאחר אישור הדדי" : "הרשאת קשר: דרך האתר בלבד");
     appendText(item, "small", driver.route.join(" ← "));
     if (matchText) appendText(item, "small", matchText);
-    if (action) {
+    if (action && !driver.securityHold) {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "button secondary";
@@ -229,6 +269,7 @@
       appendText(item, "span", `${genderLabel(request.gender)} | ${frequencyLabel(request.frequency)} | ${request.time} | ${request.passengers} נוסעים`);
       appendText(item, "small", `${request.from} ← ${request.to}`);
       appendText(item, "small", reputationText(request.name, "passenger"));
+      if (request.securityHold) appendText(item, "small", `בדיקה חריגה: ${request.securityReason}`);
       appendText(item, "small", request.items ? `חפצים / סימנים: ${request.items}` : "חפצים / סימנים: לא צוין");
       appendText(item, "small", request.shareContact ? "הרשאת קשר: מותר לחשוף לאחר אישור הדדי" : "הרשאת קשר: דרך האתר בלבד");
       appendText(item, "small", request.notes ? `הערה: ${request.notes}` : `התאמות שנמצאו: ${request.matchCount}`);
@@ -255,6 +296,25 @@
     });
   }
 
+  function renderSecurityReports() {
+    const box = $("securityReportList");
+    if (!box) return;
+    const reports = readSecurityReports();
+    box.replaceChildren();
+    if (!reports.length) {
+      box.textContent = "אין דיווחים חריגים שמורים במכשיר זה.";
+      return;
+    }
+    reports.slice().reverse().slice(0, 20).forEach((report) => {
+      const item = document.createElement("article");
+      item.className = "rides-item";
+      appendText(item, "strong", report.title);
+      appendText(item, "span", report.details);
+      appendText(item, "small", new Date(report.at).toLocaleString("he-IL"));
+      box.appendChild(item);
+    });
+  }
+
   function getRequestFromForm() {
     return {
       id: `request-${Date.now()}`,
@@ -277,6 +337,8 @@
     return readDrivers().filter((driver) => {
       const details = routeMatchDetails(driver.route, request.from, request.to);
       return (
+        !driver.securityHold &&
+        !request.securityHold &&
         genderMatches(driver.gender, request.gender) &&
         frequencyMatches(driver.frequency || "once", request.frequency) &&
         driver.seats >= request.passengers &&
@@ -293,7 +355,7 @@
       return;
     }
     const drivers = readDrivers();
-    drivers.push({
+    const driverEntry = {
       id: `driver-${Date.now()}`,
       name: $("driverName").value.trim(),
       phone: $("driverPhone").value.trim(),
@@ -306,13 +368,21 @@
       route,
       seats: Number.parseInt($("driverSeats").value, 10) || 1,
       at: new Date().toISOString(),
-    });
+    };
+    const securityReason = reviewReasonForRide(driverEntry, drivers);
+    if (securityReason) {
+      driverEntry.securityHold = true;
+      driverEntry.securityReason = securityReason;
+    }
+    drivers.push(driverEntry);
     writeDrivers(drivers);
     event.target.reset();
     $("driverSeats").value = "1";
     pendingDriverGps = null;
     $("driverGpsStatus").textContent = "לא בוצע אימות מיקום.";
-    $("ridesStatus").textContent = "המסיע נוסף לרשימת המסיעים. נוסעים יכולים לבחור אותו מהרשימה.";
+    $("ridesStatus").textContent = securityReason
+      ? "המסיע נשמר לבדיקה חריגה ולא יוצג להתאמות עד בירור."
+      : "המסיע נוסף לרשימת המסיעים. נוסעים יכולים לבחור אותו מהרשימה.";
     renderDrivers();
   });
 
@@ -343,10 +413,23 @@
   $("requestForm").addEventListener("submit", (event) => {
     event.preventDefault();
     const request = getRequestFromForm();
+    const requests = readRequests();
+    const securityReason = reviewReasonForRide(request, requests);
+    if (securityReason) {
+      request.securityHold = true;
+      request.securityReason = securityReason;
+      request.matchCount = 0;
+      request.matchDriverIds = [];
+      requests.push(request);
+      writeRequests(requests);
+      $("matchList").replaceChildren();
+      $("ridesStatus").textContent = "הבקשה נשמרה לבדיקה חריגה ולא תועבר להתאמה אוטומטית עד בירור.";
+      renderRequests();
+      return;
+    }
     const matches = findMatches(request);
     request.matchCount = matches.length;
     request.matchDriverIds = matches.map((driver) => driver.id);
-    const requests = readRequests();
     requests.push(request);
     writeRequests(requests);
     const messages = readMessages();
@@ -382,6 +465,21 @@
     });
     renderRequests();
     renderMessages();
+  });
+
+  $("securityReportForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const reports = readSecurityReports();
+    reports.push({
+      id: `security-report-${Date.now()}`,
+      title: `${$("securityReporterName").value.trim()} | ${$("securityReportType").selectedOptions[0].textContent}`,
+      details: $("securityReportDetails").value.trim(),
+      at: new Date().toISOString(),
+    });
+    writeSecurityReports(reports);
+    event.target.reset();
+    $("ridesStatus").textContent = "הדיווח נשמר לבדיקה חריגה. אם יש חשש מיידי, יש לפנות לגורם מוסמך.";
+    renderSecurityReports();
   });
 
   $("feedbackForm").addEventListener("submit", (event) => {
@@ -422,5 +520,6 @@
   renderDrivers();
   renderRequests();
   renderMessages();
+  renderSecurityReports();
   renderFeedbackSummary();
 })();

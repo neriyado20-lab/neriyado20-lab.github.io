@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>גמ"ח תיווך טרמפים - גל עיני</title>
   <meta name="description" content="גמ״ח תיווך טרמפים עם הפרדה בין גברים לנשים ובדיקת התאמה לפי מסלול.">
-  <link rel="stylesheet" href="styles.css?v=72">
+  <link rel="stylesheet" href="styles.css?v=73">
 </head>
 <body class="rides-page">
   <header class="topbar">
@@ -54,6 +54,46 @@
       <p class="ai-safety-note">
         תחזוקת הגמ"ח תיעשה מפרסומות צנועות בלבד, המתאימות לאופי האתר והציבור, ללא פרסומות פוגעניות או לא ראויות.
       </p>
+
+    <section class="rides-security-grid" aria-label="אבטחת גמ״ח הטרמפים">
+      <div class="rides-panel">
+        <h2>שמירת ביטחון ושימוש ראוי</h2>
+        <div class="rides-security-list">
+          <span>שימוש קהילתי בלבד, עם שם וטלפון אמיתיים.</span>
+          <span>לא מפרסמים פרטי נסיעה רגישים לכלל הציבור.</span>
+          <span>פרטי קשר נחשפים רק לאחר אישור הדדי.</span>
+          <span>בקשות חריגות נעצרות לבדיקה לפני התאמה.</span>
+          <span>משתמשים עם דיווחים חוזרים יוגבלו עד בירור.</span>
+        </div>
+        <p class="payment-status">במקרה חשש ממשי לביטחון או לפגיעה באדם, אין להסתמך על האתר בלבד ויש לפנות מיד לגורם מוסמך.</p>
+      </div>
+
+      <form id="securityReportForm" class="rides-form">
+        <h2>דיווח על חשש</h2>
+        <label>
+          <span>שם המדווח</span>
+          <input id="securityReporterName" required autocomplete="name" placeholder="שם פרטי">
+        </label>
+        <label>
+          <span>סוג החשש</span>
+          <select id="securityReportType" required>
+            <option value="identity">זהות לא ברורה</option>
+            <option value="behavior">התנהגות חריגה</option>
+            <option value="route">בקשה או מסלול חריגים</option>
+            <option value="safety">חשש בטיחותי</option>
+          </select>
+        </label>
+        <label>
+          <span>פירוט קצר ומכבד</span>
+          <textarea id="securityReportDetails" rows="3" required placeholder="לכתוב עובדות קצרות בלבד, בלי השמצות."></textarea>
+        </label>
+        <label class="ai-consent">
+          <input id="securityReportConsent" type="checkbox" required>
+          <span>אני מבין שדיווח מיועד לבירור חריג בלבד, ואינו קביעה על אדם.</span>
+        </label>
+        <button class="button primary" type="submit">שמור דיווח לבדיקה</button>
+      </form>
+    </section>
 
     <section class="rides-grid" aria-label="טפסי גמ״ח טרמפים">
       <form id="driverForm" class="rides-form">
@@ -244,6 +284,10 @@
         <h2>הודעות באתר</h2>
         <div id="messageList" class="rides-list"></div>
       </div>
+      <div class="rides-panel">
+        <h2>דיווחים חריגים לבדיקה</h2>
+        <div id="securityReportList" class="rides-list"></div>
+      </div>
     </section>
   </main>
 
@@ -253,6 +297,6 @@
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="site-interactions.js?v=2"></script>
-  <script src="rides.js?v=7"></script>
+  <script src="rides.js?v=8"></script>
 </body>
 </html>

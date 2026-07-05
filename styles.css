@@ -1082,6 +1082,7 @@ footer {
 
 .rides-grid,
 .rides-feedback-grid,
+.rides-security-grid,
 .rides-results {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1095,6 +1096,10 @@ footer {
 
 .rides-feedback-grid {
   grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+}
+
+.rides-security-grid {
+  grid-template-columns: minmax(0, 0.95fr) minmax(280px, 1.05fr);
 }
 
 .rides-form h2,
@@ -1125,6 +1130,20 @@ footer {
   border: 1px solid rgba(13, 109, 86, 0.22);
   border-radius: 8px;
   background: #eef6ef;
+}
+
+.rides-security-list {
+  display: grid;
+  gap: 8px;
+}
+
+.rides-security-list span {
+  padding: 9px 11px;
+  border: 1px solid rgba(13, 109, 86, 0.18);
+  border-radius: 8px;
+  background: #eef6ef;
+  color: var(--accent-dark);
+  font-weight: 800;
 }
 
 .rides-rating-grid {
@@ -1212,6 +1231,7 @@ footer {
   .admin-grid,
   .rides-grid,
   .rides-feedback-grid,
+  .rides-security-grid,
   .rides-results,
   .contact-grid {
     grid-template-columns: 1fr;
