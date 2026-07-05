@@ -64,6 +64,8 @@
           <span>הפעלת הגמ"ח תיעשה ככל האפשר בהכוונת רבנים ואחראים מקומיים.</span>
           <span>הצטרפות למעגל קהילתי תהיה דרך נציג שהוסמך על ידי הקהילה.</span>
           <span>כל מצטרף יקבל שם משתמש וקוד אישי, ובקהילות ללא גישה נוחה לאתר ניתן לשקול מסירת קודים דרך עמדות קהילתיות כגון נדרים פלוס.</span>
+          <span>רשימת חברי הקהילה תוכל להימסר לנדרים פלוס או למערכת קהילתית דומה, כדי שכל חבר יראה באזור האישי הודעת ראש הקהילה וקריאה להצטרף לכבוד ה'.</span>
+          <span>בכרטיס האישי של כל משתמש יופיע גם איש הקשר הקהילתי שלו לבירור וסיוע.</span>
           <span>לא מפרסמים פרטי נסיעה רגישים לכלל הציבור.</span>
           <span>פרטי קשר נחשפים רק לאחר אישור הדדי.</span>
           <span>בקשות חריגות נעצרות לבדיקה לפני התאמה.</span>
@@ -103,6 +105,7 @@
       <div class="rides-panel">
         <h2>מעגל קהילתי</h2>
         <p class="payment-status">הגמ"ח מיועד לפעול בתוך קהילות נפרדות. ניתן להצטרף רק לאחר פנייה לנציג מוסמך של הקהילה וקבלת קוד אישי.</p>
+        <p class="payment-status">כאשר הדבר אפשרי, הודעת ראש הקהילה וקריאתו להצטרף תוצג באזור האישי של חברי הקהילה במערכת קהילתית כגון נדרים פלוס.</p>
         <p id="communityStatus" class="payment-status" aria-live="polite">לא נבחרה קהילה פעילה.</p>
       </div>
 
@@ -115,6 +118,10 @@
         <label>
           <span>נציג מוסמך</span>
           <input id="communityRepresentative" required placeholder="שם הנציג שנתן את הקוד">
+        </label>
+        <label>
+          <span>איש קשר אישי</span>
+          <input id="communityContactPerson" required placeholder="שם איש הקשר של המשתמש בקהילה">
         </label>
         <label>
           <span>שם משתמש בקהילה</span>
@@ -361,6 +368,6 @@
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="site-interactions.js?v=2"></script>
-  <script src="rides.js?v=9"></script>
+  <script src="rides.js?v=10"></script>
 </body>
 </html>

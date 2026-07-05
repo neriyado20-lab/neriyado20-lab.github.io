@@ -172,7 +172,10 @@
   }
 
   function communityLabel(entry) {
-    return entry?.communityName ? `קהילה: ${entry.communityName}` : "קהילה: לא צוינה";
+    if (!entry?.communityName) return "קהילה: לא צוינה";
+    return entry.contactPerson
+      ? `קהילה: ${entry.communityName} | איש קשר: ${entry.contactPerson}`
+      : `קהילה: ${entry.communityName}`;
   }
 
   function requireCommunity() {
@@ -191,7 +194,7 @@
       box.textContent = "לא נבחרה קהילה פעילה.";
       return;
     }
-    box.textContent = `קהילה פעילה: ${community.communityName}. משתמש: ${community.userName}. קוד התקבל באמצעות ${community.sourceLabel}.`;
+    box.textContent = `קהילה פעילה: ${community.communityName}. משתמש: ${community.userName}. איש קשר: ${community.contactPerson}. קוד התקבל באמצעות ${community.sourceLabel}.`;
   }
 
   function roleLabel(value) {
@@ -416,6 +419,7 @@
       communityName: community.communityName,
       communityKey: community.communityKey,
       communityUserName: community.userName,
+      contactPerson: community.contactPerson,
       route,
       seats: Number.parseInt($("driverSeats").value, 10) || 1,
       at: new Date().toISOString(),
@@ -469,6 +473,7 @@
     request.communityName = community.communityName;
     request.communityKey = community.communityKey;
     request.communityUserName = community.userName;
+    request.contactPerson = community.contactPerson;
     const requests = readRequests();
     const securityReason = reviewReasonForRide(request, requests);
     if (securityReason) {
@@ -536,6 +541,7 @@
       communityName: name,
       communityKey: communityKey(name),
       representative: $("communityRepresentative").value.trim(),
+      contactPerson: $("communityContactPerson").value.trim(),
       userName: $("communityUserName").value.trim(),
       source: source.value,
       sourceLabel: source.selectedOptions[0].textContent,
