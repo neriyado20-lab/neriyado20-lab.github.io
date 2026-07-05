@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>עיון AI מונחה בצפנים - גל עיני</title>
   <meta name="description" content="מאגר מילים מותרות והצעות חיפוש לעיון בצפנים, ללא הכרעה על אנשים וללא לשון הרע.">
-  <link rel="stylesheet" href="styles.css?v=59">
+  <link rel="stylesheet" href="styles.css?v=69">
 </head>
 <body class="ai-page">
   <header class="topbar">
@@ -19,8 +19,10 @@
     <nav aria-label="ניווט">
       <a href="index.html">ראשי</a>
       <a href="web.html">עבודה באתר</a>
+      <a href="rides.html">גמ"ח טרמפים</a>
       <a href="order.html">חיפוש לפי הזמנה</a>
       <a href="examples.html">צפנים לדוגמה</a>
+      <a href="contact.html">צור קשר</a>
     </nav>
   </header>
 
@@ -35,6 +37,12 @@
       <p class="order-note">
         לשידוכים או עבודה: להשתמש רק בהסכמה ובצורה מכבדת, בלי הכרעה על אנשים ובלי מסקנות שליליות על אדם.
       </p>
+      <p class="ai-safety-note">
+        בחקירת מקרה הכלי מחפש כיווני עיון ניטרליים בלבד. הוא אינו מזהה אשם, אינו מדרג אנשים, ואינו מוציא שם של אדם כחשוד.
+      </p>
+      <p class="ai-safety-note">
+        באיתור נעדרים הכלי יכול להציע מקומות, זמנים וסימנים לעיון בלבד. אין לראות בזה מיקום ודאי, ובמקרה אמת פונים מיד למשטרה או הצלה.
+      </p>
     </section>
 
     <form id="aiGuideForm" class="ai-form">
@@ -45,6 +53,8 @@
           <option value="shidduch">שידוכים</option>
           <option value="work">קבלה לעבודה</option>
           <option value="event">מאורע / תקופה</option>
+          <option value="case">חקירת מקרה / קצה חוט</option>
+          <option value="missing">איתור נעדר / מקום אפשרי</option>
         </select>
       </label>
       <label>
@@ -52,8 +62,8 @@
         <textarea id="aiTopic" rows="3" required placeholder="מה רוצים לחפש או לברר בצופן?"></textarea>
       </label>
       <label>
-        <span>שמות בהסכמה, אם יש</span>
-        <textarea id="aiNames" rows="2" placeholder="כל שם בשורה נפרדת"></textarea>
+        <span>שמות ידועים או שמות בהסכמה, אם יש</span>
+        <textarea id="aiNames" rows="2" placeholder="כל שם בשורה נפרדת. בחקירת מקרה או נעדרים השמות נשמרים כרקע ולא כמסקנה."></textarea>
       </label>
       <label>
         <span>תאריכים / תקופות</span>
@@ -61,22 +71,27 @@
       </label>
       <label>
         <span>מילים נוספות שהמשתמש מבקש</span>
-        <textarea id="aiExtraWords" rows="3" placeholder="כל מילה בשורה נפרדת"></textarea>
+        <textarea id="aiExtraWords" rows="3" placeholder="כל מילה בשורה נפרדת. מילים מאשימות על אדם יסוננו."></textarea>
+      </label>
+      <label>
+        <span>פרטי מקרה / נעדר ניטרליים</span>
+        <textarea id="aiCaseDetails" rows="3" placeholder="מקום אחרון, זמן, רחוב, תחנה, רכב, בגד, תיק, טלפון, סימן או עדות. בלי האשמות ובלי מסקנות."></textarea>
       </label>
       <label class="ai-consent">
         <input id="aiConsent" type="checkbox" required>
-        <span>אני מבקש כלי עזר לעיון בלבד, בלי הכרעה על אדם ובלי לשון הרע.</span>
+        <span>אני מבקש כלי עזר לעיון בלבד, לקצה חוט בלבד, בלי הכרעה על אדם ובלי ודאות על מיקום.</span>
       </label>
       <div class="order-actions">
         <button class="button primary" type="submit">הצע מילים לחיפוש</button>
         <button id="copyAiWordsButton" class="button secondary" type="button" disabled>העתק מילים</button>
+        <a id="openWebSearchButton" class="button secondary disabled" href="web.html" aria-disabled="true">פתח בחיפוש האתר</a>
       </div>
       <p id="aiStatus" class="payment-status" aria-live="polite"></p>
     </form>
 
     <section class="ai-results" aria-label="תוצאות עיון AI">
       <article>
-        <h2>מילים מוצעות</h2>
+        <h2>מילים מוצעות לפי עדיפות</h2>
         <div id="aiWordChips" class="ai-word-chips"></div>
       </article>
       <article>
@@ -96,6 +111,6 @@
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="site-interactions.js?v=2"></script>
-  <script src="ai.js?v=1"></script>
+  <script src="ai.js?v=4"></script>
 </body>
 </html>

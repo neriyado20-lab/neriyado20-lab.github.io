@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>גמ"ח תיווך טרמפים - גל עיני</title>
+  <meta name="description" content="גמ״ח תיווך טרמפים עם הפרדה בין גברים לנשים ובדיקת התאמה לפי מסלול.">
+  <link rel="stylesheet" href="styles.css?v=69">
+</head>
+<body class="rides-page">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="חזרה לשער">
+      <span class="brand-mark" aria-hidden="true">גע</span>
+      <div>
+        <strong>גל עיני</strong>
+        <span>גמ"ח טרמפים</span>
+      </div>
+    </a>
+    <nav aria-label="ניווט">
+      <a href="index.html">ראשי</a>
+      <a href="web.html">עבודה באתר</a>
+      <a href="ai.html">עיון AI</a>
+      <a href="order.html">חיפוש לפי הזמנה</a>
+      <a href="contact.html">צור קשר</a>
+    </nav>
+  </header>
+
+  <main class="rides-shell">
+    <section class="order-intro">
+      <p class="eyebrow">גמ"ח תיווך</p>
+      <h1>טרמפים בהפרדה ובאחריות</h1>
+      <p>
+        רשימת מסיעים מוצעים, בדיקה אם המבקש נמצא במסלול, והפרדה בין גברים לנשים.
+        פרטי הנוסעים נשמרים ביומן מקומי של האחראי גם למקרה של אובדן חפצים.
+      </p>
+      <p class="order-note">
+        בטיחות לפני הכל: קטינים רק דרך הורים, לא עולים עם אדם לא מוכר בלי בירור,
+        והאחראי לגמ"ח מאשר כל התאמה לפני מסירת פרטים.
+      </p>
+      <p class="ai-safety-note">
+        אימות GPS הוא אימות נקודתי של מיקום ושעה, לא מעקב רציף ולא הבטחת בטיחות מלאה.
+      </p>
+      <p class="ai-safety-note">
+        התקשורת בין מסיע לנוסע נעשית דרך האתר ואחראי הגמ"ח. פרטי קשר נחשפים רק אם ניתנה הרשאה מיוחדת.
+      </p>
+    </section>
+
+    <section class="rides-grid" aria-label="טפסי גמ״ח טרמפים">
+      <form id="driverForm" class="rides-form">
+        <h2>אני יכול לקחת</h2>
+        <label>
+          <span>שם המסיע</span>
+          <input id="driverName" required autocomplete="name" placeholder="שם פרטי">
+        </label>
+        <label>
+          <span>טלפון לאחראי הגמ"ח</span>
+          <input id="driverPhone" required inputmode="tel" autocomplete="tel" placeholder="050-0000000">
+        </label>
+        <label>
+          <span>הפרדה</span>
+          <select id="driverGender" required>
+            <option value="men">גברים בלבד</option>
+            <option value="women">נשים בלבד</option>
+            <option value="family">משפחה / בתיאום אחראי</option>
+          </select>
+        </label>
+        <label>
+          <span>קטגוריה</span>
+          <select id="driverFrequency" required>
+            <option value="once">חד פעמי</option>
+            <option value="daily">יומיומי / קבוע</option>
+          </select>
+        </label>
+        <label>
+          <span>תאריך ושעה</span>
+          <input id="driverTime" required placeholder="לדוגמה: היום 22:00">
+        </label>
+        <label>
+          <span>רכב / סימן זיהוי</span>
+          <input id="driverCar" placeholder="לדוגמה: רכב לבן, 4 דלתות">
+        </label>
+        <div class="rides-gps-box">
+          <button id="verifyDriverGpsButton" class="button secondary" type="button">אמת מיקום GPS</button>
+          <p id="driverGpsStatus" class="payment-status">לא בוצע אימות מיקום.</p>
+        </div>
+        <label>
+          <span>מסלול מלא לפי סדר התחנות</span>
+          <textarea id="driverRoute" rows="4" required placeholder="ירושלים, גבעת זאב, מודיעין עילית, בני ברק"></textarea>
+        </label>
+        <label>
+          <span>מקומות פנויים</span>
+          <input id="driverSeats" type="number" min="1" max="9" value="1" required>
+        </label>
+        <label class="ai-consent">
+          <input id="driverShareContact" type="checkbox">
+          <span>אני מאשר לאחראי לחשוף את הטלפון שלי לנוסע מתאים לאחר בדיקה.</span>
+        </label>
+        <button class="button primary" type="submit">הוסף מסיע</button>
+      </form>
+
+      <form id="requestForm" class="rides-form">
+        <h2>אני צריך טרמפ</h2>
+        <label>
+          <span>שם המבקש</span>
+          <input id="requestName" required autocomplete="name" placeholder="שם פרטי">
+        </label>
+        <label>
+          <span>טלפון לאחראי הגמ"ח</span>
+          <input id="requestPhone" required inputmode="tel" autocomplete="tel" placeholder="050-0000000">
+        </label>
+        <label>
+          <span>למי מיועדת הנסיעה</span>
+          <select id="requestGender" required>
+            <option value="men">גבר / גברים</option>
+            <option value="women">אשה / נשים</option>
+            <option value="family">משפחה / בתיאום אחראי</option>
+          </select>
+        </label>
+        <label>
+          <span>קטגוריה מבוקשת</span>
+          <select id="requestFrequency" required>
+            <option value="once">חד פעמי</option>
+            <option value="daily">יומיומי / קבוע</option>
+          </select>
+        </label>
+        <label>
+          <span>זמן מבוקש</span>
+          <input id="requestTime" required placeholder="לדוגמה: היום בערב">
+        </label>
+        <label>
+          <span>מוצא</span>
+          <input id="requestFrom" required placeholder="לדוגמה: גבעת זאב">
+        </label>
+        <label>
+          <span>יעד</span>
+          <input id="requestTo" required placeholder="לדוגמה: בני ברק">
+        </label>
+        <label>
+          <span>מספר נוסעים</span>
+          <input id="requestPassengers" type="number" min="1" max="9" value="1" required>
+        </label>
+        <label>
+          <span>חפצים / סימני זיהוי למקרה אבידה</span>
+          <textarea id="requestItems" rows="2" placeholder="לדוגמה: תיק שחור, שקית ספרים, עגלה"></textarea>
+        </label>
+        <label>
+          <span>הערה לאחראי</span>
+          <textarea id="requestNotes" rows="2" placeholder="נקודת איסוף, צורך מיוחד, או הערה קצרה"></textarea>
+        </label>
+        <label class="ai-consent">
+          <input id="ridesConsent" type="checkbox" required>
+          <span>אני מבקש תיווך גמ"ח בלבד, ומסכים שהפרטים יישמרו אצל אחראי הגמ"ח לצורך נסיעה ואבידה.</span>
+        </label>
+        <label class="ai-consent">
+          <input id="requestShareContact" type="checkbox">
+          <span>אני מאשר לאחראי לחשוף את הטלפון שלי למסיע מתאים לאחר בדיקה.</span>
+        </label>
+        <button class="button primary" type="submit">שמור ובדוק התאמות</button>
+      </form>
+    </section>
+
+    <section class="rides-results" aria-label="תוצאות התאמה">
+      <div class="rides-panel">
+        <h2>רשימת מסיעים מוצעים</h2>
+        <div id="driverList" class="rides-list"></div>
+      </div>
+      <div class="rides-panel">
+        <h2>התאמות אפשריות</h2>
+        <p id="ridesStatus" class="payment-status" aria-live="polite">עדיין לא בוצעה בדיקה.</p>
+        <div id="matchList" class="rides-list"></div>
+      </div>
+      <div class="rides-panel">
+        <h2>יומן נוסעים ואבידות</h2>
+        <div id="requestList" class="rides-list"></div>
+      </div>
+      <div class="rides-panel">
+        <h2>הודעות באתר</h2>
+        <div id="messageList" class="rides-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>גל עיני - גמ"ח תיווך טרמפים</span>
+    <span id="siteActivity"></span>
+  </footer>
+  <script src="site-interactions-config.js?v=1"></script>
+  <script src="site-interactions.js?v=2"></script>
+  <script src="rides.js?v=5"></script>
+</body>
+</html>

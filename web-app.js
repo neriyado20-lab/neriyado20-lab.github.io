@@ -175,6 +175,21 @@
     els.helpEdition.textContent = "הוראות לשימוש מלא באתר, כולל שמירה, גיבוי, ייצוא והורדת קבצים.";
   }
 
+  function applyQueryInputs() {
+    const params = new URLSearchParams(window.location.search);
+    const fields = [
+      ["primary", els.primary],
+      ["secondary", els.secondary],
+      ["skipFrom", els.skipFrom],
+      ["skipTo", els.skipTo],
+      ["minSecondary", els.minSecondary],
+    ];
+    fields.forEach(([key, input]) => {
+      const value = params.get(key);
+      if (value !== null && input) input.value = value;
+    });
+  }
+
   function normalizeWord(value) {
     return String(value || "")
       .replace(/[^\u05d0-\u05ea?]/g, "")
@@ -2269,6 +2284,7 @@
         await loadProjectFromQuery().catch((error) => setStatus(`שגיאה בטעינת צופן: ${error.message}`, 0));
       } else {
         restoreDraft();
+        applyQueryInputs();
       }
     })
     .catch((error) => setStatus(`שגיאה בטעינת התורה: ${error.message}`, 0));
