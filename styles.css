@@ -1081,6 +1081,7 @@ footer {
 }
 
 .rides-grid,
+.rides-community-grid,
 .rides-feedback-grid,
 .rides-security-grid,
 .rides-results {
@@ -1100,6 +1101,10 @@ footer {
 
 .rides-security-grid {
   grid-template-columns: minmax(0, 0.95fr) minmax(280px, 1.05fr);
+}
+
+.rides-community-grid {
+  grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1.1fr);
 }
 
 .rides-form h2,
@@ -1230,6 +1235,7 @@ footer {
   .admin-summary,
   .admin-grid,
   .rides-grid,
+  .rides-community-grid,
   .rides-feedback-grid,
   .rides-security-grid,
   .rides-results,

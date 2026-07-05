@@ -4,6 +4,7 @@
   const MESSAGE_KEY = "gal-einai-ride-messages-v1";
   const FEEDBACK_KEY = "gal-einai-ride-feedback-v1";
   const SECURITY_REPORT_KEY = "gal-einai-ride-security-reports-v1";
+  const COMMUNITY_KEY = "gal-einai-ride-active-community-v1";
   const $ = (id) => document.getElementById(id);
   let pendingDriverGps = null;
 
@@ -73,6 +74,19 @@
 
   function writeSecurityReports(reports) {
     writeList(SECURITY_REPORT_KEY, reports, 160);
+  }
+
+  function readActiveCommunity() {
+    try {
+      const data = JSON.parse(localStorage.getItem(COMMUNITY_KEY) || "null");
+      return data && data.communityKey ? data : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeActiveCommunity(community) {
+    localStorage.setItem(COMMUNITY_KEY, JSON.stringify(community));
   }
 
   function genderMatches(driverGender, requestGender) {
@@ -153,6 +167,33 @@
       .toLowerCase();
   }
 
+  function communityKey(value) {
+    return normalizePersonName(value);
+  }
+
+  function communityLabel(entry) {
+    return entry?.communityName ? `קהילה: ${entry.communityName}` : "קהילה: לא צוינה";
+  }
+
+  function requireCommunity() {
+    const community = readActiveCommunity();
+    if (community) return community;
+    $("ridesStatus").textContent = "לפני רישום נסיעה יש להפעיל מעגל קהילתי עם שם משתמש וקוד אישי.";
+    $("communityStatus").textContent = "לא נבחרה קהילה פעילה. יש להזין קוד אישי שניתן על ידי נציג מוסמך.";
+    return null;
+  }
+
+  function renderCommunityStatus() {
+    const box = $("communityStatus");
+    if (!box) return;
+    const community = readActiveCommunity();
+    if (!community) {
+      box.textContent = "לא נבחרה קהילה פעילה.";
+      return;
+    }
+    box.textContent = `קהילה פעילה: ${community.communityName}. משתמש: ${community.userName}. קוד התקבל באמצעות ${community.sourceLabel}.`;
+  }
+
   function roleLabel(value) {
     return { driver: "מסיע", passenger: "נוסע" }[value] || value;
   }
@@ -215,6 +256,7 @@
     item.className = "rides-item";
     appendText(item, "strong", driver.name);
     appendText(item, "span", `${genderLabel(driver.gender)} | ${frequencyLabel(driver.frequency || "once")} | ${driver.time} | ${driver.seats} מקומות`);
+    appendText(item, "small", communityLabel(driver));
     appendText(item, "small", driver.car ? `רכב / סימן: ${driver.car}` : "רכב / סימן: לא צוין");
     appendText(item, "small", gpsLabel(driver.gps));
     appendText(item, "small", reputationText(driver.name, "driver"));
@@ -267,6 +309,7 @@
       item.className = "rides-item";
       appendText(item, "strong", request.name);
       appendText(item, "span", `${genderLabel(request.gender)} | ${frequencyLabel(request.frequency)} | ${request.time} | ${request.passengers} נוסעים`);
+      appendText(item, "small", communityLabel(request));
       appendText(item, "small", `${request.from} ← ${request.to}`);
       appendText(item, "small", reputationText(request.name, "passenger"));
       if (request.securityHold) appendText(item, "small", `בדיקה חריגה: ${request.securityReason}`);
@@ -339,6 +382,9 @@
       return (
         !driver.securityHold &&
         !request.securityHold &&
+        driver.communityKey &&
+        request.communityKey &&
+        driver.communityKey === request.communityKey &&
         genderMatches(driver.gender, request.gender) &&
         frequencyMatches(driver.frequency || "once", request.frequency) &&
         driver.seats >= request.passengers &&
@@ -349,6 +395,8 @@
 
   $("driverForm").addEventListener("submit", (event) => {
     event.preventDefault();
+    const community = requireCommunity();
+    if (!community) return;
     const route = splitRoute($("driverRoute").value);
     if (route.length < 2) {
       $("ridesStatus").textContent = "יש להזין לפחות שתי תחנות במסלול המסיע.";
@@ -365,6 +413,9 @@
       car: $("driverCar").value.trim(),
       gps: pendingDriverGps,
       shareContact: $("driverShareContact").checked,
+      communityName: community.communityName,
+      communityKey: community.communityKey,
+      communityUserName: community.userName,
       route,
       seats: Number.parseInt($("driverSeats").value, 10) || 1,
       at: new Date().toISOString(),
@@ -412,7 +463,12 @@
 
   $("requestForm").addEventListener("submit", (event) => {
     event.preventDefault();
+    const community = requireCommunity();
+    if (!community) return;
     const request = getRequestFromForm();
+    request.communityName = community.communityName;
+    request.communityKey = community.communityKey;
+    request.communityUserName = community.userName;
     const requests = readRequests();
     const securityReason = reviewReasonForRide(request, requests);
     if (securityReason) {
@@ -465,6 +521,32 @@
     });
     renderRequests();
     renderMessages();
+  });
+
+  $("communityAccessForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const name = $("communityName").value.trim();
+    const code = $("communityAccessCode").value.trim();
+    if (code.length < 4) {
+      $("communityStatus").textContent = "הקוד האישי קצר מדי. יש להזין קוד שניתן על ידי נציג הקהילה.";
+      return;
+    }
+    const source = $("communityCodeSource");
+    writeActiveCommunity({
+      communityName: name,
+      communityKey: communityKey(name),
+      representative: $("communityRepresentative").value.trim(),
+      userName: $("communityUserName").value.trim(),
+      source: source.value,
+      sourceLabel: source.selectedOptions[0].textContent,
+      codeHint: code.slice(-2).padStart(code.length, "*"),
+      at: new Date().toISOString(),
+    });
+    event.target.reset();
+    $("ridesStatus").textContent = "המעגל הקהילתי הופעל. כעת ההתאמות יוצגו רק בתוך הקהילה הזו.";
+    renderCommunityStatus();
+    renderDrivers();
+    renderRequests();
   });
 
   $("securityReportForm").addEventListener("submit", (event) => {
@@ -521,5 +603,6 @@
   renderRequests();
   renderMessages();
   renderSecurityReports();
+  renderCommunityStatus();
   renderFeedbackSummary();
 })();

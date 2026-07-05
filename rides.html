@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>גמ"ח תיווך טרמפים - גל עיני</title>
   <meta name="description" content="גמ״ח תיווך טרמפים עם הפרדה בין גברים לנשים ובדיקת התאמה לפי מסלול.">
-  <link rel="stylesheet" href="styles.css?v=73">
+  <link rel="stylesheet" href="styles.css?v=74">
 </head>
 <body class="rides-page">
   <header class="topbar">
@@ -62,6 +62,8 @@
           <span>שימוש קהילתי בלבד, עם שם וטלפון אמיתיים.</span>
           <span>מבקשים להפיץ את הגמ"ח רק לאנשים מוכרים והגונים, ולא בקבוצות פתוחות ללא אחריות.</span>
           <span>הפעלת הגמ"ח תיעשה ככל האפשר בהכוונת רבנים ואחראים מקומיים.</span>
+          <span>הצטרפות למעגל קהילתי תהיה דרך נציג שהוסמך על ידי הקהילה.</span>
+          <span>כל מצטרף יקבל שם משתמש וקוד אישי, ובקהילות ללא גישה נוחה לאתר ניתן לשקול מסירת קודים דרך עמדות קהילתיות כגון נדרים פלוס.</span>
           <span>לא מפרסמים פרטי נסיעה רגישים לכלל הציבור.</span>
           <span>פרטי קשר נחשפים רק לאחר אישור הדדי.</span>
           <span>בקשות חריגות נעצרות לבדיקה לפני התאמה.</span>
@@ -94,6 +96,47 @@
           <span>אני מבין שדיווח מיועד לבירור חריג בלבד, ואינו קביעה על אדם.</span>
         </label>
         <button class="button primary" type="submit">שמור דיווח לבדיקה</button>
+      </form>
+    </section>
+
+    <section class="rides-community-grid" aria-label="כניסה למעגל קהילתי">
+      <div class="rides-panel">
+        <h2>מעגל קהילתי</h2>
+        <p class="payment-status">הגמ"ח מיועד לפעול בתוך קהילות נפרדות. ניתן להצטרף רק לאחר פנייה לנציג מוסמך של הקהילה וקבלת קוד אישי.</p>
+        <p id="communityStatus" class="payment-status" aria-live="polite">לא נבחרה קהילה פעילה.</p>
+      </div>
+
+      <form id="communityAccessForm" class="rides-form">
+        <h2>כניסה עם קוד קהילתי</h2>
+        <label>
+          <span>שם הקהילה</span>
+          <input id="communityName" required placeholder="לדוגמה: קהילת בית הכנסת / כולל / שכונה">
+        </label>
+        <label>
+          <span>נציג מוסמך</span>
+          <input id="communityRepresentative" required placeholder="שם הנציג שנתן את הקוד">
+        </label>
+        <label>
+          <span>שם משתמש בקהילה</span>
+          <input id="communityUserName" required autocomplete="username" placeholder="שם פרטי או שם משתמש שקיבלת">
+        </label>
+        <label>
+          <span>קוד אישי</span>
+          <input id="communityAccessCode" required inputmode="numeric" minlength="4" placeholder="קוד שנמסר על ידי נציג הקהילה">
+        </label>
+        <label>
+          <span>דרך קבלת הקוד</span>
+          <select id="communityCodeSource" required>
+            <option value="representative">נציג הקהילה</option>
+            <option value="phone">שיחה עם אחראי מקומי</option>
+            <option value="station">עמדה קהילתית / נדרים פלוס</option>
+          </select>
+        </label>
+        <label class="ai-consent">
+          <input id="communityAccessConsent" type="checkbox" required>
+          <span>אני מאשר שהקוד ניתן לי עבור הקהילה שלי בלבד, ולא אעביר אותו לאחרים בלי רשות נציג הקהילה.</span>
+        </label>
+        <button class="button primary" type="submit">הפעל קהילה זו</button>
       </form>
     </section>
 
@@ -299,6 +342,6 @@
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="site-interactions.js?v=2"></script>
-  <script src="rides.js?v=8"></script>
+  <script src="rides.js?v=9"></script>
 </body>
 </html>
