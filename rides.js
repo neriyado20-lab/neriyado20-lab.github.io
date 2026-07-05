@@ -85,7 +85,7 @@
   }
 
   function genderLabel(value) {
-    return { men: "גברים בלבד", women: "נשים בלבד", family: "משפחה / בתיאום אחראי" }[value] || value;
+    return { men: "גברים בלבד", women: "נשים בלבד", family: "משפחה / בתיאום מיוחד" }[value] || value;
   }
 
   function frequencyLabel(value) {
@@ -179,7 +179,7 @@
     appendText(item, "small", driver.car ? `רכב / סימן: ${driver.car}` : "רכב / סימן: לא צוין");
     appendText(item, "small", gpsLabel(driver.gps));
     appendText(item, "small", reputationText(driver.name, "driver"));
-    appendText(item, "small", driver.shareContact ? "הרשאת קשר: מותר לחשוף לאחר אישור אחראי" : "הרשאת קשר: דרך האתר בלבד");
+    appendText(item, "small", driver.shareContact ? "הרשאת קשר: מותר לחשוף לאחר אישור הדדי" : "הרשאת קשר: דרך האתר בלבד");
     appendText(item, "small", driver.route.join(" ← "));
     if (matchText) appendText(item, "small", matchText);
     if (action) {
@@ -230,7 +230,7 @@
       appendText(item, "small", `${request.from} ← ${request.to}`);
       appendText(item, "small", reputationText(request.name, "passenger"));
       appendText(item, "small", request.items ? `חפצים / סימנים: ${request.items}` : "חפצים / סימנים: לא צוין");
-      appendText(item, "small", request.shareContact ? "הרשאת קשר: מותר לחשוף לאחר אישור אחראי" : "הרשאת קשר: דרך האתר בלבד");
+      appendText(item, "small", request.shareContact ? "הרשאת קשר: מותר לחשוף לאחר אישור הדדי" : "הרשאת קשר: דרך האתר בלבד");
       appendText(item, "small", request.notes ? `הערה: ${request.notes}` : `התאמות שנמצאו: ${request.matchCount}`);
       box.appendChild(item);
     });
@@ -359,8 +359,8 @@
         title: `בקשת הצטרפות עבור ${driver.name}`,
         body: `${request.name} מבקש להצטרף מ-${request.from} ל-${request.to} בזמן ${request.time}.`,
         contactPolicy: bothApproved
-          ? `שני הצדדים אישרו חשיפת פרטים לאחר אישור אחראי. טלפון מסיע: ${driver.phone}; טלפון נוסע: ${request.phone}.`
-          : "ברירת מחדל: אין לחשוף טלפונים. התיאום דרך האתר ואחראי הגמ\"ח בלבד.",
+          ? `שני הצדדים אישרו חשיפת פרטים לאחר אישור הדדי. טלפון מסיע: ${driver.phone}; טלפון נוסע: ${request.phone}.`
+          : "ברירת מחדל: אין לחשוף טלפונים. התיאום דרך הודעות האתר, ומנהל הגמ\"ח מתערב רק במקרה חריג.",
         at: new Date().toISOString(),
       });
     });
@@ -369,12 +369,12 @@
     const box = $("matchList");
     box.replaceChildren();
     $("ridesStatus").textContent = matches.length
-      ? `הבקשה נשמרה. נמצאו ${matches.length} התאמות אפשריות למסלול, לאישור אחראי הגמ"ח.`
+      ? `הבקשה נשמרה. נמצאו ${matches.length} התאמות אפשריות למסלול, לאישור הדדי של המסיע והנוסע.`
       : "הבקשה נשמרה ביומן, אך לא נמצאה התאמה במסלולים השמורים במכשיר זה.";
     matches.forEach((driver) => {
       const contactText = driver.shareContact && request.shareContact
-        ? `שני הצדדים אישרו חשיפת פרטים לאחר בדיקת אחראי. טלפון מסיע: ${driver.phone}; טלפון נוסע: ${request.phone}`
-        : "פרטי קשר מוסתרים. יש לתאם דרך האתר ואחראי הגמ\"ח בלבד.";
+        ? `שני הצדדים אישרו חשיפת פרטים לאחר אישור הדדי. טלפון מסיע: ${driver.phone}; טלפון נוסע: ${request.phone}`
+        : "פרטי קשר מוסתרים. יש לתאם דרך הודעות האתר; מנהל הגמ\"ח מתערב רק במקרה חריג.";
       box.appendChild(buildDriverItem(driver, {
         action: false,
         matchText: `המסלול כולל את ${request.from} לפני ${request.to}. ${contactText}`,
@@ -413,7 +413,7 @@
     $("feedbackCleanliness").value = "5";
     $("feedbackTiming").value = "5";
     $("feedbackAgain").value = "5";
-    $("ridesStatus").textContent = "המשוב נשמר. לציבור יוצג רק מדד מצטבר ועדין, והערות נשמרות לאחראי בלבד.";
+    $("ridesStatus").textContent = "המשוב נשמר. לציבור יוצג רק מדד מצטבר ועדין, והערות פרטיות נשמרות למקרה חריג בלבד.";
     renderDrivers();
     renderRequests();
     renderFeedbackSummary();

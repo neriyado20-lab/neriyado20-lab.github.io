@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>גמ"ח תיווך טרמפים - גל עיני</title>
   <meta name="description" content="גמ״ח תיווך טרמפים עם הפרדה בין גברים לנשים ובדיקת התאמה לפי מסלול.">
-  <link rel="stylesheet" href="styles.css?v=71">
+  <link rel="stylesheet" href="styles.css?v=72">
 </head>
 <body class="rides-page">
   <header class="topbar">
@@ -31,25 +31,29 @@
       <h1>טרמפים בהפרדה ובאחריות</h1>
       <p>
         רשימת מסיעים מוצעים, בדיקה אם המבקש נמצא במסלול, והפרדה בין גברים לנשים.
-        פרטי הנוסעים נשמרים ביומן מקומי של האחראי גם למקרה של אובדן חפצים.
+        פרטי הנוסעים נשמרים ביומן מקומי גם למקרה של אובדן חפצים.
       </p>
       <p class="order-note">
         בטיחות לפני הכל: קטינים רק דרך הורים, לא עולים עם אדם לא מוכר בלי בירור,
-        והאחראי לגמ"ח מאשר כל התאמה לפני מסירת פרטים. האחריות לנסיעה היא על המשתמשים בלבד.
+        והנסיעה מתואמת באישור הדדי של המסיע והנוסע דרך האתר. האחריות לנסיעה היא על המשתמשים בלבד.
       </p>
       <p class="ai-safety-note">
         אימות GPS הוא אימות נקודתי של מיקום ושעה, לא מעקב רציף ולא הבטחת בטיחות מלאה.
       </p>
       <p class="ai-safety-note">
-        התקשורת בין מסיע לנוסע נעשית דרך האתר ואחראי הגמ"ח. פרטי קשר נחשפים רק אם ניתנה הרשאה מיוחדת.
+        התקשורת בין מסיע לנוסע נעשית דרך האתר. פרטי קשר נחשפים רק אם שני הצדדים אישרו זאת, ומנהל הגמ"ח מתערב רק במקרה חריג או כאשר התוכנה לא נותנת מענה.
       </p>
       <p class="ai-safety-note">
         האתר מסייע בתיווך בלבד ואינו ערב לזהות, לבטיחות, לנהיגה, לזמינות או להתנהגות המשתמשים.
       </p>
       <p class="ai-safety-note">
-        משוב משתמשים הוא אינדיקציה קהילתית בלבד, אינו קביעה על אדם, ואינו מחליף בירור ושיקול דעת של אחראי הגמ"ח.
+        משוב משתמשים הוא אינדיקציה קהילתית בלבד, אינו קביעה על אדם, ואינו מחליף בירור ושיקול דעת במקרים חריגים.
       </p>
     </section>
+
+      <p class="ai-safety-note">
+        תחזוקת הגמ"ח תיעשה מפרסומות צנועות בלבד, המתאימות לאופי האתר והציבור, ללא פרסומות פוגעניות או לא ראויות.
+      </p>
 
     <section class="rides-grid" aria-label="טפסי גמ״ח טרמפים">
       <form id="driverForm" class="rides-form">
@@ -59,7 +63,7 @@
           <input id="driverName" required autocomplete="name" placeholder="שם פרטי">
         </label>
         <label>
-          <span>טלפון לאחראי הגמ"ח</span>
+          <span>טלפון לתיאום לאחר אישור הדדי</span>
           <input id="driverPhone" required inputmode="tel" autocomplete="tel" placeholder="050-0000000">
         </label>
         <label>
@@ -67,7 +71,7 @@
           <select id="driverGender" required>
             <option value="men">גברים בלבד</option>
             <option value="women">נשים בלבד</option>
-            <option value="family">משפחה / בתיאום אחראי</option>
+            <option value="family">משפחה / בתיאום מיוחד</option>
           </select>
         </label>
         <label>
@@ -99,7 +103,7 @@
         </label>
         <label class="ai-consent">
           <input id="driverShareContact" type="checkbox">
-          <span>אני מאשר לאחראי לחשוף את הטלפון שלי לנוסע מתאים לאחר בדיקה.</span>
+          <span>אני מאשר לחשוף את הטלפון שלי לנוסע מתאים רק אחרי אישור הדדי דרך האתר.</span>
         </label>
         <button class="button primary" type="submit">הוסף מסיע</button>
       </form>
@@ -111,7 +115,7 @@
           <input id="requestName" required autocomplete="name" placeholder="שם פרטי">
         </label>
         <label>
-          <span>טלפון לאחראי הגמ"ח</span>
+          <span>טלפון לתיאום לאחר אישור הדדי</span>
           <input id="requestPhone" required inputmode="tel" autocomplete="tel" placeholder="050-0000000">
         </label>
         <label>
@@ -119,7 +123,7 @@
           <select id="requestGender" required>
             <option value="men">גבר / גברים</option>
             <option value="women">אשה / נשים</option>
-            <option value="family">משפחה / בתיאום אחראי</option>
+            <option value="family">משפחה / בתיאום מיוחד</option>
           </select>
         </label>
         <label>
@@ -150,7 +154,7 @@
           <textarea id="requestItems" rows="2" placeholder="לדוגמה: תיק שחור, שקית ספרים, עגלה"></textarea>
         </label>
         <label>
-          <span>הערה לאחראי</span>
+          <span>הערה לתיאום / למקרה חריג</span>
           <textarea id="requestNotes" rows="2" placeholder="נקודת איסוף, צורך מיוחד, או הערה קצרה"></textarea>
         </label>
         <label class="ai-consent">
@@ -159,7 +163,7 @@
         </label>
         <label class="ai-consent">
           <input id="requestShareContact" type="checkbox">
-          <span>אני מאשר לאחראי לחשוף את הטלפון שלי למסיע מתאים לאחר בדיקה.</span>
+          <span>אני מאשר לחשוף את הטלפון שלי למסיע מתאים רק אחרי אישור הדדי דרך האתר.</span>
         </label>
         <button class="button primary" type="submit">שמור ובדוק התאמות</button>
       </form>
@@ -205,7 +209,7 @@
           </label>
         </div>
         <label>
-          <span>הערה לאחראי בלבד</span>
+          <span>הערה פרטית למקרה חריג</span>
           <textarea id="feedbackPrivateNote" rows="2" placeholder="לא מוצג לציבור. לכתוב בקצרה ובכבוד."></textarea>
         </label>
         <label class="ai-consent">
@@ -249,6 +253,6 @@
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="site-interactions.js?v=2"></script>
-  <script src="rides.js?v=6"></script>
+  <script src="rides.js?v=7"></script>
 </body>
 </html>
