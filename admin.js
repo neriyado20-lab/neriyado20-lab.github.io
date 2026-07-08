@@ -11,17 +11,17 @@
     ? window.supabase.createClient(AUTH.supabaseUrl, AUTH.supabasePublishableKey)
     : null;
   const CIPHER_TITLES = {
-    "ketamuz-1407": "????? 1407",
-    "ketamuz-hatashpu": "????? ????",
-    "rav-amos-hatashpu-milchama": "??? ???? ????? ?????",
-    "atom-petzatza-iran": "???? ???? ????",
-    "vetamuz-hatashpu-yenatzchu": "????? ????? ?????",
-    "tamuz-hatashpu-podeh-melech-71": "???? ????? ???? ??? 71",
-    "geula-m-hapeh-bigevura": "????? ? ?-?? ??????",
-    "hey-july": "? ????",
-    "yom-mashiach-ba-583-ketamuz": "??? ???? ?? 583 ?????",
-    "leshiul-shemen-zayit-lechem-boker": "?????? ??? ??? ???? ???",
-    "heymanot-kesau": "?????? ????"
+    "ketamuz-1407": "כתמוז 1407",
+    "ketamuz-hatashpu": "כתמוז תשפו",
+    "rav-amos-hatashpu-milchama": "הרב עמוס התשפו מלחמה",
+    "atom-petzatza-iran": "אטום פצצה אירן",
+    "vetamuz-hatashpu-yenatzchu": "ותמוז התשפו ינצחו",
+    "tamuz-hatashpu-podeh-melech-71": "תמוז התשפו פודה מלך 71",
+    "geula-m-hapeh-bigevura": "גאולה מ ה-פה בגבורה",
+    "hey-july": "ה יולי",
+    "yom-mashiach-ba-583-ketamuz": "יום משיח בא 583 כתמוז",
+    "leshiul-shemen-zayit-lechem-boker": "לשיעול שמן זית ולחם בקר",
+    "heymanot-kesau": "הימנוט קסאו"
   };
 
   function $(id) {
@@ -63,7 +63,7 @@
         render();
         return;
       }
-      status.textContent = "??? ?? ????? ??????.";
+      status.textContent = "קוד או סיסמה שגויים.";
     });
 
     logoutButton?.addEventListener("click", () => {
@@ -91,7 +91,7 @@
       const password = $("adminLoginPassword").value;
       const codeHash = await sha256(code);
       if (codeHash !== AUTH.codeHash) {
-        status.textContent = "??? ?? ????? ??????.";
+        status.textContent = "קוד או סיסמה שגויים.";
         return;
       }
       const { error } = await supabaseClient.auth.signInWithPassword({
@@ -99,7 +99,7 @@
         password
       });
       if (error) {
-        status.textContent = "??? ?? ????? ??????.";
+        status.textContent = "קוד או סיסמה שגויים.";
         return;
       }
       status.textContent = "";
@@ -189,7 +189,7 @@
       const items = data.filter((entry) => entry.kind === kind);
       list.replaceChildren();
       if (!items.length) {
-        list.append(row("??? ????? ??????", "?????? ????? ??? ???????? ?????? ???."));
+        list.append(row("אין עדיין נתונים", "נתונים חדשים מכל המכשירים יופיעו כאן."));
         return;
       }
       items.forEach((entry) => {
@@ -208,7 +208,7 @@
 
     $("adminContactCount").textContent = data.filter((entry) => entry.kind === "contact").length;
     $("adminInterestCount").textContent = data.filter((entry) => entry.kind === "interest").length;
-    $("adminBackendStatus").textContent = "????? ?-Supabase. ??????? ?????? ??? ????????.";
+    $("adminBackendStatus").textContent = "מחובר ל-Supabase. הנתונים מוצגים מכל המכשירים.";
   }
 
   function openUploadDb() {
@@ -302,7 +302,7 @@
     counter.textContent = uploads.length;
     list.replaceChildren();
     if (!uploads.length) {
-      list.append(row("??? ????? ????? ??????", "????? ????? ??? ?????? ?????? ??????. ?????? ??? ?? ???? endpoint ????."));
+      list.append(row("אין עדיין קבצים שהועלו", "קבצים שתעלה כאן יישמרו בדפדפן הניהול. לחיבור אתר חי צריך endpoint לשרת."));
       return;
     }
     uploads.forEach((upload) => {
@@ -312,7 +312,7 @@
       const download = document.createElement("button");
       download.className = "button secondary";
       download.type = "button";
-      download.textContent = "????";
+      download.textContent = "הורד";
       download.addEventListener("click", () => {
         const url = URL.createObjectURL(upload.file);
         const link = document.createElement("a");
@@ -326,7 +326,7 @@
       const remove = document.createElement("button");
       remove.className = "button secondary";
       remove.type = "button";
-      remove.textContent = "??? ???????";
+      remove.textContent = "מחק מהרשימה";
       remove.addEventListener("click", async () => {
         await deleteUpload(upload.id);
         await renderUploads();
@@ -350,12 +350,12 @@
     counter.textContent = data.length;
     list.replaceChildren();
     if (!data.length) {
-      list.append(row("??? ????? ?????", "????? ?????? ??? ???? ?????? ????? ??? ?????."));
+      list.append(row("אין עדיין קבצים", "קבצים שיועלו כאן יהיו זמינים למנהל מכל מכשיר."));
       return;
     }
     data.forEach((file) => {
       const parts = file.name.split("__");
-      const category = parts.length > 2 ? parts[0] : "????";
+      const category = parts.length > 2 ? parts[0] : "קובץ";
       const displayName = parts.length > 2 ? parts.slice(2).join("__") : file.name;
       const size = Number(file.metadata?.size || 0);
       const item = row(displayName, `${category} | ${formatBytes(size)} | ${new Date(file.created_at).toLocaleString("he-IL")}`);
@@ -365,7 +365,7 @@
       const download = document.createElement("button");
       download.className = "button secondary";
       download.type = "button";
-      download.textContent = "????";
+      download.textContent = "הורד";
       download.addEventListener("click", async () => {
         const { data: signed } = await supabaseClient.storage
           .from("admin-uploads")
@@ -376,7 +376,7 @@
       const remove = document.createElement("button");
       remove.className = "button secondary";
       remove.type = "button";
-      remove.textContent = "???";
+      remove.textContent = "מחק";
       remove.addEventListener("click", async () => {
         await supabaseClient.storage.from("admin-uploads").remove([file.name]);
         await renderRemoteUploads();
@@ -389,11 +389,11 @@
 
   function contentLabel(type) {
     return {
-      announcement: "????? ????",
-      download: "???? / ???? ??????",
-      example: "???? ??????",
-      link: "????? ??????",
-      note: "???? ????"
+      announcement: "הודעה באתר",
+      download: "גרסה / קובץ להורדה",
+      example: "צופן לדוגמה",
+      link: "קישור שימושי",
+      note: "הערת מנהל"
     }[type] || type;
   }
 
@@ -414,18 +414,18 @@
     counter.textContent = items.length;
     list.replaceChildren();
     if (!items.length) {
-      list.append(row("??? ????? ????? ????", "??? ?????? ??????, ???????, ??????, ??????? ?????? ????."));
+      list.append(row("אין עדיין פריטי תוכן", "כאן יופיעו הודעות, קישורים, גרסאות, דוגמאות והערות מנהל."));
       return;
     }
     items.forEach((item) => {
       const date = item.updatedAt || item.at ? new Date(item.updatedAt || item.at).toLocaleString("he-IL") : "";
-      const line = row(item.title || "???? ??? ?????", `${contentLabel(item.type)} | ${item.status || "active"}${item.url ? ` | ${item.url}` : ""}${date ? ` | ${date}` : ""}${item.description ? ` | ${item.description}` : ""}`);
+      const line = row(item.title || "פריט ללא כותרת", `${contentLabel(item.type)} | ${item.status || "active"}${item.url ? ` | ${item.url}` : ""}${date ? ` | ${date}` : ""}${item.description ? ` | ${item.description}` : ""}`);
       const actions = document.createElement("div");
       actions.className = "admin-file-actions";
       const edit = document.createElement("button");
       edit.className = "button secondary";
       edit.type = "button";
-      edit.textContent = "????";
+      edit.textContent = "ערוך";
       edit.addEventListener("click", () => {
         $("adminContentId").value = item.id;
         $("adminContentType").value = item.type || "announcement";
@@ -438,7 +438,7 @@
       const remove = document.createElement("button");
       remove.className = "button secondary";
       remove.type = "button";
-      remove.textContent = "???";
+      remove.textContent = "מחק";
       remove.addEventListener("click", () => {
         writeContentItems(readContentItems().filter((candidate) => candidate.id !== item.id));
         renderContentItems();
@@ -491,15 +491,15 @@
     const interestList = $("adminInterestList");
     interestList.replaceChildren();
     if (!interestIds.length) {
-      interestList.append(row("??? ????? ?????? ????", "???? ????? ???? ???? ????? ?????, ??? ????? ???."));
+      interestList.append(row("אין עדיין סימוני עיון", "כאשר משתמש יסמן צופן כראוי לעיון, הוא יופיע כאן."));
     } else {
-      interestIds.forEach((id) => interestList.append(row(titleFor(id), "???? ????? ?????? ??")));
+      interestIds.forEach((id) => interestList.append(row(titleFor(id), "סומן לעיון במכשיר זה")));
     }
 
     const notesList = $("adminNotesList");
     notesList.replaceChildren();
     if (!notes.length) {
-      notesList.append(row("??? ????? ????? ????", "????? ????? ?? ????? ?????? ???."));
+      notesList.append(row("אין עדיין הערות עיון", "הערות קצרות על צפנים יופיעו כאן."));
     } else {
       notes.slice().reverse().forEach((note) => {
         const date = note.at ? new Date(note.at).toLocaleString("he-IL") : "";
@@ -510,9 +510,9 @@
     const notifyList = $("adminNotifyList");
     notifyList.replaceChildren();
     if (store.notifyContact) {
-      notifyList.append(row("???? ????? ??????", store.notifyContact));
+      notifyList.append(row("פרטי הודעה שמורים", store.notifyContact));
     } else {
-      notifyList.append(row("??? ?????? ?????? ??", "???? ????? ????? ????? ????? ??? ????? ???????."));
+      notifyList.append(row("אין נרשמים במכשיר זה", "לאחר חיבור שירות מרכזי תופיע כאן רשימת הנרשמים."));
     }
 
     const ordersList = $("adminOrdersList");
@@ -520,11 +520,11 @@
       const orders = Array.isArray(store.cipherOrders) ? store.cipherOrders : [];
       ordersList.replaceChildren();
       if (!orders.length) {
-        ordersList.append(row("??? ????? ?????", "????? ????? ???? ?????? ?????? ?? ?????? ???."));
+        ordersList.append(row("אין עדיין בקשות", "בקשות חיפוש צופן שיוכנו במכשיר זה יופיעו כאן."));
       } else {
         orders.slice().reverse().forEach((order) => {
           const date = order.at ? new Date(order.at).toLocaleString("he-IL") : "";
-          ordersList.append(row(order.topic || "???? ?????", `${order.contact || ""}${date ? ` | ${date}` : ""}`));
+          ordersList.append(row(order.topic || "בקשת בדיקה", `${order.contact || ""}${date ? ` | ${date}` : ""}`));
         });
       }
     }
@@ -534,11 +534,11 @@
       const guides = Array.isArray(store.aiGuides) ? store.aiGuides : [];
       aiGuidesList.replaceChildren();
       if (!guides.length) {
-        aiGuidesList.append(row("??? ????? ????? AI", "?????? ????? ?????? ?????? ?? ?????? ???."));
+        aiGuidesList.append(row("אין עדיין עיוני AI", "רשימות מילים שייבנו במכשיר זה יופיעו כאן."));
       } else {
         guides.slice().reverse().forEach((guide) => {
           const date = guide.at ? new Date(guide.at).toLocaleString("he-IL") : "";
-          aiGuidesList.append(row(guide.topic || "???? AI", `${guide.words?.length || 0} ?????${date ? ` | ${date}` : ""}`));
+          aiGuidesList.append(row(guide.topic || "עיון AI", `${guide.words?.length || 0} מילים${date ? ` | ${date}` : ""}`));
         });
       }
     }
@@ -547,19 +547,19 @@
     if (contactsList) {
       contactsList.replaceChildren();
       if (!contactItems.length) {
-        contactsList.append(row("??? ????? ????? ??? ???", "????? ?????? ??? ??? ??? ?????? ?? ?????? ???."));
+        contactsList.append(row("אין עדיין פניות צור קשר", "פניות שנשמרו בדף צור קשר במכשיר זה יופיעו כאן."));
       } else {
         contactItems.slice().reverse().forEach((contact) => {
           const date = contact.at ? new Date(contact.at).toLocaleString("he-IL") : "";
-          const title = `${contact.topic || "?????"} - ${contact.name || "??? ??"}`;
+          const title = `${contact.topic || "פנייה"} - ${contact.name || "ללא שם"}`;
           contactsList.append(row(title, `${contact.returnTo || ""}${date ? ` | ${date}` : ""}${contact.message ? ` | ${contact.message}` : ""}`));
         });
       }
     }
 
     $("adminBackendStatus").textContent = CONFIG.enabled && CONFIG.endpoint
-      ? "????? ?????? ????? ?????."
-      : "??? ?????: ?????? ??????? ????, ??? ????? ????.";
+      ? "חיבור נתונים מרכזי מוגדר."
+      : "מצב נוכחי: נתונים מקומיים בלבד, ללא שליחה לשרת.";
   }
 
   function exportCsv() {
@@ -611,10 +611,10 @@
       try {
         const sent = await sendUpload(upload);
         status.textContent = sent
-          ? "????? ???? ????? ???? ???????."
-          : "????? ???? ?????? ??????. ?????? ????? ?????? ???? ???? ?????? uploadEndpoint.";
+          ? "הקובץ נשמר ונשלח לשרת ההעלאות."
+          : "הקובץ נשמר בדפדפן הניהול. לחיבור העלאה אמיתית לאתר צריך להגדיר uploadEndpoint.";
       } catch {
-        status.textContent = "????? ???? ??????, ?? ?????? ???? ?????.";
+        status.textContent = "הקובץ נשמר בדפדפן, אך השליחה לשרת נכשלה.";
       }
       form.reset();
       await renderUploads();
@@ -670,7 +670,7 @@
           updated_at: next.updatedAt
         });
       }
-      $("adminContentStatusText").textContent = "????? ????.";
+      $("adminContentStatusText").textContent = "הפריט נשמר.";
       resetContentForm();
       renderContentItems();
     });

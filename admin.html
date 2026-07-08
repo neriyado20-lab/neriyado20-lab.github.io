@@ -3,83 +3,83 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>????? ??? - ?? ????</title>
-  <meta name="description" content="??? ????? ????? ???? ?? ????: ?????, ???????, ?????? ????, ????? ???????.">
+  <title>ניהול אתר - גל עיני</title>
+  <meta name="description" content="לוח ניהול מקומי לאתר גל עיני: צפיות, שימושים, סימוני עיון, הערות ונרשמים.">
   <link rel="stylesheet" href="styles.css?v=61">
 </head>
 <body class="admin-locked">
-  <section class="admin-login" id="adminLoginPanel" aria-label="????? ??????">
+  <section class="admin-login" id="adminLoginPanel" aria-label="כניסה לניהול">
     <form class="admin-login-box" id="adminLoginForm">
-      <p class="eyebrow">????? ??????</p>
-      <h1>??? ????? ?? ????</h1>
+      <p class="eyebrow">כניסה לניהול</p>
+      <h1>לוח ניהול גל עיני</h1>
       <label>
-        <span>??? ?????</span>
+        <span>קוד ניהול</span>
         <input id="adminLoginCode" type="text" autocomplete="username" inputmode="latin" required>
       </label>
       <label>
-        <span>?????</span>
+        <span>סיסמה</span>
         <input id="adminLoginPassword" type="password" autocomplete="current-password" required>
       </label>
-      <button class="button primary" type="submit">?????</button>
+      <button class="button primary" type="submit">כניסה</button>
       <p id="adminLoginStatus" class="admin-status" aria-live="polite"></p>
     </form>
   </section>
 
   <header class="topbar">
-    <a class="brand" href="index.html" aria-label="???? ????">
-      <span class="brand-mark" aria-hidden="true">??</span>
+    <a class="brand" href="index.html" aria-label="חזרה לשער">
+      <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
-        <strong>?? ????</strong>
-        <span>??? ?????</span>
+        <strong>גל עיני</strong>
+        <span>לוח ניהול</span>
       </div>
     </a>
-    <nav aria-label="?????">
-      <a href="index.html">????</a>
-      <a href="web.html">????? ????</a>
-      <a href="ai.html">???? AI</a>
-      <a href="examples.html">????? ??????</a>
-      <a href="order.html">????? ??? ?????</a>
-      <button class="button secondary admin-logout" id="adminLogoutButton" type="button">?????</button>
+    <nav aria-label="ניווט">
+      <a href="index.html">ראשי</a>
+      <a href="web.html">עבודה באתר</a>
+      <a href="ai.html">עיון AI</a>
+      <a href="examples.html">צפנים לדוגמה</a>
+      <a href="order.html">חיפוש לפי הזמנה</a>
+      <button class="button secondary admin-logout" id="adminLogoutButton" type="button">יציאה</button>
     </nav>
   </header>
 
   <main class="admin-shell">
     <section class="page-hero admin-hero">
-      <p class="eyebrow">????? ????</p>
-      <h1>??? ????? ?? ????</h1>
+      <p class="eyebrow">ניהול האתר</p>
+      <h1>לוח ניהול גל עיני</h1>
       <p class="lead">
-        ???? ?? ???? ???? ?? ??????? ?????? ?????? ???. ???? ????? ????? ?????? ?????,
-        ???? ??? ???? ????? ????? ??? ??? ????????.
+        בשלב זה הלוח מציג את הנתונים שנשמרו בדפדפן הזה. לאחר חיבור שירות נתונים מרכזי,
+        אותו לוח יוכל להציג נתוני אמת מכל המשתמשים.
       </p>
     </section>
 
-    <section class="admin-summary" aria-label="????? ??????">
+    <section class="admin-summary" aria-label="סיכום פעילות">
       <article>
-        <span>?????? ????</span>
+        <span>כניסות לאתר</span>
         <strong id="adminSiteVisits">0</strong>
       </article>
       <article>
-        <span>??????? ??????</span>
+        <span>שימושים בתוכנה</span>
         <strong id="adminWebUses">0</strong>
       </article>
       <article>
-        <span>????? ????????</span>
+        <span>צפייה בדוגמאות</span>
         <strong id="adminExamplesVisits">0</strong>
       </article>
       <article>
-        <span>?????? ????</span>
+        <span>סימוני עיון</span>
         <strong id="adminInterestCount">0</strong>
       </article>
       <article>
-        <span>????? ??? ???</span>
+        <span>פניות צור קשר</span>
         <strong id="adminContactCount">0</strong>
       </article>
       <article>
-        <span>????? ??????</span>
+        <span>קבצים שהועלו</span>
         <strong id="adminUploadCount">0</strong>
       </article>
       <article>
-        <span>????? ????</span>
+        <span>פריטי תוכן</span>
         <strong id="adminContentCount">0</strong>
       </article>
     </section>
@@ -87,44 +87,44 @@
     <section class="admin-grid">
       <article class="admin-panel admin-upload-panel">
         <div class="admin-panel-head">
-          <h2>????? ???? ????????</h2>
-          <button class="button secondary" id="exportContentButton" type="button">???? JSON</button>
+          <h2>ניהול תוכן וקישורים</h2>
+          <button class="button secondary" id="exportContentButton" type="button">ייצא JSON</button>
         </div>
         <form class="admin-content-form" id="adminContentForm">
           <input id="adminContentId" type="hidden">
           <label>
-            <span>??? ????</span>
+            <span>סוג פריט</span>
             <select id="adminContentType" required>
-              <option value="announcement">????? ????</option>
-              <option value="download">???? / ???? ??????</option>
-              <option value="example">???? ??????</option>
-              <option value="link">????? ??????</option>
-              <option value="note">???? ????</option>
+              <option value="announcement">הודעה באתר</option>
+              <option value="download">גרסה / קובץ להורדה</option>
+              <option value="example">צופן לדוגמה</option>
+              <option value="link">קישור שימושי</option>
+              <option value="note">הערת מנהל</option>
             </select>
           </label>
           <label>
-            <span>?????</span>
+            <span>כותרת</span>
             <input id="adminContentTitle" type="text" maxlength="100" required>
           </label>
           <label>
-            <span>????? / ????</span>
-            <input id="adminContentUrl" type="text" maxlength="220" placeholder="downloads/file.zip ?? https://...">
+            <span>קישור / נתיב</span>
+            <input id="adminContentUrl" type="text" maxlength="220" placeholder="downloads/file.zip או https://...">
           </label>
           <label>
-            <span>?????</span>
+            <span>סטטוס</span>
             <select id="adminContentStatus">
-              <option value="active">????</option>
-              <option value="draft">?????</option>
-              <option value="archive">??????</option>
+              <option value="active">פעיל</option>
+              <option value="draft">טיוטה</option>
+              <option value="archive">ארכיון</option>
             </select>
           </label>
           <label class="admin-content-wide">
-            <span>????? / ????</span>
+            <span>תיאור / הערה</span>
             <textarea id="adminContentDescription" rows="3" maxlength="500"></textarea>
           </label>
           <div class="admin-form-actions">
-            <button class="button primary" type="submit">???? ????</button>
-            <button class="button secondary" id="resetContentButton" type="button">??? ????</button>
+            <button class="button primary" type="submit">שמור פריט</button>
+            <button class="button secondary" id="resetContentButton" type="button">נקה טופס</button>
           </div>
           <p id="adminContentStatusText" class="admin-status" aria-live="polite"></p>
         </form>
@@ -133,27 +133,27 @@
 
       <article class="admin-panel admin-upload-panel">
         <div class="admin-panel-head">
-          <h2>????? ?????</h2>
+          <h2>העלאת קבצים</h2>
         </div>
         <form class="admin-upload-form" id="adminUploadForm">
           <label>
-            <span>??? ????</span>
+            <span>סוג קובץ</span>
             <select id="adminUploadCategory" required>
-              <option value="downloads">???? ?????? / ???? ?????</option>
-              <option value="examples">???? ?????? / ?????</option>
-              <option value="assets">??? ??? / ????? ?????</option>
-              <option value="documents">???? ??????</option>
+              <option value="downloads">קובץ להורדה / גרסת תוכנה</option>
+              <option value="examples">צופן לדוגמה / תמונה</option>
+              <option value="assets">נכס אתר / תמונת עיצוב</option>
+              <option value="documents">מסמך ניהולי</option>
             </select>
           </label>
           <label>
-            <span>?? ?????</span>
-            <input id="adminUploadTitle" type="text" maxlength="80" placeholder="??????: ???? V341 ??? AI">
+            <span>שם תצוגה</span>
+            <input id="adminUploadTitle" type="text" maxlength="80" placeholder="לדוגמה: גרסה V341 ללא AI">
           </label>
           <label>
-            <span>????? ????</span>
+            <span>בחירת קובץ</span>
             <input id="adminUploadFile" type="file" required>
           </label>
-          <button class="button primary" type="submit">???? ????</button>
+          <button class="button primary" type="submit">העלה קובץ</button>
           <p id="adminUploadStatus" class="admin-status" aria-live="polite"></p>
         </form>
         <div id="adminUploadsList" class="admin-list"></div>
@@ -161,55 +161,55 @@
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>????? ?????? ?????</h2>
-          <button class="button secondary" id="refreshAdminButton" type="button">????</button>
+          <h2>צפנים שסומנו לעיון</h2>
+          <button class="button secondary" id="refreshAdminButton" type="button">רענן</button>
         </div>
         <div id="adminInterestList" class="admin-list"></div>
       </article>
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>????? ????</h2>
-          <button class="button secondary" id="exportAdminButton" type="button">???? CSV</button>
+          <h2>הערות עיון</h2>
+          <button class="button secondary" id="exportAdminButton" type="button">ייצא CSV</button>
         </div>
         <div id="adminNotesList" class="admin-list"></div>
       </article>
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>?????? ?? ???? ???</h2>
+          <h2>הודעות על צופן חדש</h2>
         </div>
         <div id="adminNotifyList" class="admin-list"></div>
       </article>
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>????? ????? ????</h2>
+          <h2>בקשות חיפוש צופן</h2>
         </div>
         <div id="adminOrdersList" class="admin-list"></div>
       </article>
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>???? AI ?????</h2>
+          <h2>עיון AI מונחה</h2>
         </div>
         <div id="adminAiGuidesList" class="admin-list"></div>
       </article>
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>????? ??? ???</h2>
+          <h2>פניות צור קשר</h2>
         </div>
         <div id="adminContactsList" class="admin-list"></div>
       </article>
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>????? ?????</h2>
+          <h2>חיבור עתידי</h2>
         </div>
         <p>
-          ???? ???? Supabase ?? ????? ????, ??????? ??????? ???? ???? ??? ????????:
-          ?????, ?????? ????, ????? ????? ???? ?? ?????, ??????? ?????? ?????.
+          כאשר נחבר Supabase או שירות דומה, הנתונים שייכנסו לכאן יהיו מכל המשתמשים:
+          צפיות, סימוני עיון, הערות שאפשר לאשר או למחוק, ונרשמים לשליחת הודעה.
         </p>
         <p id="adminBackendStatus" class="admin-status"></p>
       </article>
@@ -217,8 +217,8 @@
   </main>
 
   <footer>
-    <span>?? ???? - ??? ????? ?????</span>
-    <span>??? ???? ?????? ?????? ?????</span>
+    <span>גל עיני - לוח ניהול מקומי</span>
+    <span>שלב הכנה לחיבור נתונים מרכזי</span>
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

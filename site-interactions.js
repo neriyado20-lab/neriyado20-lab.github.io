@@ -64,7 +64,7 @@
     const visits = store.siteVisits || 0;
     const webUses = store.webUses || 0;
     const examplesVisits = store.examplesVisits || 0;
-    target.textContent = `?????? ??: ${visits} ?????? | ${webUses} ??????? ?????? | ${examplesVisits} ????? ????????`;
+    target.textContent = `במכשיר זה: ${visits} כניסות | ${webUses} שימושים בתוכנה | ${examplesVisits} צפייה בדוגמאות`;
   }
 
   function countVisit(store) {
@@ -84,15 +84,15 @@
     feedback.className = "cipher-feedback";
     feedback.innerHTML = `
       <div class="feedback-row">
-        <button class="button secondary like-cipher" type="button" aria-pressed="false">???? ?????</button>
-        <span class="like-count">0 ?????? ???? ?????? ??</span>
+        <button class="button secondary like-cipher" type="button" aria-pressed="false">ראוי לעיון</button>
+        <span class="like-count">0 סימוני עיון במכשיר זה</span>
       </div>
       <form class="review-form">
         <label>
-          <span>???? ???? ????</span>
-          <input maxlength="90" autocomplete="off" placeholder="???? ??? ????? ?? ?????">
+          <span>הערת עיון קצרה</span>
+          <input maxlength="90" autocomplete="off" placeholder="משפט קצר לעיון על הצופן">
         </label>
-        <button class="button secondary" type="submit">????</button>
+        <button class="button secondary" type="submit">שמור</button>
       </form>
       <div class="review-list" aria-live="polite"></div>
     `;
@@ -109,8 +109,8 @@
     function renderLike() {
       const currentLikes = Object.values(likes).filter(Boolean).length;
       likeButton.setAttribute("aria-pressed", String(Boolean(likes[id])));
-      likeButton.textContent = likes[id] ? "???? ?????" : "???? ?????";
-      likeCount.textContent = likes[id] ? "????? ???? ?? ?????" : `${currentLikes} ?????? ???? ?????? ??`;
+      likeButton.textContent = likes[id] ? "סומן לעיון" : "ראוי לעיון";
+      likeCount.textContent = likes[id] ? "סימנת צופן זה לעיון" : `${currentLikes} סימוני עיון במכשיר זה`;
     }
 
     function renderReviews() {
@@ -157,7 +157,7 @@
     const status = document.getElementById("notifyStatus");
     const saved = store.notifyContact || "";
     if (input && saved) input.value = saved;
-    if (status && saved) status.textContent = "???? ?????? ?????? ?????? ??.";
+    if (status && saved) status.textContent = "פרטי ההודעה שמורים במכשיר זה.";
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       const contact = input.value.trim().slice(0, 120);
@@ -166,8 +166,8 @@
       writeStore(store);
       if (status) {
         status.textContent = CONFIG.enabled
-          ? "????? ????? ????? ?? ???? ???."
-          : "???? ?????? ??. ????? ?????? ????? ???? ????? ????? ??????.";
+          ? "נרשמת לקבלת הודעה על צופן חדש."
+          : "נשמר במכשיר זה. שליחה אמיתית תופעל לאחר חיבור שירות הודעות.";
       }
       sendEvent("notify_signup", { contact });
     });

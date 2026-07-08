@@ -578,7 +578,7 @@ h2 {
 
 .sample-image-link::after,
 .sample-preview::after {
-  content: "?? ????";
+  content: "גל עיני";
   position: absolute;
   left: 10px;
   top: 10px;

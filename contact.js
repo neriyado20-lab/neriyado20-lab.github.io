@@ -17,14 +17,14 @@
 
   function buildSummary(item) {
     return [
-      "????? ???? ?? ????",
+      "פנייה מאתר גל עיני",
       "",
-      `??: ${item.name}`,
-      `???? ???: ${item.returnTo}`,
-      `????: ${item.topic}`,
-      `?????: ${new Date(item.at).toLocaleString("he-IL")}`,
+      `שם: ${item.name}`,
+      `חזרה אלי: ${item.returnTo}`,
+      `נושא: ${item.topic}`,
+      `תאריך: ${new Date(item.at).toLocaleString("he-IL")}`,
       "",
-      "???? ??????:",
+      "תוכן הפנייה:",
       item.message,
     ].join("\n");
   }
@@ -34,7 +34,7 @@
     const items = readItems();
     box.replaceChildren();
     if (!items.length) {
-      box.textContent = "??? ????? ????? ?????? ?????? ??.";
+      box.textContent = "אין עדיין פניות שמורות במכשיר זה.";
       return;
     }
     items.slice().reverse().slice(0, 20).forEach((item) => {
@@ -69,7 +69,7 @@
     }
     $("contactSummary").value = buildSummary(item);
     $("copyContactButton").disabled = false;
-    $("contactStatus").textContent = "?????? ?????, ????? ?????? ?? ????? ?????? ??????.";
+    $("contactStatus").textContent = "הפנייה נשמרה, ואפשר להעתיק את הנוסח לשליחה לאחראי.";
     renderList();
   });
 
@@ -78,11 +78,11 @@
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
-      $("contactStatus").textContent = "????? ?????.";
+      $("contactStatus").textContent = "הנוסח הועתק.";
     } catch {
       $("contactSummary").focus();
       $("contactSummary").select();
-      $("contactStatus").textContent = "???? ?????? ????? ??????.";
+      $("contactStatus").textContent = "אפשר להעתיק ידנית מהתיבה.";
     }
   });
 
