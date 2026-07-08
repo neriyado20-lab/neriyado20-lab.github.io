@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
   "use strict";
 
   const TARGET_COUNT = 304805;
@@ -152,6 +152,7 @@
     avotPrev: $("avotPrevButton"),
     avotNext: $("avotNextButton"),
     avotVisible: $("showAvotTickerInput"),
+    removeDateMarks: $("removeDateMarksButton"),
     avotSpeed: $("avotSpeedInput"),
     avotSpeedValue: $("avotSpeedValue"),
     avotOrdered: $("avotOrderedInput"),
@@ -163,16 +164,16 @@
     document.body.dataset.downloads = WEB_DOWNLOADS_ENABLED ? "enabled" : "disabled";
     const nextParams = new URLSearchParams(window.location.search);
     nextParams.delete("edition");
-    els.editionBadge.textContent = "שימוש מלא באתר | הורדות פתוחות";
-    els.editionSwitch.textContent = "הורדת Windows";
+    els.editionBadge.textContent = "????? ??? ???? | ?????? ??????";
+    els.editionSwitch.textContent = "????? Windows";
     els.editionSwitch.href = "index.html#download";
     const maxSkip = PRO_MAX_SKIP;
     const maxSecondaries = PRO_MAX_SECONDARIES;
     els.skipFrom.max = String(maxSkip);
     els.skipTo.max = String(maxSkip);
     els.minSecondary.max = String(maxSecondaries);
-    els.editionLimitNote.textContent = "שימוש מלא באתר: אין הגבלת מסלול על מספר מילים או דילוגים; אפשר לשמור, לגבות, לייצא ולהוריד קבצים.";
-    els.helpEdition.textContent = "הוראות לשימוש מלא באתר, כולל שמירה, גיבוי, ייצוא והורדת קבצים.";
+    els.editionLimitNote.textContent = "????? ??? ????: ??? ????? ????? ?? ???? ????? ?? ???????; ???? ?????, ?????, ????? ??????? ?????.";
+    els.helpEdition.textContent = "?????? ?????? ??? ????, ???? ?????, ?????, ????? ?????? ?????.";
   }
 
   function applyQueryInputs() {
@@ -193,7 +194,7 @@
   function normalizeWord(value) {
     return String(value || "")
       .replace(/[^\u05d0-\u05ea?]/g, "")
-      .replace(/[ךםןףץ]/g, (ch) => ({ "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" }[ch] || ch));
+      .replace(/[?????]/g, (ch) => ({ "?": "?", "?": "?", "?": "?", "?": "?", "?": "?" }[ch] || ch));
   }
 
   function splitWords(value, { keepRequired = false } = {}) {
@@ -239,12 +240,12 @@
   }
 
   function downloadsPaused() {
-    setStatus("הורדות קבצים חסומות זמנית באתר עד הסדרת הצד החשבונאי. אפשר לעבוד באתר, לפתוח צפנים ולשמור בספרייה המקומית.", 0);
+    setStatus("?????? ????? ?????? ????? ???? ?? ????? ??? ????????. ???? ????? ????, ????? ????? ?????? ??????? ???????.", 0);
   }
 
   function applyDisplayControlsVisibility() {
     els.displayControls.hidden = !state.displayControlsVisible;
-    els.toggleDisplayControlsText.textContent = state.displayControlsVisible ? "הסתר כלים" : "הצג כלים";
+    els.toggleDisplayControlsText.textContent = state.displayControlsVisible ? "???? ????" : "??? ????";
     els.toggleDisplayControls.setAttribute("aria-expanded", String(state.displayControlsVisible));
     try {
       localStorage.setItem(DISPLAY_CONTROLS_KEY, state.displayControlsVisible ? "visible" : "hidden");
@@ -263,8 +264,8 @@
     els.showTopWords.checked = state.topWordsVisible;
     els.toggleTopWords.setAttribute("aria-pressed", String(!state.topWordsVisible));
     els.toggleTopWords.title = state.topWordsVisible
-      ? "הסתר את מילות הצופן העליונות"
-      : "הצג את מילות הצופן העליונות";
+      ? "???? ?? ????? ????? ????????"
+      : "??? ?? ????? ????? ????????";
     try {
       localStorage.setItem(TOP_WORDS_KEY, state.topWordsVisible ? "visible" : "hidden");
     } catch {
@@ -353,7 +354,7 @@
     const context = probe.getContext("2d");
     const style = getComputedStyle(els.avotTrack);
     context.font = `13px ${style.fontFamily || "Arial"}`;
-    return Math.max(90, context.measureText("א".repeat(15)).width);
+    return Math.max(90, context.measureText("?".repeat(15)).width);
   }
 
   function animateAvot(timestamp) {
@@ -438,7 +439,7 @@
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return false;
-      loadProjectData(JSON.parse(raw), "העבודה האחרונה בדפדפן");
+      loadProjectData(JSON.parse(raw), "?????? ??????? ??????");
       return true;
     } catch {
       localStorage.removeItem(DRAFT_KEY);
@@ -447,11 +448,11 @@
   }
 
   function safeFileName(value) {
-    const name = String(value || "צופן")
+    const name = String(value || "????")
       .replace(/[<>:"/\\|?*\u0000-\u001f]/g, " ")
       .replace(/\s+/g, " ")
       .trim();
-    return name || "צופן";
+    return name || "????";
   }
 
   function downloadProject(data, name = data.primary) {
@@ -472,13 +473,13 @@
 
   function saveProjectFile() {
     if (!state.results.length) {
-      setStatus("אין ממצאים לשמירה. יש לבצע חיפוש או לפתוח צופן.", 0);
+      setStatus("??? ?????? ??????. ?? ???? ????? ?? ????? ????.", 0);
       return;
     }
     const data = projectData();
     downloadProject(data);
     saveDraft();
-    setStatus(`הצופן נשמר | ממצאים ${state.results.length}`, 100);
+    setStatus(`????? ???? | ?????? ${state.results.length}`, 100);
   }
 
   function readLibrary() {
@@ -522,13 +523,13 @@
       ? items.filter((item) => normalizeWord(`${item.name} ${item.data.primary || ""} ${item.data.secondary || ""}`).includes(query))
       : items;
     els.libraryCount.textContent = query
-      ? `${visibleItems.length} תוצאות | ${items.length} מתוך ${LIBRARY_LIMIT}`
-      : `${items.length} מתוך ${LIBRARY_LIMIT} צפנים`;
+      ? `${visibleItems.length} ?????? | ${items.length} ???? ${LIBRARY_LIMIT}`
+      : `${items.length} ???? ${LIBRARY_LIMIT} ?????`;
     els.libraryList.replaceChildren();
     if (!visibleItems.length) {
       const empty = document.createElement("div");
       empty.className = "library-empty";
-      empty.textContent = items.length ? "לא נמצאו צפנים מתאימים לחיפוש." : "עדיין לא נשמרו צפנים בספרייה.";
+      empty.textContent = items.length ? "?? ????? ????? ??????? ??????." : "????? ?? ????? ????? ???????.";
       els.libraryList.appendChild(empty);
       return;
     }
@@ -540,33 +541,33 @@
       title.textContent = item.name;
       const meta = document.createElement("span");
       const resultCount = Array.isArray(item.data.saved) ? item.data.saved.length : 0;
-      meta.textContent = `${formatSavedDate(item.savedAt)} | ${resultCount} ממצאים`;
+      meta.textContent = `${formatSavedDate(item.savedAt)} | ${resultCount} ??????`;
       info.append(title, meta);
 
       const actions = document.createElement("div");
       actions.className = "library-actions";
       const openButton = document.createElement("button");
       openButton.type = "button";
-      openButton.textContent = "פתח";
+      openButton.textContent = "???";
       openButton.addEventListener("click", () => {
-        loadProjectData(item.data, `הספרייה: ${item.name}`);
+        loadProjectData(item.data, `???????: ${item.name}`);
         els.libraryDialog.close();
       });
       const downloadButton = document.createElement("button");
       downloadButton.type = "button";
-      downloadButton.textContent = "הורד";
+      downloadButton.textContent = "????";
       downloadButton.disabled = !WEB_DOWNLOADS_ENABLED;
-      downloadButton.title = WEB_DOWNLOADS_ENABLED ? "הורד את הצופן לקובץ" : "הורדות חסומות זמנית באתר";
+      downloadButton.title = WEB_DOWNLOADS_ENABLED ? "???? ?? ????? ?????" : "?????? ?????? ????? ????";
       downloadButton.addEventListener("click", () => downloadProject(item.data, item.name));
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
       deleteButton.className = "delete-library-item";
-      deleteButton.textContent = "מחק";
+      deleteButton.textContent = "???";
       deleteButton.addEventListener("click", () => {
-        if (!window.confirm(`למחוק את הצופן "${item.name}" מהספרייה?`)) return;
+        if (!window.confirm(`????? ?? ????? "${item.name}" ?????????`)) return;
         writeLibrary(readLibrary().filter((saved) => saved.id !== item.id));
         renderLibrary();
-        setStatus(`הצופן "${item.name}" נמחק מהספרייה`, 0);
+        setStatus(`????? "${item.name}" ???? ????????`, 0);
       });
       actions.append(openButton, downloadButton, deleteButton);
       row.append(info, actions);
@@ -575,7 +576,7 @@
   }
 
   function openLibrary() {
-    els.libraryName.value = els.primary.value.trim() || "צופן חדש";
+    els.libraryName.value = els.primary.value.trim() || "???? ???";
     els.librarySearch.value = "";
     renderLibrary();
     els.libraryDialog.showModal();
@@ -586,11 +587,11 @@
   function saveToLibrary(event) {
     event.preventDefault();
     if (!state.results.length) {
-      setStatus("אין ממצאים לשמירה בספרייה.", 0);
+      setStatus("??? ?????? ?????? ???????.", 0);
       els.libraryDialog.close();
       return;
     }
-    const name = els.libraryName.value.trim() || els.primary.value.trim() || "צופן";
+    const name = els.libraryName.value.trim() || els.primary.value.trim() || "????";
     const items = readLibrary();
     const normalizedName = name.toLocaleLowerCase("he-IL");
     const existingIndex = items.findIndex((item) => item.name.toLocaleLowerCase("he-IL") === normalizedName);
@@ -603,7 +604,7 @@
     if (existingIndex >= 0) {
       items.splice(existingIndex, 1);
     } else if (items.length >= LIBRARY_LIMIT) {
-      setStatus(`הספרייה מלאה. ניתן לשמור עד ${LIBRARY_LIMIT} צפנים.`, 0);
+      setStatus(`??????? ????. ???? ????? ?? ${LIBRARY_LIMIT} ?????.`, 0);
       return;
     }
     items.unshift(savedItem);
@@ -611,9 +612,9 @@
       writeLibrary(items);
       saveDraft();
       renderLibrary();
-      setStatus(`הצופן "${name}" נשמר בספרייה`, 100);
+      setStatus(`????? "${name}" ???? ???????`, 100);
     } catch {
-      setStatus("אין די מקום בדפדפן לשמירת הצופן. הורדת קבצים חסומה זמנית באתר.", 0);
+      setStatus("??? ?? ???? ?????? ?????? ?????. ????? ????? ????? ????? ????.", 0);
     }
   }
 
@@ -624,7 +625,7 @@
     }
     const items = readLibrary();
     if (!items.length) {
-      setStatus("הספרייה ריקה ואין מה לגבות.", 0);
+      setStatus("??????? ???? ???? ?? ?????.", 0);
       return;
     }
     const backup = {
@@ -637,20 +638,20 @@
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `גל עיני - גיבוי ספרייה ${new Date().toISOString().slice(0, 10)}.gal_einai_library.json`;
+    link.download = `?? ???? - ????? ?????? ${new Date().toISOString().slice(0, 10)}.gal_einai_library.json`;
     document.body.appendChild(link);
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    setStatus(`גובו ${items.length} צפנים לקובץ`, 100);
+    setStatus(`???? ${items.length} ????? ?????`, 100);
   }
 
   function mergeLibraryBackup(data) {
     if (!data || data.format !== "gal_einai_library" || !Array.isArray(data.items)) {
-      throw new Error("קובץ הגיבוי אינו קובץ ספרייה תקין של גל עיני");
+      throw new Error("???? ?????? ???? ???? ?????? ???? ?? ?? ????");
     }
     const imported = data.items.filter(validLibraryItem);
-    if (!imported.length) throw new Error("לא נמצאו צפנים תקינים בקובץ הגיבוי");
+    if (!imported.length) throw new Error("?? ????? ????? ?????? ????? ??????");
     const merged = readLibrary();
     let added = 0;
     let updated = 0;
@@ -675,7 +676,7 @@
     });
     writeLibrary(merged);
     renderLibrary();
-    setStatus(`שחזור הושלם | נוספו ${added} | עודכנו ${updated} | בספרייה ${readLibrary().length}`, 100);
+    setStatus(`????? ????? | ????? ${added} | ?????? ${updated} | ??????? ${readLibrary().length}`, 100);
   }
 
   function readHistory() {
@@ -733,12 +734,12 @@
 
   function renderHistory() {
     const items = readHistory();
-    els.historyCount.textContent = `${items.length} מתוך ${HISTORY_LIMIT} חיפושים`;
+    els.historyCount.textContent = `${items.length} ???? ${HISTORY_LIMIT} ???????`;
     els.historyList.replaceChildren();
     if (!items.length) {
       const empty = document.createElement("div");
       empty.className = "library-empty";
-      empty.textContent = "עדיין לא נשמרו חיפושים מוצלחים.";
+      empty.textContent = "????? ?? ????? ??????? ???????.";
       els.historyList.appendChild(empty);
       return;
     }
@@ -750,24 +751,24 @@
       title.textContent = item.primary;
       const terms = document.createElement("span");
       terms.className = "history-terms";
-      terms.textContent = item.secondary || "ללא משניות";
+      terms.textContent = item.secondary || "??? ??????";
       const meta = document.createElement("span");
-      meta.textContent = `${formatSavedDate(item.searchedAt)} | דילוג ${item.skipFrom}-${item.skipTo} | ${item.resultCount} צפנים`;
+      meta.textContent = `${formatSavedDate(item.searchedAt)} | ????? ${item.skipFrom}-${item.skipTo} | ${item.resultCount} ?????`;
       info.append(title, terms, meta);
 
       const actions = document.createElement("div");
       actions.className = "library-actions";
       const loadButton = document.createElement("button");
       loadButton.type = "button";
-      loadButton.textContent = "טען";
+      loadButton.textContent = "???";
       loadButton.addEventListener("click", () => {
         loadHistoryFields(item);
         els.historyDialog.close();
-        setStatus("תנאי החיפוש נטענו מההיסטוריה", 0);
+        setStatus("???? ?????? ????? ??????????", 0);
       });
       const rerunButton = document.createElement("button");
       rerunButton.type = "button";
-      rerunButton.textContent = "חפש שוב";
+      rerunButton.textContent = "??? ???";
       rerunButton.addEventListener("click", () => {
         loadHistoryFields(item);
         els.historyDialog.close();
@@ -776,7 +777,7 @@
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
       deleteButton.className = "delete-library-item";
-      deleteButton.textContent = "מחק";
+      deleteButton.textContent = "???";
       deleteButton.addEventListener("click", () => {
         writeHistory(readHistory().filter((saved) => saved.id !== item.id));
         renderHistory();
@@ -809,21 +810,21 @@
 
   function exportSummaryText() {
     const lines = [
-      "גל עיני - דוח ממצאים",
-      `ראשיות: ${els.primary.value.trim() || "-"}`,
-      `משניות: ${els.secondary.value.trim() || "-"}`,
-      `טווח דילוגים: ${els.skipFrom.value}-${els.skipTo.value}`,
-      `מינימום משניות: ${els.minSecondary.value}`,
-      `מספר צפנים: ${state.results.length}`,
+      "?? ???? - ??? ??????",
+      `??????: ${els.primary.value.trim() || "-"}`,
+      `??????: ${els.secondary.value.trim() || "-"}`,
+      `???? ???????: ${els.skipFrom.value}-${els.skipTo.value}`,
+      `??????? ??????: ${els.minSecondary.value}`,
+      `???? ?????: ${state.results.length}`,
       "",
     ];
     state.results.forEach((result, index) => {
       const words = resultWords(result)
-        .map((item) => `${item.word} (${item.skip}${item.count > 1 ? ` ×${item.count}` : ""})`)
+        .map((item) => `${item.word} (${item.skip}${item.count > 1 ? ` ?${item.count}` : ""})`)
         .join(", ");
       lines.push(
-        `${index + 1}. ראשית: ${result.primary.word} | דילוג: ${Math.abs(result.primary.skip)} | משניות: ${result.secondaryCount} | מיקום: ${result.primary.start + 1}`,
-        `   ${words || "ללא משניות"}`,
+        `${index + 1}. ?????: ${result.primary.word} | ?????: ${Math.abs(result.primary.skip)} | ??????: ${result.secondaryCount} | ?????: ${result.primary.start + 1}`,
+        `   ${words || "??? ??????"}`,
       );
     });
     return lines.join("\n");
@@ -835,11 +836,11 @@
 
   function exportCsvText() {
     const rows = [
-      ["מספר", "ראשית", "דילוג ראשית", "מספר משניות", "מיקום", "מילים שנמצאו"],
+      ["????", "?????", "????? ?????", "???? ??????", "?????", "????? ??????"],
     ];
     state.results.forEach((result, index) => {
       const words = resultWords(result)
-        .map((item) => `${item.word} | דילוג ${item.skip}${item.count > 1 ? ` ×${item.count}` : ""}`)
+        .map((item) => `${item.word} | ????? ${item.skip}${item.count > 1 ? ` ?${item.count}` : ""}`)
         .join("; ");
       rows.push([
         index + 1,
@@ -855,10 +856,10 @@
 
   function openExport() {
     if (!state.results.length) {
-      setStatus("אין ממצאים לייצוא.", 0);
+      setStatus("??? ?????? ??????.", 0);
       return;
     }
-    els.exportCount.textContent = `${state.results.length} ממצאים`;
+    els.exportCount.textContent = `${state.results.length} ??????`;
     els.exportSummary.value = exportSummaryText();
     els.exportDialog.showModal();
   }
@@ -872,7 +873,7 @@
       els.exportSummary.select();
       document.execCommand("copy");
     }
-    setStatus("סיכום הממצאים הועתק", 100);
+    setStatus("????? ??????? ?????", 100);
   }
 
   function downloadResultsCsv() {
@@ -885,12 +886,12 @@
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${safeFileName(els.primary.value || "ממצאים")} - דוח ממצאים.csv`;
+    link.download = `${safeFileName(els.primary.value || "??????")} - ??? ??????.csv`;
     document.body.appendChild(link);
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    setStatus(`יוצאו ${state.results.length} ממצאים ל-CSV`, 100);
+    setStatus(`????? ${state.results.length} ?????? ?-CSV`, 100);
   }
 
   async function loadTorah() {
@@ -898,7 +899,7 @@
       fetch("assets/torah_clean.txt", { cache: "force-cache" }),
       fetch("assets/torah_display.txt", { cache: "force-cache" }),
     ]);
-    if (!response.ok) throw new Error("לא הצלחתי לטעון את טקסט התורה");
+    if (!response.ok) throw new Error("?? ?????? ????? ?? ???? ?????");
     const raw = await response.text();
     state.torah = raw.replace(/[^\u05d0-\u05ea]/g, "");
     if (displayResponse.ok) {
@@ -909,7 +910,7 @@
     if (ok) {
       setStatus("", 0);
     } else {
-      setStatus(`טקסט התורה נטען, אך האורך אינו צפוי: ${state.torah.length.toLocaleString("he-IL")}`, 0);
+      setStatus(`???? ????? ????, ?? ????? ???? ????: ${state.torah.length.toLocaleString("he-IL")}`, 0);
     }
   }
 
@@ -947,12 +948,12 @@
     let position = 0;
     String(raw || "").split(/\r?\n/).forEach((rawLine) => {
       const line = rawLine.trim();
-      const chapterMatch = line.match(/^([א-ת]+)\s+פרק-([א-ת]+)$/);
+      const chapterMatch = line.match(/^([?-?]+)\s+???-([?-?]+)$/);
       if (chapterMatch) {
         [book, chapter] = chapterMatch.slice(1);
         return;
       }
-      const parts = line.split(/(\{[א-ת]+\})/);
+      const parts = line.split(/(\{[?-?]+\})/);
       let verse = "";
       let buffer = "";
       const flush = () => {
@@ -964,7 +965,7 @@
         verses.push({ book, chapter, verse, start, end: position - 1 });
       };
       parts.forEach((part) => {
-        const marker = part.trim().match(/^\{([א-ת]+)\}$/);
+        const marker = part.trim().match(/^\{([?-?]+)\}$/);
         if (marker) {
           flush();
           verse = marker[1];
@@ -1120,9 +1121,28 @@
       start,
       skip,
       kind: raw.kind || fallbackKind,
+      source: raw.source || raw.category || "",
       color: raw.color || stableColor(word),
       positions: Array.isArray(raw.positions) ? raw.positions.filter((p) => Number.isFinite(Number(p))).map(Number) : null,
     };
+  }
+
+  function isDateMatch(match) {
+    const kind = String(match?.kind || "").toLowerCase();
+    const source = String(match?.source || "").toLowerCase();
+    return kind === "date" || kind === "dates" || source === "date" || source === "dates";
+  }
+
+  function allowedDateSkips(result) {
+    const n = Math.max(1, Math.abs(result?.primary?.skip || 1));
+    return new Set([1, n, Math.max(1, n - 1), n + 1]);
+  }
+
+  function filterDateMatchesByAllowedSkips(result) {
+    if (!result) return result;
+    const allowed = allowedDateSkips(result);
+    result.matches = result.matches.filter((match) => !isDateMatch(match) || allowed.has(Math.abs(match.skip || 1)));
+    return result;
   }
 
   function countSecondaryWords(matches) {
@@ -1131,6 +1151,12 @@
       if (match.kind !== "primary") words.add(match.word);
     });
     return words.size;
+  }
+
+  function secondaryCountForResult(result) {
+    const count = countSecondaryWords(Array.isArray(result?.matches) ? result.matches : []);
+    if (result) result.secondaryCount = count;
+    return count;
   }
 
   function resultFromSavedItem(item) {
@@ -1149,8 +1175,8 @@
     return applyManualOverridesToResult(result);
   }
 
-  function loadProjectData(data, sourceName = "קובץ צופן") {
-    if (!data || typeof data !== "object") throw new Error("קובץ הצופן אינו תקין");
+  function loadProjectData(data, sourceName = "???? ????") {
+    if (!data || typeof data !== "object") throw new Error("???? ????? ???? ????");
     els.primary.value = data.primary || "";
     els.secondary.value = data.secondary || "";
     els.skipFrom.value = data.skip_from ?? DEFAULT_SKIP_FROM;
@@ -1174,14 +1200,14 @@
     renderResults();
     renderCurrent();
     saveDraft();
-    setStatus(`צופן נטען: ${sourceName} | ממצאים ${state.results.length}`, 100);
+    setStatus(`???? ????: ${sourceName} | ?????? ${state.results.length}`, 100);
   }
 
   async function loadProjectFromUrl(url) {
     const response = await fetch(url, { cache: "no-store" });
-    if (!response.ok) throw new Error("לא הצלחתי לטעון את קובץ הצופן");
+    if (!response.ok) throw new Error("?? ?????? ????? ?? ???? ?????");
     const data = await response.json();
-    loadProjectData(data, url.split("/").pop() || "צופן מהאתר");
+    loadProjectData(data, url.split("/").pop() || "???? ?????");
   }
 
   async function loadProjectFromQuery() {
@@ -1207,13 +1233,13 @@
     const primaryWords = splitWords(els.primary.value);
     const secondaries = splitWords(els.secondary.value, { keepRequired: true });
     if (!primaryWords.length) {
-      setStatus("יש להקליד ראשית לחיפוש", 0);
+      setStatus("?? ?????? ????? ??????", 0);
       return;
     }
     const editionMaxPrimaries = PRO_MAX_PRIMARIES;
     if (primaryWords.length > editionMaxPrimaries) {
       setStatus(
-        `ניתן לחפש עד ${PRO_MAX_PRIMARIES} ראשיות במקביל באתר.`,
+        `???? ???? ?? ${PRO_MAX_PRIMARIES} ?????? ?????? ????.`,
         0
       );
       els.primary.focus();
@@ -1222,7 +1248,7 @@
     const editionMaxSecondaries = PRO_MAX_SECONDARIES;
     if (secondaries.length > editionMaxSecondaries) {
       setStatus(
-        `ניתן לחפש עד ${PRO_MAX_SECONDARIES} משניות בכל חיפוש באתר.`,
+        `???? ???? ?? ${PRO_MAX_SECONDARIES} ?????? ??? ????? ????.`,
         0
       );
       els.secondary.focus();
@@ -1233,7 +1259,7 @@
     const editionMaxSkip = PRO_MAX_SKIP;
     if (from > editionMaxSkip || to > editionMaxSkip) {
       setStatus(
-        `טווח החיפוש המרבי באתר הוא ${PRO_MAX_SKIP}.`,
+        `???? ?????? ????? ???? ??? ${PRO_MAX_SKIP}.`,
         0
       );
       els.skipTo.focus();
@@ -1243,7 +1269,7 @@
     const resultLimit = PRO_MAX_RESULTS;
     const hasMatchingCache = state.primaryCache && state.primaryCache.key === cacheKey;
     if (cacheOnly && !hasMatchingCache) {
-      setStatus("אין ראשיות מתאימות בזיכרון. יש לבצע תחילה חיפוש ראשיות או לפתוח צופן.", 0);
+      setStatus("??? ?????? ??????? ???????. ?? ???? ????? ????? ?????? ?? ????? ????.", 0);
       return;
     }
     state.stop = false;
@@ -1251,7 +1277,7 @@
     state.results = [];
     state.current = 0;
     renderResults();
-    renderEmptyGrid(cacheOnly ? "סורק משניות בראשיות שנשמרו..." : "מחפש...");
+    renderEmptyGrid(cacheOnly ? "???? ?????? ??????? ??????..." : "????...");
     try {
       const skips = [];
       for (let s = from; s <= to; s += 1) {
@@ -1262,16 +1288,16 @@
       const canResumePrimary = hasMatchingCache && state.primaryCache.complete === false && state.primaryResume?.key === cacheKey;
       if (cacheOnly && hasMatchingCache) {
         primaries = state.primaryCache.matches.slice();
-        setStatus(`סורק משניות בלבד | ראשיות ${primaries.length}`, 60);
+        setStatus(`???? ?????? ???? | ?????? ${primaries.length}`, 60);
         await nextFrame();
       } else if (cacheIsComplete) {
         primaries = state.primaryCache.matches.slice();
-        setStatus(`משתמש בראשיות מהזיכרון | ראשיות ${primaries.length}`, 60);
+        setStatus(`????? ??????? ???????? | ?????? ${primaries.length}`, 60);
         await nextFrame();
       } else {
         primaries = canResumePrimary ? state.primaryCache.matches.slice() : [];
         const resumeIndex = canResumePrimary ? Math.max(0, Number.parseInt(state.primaryResume.primaryIndex || "0", 10) || 0) : 0;
-        setStatus(canResumePrimary ? "ממשיך חיפוש ראשיות מהמקום שנעצר..." : "מחפש ראשיות...", 0);
+        setStatus(canResumePrimary ? "????? ????? ?????? ?????? ?????..." : "???? ??????...", 0);
         await nextFrame();
         state.primaryResumePosition = null;
         for (let p = resumeIndex; p < primaryWords.length; p += 1) {
@@ -1281,7 +1307,7 @@
             const primaryBase = p / Math.max(1, primaryWords.length);
             const primaryShare = done / Math.max(1, total) / Math.max(1, primaryWords.length);
             const percent = Math.floor((primaryBase + primaryShare) * 60);
-            setStatus(`מחפש ראשיות ${p + 1}/${primaryWords.length} | נמצאו ${primaries.length + foundCount} | דילוג ${skip}`, percent);
+            setStatus(`???? ?????? ${p + 1}/${primaryWords.length} | ????? ${primaries.length + foundCount} | ????? ${skip}`, percent);
           }, resumeForWord);
           primaries.push(...foundForPrimary);
           state.primaryCache = { key: cacheKey, matches: primaries.slice(), complete: false };
@@ -1296,7 +1322,7 @@
         }
       }
       if (state.stop) {
-        setStatus(`החיפוש נעצר | נשמר המשך מהמקום האחרון | ראשיות ${primaries.length}`, 60);
+        setStatus(`?????? ???? | ???? ???? ?????? ?????? | ?????? ${primaries.length}`, 60);
         renderResults();
         saveDraft();
         return;
@@ -1328,21 +1354,21 @@
           if (result.secondaryCount >= minRequired) state.results.push(result);
         }
         if (i % 5 === 0) {
-          setStatus(`בודק משניות ${i + 1}/${primaries.length} | נשמרו ${state.results.length}`, 60 + Math.floor(((i + 1) / total) * 40));
+          setStatus(`???? ?????? ${i + 1}/${primaries.length} | ????? ${state.results.length}`, 60 + Math.floor(((i + 1) / total) * 40));
           await nextFrame();
         }
         if (state.results.length >= resultLimit) break;
       }
       state.results.sort((a, b) => b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
       state.resultSort = "";
-      const limitNotice = state.results.length >= resultLimit ? ` | הוצגו עד ${resultLimit}` : "";
-      setStatus(`החיפוש הסתיים | ראשיות ${primaries.length} | צפנים ${state.results.length}${limitNotice}`, 100);
+      const limitNotice = state.results.length >= resultLimit ? ` | ????? ?? ${resultLimit}` : "";
+      setStatus(`?????? ?????? | ?????? ${primaries.length} | ????? ${state.results.length}${limitNotice}`, 100);
       renderResults();
       renderCurrent();
       saveDraft();
       rememberSearch();
     } catch (error) {
-      setStatus(`שגיאה: ${error.message}`, 0);
+      setStatus(`?????: ${error.message}`, 0);
     } finally {
       setBusy(false);
     }
@@ -1357,7 +1383,7 @@
     els.head.innerHTML = "";
     els.body.innerHTML = "";
     if (!state.results.length) {
-      els.summary.textContent = "אין ממצאים להצגה.";
+      els.summary.textContent = "??? ?????? ?????.";
       els.body.appendChild(document.importNode($("emptyResultsTemplate").content, true));
       return;
     }
@@ -1366,13 +1392,13 @@
     const showPrimary = primaryNames.size > 1;
     const showSkip = skipValues.size > 1;
     els.summary.textContent = [
-      !showPrimary ? `ראשית: ${Array.from(primaryNames)[0]}` : "",
-      !showSkip ? `דילוג משותף: ${Array.from(skipValues)[0]}` : "",
+      !showPrimary ? `?????: ${Array.from(primaryNames)[0]}` : "",
+      !showSkip ? `????? ?????: ${Array.from(skipValues)[0]}` : "",
     ].filter(Boolean).join(" | ");
-    const columns = ["מס'"];
-    if (showPrimary) columns.push("ראשית");
-    if (showSkip) columns.push("דילוג");
-    columns.push("משניות", "איכות", "מיקום");
+    const columns = ["??'"];
+    if (showPrimary) columns.push("?????");
+    if (showSkip) columns.push("?????");
+    columns.push("??????", "?????", "?????");
     const headRow = document.createElement("tr");
     columns.forEach((name) => {
       const th = document.createElement("th");
@@ -1380,9 +1406,9 @@
       const sortKey = resultSortKeyForColumn(name);
       if (sortKey) {
         th.dataset.sortKey = sortKey;
-        th.title = name === "משניות"
-          ? "לחיצה מסדרת מהצופן עם הכי הרבה משניות ועד הכי מעט"
-          : `לחיצה למיון לפי ${name}`;
+        th.title = name === "??????"
+          ? "????? ????? ?????? ?? ??? ???? ?????? ??? ??? ???"
+          : `????? ????? ??? ${name}`;
         th.addEventListener("click", () => sortResultsBy(sortKey));
       }
       headRow.appendChild(th);
@@ -1421,40 +1447,49 @@
   }
 
   function resultSortKeyForColumn(name) {
-    if (name === "משניות") return "secondary";
-    if (name === "דילוג") return "skip";
-    if (name === "איכות") return "quality";
+    if (name === "??????") return "secondary";
+    if (name === "?????") return "skip";
+    if (name === "?????") return "quality";
     return "";
   }
 
   function sortResultsBy(sortKey) {
     const currentPrimary = state.results[state.current]?.primary;
     if (sortKey === "secondary") {
-      state.results.sort((a, b) => b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
+      state.results.sort((a, b) => (
+        secondaryCountForResult(b) - secondaryCountForResult(a)
+        || Math.abs(a.primary.skip) - Math.abs(b.primary.skip)
+        || (a.primary.start || 0) - (b.primary.start || 0)
+      ));
+      state.current = 0;
     } else if (sortKey === "skip") {
-      state.results.sort((a, b) => Math.abs(a.primary.skip) - Math.abs(b.primary.skip) || b.secondaryCount - a.secondaryCount);
+      state.results.sort((a, b) => Math.abs(a.primary.skip) - Math.abs(b.primary.skip) || secondaryCountForResult(b) - secondaryCountForResult(a));
     } else if (sortKey === "quality") {
-      state.results.sort((a, b) => qualityScore(b) - qualityScore(a) || b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
+      state.results.sort((a, b) => qualityScore(b) - qualityScore(a) || secondaryCountForResult(b) - secondaryCountForResult(a) || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
     } else {
       return;
     }
-    if (currentPrimary) {
+    if (currentPrimary && sortKey !== "secondary") {
       const nextIndex = state.results.findIndex((item) => item.primary.start === currentPrimary.start && item.primary.skip === currentPrimary.skip && item.primary.word === currentPrimary.word);
       state.current = nextIndex >= 0 ? nextIndex : 0;
     }
     state.resultSort = sortKey;
     renderResults();
-    setStatus(`טבלת הממצאים מוינה לפי ${sortKey === "secondary" ? "משניות" : sortKey === "skip" ? "דילוג" : "איכות"}`, els.progress.value);
+    if (sortKey === "secondary") {
+      els.resultWrap.scrollTop = 0;
+      renderCurrent();
+    }
+    setStatus(`???? ??????? ????? ??? ${sortKey === "secondary" ? "??????" : sortKey === "skip" ? "?????" : "?????"}`, els.progress.value);
   }
 
   function renderCurrent() {
     const current = state.results[state.current];
     if (!current) {
-      renderEmptyGrid("אין ממצא להצגה.");
+      renderEmptyGrid("??? ???? ?????.");
       return;
     }
     const spp = sppAt(current.primary.start);
-    els.title.textContent = `טבלה בדילוג ${Math.abs(current.primary.skip)}${spp ? ` | ספ״פ ${spp}` : ""} | ממצא ${state.current + 1}/${state.results.length}`;
+    els.title.textContent = `???? ?????? ${Math.abs(current.primary.skip)}${spp ? ` | ???? ${spp}` : ""} | ???? ${state.current + 1}/${state.results.length}`;
     renderTopWords(current);
     renderGrid(current);
   }
@@ -1466,12 +1501,13 @@
   function resetSkipRange() {
     els.skipFrom.value = String(DEFAULT_SKIP_FROM);
     els.skipTo.value = String(DEFAULT_SKIP_TO);
-    setStatus(`טווח הדילוגים אופס ל־${DEFAULT_SKIP_FROM}-${DEFAULT_SKIP_TO}`, 100);
+    setStatus(`???? ???????? ???? ??${DEFAULT_SKIP_FROM}-${DEFAULT_SKIP_TO}`, 100);
     saveDraft();
   }
 
   function applyManualOverridesToResult(result) {
     if (!result) return result;
+    filterDateMatchesByAllowedSkips(result);
     result.matches = result.matches.filter((match) => match.kind === "primary" || !state.removedWordKeys.has(matchKey(match)));
     result.matches.forEach((match) => {
       const color = state.colorOverrides[matchKey(match)];
@@ -1513,7 +1549,7 @@
     if (!current) return;
     const target = current.matches.find((match) => matchKey(match) === key);
     if (!target || target.kind === "primary") {
-      setStatus("לא ניתן להסיר את הראשית מהצופן.", 0);
+      setStatus("?? ???? ????? ?? ?????? ??????.", 0);
       return;
     }
     state.removedWordKeys.add(key);
@@ -1524,7 +1560,7 @@
     renderResults();
     renderCurrent();
     saveDraft();
-    setStatus(`המילה "${target.word}" הוסרה מהצופן הנוכחי`, 0);
+    setStatus(`????? "${target.word}" ????? ?????? ??????`, 0);
   }
 
   function visiblePositionSet(result) {
@@ -1547,7 +1583,7 @@
     if (!current) return;
     const target = current.matches.find((match) => matchKey(match) === key);
     if (!target || target.kind === "primary") {
-      setStatus("לא ניתן להסיר את הראשית מהמסך.", 0);
+      setStatus("?? ???? ????? ?? ?????? ?????.", 0);
       return;
     }
     const visible = visiblePositionSet(current);
@@ -1566,14 +1602,14 @@
     renderResults();
     renderCurrent();
     saveDraft();
-    setStatus(removed ? `הוסרו ${removed} סימוני ממצאי המילה "${target.word}" מהמסך` : `לא נמצאו סימוני "${target.word}" במסך הנוכחי`, 0);
+    setStatus(removed ? `????? ${removed} ?????? ????? ????? "${target.word}" ?????` : `?? ????? ?????? "${target.word}" ???? ??????`, 0);
   }
 
   function removeWordFromAllResults(key) {
     const current = state.results[state.current];
     const target = current?.matches.find((match) => matchKey(match) === key);
     if (!target || target.kind === "primary") {
-      setStatus("לא ניתן להסיר את הראשית מתוצאות החיפוש.", 0);
+      setStatus("?? ???? ????? ?? ?????? ??????? ??????.", 0);
       return;
     }
     state.removedWordKeys.add(key);
@@ -1586,7 +1622,20 @@
     renderResults();
     renderCurrent();
     saveDraft();
-    setStatus(`המילה "${target.word}" הוסרה מכל תוצאות החיפוש`, 0);
+    setStatus(`????? "${target.word}" ????? ??? ?????? ??????`, 0);
+  }
+
+  function removeDateMarksFromCurrent() {
+    const current = state.results[state.current];
+    if (!current) return;
+    const before = current.matches.length;
+    current.matches = current.matches.filter((match) => !isDateMatch(match));
+    current.secondaryCount = countSecondaryWords(current.matches);
+    const removed = before - current.matches.length;
+    renderResults();
+    renderCurrent();
+    saveDraft();
+    setStatus(removed ? `????? ${removed} ?????? ??????? ?????? ??????` : "??? ?????? ??????? ????? ??????", 0);
   }
 
   function toggleWordFrame(key) {
@@ -1595,10 +1644,10 @@
     if (!target) return;
     if (state.frameKeys.has(key)) {
       state.frameKeys.delete(key);
-      setStatus(`המסגרת הוסרה מהמילה "${target.word}"`, 0);
+      setStatus(`?????? ????? ?????? "${target.word}"`, 0);
     } else {
       state.frameKeys.add(key);
-      setStatus(`נוספה מסגרת למילה "${target.word}"`, 0);
+      setStatus(`????? ????? ????? "${target.word}"`, 0);
     }
     renderCurrent();
     saveDraft();
@@ -1609,7 +1658,7 @@
     if (!current) return;
     const target = current.matches.find((match) => matchKey(match) === key);
     if (!target || target.kind === "primary") {
-      setStatus("לא ניתן להשאיר מופע יחיד של הראשית.", 0);
+      setStatus("?? ???? ?????? ???? ???? ?? ??????.", 0);
       return;
     }
     let kept = false;
@@ -1627,7 +1676,7 @@
     renderResults();
     renderCurrent();
     saveDraft();
-    setStatus(removed ? `נשאר מופע אחד של "${target.word}" והוסרו ${removed}` : `כבר יש מופע אחד של "${target.word}"`, 0);
+    setStatus(removed ? `???? ???? ??? ?? "${target.word}" ?????? ${removed}` : `??? ?? ???? ??? ?? "${target.word}"`, 0);
   }
 
   function openWordMenu(event, key) {
@@ -1646,8 +1695,8 @@
     els.removeAllWord.disabled = !target || target.kind === "primary";
     els.toggleWordFrame.disabled = !target;
     els.keepOnlyWord.disabled = !target || target.kind === "primary";
-    els.toggleWordLine.textContent = state.lineKeys.has(key) ? "הסר קו למילה" : "הצג קו למילה";
-    els.toggleWordFrame.textContent = state.frameKeys.has(key) ? "הסר מסגרת מאותיות הממצא" : "הוסף מסגרת לאותיות הממצא";
+    els.toggleWordLine.textContent = state.lineKeys.has(key) ? "??? ?? ?????" : "??? ?? ?????";
+    els.toggleWordFrame.textContent = state.frameKeys.has(key) ? "??? ????? ??????? ?????" : "???? ????? ??????? ?????";
     els.wordMenu.hidden = false;
     const menuWidth = 190;
     const menuHeight = 260;
@@ -1692,12 +1741,12 @@
       chip.style.borderColor = item.color;
       const skipText = Array.from(item.skips.entries())
         .sort((a, b) => a[0] - b[0])
-        .map(([skip, count]) => `${skip}${count > 1 ? ` ×${count}` : ""}`)
+        .map(([skip, count]) => `${skip}${count > 1 ? ` ?${count}` : ""}`)
         .join(", ");
-      chip.textContent = `${item.word} | ${skipText}${item.count > 1 ? ` | סה"כ ×${item.count}` : ""}`;
+      chip.textContent = `${item.word} | ${skipText}${item.count > 1 ? ` | ??"? ?${item.count}` : ""}`;
       chip.title = item.kind === "primary"
-        ? "קליק ימני לפעולות"
-        : "קליק ימני לפעולות; גרור למילה אחרת כדי להעתיק את הצבע";
+        ? "???? ???? ???????"
+        : "???? ???? ???????; ???? ????? ???? ??? ?????? ?? ????";
       chip.draggable = item.kind !== "primary";
       chip.addEventListener("contextmenu", (event) => openWordMenu(event, item.key));
       chip.addEventListener("dragstart", (event) => {
@@ -1718,7 +1767,7 @@
         if (!sourceKey || sourceKey === item.key || item.kind === "primary") return;
         const color = colorForKey(result, sourceKey);
         setWordColor(item.key, color);
-        setStatus(`הצבע הועתק אל "${item.word}"`, 100);
+        setStatus(`???? ????? ?? "${item.word}"`, 100);
       });
       chip.addEventListener("dragend", () => {
         state.draggedWordKey = null;
@@ -1765,7 +1814,10 @@
     const markByPos = new Map();
     result.matches.forEach((match) => {
       positionsForMatch(match).forEach((pos) => {
-        markByPos.set(pos, match);
+        const existing = markByPos.get(pos);
+        if (!existing || existing.kind !== "primary" && (isDateMatch(existing) || !isDateMatch(match))) {
+          markByPos.set(pos, match);
+        }
       });
     });
     els.grid.style.setProperty("--cell-width", `${state.zoom}px`);
@@ -1786,7 +1838,7 @@
               if (match.kind !== "primary") cell.style.setProperty("--mark-color", match.color || stableColor(match.word));
               cell.dataset.wordKey = matchKey(match);
               if (state.frameKeys.has(matchKey(match))) cell.classList.add("word-frame");
-              cell.title = `${match.word} | דילוג ${Math.abs(match.skip || 1)} | מיקום ${(match.start + 1).toLocaleString("he-IL")}`;
+              cell.title = `${match.word} | ????? ${Math.abs(match.skip || 1)} | ????? ${(match.start + 1).toLocaleString("he-IL")}`;
             cell.addEventListener("contextmenu", (event) => openWordMenu(event, matchKey(match)));
           }
           if (pos === center) cell.classList.add("center");
@@ -1886,7 +1938,7 @@
   }
 
   function renderEmptyGrid(text) {
-    els.title.textContent = "תצוגת התורה";
+    els.title.textContent = "????? ?????";
     els.topWords.innerHTML = "";
     const box = document.createElement("div");
     box.className = "result-summary";
@@ -1911,8 +1963,8 @@
       // Clearing the visible work still succeeds when browser storage is blocked.
     }
     renderResults();
-    renderEmptyGrid("לא בוצע חיפוש.");
-    setStatus("השדות נוקו.", 0);
+    renderEmptyGrid("?? ???? ?????.");
+    setStatus("????? ????.", 0);
   }
 
   function moveResult(delta) {
@@ -1941,16 +1993,16 @@
   function moveResultFromTable(delta) {
     if (!state.results.length) return;
     moveResult(delta);
-    setStatus(`צופן ${state.current + 1}/${state.results.length}`, els.progress.value);
+    setStatus(`???? ${state.current + 1}/${state.results.length}`, els.progress.value);
   }
 
   function printCurrent() {
     if (!state.results.length) {
-      setStatus("אין צופן להצגה בהדפסה", 0);
+      setStatus("??? ???? ????? ??????", 0);
       return;
     }
     renderCurrent();
-    setStatus("פותח תצוגת הדפסה...", els.progress.value);
+    setStatus("???? ????? ?????...", els.progress.value);
     window.print();
   }
 
@@ -1968,7 +2020,7 @@
 
   async function saveCurrentImage() {
     if (!state.results.length) {
-      setStatus("אין צופן לשמירה כתמונה", 0);
+      setStatus("??? ???? ?????? ??????", 0);
       return;
     }
     renderCurrent();
@@ -2044,9 +2096,9 @@
       document.body.appendChild(link);
       link.click();
       link.remove();
-      setStatus("תמונת הצופן נשמרה ללא כפתורי הניווט", 100);
+      setStatus("????? ????? ????? ??? ?????? ??????", 100);
     } catch {
-      setStatus("הדפדפן לא הצליח להכין את התמונה. אפשר להשתמש בהדפסה ל-PDF.", 0);
+      setStatus("?????? ?? ????? ????? ?? ??????. ???? ?????? ?????? ?-PDF.", 0);
     } finally {
       URL.revokeObjectURL(url);
     }
@@ -2057,7 +2109,7 @@
   els.resetRange.addEventListener("click", resetSkipRange);
   els.stop.addEventListener("click", () => {
     state.stop = true;
-    setStatus("בקשת עצירה התקבלה...", els.progress.value);
+    setStatus("???? ????? ??????...", els.progress.value);
   });
   els.clear.addEventListener("click", clearAll);
   els.openProject.addEventListener("click", () => {
@@ -2078,7 +2130,7 @@
     try {
       mergeLibraryBackup(JSON.parse(await file.text()));
     } catch (error) {
-      setStatus(`שגיאה בשחזור הספרייה: ${error.message}`, 0);
+      setStatus(`????? ?????? ???????: ${error.message}`, 0);
     } finally {
       els.libraryBackupInput.value = "";
     }
@@ -2089,14 +2141,14 @@
   els.historyClose.addEventListener("click", () => els.historyDialog.close());
   els.historyClear.addEventListener("click", () => {
     if (!readHistory().length) return;
-    if (!window.confirm("למחוק את כל היסטוריית החיפושים?")) return;
+    if (!window.confirm("????? ?? ?? ????????? ?????????")) return;
     try {
       localStorage.removeItem(HISTORY_KEY);
     } catch {
       // The dialog remains usable even if storage access is blocked.
     }
     renderHistory();
-    setStatus("היסטוריית החיפושים נוקתה", 0);
+    setStatus("????????? ???????? ?????", 0);
   });
   els.historyDialog.addEventListener("click", (event) => {
     if (event.target === els.historyDialog) els.historyDialog.close();
@@ -2114,7 +2166,7 @@
       const data = JSON.parse(await file.text());
       loadProjectData(data, file.name);
     } catch (error) {
-      setStatus(`שגיאה בפתיחת צופן: ${error.message}`, 0);
+      setStatus(`????? ?????? ????: ${error.message}`, 0);
     } finally {
       els.projectFile.value = "";
     }
@@ -2257,6 +2309,7 @@
     state.avotVisible = els.avotVisible.checked;
     applyAvotSettings();
   });
+  els.removeDateMarks.addEventListener("click", removeDateMarksFromCurrent);
   els.avotSpeed.addEventListener("input", () => {
     state.avotSpeed = Number(els.avotSpeed.value) || 4;
     applyAvotSettings();
@@ -2281,13 +2334,13 @@
   loadTorah()
     .then(async () => {
       if (pageParams.has("project")) {
-        await loadProjectFromQuery().catch((error) => setStatus(`שגיאה בטעינת צופן: ${error.message}`, 0));
+        await loadProjectFromQuery().catch((error) => setStatus(`????? ?????? ????: ${error.message}`, 0));
       } else {
         restoreDraft();
         applyQueryInputs();
       }
     })
-    .catch((error) => setStatus(`שגיאה בטעינת התורה: ${error.message}`, 0));
+    .catch((error) => setStatus(`????? ?????? ?????: ${error.message}`, 0));
 
   try {
     state.displayControlsVisible = localStorage.getItem(DISPLAY_CONTROLS_KEY) !== "hidden";

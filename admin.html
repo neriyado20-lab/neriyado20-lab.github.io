@@ -3,102 +3,213 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ניהול אתר - גל עיני</title>
-  <meta name="description" content="לוח ניהול מקומי לאתר גל עיני: צפיות, שימושים, סימוני עיון, הערות ונרשמים.">
-  <link rel="stylesheet" href="styles.css?v=59">
+  <title>????? ??? - ?? ????</title>
+  <meta name="description" content="??? ????? ????? ???? ?? ????: ?????, ???????, ?????? ????, ????? ???????.">
+  <link rel="stylesheet" href="styles.css?v=61">
 </head>
-<body>
+<body class="admin-locked">
+  <section class="admin-login" id="adminLoginPanel" aria-label="????? ??????">
+    <form class="admin-login-box" id="adminLoginForm">
+      <p class="eyebrow">????? ??????</p>
+      <h1>??? ????? ?? ????</h1>
+      <label>
+        <span>??? ?????</span>
+        <input id="adminLoginCode" type="text" autocomplete="username" inputmode="latin" required>
+      </label>
+      <label>
+        <span>?????</span>
+        <input id="adminLoginPassword" type="password" autocomplete="current-password" required>
+      </label>
+      <button class="button primary" type="submit">?????</button>
+      <p id="adminLoginStatus" class="admin-status" aria-live="polite"></p>
+    </form>
+  </section>
+
   <header class="topbar">
-    <a class="brand" href="index.html" aria-label="חזרה לשער">
-      <span class="brand-mark" aria-hidden="true">גע</span>
+    <a class="brand" href="index.html" aria-label="???? ????">
+      <span class="brand-mark" aria-hidden="true">??</span>
       <div>
-        <strong>גל עיני</strong>
-        <span>לוח ניהול</span>
+        <strong>?? ????</strong>
+        <span>??? ?????</span>
       </div>
     </a>
-    <nav aria-label="ניווט">
-      <a href="index.html">ראשי</a>
-      <a href="web.html">עבודה באתר</a>
-      <a href="ai.html">עיון AI</a>
-      <a href="examples.html">צפנים לדוגמה</a>
-      <a href="order.html">חיפוש לפי הזמנה</a>
+    <nav aria-label="?????">
+      <a href="index.html">????</a>
+      <a href="web.html">????? ????</a>
+      <a href="ai.html">???? AI</a>
+      <a href="examples.html">????? ??????</a>
+      <a href="order.html">????? ??? ?????</a>
+      <button class="button secondary admin-logout" id="adminLogoutButton" type="button">?????</button>
     </nav>
   </header>
 
   <main class="admin-shell">
     <section class="page-hero admin-hero">
-      <p class="eyebrow">ניהול האתר</p>
-      <h1>לוח ניהול גל עיני</h1>
+      <p class="eyebrow">????? ????</p>
+      <h1>??? ????? ?? ????</h1>
       <p class="lead">
-        בשלב זה הלוח מציג את הנתונים שנשמרו בדפדפן הזה. לאחר חיבור שירות נתונים מרכזי,
-        אותו לוח יוכל להציג נתוני אמת מכל המשתמשים.
+        ???? ?? ???? ???? ?? ??????? ?????? ?????? ???. ???? ????? ????? ?????? ?????,
+        ???? ??? ???? ????? ????? ??? ??? ????????.
       </p>
     </section>
 
-    <section class="admin-summary" aria-label="סיכום פעילות">
+    <section class="admin-summary" aria-label="????? ??????">
       <article>
-        <span>כניסות לאתר</span>
+        <span>?????? ????</span>
         <strong id="adminSiteVisits">0</strong>
       </article>
       <article>
-        <span>שימושים בתוכנה</span>
+        <span>??????? ??????</span>
         <strong id="adminWebUses">0</strong>
       </article>
       <article>
-        <span>צפייה בדוגמאות</span>
+        <span>????? ????????</span>
         <strong id="adminExamplesVisits">0</strong>
       </article>
       <article>
-        <span>סימוני עיון</span>
+        <span>?????? ????</span>
         <strong id="adminInterestCount">0</strong>
+      </article>
+      <article>
+        <span>????? ??? ???</span>
+        <strong id="adminContactCount">0</strong>
+      </article>
+      <article>
+        <span>????? ??????</span>
+        <strong id="adminUploadCount">0</strong>
+      </article>
+      <article>
+        <span>????? ????</span>
+        <strong id="adminContentCount">0</strong>
       </article>
     </section>
 
     <section class="admin-grid">
+      <article class="admin-panel admin-upload-panel">
+        <div class="admin-panel-head">
+          <h2>????? ???? ????????</h2>
+          <button class="button secondary" id="exportContentButton" type="button">???? JSON</button>
+        </div>
+        <form class="admin-content-form" id="adminContentForm">
+          <input id="adminContentId" type="hidden">
+          <label>
+            <span>??? ????</span>
+            <select id="adminContentType" required>
+              <option value="announcement">????? ????</option>
+              <option value="download">???? / ???? ??????</option>
+              <option value="example">???? ??????</option>
+              <option value="link">????? ??????</option>
+              <option value="note">???? ????</option>
+            </select>
+          </label>
+          <label>
+            <span>?????</span>
+            <input id="adminContentTitle" type="text" maxlength="100" required>
+          </label>
+          <label>
+            <span>????? / ????</span>
+            <input id="adminContentUrl" type="text" maxlength="220" placeholder="downloads/file.zip ?? https://...">
+          </label>
+          <label>
+            <span>?????</span>
+            <select id="adminContentStatus">
+              <option value="active">????</option>
+              <option value="draft">?????</option>
+              <option value="archive">??????</option>
+            </select>
+          </label>
+          <label class="admin-content-wide">
+            <span>????? / ????</span>
+            <textarea id="adminContentDescription" rows="3" maxlength="500"></textarea>
+          </label>
+          <div class="admin-form-actions">
+            <button class="button primary" type="submit">???? ????</button>
+            <button class="button secondary" id="resetContentButton" type="button">??? ????</button>
+          </div>
+          <p id="adminContentStatusText" class="admin-status" aria-live="polite"></p>
+        </form>
+        <div id="adminContentList" class="admin-list"></div>
+      </article>
+
+      <article class="admin-panel admin-upload-panel">
+        <div class="admin-panel-head">
+          <h2>????? ?????</h2>
+        </div>
+        <form class="admin-upload-form" id="adminUploadForm">
+          <label>
+            <span>??? ????</span>
+            <select id="adminUploadCategory" required>
+              <option value="downloads">???? ?????? / ???? ?????</option>
+              <option value="examples">???? ?????? / ?????</option>
+              <option value="assets">??? ??? / ????? ?????</option>
+              <option value="documents">???? ??????</option>
+            </select>
+          </label>
+          <label>
+            <span>?? ?????</span>
+            <input id="adminUploadTitle" type="text" maxlength="80" placeholder="??????: ???? V341 ??? AI">
+          </label>
+          <label>
+            <span>????? ????</span>
+            <input id="adminUploadFile" type="file" required>
+          </label>
+          <button class="button primary" type="submit">???? ????</button>
+          <p id="adminUploadStatus" class="admin-status" aria-live="polite"></p>
+        </form>
+        <div id="adminUploadsList" class="admin-list"></div>
+      </article>
+
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>צפנים שסומנו לעיון</h2>
-          <button class="button secondary" id="refreshAdminButton" type="button">רענן</button>
+          <h2>????? ?????? ?????</h2>
+          <button class="button secondary" id="refreshAdminButton" type="button">????</button>
         </div>
         <div id="adminInterestList" class="admin-list"></div>
       </article>
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>הערות עיון</h2>
-          <button class="button secondary" id="exportAdminButton" type="button">ייצא CSV</button>
+          <h2>????? ????</h2>
+          <button class="button secondary" id="exportAdminButton" type="button">???? CSV</button>
         </div>
         <div id="adminNotesList" class="admin-list"></div>
       </article>
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>הודעות על צופן חדש</h2>
+          <h2>?????? ?? ???? ???</h2>
         </div>
         <div id="adminNotifyList" class="admin-list"></div>
       </article>
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>בקשות חיפוש צופן</h2>
+          <h2>????? ????? ????</h2>
         </div>
         <div id="adminOrdersList" class="admin-list"></div>
       </article>
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>עיון AI מונחה</h2>
+          <h2>???? AI ?????</h2>
         </div>
         <div id="adminAiGuidesList" class="admin-list"></div>
       </article>
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>חיבור עתידי</h2>
+          <h2>????? ??? ???</h2>
+        </div>
+        <div id="adminContactsList" class="admin-list"></div>
+      </article>
+
+      <article class="admin-panel">
+        <div class="admin-panel-head">
+          <h2>????? ?????</h2>
         </div>
         <p>
-          כאשר נחבר Supabase או שירות דומה, הנתונים שייכנסו לכאן יהיו מכל המשתמשים:
-          צפיות, סימוני עיון, הערות שאפשר לאשר או למחוק, ונרשמים לשליחת הודעה.
+          ???? ???? Supabase ?? ????? ????, ??????? ??????? ???? ???? ??? ????????:
+          ?????, ?????? ????, ????? ????? ???? ?? ?????, ??????? ?????? ?????.
         </p>
         <p id="adminBackendStatus" class="admin-status"></p>
       </article>
@@ -106,10 +217,12 @@
   </main>
 
   <footer>
-    <span>גל עיני - לוח ניהול מקומי</span>
-    <span>שלב הכנה לחיבור נתונים מרכזי</span>
+    <span>?? ???? - ??? ????? ?????</span>
+    <span>??? ???? ?????? ?????? ?????</span>
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
-  <script src="admin.js?v=4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="admin-config.js?v=3"></script>
+  <script src="admin.js?v=8"></script>
 </body>
 </html>

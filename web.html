@@ -1,88 +1,88 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>גל עיני Web - חיפוש צפנים בתורה</title>
-  <meta name="description" content="גל עיני Web: חיפוש ראשיות ומשניות, תצוגת צפנים, שמירה, ניווט וכלי עבודה מקצועיים ישירות בדפדפן.">
+  <title>?? ???? Web - ????? ????? ?????</title>
+  <meta name="description" content="?? ???? Web: ????? ?????? ???????, ????? ?????, ?????, ????? ???? ????? ???????? ?????? ??????.">
   <link rel="stylesheet" href="styles.css?v=70">
   <link rel="stylesheet" href="web-app.css?v=48">
 </head>
 <body class="web-app-page">
   <header class="topbar app-topbar">
-    <a class="brand" href="index.html" aria-label="חזרה לשער">
-      <span class="brand-mark" aria-hidden="true">גע</span>
+    <a class="brand" href="index.html" aria-label="???? ????">
+      <span class="brand-mark" aria-hidden="true">??</span>
       <div>
-        <strong>גל עיני Web</strong>
-          <span>W049 | שימוש מלא באתר, הורדות פתוחות</span>
+        <strong>?? ???? Web</strong>
+          <span>W051 | ????? ??? ????, ?????? ??????</span>
       </div>
     </a>
-    <nav aria-label="ניווט">
-      <a href="index.html">ראשי</a>
-      <a href="ai.html">עיון AI</a>
-      <a href="rides.html">גמ"ח טרמפים</a>
-      <a href="examples.html">צפנים לדוגמה</a>
-      <a href="order.html">חיפוש לפי הזמנה</a>
-      <a href="contact.html">צור קשר</a>
-      <a href="index.html#download">הורדת Windows</a>
-      <button id="helpButton" class="nav-button" type="button">עזרה</button>
-      <button id="toolsButton" class="nav-button" type="button">כלים</button>
-      <a id="editionSwitch" href="index.html#download">הורדת Windows</a>
+    <nav aria-label="?????">
+      <a href="index.html">????</a>
+      <a href="ai.html">???? AI</a>
+      <a href="rides.html">??"? ??????</a>
+      <a href="examples.html">????? ??????</a>
+      <a href="order.html">????? ??? ?????</a>
+      <a href="contact.html">??? ???</a>
+      <a href="index.html#download">????? Windows</a>
+      <button id="helpButton" class="nav-button" type="button">????</button>
+      <button id="toolsButton" class="nav-button" type="button">????</button>
+      <a id="editionSwitch" href="index.html#download">????? Windows</a>
     </nav>
   </header>
 
-  <section id="avotTicker" class="avot-ticker" aria-label="פרקי אבות">
-    <button id="avotPrevButton" type="button" title="משנה קודמת" aria-label="משנה קודמת">›</button>
+  <section id="avotTicker" class="avot-ticker" aria-label="???? ????">
+    <button id="avotPrevButton" type="button" title="???? ?????" aria-label="???? ?????">?</button>
     <div id="avotTrack" class="avot-track"></div>
-    <button id="avotNextButton" type="button" title="משנה הבאה" aria-label="משנה הבאה">‹</button>
+    <button id="avotNextButton" type="button" title="???? ????" aria-label="???? ????">?</button>
   </section>
 
-  <main class="web-shell desktop-like" data-app-version="W049">
-    <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W049</div>
-      <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
-      <div class="app-current-skip">טבלה בדילוג</div>
-      <div class="app-blessing">בסיעתא דשמיא</div>
+  <main class="web-shell desktop-like" data-app-version="W051">
+    <section class="app-command-bar" aria-label="???? ???">
+      <div class="app-version">?? ???? Web W051</div>
+      <div id="editionBadge" class="edition-badge">??????? | ??? ?????</div>
+      <div class="app-current-skip">???? ??????</div>
+      <div class="app-blessing">?????? ?????</div>
       <div class="status-row compact-status" aria-live="polite">
         <progress id="searchProgress" max="100" value="0"></progress>
-        <span id="statusText">טוען את טקסט התורה...</span>
+        <span id="statusText">???? ?? ???? ?????...</span>
       </div>
     </section>
 
-    <section class="search-dock" aria-label="חיפוש">
+    <section class="search-dock" aria-label="?????">
       <form id="searchForm" class="search-panel">
         <label class="primary-field">
-          <span>ראשית</span>
-          <input id="primaryInput" name="primary" autocomplete="off" placeholder="לדוגמה: משיח">
+          <span>?????</span>
+          <input id="primaryInput" name="primary" autocomplete="off" placeholder="??????: ????">
         </label>
         <label class="secondary-field">
-          <span>משניות</span>
-          <textarea id="secondaryInput" name="secondary" rows="2" placeholder="לדוגמה: ישראל גאולה !תורה"></textarea>
+          <span>??????</span>
+          <textarea id="secondaryInput" name="secondary" rows="2" placeholder="??????: ????? ????? !????"></textarea>
         </label>
         <label>
-          <span>דילוג מ־</span>
+          <span>????? ??</span>
           <input id="skipFromInput" name="skipFrom" type="number" value="0" min="0" max="5000">
         </label>
         <label>
-          <span>עד</span>
+          <span>??</span>
           <input id="skipToInput" name="skipTo" type="number" value="800" min="0" max="5000">
         </label>
-        <button id="resetRangeButton" class="button secondary range-reset" type="button" title="אפס את טווח הדילוגים ל־0 עד 800">אפס</button>
+        <button id="resetRangeButton" class="button secondary range-reset" type="button" title="??? ?? ???? ???????? ??0 ?? 800">???</button>
         <label>
-          <span>מינ' משניות</span>
+          <span>???' ??????</span>
           <input id="minSecondaryInput" name="minSecondary" type="number" value="1" min="0" max="20">
         </label>
         <div class="search-actions">
-          <button id="searchButton" class="button primary" type="submit">חפש</button>
-          <button id="secondaryScanButton" class="button secondary scan-secondary pro-only" type="button" title="סרוק את המשניות הנוכחיות בכל הראשיות שכבר נמצאו, ללא חיפוש ראשיות חוזר">סרוק משניות</button>
-          <button id="stopButton" class="button secondary" type="button" disabled>עצור</button>
-          <button id="clearButton" class="button secondary" type="button">נקה</button>
-          <button id="openProjectButton" class="button secondary" type="button">פתח צופן</button>
-          <button id="saveProjectButton" class="button secondary save-project pro-only" type="button" title="שמור את השדות ואת כל הממצאים לקובץ צופן">שמור צופן</button>
-          <button id="libraryButton" class="button secondary library-button pro-only" type="button" title="פתח את ספריית הצפנים השמורים בדפדפן">הצפנים שלי</button>
-          <button id="historyButton" class="button secondary history-button pro-only" type="button" title="פתח את 20 החיפושים האחרונים">אחרונים</button>
-          <button id="saveImageButton" class="button secondary pro-only" type="button" title="שמור את הצופן כתמונת PNG נקייה במסגרת שחורה">שמור תמונה</button>
-          <button id="printButton" class="button secondary pro-only" type="button">הדפס</button>
+          <button id="searchButton" class="button primary" type="submit">???</button>
+          <button id="secondaryScanButton" class="button secondary scan-secondary pro-only" type="button" title="???? ?? ??????? ???????? ??? ??????? ???? ?????, ??? ????? ?????? ????">???? ??????</button>
+          <button id="stopButton" class="button secondary" type="button" disabled>????</button>
+          <button id="clearButton" class="button secondary" type="button">???</button>
+          <button id="openProjectButton" class="button secondary" type="button">??? ????</button>
+          <button id="saveProjectButton" class="button secondary save-project pro-only" type="button" title="???? ?? ????? ??? ?? ??????? ????? ????">???? ????</button>
+          <button id="libraryButton" class="button secondary library-button pro-only" type="button" title="??? ?? ?????? ?????? ??????? ??????">?????? ???</button>
+          <button id="historyButton" class="button secondary history-button pro-only" type="button" title="??? ?? 20 ???????? ????????">???????</button>
+          <button id="saveImageButton" class="button secondary pro-only" type="button" title="???? ?? ????? ?????? PNG ????? ?????? ?????">???? ?????</button>
+          <button id="printButton" class="button secondary pro-only" type="button">????</button>
           <input id="projectFileInput" type="file" accept=".json,.gal_einai.json,application/json" hidden>
         </div>
       </form>
@@ -90,16 +90,16 @@
     </section>
 
     <section class="workspace">
-      <aside id="resultsPanel" class="results-panel" aria-label="טבלת ממצאים">
+      <aside id="resultsPanel" class="results-panel" aria-label="???? ??????">
         <div class="panel-head">
-          <h2>טבלת ממצאים</h2>
+          <h2>???? ??????</h2>
           <div class="panel-head-actions">
-            <button id="exportButton" class="table-tool-button pro-only" type="button" title="ייצוא טבלת הממצאים וסיכום החיפוש">ייצוא</button>
+            <button id="exportButton" class="table-tool-button pro-only" type="button" title="????? ???? ??????? ?????? ??????">?????</button>
             <span id="resultCount">0</span>
           </div>
         </div>
-        <div id="resultSummary" class="result-summary">לא בוצע חיפוש.</div>
-        <div id="resultTableWrap" class="result-table-wrap" tabindex="0" title="כאשר העכבר מעל הטבלה: גלגלת וחצים למעלה/למטה עוברים בין הצפנים.">
+        <div id="resultSummary" class="result-summary">?? ???? ?????.</div>
+        <div id="resultTableWrap" class="result-table-wrap" tabindex="0" title="???? ????? ??? ?????: ????? ????? ?????/???? ?????? ??? ??????.">
           <table class="result-table">
             <thead id="resultsHead"></thead>
             <tbody id="resultsBody"></tbody>
@@ -107,32 +107,32 @@
         </div>
       </aside>
 
-      <section class="torah-panel" aria-label="תצוגת התורה">
+      <section class="torah-panel" aria-label="????? ?????">
         <div class="panel-head torah-head">
-          <h2 id="displayTitle">תצוגת התורה</h2>
-          <button id="toggleTopWordsButton" class="icon-button no-export-control" type="button" title="הסתר או הצג את מילות הצופן העליונות" aria-label="הסתר או הצג מילים עליונות" aria-pressed="false">
+          <h2 id="displayTitle">????? ?????</h2>
+          <button id="toggleTopWordsButton" class="icon-button no-export-control" type="button" title="???? ?? ??? ?? ????? ????? ????????" aria-label="???? ?? ??? ????? ???????" aria-pressed="false">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/><path d="M18 16l3 3-3 3"/></svg>
           </button>
-          <button id="toggleDisplayControlsButton" class="display-tools-toggle no-export-control" type="button" title="הסתר או הצג את כלי הניווט התחתונים" aria-label="הסתר או הצג כלי תצוגה">
-            <span aria-hidden="true">☷</span>
-            <span id="toggleDisplayControlsText">הסתר כלים</span>
+          <button id="toggleDisplayControlsButton" class="display-tools-toggle no-export-control" type="button" title="???? ?? ??? ?? ??? ?????? ????????" aria-label="???? ?? ??? ??? ?????">
+            <span aria-hidden="true">?</span>
+            <span id="toggleDisplayControlsText">???? ????</span>
           </button>
         </div>
         <div id="topWords" class="top-words"></div>
-        <div id="torahGrid" class="torah-grid" tabindex="0" aria-label="אותיות התורה סביב הממצא"></div>
-        <div class="cipher-watermark" aria-hidden="true">גל עיני</div>
-        <div class="display-controls" aria-label="כלי ניווט בתצוגה">
-          <button id="prevResultButton" class="result-nav" type="button" title="ממצא קודם" aria-label="ממצא קודם"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/><path d="M5 4v16"/></svg></button>
-          <button id="nextResultButton" class="result-nav" type="button" title="ממצא הבא" aria-label="ממצא הבא"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/><path d="M19 4v16"/></svg></button>
+        <div id="torahGrid" class="torah-grid" tabindex="0" aria-label="?????? ????? ???? ?????"></div>
+        <div class="cipher-watermark" aria-hidden="true">?? ????</div>
+        <div class="display-controls" aria-label="??? ????? ??????">
+          <button id="prevResultButton" class="result-nav" type="button" title="???? ????" aria-label="???? ????"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/><path d="M5 4v16"/></svg></button>
+          <button id="nextResultButton" class="result-nav" type="button" title="???? ???" aria-label="???? ???"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/><path d="M19 4v16"/></svg></button>
           <span class="control-separator" aria-hidden="true"></span>
-          <button id="scrollRightButton" class="direction-nav" type="button" title="הזז את התורה ימינה באות אחת" aria-label="הזז ימינה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M14 7l5 5-5 5"/></svg></button>
-          <button id="scrollLeftButton" class="direction-nav" type="button" title="הזז את התורה שמאלה באות אחת" aria-label="הזז שמאלה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5"/><path d="M10 7l-5 5 5 5"/></svg></button>
-          <button id="scrollUpButton" class="direction-nav" type="button" title="הזז את התצוגה למעלה בשורה אחת" aria-label="הזז למעלה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5"/><path d="M7 10l5-5 5 5"/></svg></button>
-          <button id="scrollDownButton" class="direction-nav" type="button" title="הזז את התצוגה למטה בשורה אחת" aria-label="הזז למטה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M7 14l5 5 5-5"/></svg></button>
+          <button id="scrollRightButton" class="direction-nav" type="button" title="??? ?? ????? ????? ???? ???" aria-label="??? ?????"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M14 7l5 5-5 5"/></svg></button>
+          <button id="scrollLeftButton" class="direction-nav" type="button" title="??? ?? ????? ????? ???? ???" aria-label="??? ?????"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5"/><path d="M10 7l-5 5 5 5"/></svg></button>
+          <button id="scrollUpButton" class="direction-nav" type="button" title="??? ?? ?????? ????? ????? ???" aria-label="??? ?????"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5"/><path d="M7 10l5-5 5 5"/></svg></button>
+          <button id="scrollDownButton" class="direction-nav" type="button" title="??? ?? ?????? ???? ????? ???" aria-label="??? ????"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M7 14l5 5 5-5"/></svg></button>
           <span class="control-separator" aria-hidden="true"></span>
-          <button id="zoomOutButton" class="zoom-nav" type="button" title="הקטן אותיות" aria-label="הקטן אותיות"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M7.5 10.5h6"/></svg></button>
-          <button id="zoomResetButton" class="zoom-nav" type="button" title="אפס גודל אותיות" aria-label="אפס גודל אותיות"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L10.5 6h3L18 18"/><path d="M8 13.5h8"/><path d="M4 4h16v16H4z"/></svg></button>
-          <button id="zoomInButton" class="zoom-nav" type="button" title="הגדל אותיות" aria-label="הגדל אותיות"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M7.5 10.5h6"/><path d="M10.5 7.5v6"/></svg></button>
+          <button id="zoomOutButton" class="zoom-nav" type="button" title="???? ??????" aria-label="???? ??????"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M7.5 10.5h6"/></svg></button>
+          <button id="zoomResetButton" class="zoom-nav" type="button" title="??? ???? ??????" aria-label="??? ???? ??????"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L10.5 6h3L18 18"/><path d="M8 13.5h8"/><path d="M4 4h16v16H4z"/></svg></button>
+          <button id="zoomInButton" class="zoom-nav" type="button" title="???? ??????" aria-label="???? ??????"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M7.5 10.5h6"/><path d="M10.5 7.5v6"/></svg></button>
         </div>
         <svg id="connectionOverlay" class="connection-overlay" aria-hidden="true"></svg>
       </section>
@@ -140,48 +140,48 @@
   </main>
 
   <template id="emptyResultsTemplate">
-    <tr><td colspan="5">אין ממצאים להצגה.</td></tr>
+    <tr><td colspan="5">??? ?????? ?????.</td></tr>
   </template>
 
   <dialog id="libraryDialog" class="library-dialog pro-only" aria-labelledby="libraryTitle">
     <div class="library-head">
       <div>
-        <h2 id="libraryTitle">הצפנים שלי</h2>
-        <span id="libraryCount">0 מתוך 20 צפנים</span>
+        <h2 id="libraryTitle">?????? ???</h2>
+        <span id="libraryCount">0 ???? 20 ?????</span>
       </div>
-      <button id="closeLibraryButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
+      <button id="closeLibraryButton" class="icon-button" type="button" aria-label="????" title="????">?</button>
     </div>
     <form id="librarySaveForm" class="library-save-row">
       <label>
-        <span>שם הצופן</span>
-        <input id="libraryNameInput" maxlength="80" autocomplete="off" placeholder="לדוגמה: אטום פצצה אירן">
+        <span>?? ?????</span>
+        <input id="libraryNameInput" maxlength="80" autocomplete="off" placeholder="??????: ???? ???? ????">
       </label>
-      <button class="button primary" type="submit">שמור בספרייה</button>
+      <button class="button primary" type="submit">???? ???????</button>
     </form>
     <div class="library-tools">
       <label class="library-search">
-        <span>חיפוש בספרייה</span>
-        <input id="librarySearchInput" type="search" autocomplete="off" placeholder="שם צופן או מילה">
+        <span>????? ???????</span>
+        <input id="librarySearchInput" type="search" autocomplete="off" placeholder="?? ???? ?? ????">
       </label>
-      <button id="backupLibraryButton" class="button secondary" type="button">גבה ספרייה</button>
-      <button id="restoreLibraryButton" class="button secondary" type="button">שחזר גיבוי</button>
+      <button id="backupLibraryButton" class="button secondary" type="button">??? ??????</button>
+      <button id="restoreLibraryButton" class="button secondary" type="button">???? ?????</button>
       <input id="libraryBackupInput" type="file" accept=".json,.gal_einai_library.json,application/json" hidden>
     </div>
     <div id="libraryList" class="library-list" aria-live="polite"></div>
-    <p class="library-note">הצפנים נשמרים בדפדפן הזה. מומלץ להוריד גיבוי; שמירה בענן תתווסף בהמשך.</p>
+    <p class="library-note">?????? ?????? ?????? ???. ????? ?????? ?????; ????? ???? ?????? ?????.</p>
   </dialog>
 
   <dialog id="historyDialog" class="library-dialog history-dialog pro-only" aria-labelledby="historyTitle">
     <div class="library-head">
       <div>
-        <h2 id="historyTitle">חיפושים אחרונים</h2>
-        <span id="historyCount">0 מתוך 20 חיפושים</span>
+        <h2 id="historyTitle">??????? ???????</h2>
+        <span id="historyCount">0 ???? 20 ???????</span>
       </div>
-      <button id="closeHistoryButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
+      <button id="closeHistoryButton" class="icon-button" type="button" aria-label="????" title="????">?</button>
     </div>
     <div class="history-toolbar">
-      <span>החיפושים נשמרים בדפדפן הזה.</span>
-      <button id="clearHistoryButton" class="button secondary" type="button">נקה היסטוריה</button>
+      <span>???????? ?????? ?????? ???.</span>
+      <button id="clearHistoryButton" class="button secondary" type="button">??? ????????</button>
     </div>
     <div id="historyList" class="library-list history-list" aria-live="polite"></div>
   </dialog>
@@ -189,114 +189,115 @@
   <dialog id="exportDialog" class="library-dialog export-dialog pro-only" aria-labelledby="exportTitle">
     <div class="library-head">
       <div>
-        <h2 id="exportTitle">ייצוא דוח ממצאים</h2>
-        <span id="exportCount">0 ממצאים</span>
+        <h2 id="exportTitle">????? ??? ??????</h2>
+        <span id="exportCount">0 ??????</span>
       </div>
-      <button id="closeExportButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
+      <button id="closeExportButton" class="icon-button" type="button" aria-label="????" title="????">?</button>
     </div>
     <div class="export-content">
       <label>
-        <span>סיכום להעתקה</span>
+        <span>????? ??????</span>
         <textarea id="exportSummaryText" readonly rows="12"></textarea>
       </label>
       <div class="export-actions">
-        <button id="copySummaryButton" class="button secondary" type="button">העתק סיכום</button>
-        <button id="downloadCsvButton" class="button primary" type="button">הורד CSV ל־Excel</button>
+        <button id="copySummaryButton" class="button secondary" type="button">???? ?????</button>
+        <button id="downloadCsvButton" class="button primary" type="button">???? CSV ??Excel</button>
       </div>
     </div>
   </dialog>
 
   <div id="wordMenu" class="word-menu" role="menu" hidden>
-    <button id="changeWordColorButton" type="button" role="menuitem">שנה צבע בכל הצופן</button>
-    <button id="toggleWordLineButton" type="button" role="menuitem">הצג קו למילה</button>
-    <button id="toggleWordFrameButton" type="button" role="menuitem">הוסף מסגרת לאותיות הממצא</button>
-    <button id="keepOnlyWordButton" type="button" role="menuitem">השאר רק את זה מהמילים הזהות לו</button>
-    <button id="removeVisibleWordButton" type="button" role="menuitem">הסר כל סימוני ממצאי המילה מהמסך</button>
-    <button id="removeWordButton" type="button" role="menuitem">הסר כל סימוני המילה מהצופן הנוכחי</button>
-    <button id="removeAllWordButton" type="button" role="menuitem">הסר מילה זו מכל הצפנים</button>
+    <button id="changeWordColorButton" type="button" role="menuitem">??? ??? ??? ?????</button>
+    <button id="toggleWordLineButton" type="button" role="menuitem">??? ?? ?????</button>
+    <button id="toggleWordFrameButton" type="button" role="menuitem">???? ????? ??????? ?????</button>
+    <button id="keepOnlyWordButton" type="button" role="menuitem">???? ?? ?? ?? ??????? ????? ??</button>
+    <button id="removeVisibleWordButton" type="button" role="menuitem">??? ?? ?????? ????? ????? ?????</button>
+    <button id="removeWordButton" type="button" role="menuitem">??? ?? ?????? ????? ?????? ??????</button>
+    <button id="removeAllWordButton" type="button" role="menuitem">??? ???? ?? ??? ??????</button>
     <input id="wordColorInput" type="color" hidden>
   </div>
 
   <dialog id="helpDialog" class="help-dialog" aria-labelledby="helpTitle">
     <div class="library-head help-head">
       <div>
-        <h2 id="helpTitle">עזרה - גל עיני Web</h2>
-        <span id="helpEditionText">הוראות למהדורה המקצועית</span>
+        <h2 id="helpTitle">???? - ?? ???? Web</h2>
+        <span id="helpEditionText">?????? ??????? ????????</span>
       </div>
-      <button id="closeHelpButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
+      <button id="closeHelpButton" class="icon-button" type="button" aria-label="????" title="????">?</button>
     </div>
     <div class="help-body">
       <section>
-        <h3>חיפוש</h3>
+        <h3>?????</h3>
         <ol>
-          <li>הקלד ראשית אחת או יותר בהתאם למהדורה.</li>
-          <li>הקלד משניות כשהן מופרדות ברווח. כתיבת <b>!</b> לפני מילה מחייבת את הופעתה בצופן.</li>
-          <li>בחר טווח דילוגים ומספר מינימלי של משניות ולחץ <b>חפש</b>.</li>
-          <li class="pro-help">אם הראשיות כבר נמצאו, <b>סרוק משניות</b> בודק משניות חדשות בלי לחפש שוב את הראשיות.</li>
+          <li>???? ????? ??? ?? ???? ????? ???????.</li>
+          <li>???? ?????? ???? ??????? ?????. ????? <b>!</b> ???? ???? ?????? ?? ?????? ?????.</li>
+          <li>??? ???? ??????? ????? ??????? ?? ?????? ???? <b>???</b>.</li>
+          <li class="pro-help">?? ??????? ??? ?????, <b>???? ??????</b> ???? ?????? ????? ??? ???? ??? ?? ???????.</li>
         </ol>
       </section>
       <section>
-        <h3>טבלת הממצאים</h3>
+        <h3>???? ???????</h3>
         <ul>
-          <li>לחיצה על שורה מציגה את הצופן. החצים ◀ ▶ עוברים ממצא אחד בכל פעם.</li>
-          <li>הממצאים מדורגים לפי מספר המשניות ולאחר מכן לפי גודל הדילוג.</li>
-          <li class="pro-help"><b>ייצוא</b> מוריד CSV ל־Excel או מעתיק דוח טקסט.</li>
+          <li>????? ?? ???? ????? ?? ?????. ????? ? ? ?????? ???? ??? ??? ???.</li>
+          <li>??????? ??????? ??? ???? ??????? ????? ??? ??? ???? ??????.</li>
+          <li class="pro-help"><b>?????</b> ????? CSV ??Excel ?? ????? ??? ????.</li>
         </ul>
       </section>
       <section>
-        <h3>תצוגת התורה</h3>
+        <h3>????? ?????</h3>
         <ul>
-          <li>הראשית ממורכזת בעת פתיחת ממצא.</li>
-          <li>פרקי אבות נעים ברצף משמאל לימין. המשנה הבאה נכנסת לאחר רווח של כ־15 אותיות; עמידת העכבר עוצרת, והסדר והמהירות נקבעים ב<b>כלים</b>.</li>
-          <li>החצים → ← מזיזים אות אחת; ↑ ↓ מזיזים שורה אחת. לחיצה ארוכה ממשיכה לנוע עד השחרור.</li>
-          <li>גלגלת העכבר מזיזה שורה אנכית. Shift+גלגלת או גלילה אופקית מזיזים אות אחת לרוחב.</li>
-          <li>A+ ו־A− משנים את גודל האותיות.</li>
+          <li>?????? ??????? ??? ????? ????.</li>
+          <li>???? ???? ???? ???? ????? ?????. ????? ???? ????? ???? ???? ?? ??15 ??????; ????? ????? ?????, ????? ???????? ?????? ?<b>????</b>.</li>
+          <li>????? ? ? ?????? ??? ???; ? ? ?????? ???? ???. ????? ????? ?????? ???? ?? ??????.</li>
+          <li>????? ????? ????? ???? ?????. Shift+????? ?? ????? ?????? ?????? ??? ??? ?????.</li>
+          <li>A+ ??A? ????? ?? ???? ???????.</li>
         </ul>
       </section>
       <section>
-        <h3>מילים, צבעים וקווים</h3>
+        <h3>?????, ????? ??????</h3>
         <ul>
-          <li>כל מילה מופיעה למעלה בצבע שבו היא מסומנת בצופן.</li>
-          <li>כל מילה או ביטוי מופיעים פעם אחת בלבד למעלה; אם נמצאו כמה פעמים או בכמה דילוגים, הכמויות והדילוגים מרוכזים באותו כרטיס.</li>
-          <li>קליק ימני על מילה למעלה או על אות צבועה בתורה פותח את אותן פעולות.</li>
-          <li>שינוי צבע זמין בשתי נקודות הפעולה. במקצועית אפשר גם להציג קו ולהסיר ממצאים.</li>
-          <li class="pro-help">גרירת מילה על מילה אחרת מעתיקה אליה את הצבע.</li>
-          <li>שינוי צבע חל על כל מופעי אותה מילה בתוצאות החיפוש.</li>
+          <li>?? ???? ?????? ????? ???? ??? ??? ?????? ?????.</li>
+          <li>?? ???? ?? ????? ??????? ??? ??? ???? ?????; ?? ????? ??? ????? ?? ???? ???????, ??????? ????????? ??????? ????? ?????.</li>
+          <li>???? ???? ?? ???? ????? ?? ?? ??? ????? ????? ???? ?? ???? ??????.</li>
+          <li>????? ??? ???? ???? ?????? ??????. ???????? ???? ?? ????? ?? ?????? ??????.</li>
+          <li class="pro-help">????? ???? ?? ???? ???? ?????? ???? ?? ????.</li>
+          <li>????? ??? ?? ?? ?? ????? ???? ???? ??????? ??????.</li>
         </ul>
       </section>
       <section class="pro-help">
-        <h3>כלים מקצועיים</h3>
+        <h3>???? ????????</h3>
         <ul>
-          <li><b>הצפנים שלי</b>: שמירה מקומית של עד 20 צפנים, חיפוש, הורדה ומחיקה.</li>
-          <li><b>גבה ספרייה</b> מוריד גיבוי אחד; <b>שחזר גיבוי</b> ממזג אותו בלי כפילויות שמיות.</li>
-          <li><b>אחרונים</b>: 20 חיפושים מוצלחים אחרונים, טעינה והפעלה חוזרת.</li>
-          <li><b>שמור צופן</b> מוריד קובץ; <b>הדפס</b> מפיק תצוגה נקייה במסגרת שחורה.</li>
+          <li><b>?????? ???</b>: ????? ?????? ?? ?? 20 ?????, ?????, ????? ??????.</li>
+          <li><b>??? ??????</b> ????? ????? ???; <b>???? ?????</b> ???? ???? ??? ???????? ?????.</li>
+          <li><b>???????</b>: 20 ??????? ??????? ???????, ????? ?????? ?????.</li>
+          <li><b>???? ????</b> ????? ????; <b>????</b> ???? ????? ????? ?????? ?????.</li>
         </ul>
       </section>
       <section>
-        <h3>חשוב לדעת</h3>
-        <p>פתיחת צופן קיים מותרת גם אם הוא חורג ממגבלות החיפוש. פעולות תצוגה, צבע או הסרה אינן משנות את טקסט התורה.</p>
+        <h3>???? ????</h3>
+        <p>????? ???? ???? ????? ?? ?? ??? ???? ??????? ??????. ?????? ?????, ??? ?? ???? ???? ????? ?? ???? ?????.</p>
       </section>
     </div>
   </dialog>
 
   <dialog id="toolsDialog" class="tools-dialog" aria-labelledby="toolsTitle">
     <div class="library-head">
-      <h2 id="toolsTitle">כלי תצוגה</h2>
-      <button id="closeToolsButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
+      <h2 id="toolsTitle">??? ?????</h2>
+      <button id="closeToolsButton" class="icon-button" type="button" aria-label="????" title="????">?</button>
     </div>
     <div class="tools-content">
-      <label class="tools-check"><input id="showTopWordsInput" type="checkbox" checked> הצג מילים עליונות</label>
-      <label class="tools-check"><input id="showAvotTickerInput" type="checkbox" checked> הצג פרקי אבות</label>
+      <label class="tools-check"><input id="showTopWordsInput" type="checkbox" checked> ??? ????? ???????</label>
+      <label class="tools-check"><input id="showAvotTickerInput" type="checkbox" checked> ??? ???? ????</label>
+      <button id="removeDateMarksButton" class="button secondary" type="button">??? ?????? ???????</button>
       <fieldset class="avot-order-options">
-        <legend>סדר המשניות</legend>
-        <label><input id="avotOrderedInput" name="avotOrder" type="radio" value="ordered" checked> לפי הסדר</label>
-        <label><input id="avotRandomInput" name="avotOrder" type="radio" value="random"> אקראי</label>
+        <legend>??? ???????</legend>
+        <label><input id="avotOrderedInput" name="avotOrder" type="radio" value="ordered" checked> ??? ????</label>
+        <label><input id="avotRandomInput" name="avotOrder" type="radio" value="random"> ?????</label>
       </fieldset>
       <label>
-        <span>מהירות תנועה: <b id="avotSpeedValue">4</b></span>
+        <span>?????? ?????: <b id="avotSpeedValue">4</b></span>
         <input id="avotSpeedInput" type="range" min="1" max="10" value="4">
-        <small>1 איטי מאוד — 10 מהיר</small>
+        <small>1 ???? ???? ? 10 ????</small>
       </label>
     </div>
   </dialog>
@@ -304,6 +305,6 @@
   <div class="web-activity" id="siteActivity" aria-live="polite"></div>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="site-interactions.js?v=2"></script>
-  <script src="web-app.js?v=49"></script>
+  <script src="web-app.js?v=51"></script>
 </body>
 </html>

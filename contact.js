@@ -17,14 +17,14 @@
 
   function buildSummary(item) {
     return [
-      "פנייה מאתר גל עיני",
+      "????? ???? ?? ????",
       "",
-      `שם: ${item.name}`,
-      `חזרה אלי: ${item.returnTo}`,
-      `נושא: ${item.topic}`,
-      `תאריך: ${new Date(item.at).toLocaleString("he-IL")}`,
+      `??: ${item.name}`,
+      `???? ???: ${item.returnTo}`,
+      `????: ${item.topic}`,
+      `?????: ${new Date(item.at).toLocaleString("he-IL")}`,
       "",
-      "תוכן הפנייה:",
+      "???? ??????:",
       item.message,
     ].join("\n");
   }
@@ -34,7 +34,7 @@
     const items = readItems();
     box.replaceChildren();
     if (!items.length) {
-      box.textContent = "אין עדיין פניות שמורות במכשיר זה.";
+      box.textContent = "??? ????? ????? ?????? ?????? ??.";
       return;
     }
     items.slice().reverse().slice(0, 20).forEach((item) => {
@@ -51,7 +51,7 @@
     });
   }
 
-  $("contactForm").addEventListener("submit", (event) => {
+  $("contactForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const item = {
       id: `contact-${Date.now()}`,
@@ -64,9 +64,12 @@
     const items = readItems();
     items.push(item);
     writeItems(items);
+    if (window.GalEinaiBackend) {
+      await window.GalEinaiBackend.submit("contact", item);
+    }
     $("contactSummary").value = buildSummary(item);
     $("copyContactButton").disabled = false;
-    $("contactStatus").textContent = "הפנייה נשמרה, ואפשר להעתיק את הנוסח לשליחה לאחראי.";
+    $("contactStatus").textContent = "?????? ?????, ????? ?????? ?? ????? ?????? ??????.";
     renderList();
   });
 
@@ -75,11 +78,11 @@
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
-      $("contactStatus").textContent = "הנוסח הועתק.";
+      $("contactStatus").textContent = "????? ?????.";
     } catch {
       $("contactSummary").focus();
       $("contactSummary").select();
-      $("contactStatus").textContent = "אפשר להעתיק ידנית מהתיבה.";
+      $("contactStatus").textContent = "???? ?????? ????? ??????.";
     }
   });
 

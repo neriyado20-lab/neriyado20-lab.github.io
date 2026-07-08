@@ -578,7 +578,7 @@ h2 {
 
 .sample-image-link::after,
 .sample-preview::after {
-  content: "גל עיני";
+  content: "?? ????";
   position: absolute;
   left: 10px;
   top: 10px;
@@ -773,6 +773,63 @@ footer {
   font-size: 14px;
 }
 
+.admin-locked > header,
+.admin-locked > main,
+.admin-locked > footer {
+  display: none;
+}
+
+.admin-unlocked .admin-login {
+  display: none;
+}
+
+.admin-login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(244, 247, 251, 0.96)),
+    url("assets/hero-curtain-torah-covered-v1.png") center / cover no-repeat;
+}
+
+.admin-login-box {
+  width: min(420px, 100%);
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid rgba(30, 41, 59, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.14);
+}
+
+.admin-login-box h1 {
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.admin-login-box label {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.admin-login-box input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(30, 41, 59, 0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+  background: #fff;
+}
+
+.admin-logout {
+  min-height: auto;
+  padding: 8px 12px;
+}
+
 @media (max-width: 850px) {
   .topbar {
     align-items: flex-start;
@@ -909,6 +966,76 @@ footer {
 .admin-status {
   color: var(--muted);
   font-weight: 700;
+}
+
+.admin-upload-panel {
+  grid-column: 1 / -1;
+}
+
+.admin-upload-form,
+.admin-content-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+
+.admin-upload-form label,
+.admin-content-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.admin-upload-form input,
+.admin-upload-form select,
+.admin-content-form input,
+.admin-content-form select,
+.admin-content-form textarea {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(30, 41, 59, 0.2);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font: inherit;
+  background: #fff;
+}
+
+.admin-content-form textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.admin-content-wide,
+.admin-form-actions,
+.admin-upload-form .admin-status,
+.admin-content-form .admin-status {
+  grid-column: 1 / -1;
+}
+
+.admin-upload-form .admin-status,
+.admin-content-form .admin-status {
+  margin: 0;
+}
+
+.admin-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-file-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.admin-file-actions .button {
+  width: auto;
+  min-height: 34px;
+  padding: 7px 10px;
 }
 
 .purchase-shell,
@@ -1240,6 +1367,11 @@ footer {
   .rides-security-grid,
   .rides-results,
   .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-upload-form,
+  .admin-content-form {
     grid-template-columns: 1fr;
   }
 
