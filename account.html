@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>הדברים שלי - גל עיני</title>
   <meta name="description" content="הדברים שלי בגל עיני: כניסה לפי בחירה לצפייה בדברים אישיים, הזמנות, קבצים וצפנים שמורים.">
-  <link rel="stylesheet" href="styles.css?v=77">
+  <link rel="stylesheet" href="styles.css?v=79">
 </head>
 <body class="account-page">
   <header class="topbar">
@@ -70,6 +70,12 @@
           <button class="button secondary" id="accountSignOutButton" type="button" hidden>יציאה</button>
         </div>
       </article>
+
+      <article class="account-panel account-items-panel">
+        <p class="eyebrow">תוספות לצפנים</p>
+        <h2>בקשות ששלחתי</h2>
+        <div id="accountAdditionsList" class="account-items-list" aria-live="polite"></div>
+      </article>
     </section>
   </main>
 
@@ -78,6 +84,6 @@
     <span>ניהול האתר נשאר במסך נפרד למנהל בלבד</span>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="account.js?v=1"></script>
+  <script src="account.js?v=2"></script>
 </body>
 </html>

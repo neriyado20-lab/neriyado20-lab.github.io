@@ -80,7 +80,7 @@
           <button id="clearButton" class="button secondary" type="button">נקה</button>
           <button id="openProjectButton" class="button secondary" type="button">פתח צופן</button>
           <button id="saveProjectButton" class="button secondary save-project pro-only" type="button" title="שמור את השדות ואת כל הממצאים לקובץ צופן">שמור צופן</button>
-          <button id="libraryButton" class="button secondary library-button pro-only" type="button" title="פתח את ספריית הצפנים השמורים בדפדפן">הצפנים שלי</button>
+          <button id="libraryButton" class="button secondary library-button pro-only" type="button" title="פתח את ספריית הצפנים והארכיון השמורים בדפדפן">הצפנים שלי</button>
           <button id="historyButton" class="button secondary history-button pro-only" type="button" title="פתח את 20 החיפושים האחרונים">אחרונים</button>
           <button id="saveImageButton" class="button secondary pro-only" type="button" title="שמור את הצופן כתמונת PNG נקייה במסגרת שחורה">שמור תמונה</button>
           <button id="printButton" class="button secondary pro-only" type="button">הדפס</button>
@@ -147,7 +147,7 @@
   <dialog id="libraryDialog" class="library-dialog pro-only" aria-labelledby="libraryTitle">
     <div class="library-head">
       <div>
-        <h2 id="libraryTitle">הצפנים שלי</h2>
+        <h2 id="libraryTitle">הצפנים שלי / ארכיון</h2>
         <span id="libraryCount">0 מתוך 20 צפנים</span>
       </div>
       <button id="closeLibraryButton" class="icon-button" type="button" aria-label="סגור" title="סגור">×</button>
@@ -169,7 +169,7 @@
       <input id="libraryBackupInput" type="file" accept=".json,.gal_einai_library.json,application/json" hidden>
     </div>
     <div id="libraryList" class="library-list" aria-live="polite"></div>
-    <p class="library-note">הצפנים נשמרים בדפדפן הזה. מומלץ להוריד גיבוי; שמירה בענן תתווסף בהמשך.</p>
+    <p class="library-note">בכל שמירת תמונת צופן נשמר גם קובץ פרויקט בארכיון המקומי. מומלץ להוריד גיבוי; פרסום לציבור נעשה לאחר אישור מנהל.</p>
   </dialog>
 
   <dialog id="historyDialog" class="library-dialog history-dialog pro-only" aria-labelledby="historyTitle">
@@ -307,7 +307,8 @@
 
   <div class="web-activity" id="siteActivity" aria-live="polite"></div>
   <script src="site-interactions-config.js?v=1"></script>
+  <script src="supabase-public.js?v=1"></script>
   <script src="site-interactions.js?v=5"></script>
-  <script src="web-app.js?v=52"></script>
+  <script src="web-app.js?v=53"></script>
 </body>
 </html>

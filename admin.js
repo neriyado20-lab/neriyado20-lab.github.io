@@ -2,6 +2,8 @@
   const STORAGE_KEY = "gal-einai-site-interactions-v1";
   const CONTACT_STORAGE_KEY = "gal-einai-contact-v1";
   const CONTENT_STORAGE_KEY = "gal-einai-admin-content-v1";
+  const ADDITIONS_KEY = "gal-einai-my-cipher-additions-v1";
+  const ARCHIVE_EVENT_KEY = "gal-einai-web-archive-events-v1";
   const AUTH_SESSION_KEY = "gal-einai-admin-authenticated-v1";
   const UPLOAD_DB_NAME = "gal-einai-admin-uploads-v1";
   const UPLOAD_STORE_NAME = "files";
@@ -152,6 +154,26 @@
     }
   }
 
+  function readAdditionItems() {
+    try {
+      const raw = localStorage.getItem(ADDITIONS_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function readArchiveItems() {
+    try {
+      const raw = localStorage.getItem(ARCHIVE_EVENT_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
   function readContentItems() {
     try {
       const raw = localStorage.getItem(CONTENT_STORAGE_KEY);
@@ -195,8 +217,7 @@
       order: "adminOrdersList",
       notification: "adminNotifyList",
       ai_guide: "adminAiGuidesList",
-      interest: "adminInterestList",
-      note: "adminNotesList"
+      interest: "adminInterestList"
     };
     Object.entries(targets).forEach(([kind, id]) => {
       const list = $(id);
@@ -220,6 +241,68 @@
         list.append(row(String(title), detail));
       });
     });
+
+    const notesList = $("adminNotesList");
+    if (notesList) {
+      const notes = data.filter((entry) => (
+        entry.kind === "note"
+        && entry.payload?.type !== "cipher_addition_request"
+        && entry.payload?.type !== "project_archive"
+      ));
+      notesList.replaceChildren();
+      if (!notes.length) {
+        notesList.append(row("אין עדיין הערות עיון", "הערות עיון מכל המכשירים יופיעו כאן."));
+      } else {
+        notes.forEach((entry) => {
+          const payload = entry.payload || {};
+          const title = payload.title || payload.id || "הערת עיון";
+          const detail = [payload.text, new Date(entry.created_at).toLocaleString("he-IL")].filter(Boolean).join(" | ");
+          notesList.append(row(String(title), detail));
+        });
+      }
+    }
+
+    const additionsList = $("adminCipherAdditionsList");
+    if (additionsList) {
+      const additions = data.filter((entry) => entry.kind === "note" && entry.payload?.type === "cipher_addition_request");
+      additionsList.replaceChildren();
+      if (!additions.length) {
+        additionsList.append(row("אין עדיין בקשות תוספות", "כאשר משתמש ילחץ “ראיתי תוספות”, הבקשה תופיע כאן."));
+      } else {
+        additions.forEach((entry) => {
+          const payload = entry.payload || {};
+          const title = payload.title || payload.cipherId || "בקשת תוספות לצופן";
+          const detail = [
+            payload.contact,
+            payload.details,
+            payload.projectUrl ? `קובץ: ${payload.projectUrl}` : "אין קובץ פרויקט מזוהה",
+            new Date(entry.created_at).toLocaleString("he-IL")
+          ].filter(Boolean).join(" | ");
+          additionsList.append(row(String(title), detail));
+        });
+      }
+    }
+
+    const projectArchiveList = $("adminProjectArchiveList");
+    if (projectArchiveList) {
+      const archives = data.filter((entry) => entry.kind === "note" && entry.payload?.type === "project_archive");
+      projectArchiveList.replaceChildren();
+      if (!archives.length) {
+        projectArchiveList.append(row("אין עדיין פרויקטים לארכיון", "שמירת תמונת צופן באתר תשמור גם פרויקט ותציג אותו כאן."));
+      } else {
+        archives.forEach((entry) => {
+          const payload = entry.payload || {};
+          const title = payload.title || payload.primary || "פרויקט צופן";
+          const detail = [
+            payload.primary ? `ראשית: ${payload.primary}` : "",
+            payload.secondary ? `משניות: ${payload.secondary}` : "",
+            Number.isFinite(payload.resultCount) ? `ממצאים: ${payload.resultCount}` : "",
+            new Date(entry.created_at).toLocaleString("he-IL")
+          ].filter(Boolean).join(" | ");
+          projectArchiveList.append(row(String(title), detail));
+        });
+      }
+    }
 
     $("adminContactCount").textContent = data.filter((entry) => entry.kind === "contact").length;
     $("adminInterestCount").textContent = data.filter((entry) => entry.kind === "interest").length;
@@ -520,6 +603,47 @@
         const date = note.at ? new Date(note.at).toLocaleString("he-IL") : "";
         notesList.append(row(titleFor(note.id), `${note.text || ""}${date ? ` | ${date}` : ""}`));
       });
+    }
+
+    const additionsList = $("adminCipherAdditionsList");
+    if (additionsList) {
+      const additions = readAdditionItems();
+      additionsList.replaceChildren();
+      if (!additions.length) {
+        additionsList.append(row("אין עדיין בקשות תוספות", "כאשר משתמש ילחץ “ראיתי תוספות”, הבקשה תופיע כאן."));
+      } else {
+        additions.slice().reverse().forEach((item) => {
+          const date = item.at ? new Date(item.at).toLocaleString("he-IL") : "";
+          const detail = [
+            item.contact,
+            item.details,
+            item.projectUrl ? `קובץ: ${item.projectUrl}` : "אין קובץ פרויקט מזוהה",
+            date
+          ].filter(Boolean).join(" | ");
+          additionsList.append(row(item.title || titleFor(item.cipherId) || "בקשת תוספות לצופן", detail));
+        });
+      }
+    }
+
+    const projectArchiveList = $("adminProjectArchiveList");
+    if (projectArchiveList) {
+      const archives = readArchiveItems();
+      projectArchiveList.replaceChildren();
+      if (!archives.length) {
+        projectArchiveList.append(row("אין עדיין פרויקטים לארכיון", "שמירת תמונת צופן באתר תשמור גם פרויקט ותציג אותו כאן."));
+      } else {
+        archives.forEach((item) => {
+          const date = item.at ? new Date(item.at).toLocaleString("he-IL") : "";
+          const data = item.data || {};
+          const detail = [
+            data.primary ? `ראשית: ${data.primary}` : "",
+            data.secondary ? `משניות: ${data.secondary}` : "",
+            Array.isArray(data.saved) ? `ממצאים: ${data.saved.length}` : "",
+            date
+          ].filter(Boolean).join(" | ");
+          projectArchiveList.append(row(item.name || data.primary || "פרויקט צופן", detail));
+        });
+      }
     }
 
     const notifyList = $("adminNotifyList");

@@ -1,6 +1,7 @@
 (() => {
   const CONFIG = window.GAL_EINAI_INTERACTIONS || {};
   const STORAGE_KEY = "gal-einai-site-interactions-v1";
+  const ADDITIONS_KEY = "gal-einai-my-cipher-additions-v1";
 
   function readStore() {
     try {
@@ -17,6 +18,38 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
     } catch {
       // Local fallback is optional; the interface remains usable without it.
+    }
+  }
+
+  function readAdditions() {
+    try {
+      const raw = localStorage.getItem(ADDITIONS_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function writeAdditions(items) {
+    try {
+      localStorage.setItem(ADDITIONS_KEY, JSON.stringify(items.slice(-50)));
+    } catch {
+      // The backend submission can still succeed even when local storage is blocked.
+    }
+  }
+
+  function projectUrlFor(card) {
+    const projectLink = Array.from(card.querySelectorAll("a[href]")).find((link) => {
+      const href = link.getAttribute("href") || "";
+      return href.includes("web.html?project=") || href.endsWith(".gal_einai.json");
+    });
+    if (!projectLink) return "";
+    const href = projectLink.getAttribute("href") || "";
+    try {
+      return new URL(href, location.href).href;
+    } catch {
+      return href;
     }
   }
 
@@ -85,8 +118,24 @@
     feedback.innerHTML = `
       <div class="feedback-row">
         <button class="button secondary like-cipher" type="button" aria-pressed="false">ראוי לעיון</button>
+        <button class="button secondary request-additions" type="button">ראיתי תוספות</button>
         <span class="like-count">0 סימוני עיון במכשיר זה</span>
       </div>
+      <form class="addition-form" hidden>
+        <label>
+          <span>פרטי קשר לקבלת קובץ להמשך עבודה</span>
+          <input class="addition-contact" maxlength="120" autocomplete="email tel" placeholder="מייל או טלפון">
+        </label>
+        <label>
+          <span>מה ראית בצופן?</span>
+          <textarea class="addition-text" rows="3" maxlength="500" placeholder="כתוב בקצרה את התוספות שראית"></textarea>
+        </label>
+        <div class="feedback-row">
+          <button class="button primary" type="submit">שלח בקשה</button>
+          <button class="button secondary cancel-addition" type="button">בטל</button>
+        </div>
+        <small class="addition-status" aria-live="polite"></small>
+      </form>
       <form class="review-form">
         <label>
           <span>הערת עיון קצרה</span>
@@ -102,6 +151,12 @@
     const liked = Boolean(likes[id]);
     const likeButton = feedback.querySelector(".like-cipher");
     const likeCount = feedback.querySelector(".like-count");
+    const additionsButton = feedback.querySelector(".request-additions");
+    const additionsForm = feedback.querySelector(".addition-form");
+    const additionsContact = feedback.querySelector(".addition-contact");
+    const additionsText = feedback.querySelector(".addition-text");
+    const additionsStatus = feedback.querySelector(".addition-status");
+    const additionsCancel = feedback.querySelector(".cancel-addition");
     const reviewForm = feedback.querySelector(".review-form");
     const reviewInput = feedback.querySelector(".review-form input");
     const reviewList = feedback.querySelector(".review-list");
@@ -134,6 +189,45 @@
       writeStore(store);
       renderLike();
       sendEvent("cipher_interest", { id, title, marked: likes[id] });
+    });
+
+    additionsButton.addEventListener("click", () => {
+      additionsForm.hidden = false;
+      additionsContact.focus();
+    });
+
+    additionsCancel.addEventListener("click", () => {
+      additionsForm.hidden = true;
+      additionsStatus.textContent = "";
+    });
+
+    additionsForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const contact = additionsContact.value.trim().slice(0, 120);
+      const details = additionsText.value.trim().slice(0, 500);
+      if (!contact || !details) {
+        additionsStatus.textContent = "צריך למלא פרטי קשר ותיאור קצר.";
+        return;
+      }
+      const request = {
+        id: `addition-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        type: "cipher_addition_request",
+        cipherId: id,
+        title,
+        contact,
+        details,
+        projectUrl: projectUrlFor(card),
+        pageUrl: location.href,
+        at: new Date().toISOString()
+      };
+      const additions = readAdditions();
+      additions.push(request);
+      writeAdditions(additions);
+      sendEvent("cipher_note", request);
+      additionsText.value = "";
+      additionsStatus.textContent = request.projectUrl
+        ? "הבקשה נשלחה. קישור הצופן זוהה ויופיע גם בדברים שלי."
+        : "הבקשה נשלחה. בצופן הזה המנהל יצטרך לצרף קובץ פרויקט.";
     });
 
     reviewForm.addEventListener("submit", (event) => {

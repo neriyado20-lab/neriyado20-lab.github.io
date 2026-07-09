@@ -9,6 +9,7 @@
   const DRAFT_KEY = "gal-einai-web-draft-v1";
   const LIBRARY_KEY = "gal-einai-web-library-v1";
   const LIBRARY_LIMIT = 20;
+  const ARCHIVE_EVENT_KEY = "gal-einai-web-archive-events-v1";
   const HISTORY_KEY = "gal-einai-web-history-v1";
   const DISPLAY_CONTROLS_KEY = "gal-einai-web-display-controls-v1";
   const TOP_WORDS_KEY = "gal-einai-web-top-words-v1";
@@ -501,6 +502,23 @@
     localStorage.setItem(LIBRARY_KEY, JSON.stringify(items.slice(0, LIBRARY_LIMIT)));
   }
 
+  function readArchiveEvents() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(ARCHIVE_EVENT_KEY) || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function rememberArchiveEvent(event) {
+    try {
+      localStorage.setItem(ARCHIVE_EVENT_KEY, JSON.stringify([event, ...readArchiveEvents()].slice(0, 50)));
+    } catch {
+      // The project is still saved to the visible library when possible.
+    }
+  }
+
   function validLibraryItem(item) {
     return Boolean(
       item
@@ -511,6 +529,44 @@
       && typeof item.data === "object"
       && Array.isArray(item.data.saved)
     );
+  }
+
+  async function sendArchiveEvent(event) {
+    if (!window.GalEinaiBackend?.submit) return false;
+    return window.GalEinaiBackend.submit("note", {
+      type: "project_archive",
+      title: event.name,
+      primary: event.data.primary,
+      secondary: event.data.secondary,
+      resultCount: Array.isArray(event.data.saved) ? event.data.saved.length : 0,
+      projectData: event.data,
+      at: event.at,
+      page: location.pathname
+    });
+  }
+
+  async function archiveCurrentProject(reason = "manual") {
+    if (!state.results.length) return false;
+    const data = projectData();
+    const name = safeFileName(data.primary || state.results[state.current]?.primary?.word || "צופן");
+    const event = {
+      id: `archive-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      name,
+      reason,
+      at: new Date().toISOString(),
+      data
+    };
+    try {
+      const items = readLibrary();
+      const nextItem = { id: event.id, name, at: event.at, data };
+      writeLibrary([nextItem, ...items.filter((item) => item.name !== name)]);
+      renderLibrary();
+    } catch {
+      // Library storage may be full; backend submission is still attempted.
+    }
+    rememberArchiveEvent(event);
+    await sendArchiveEvent(event);
+    return true;
   }
 
   function formatSavedDate(value) {
@@ -2149,7 +2205,8 @@
       document.body.appendChild(link);
       link.click();
       link.remove();
-      setStatus("תמונת הצופן נשמרה ללא כפתורי הניווט", 100);
+      await archiveCurrentProject("image_save");
+      setStatus("תמונת הצופן נשמרה, והפרויקט נשמר גם בארכיון הצפנים", 100);
     } catch {
       setStatus("הדפדפן לא הצליח להכין את התמונה. אפשר להשתמש בהדפסה ל-PDF.", 0);
     } finally {

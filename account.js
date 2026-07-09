@@ -1,6 +1,7 @@
 (() => {
   const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
   const SUPABASE_KEY = "sb_publishable_MqD3lXrftP5B36gcRjpDbw_csTVjpVK";
+  const ADDITIONS_KEY = "gal-einai-my-cipher-additions-v1";
   const client = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
   const $ = (id) => document.getElementById(id);
@@ -11,6 +12,7 @@
   const stateTitle = $("accountStateTitle");
   const stateText = $("accountStateText");
   const signOut = $("accountSignOutButton");
+  const additionsList = $("accountAdditionsList");
 
   function setStatus(text) {
     status.textContent = text;
@@ -19,9 +21,53 @@
   function setSignedIn(email) {
     stateTitle.textContent = email ? `שלום, ${email}` : "אפשר לעבוד גם בלי חשבון";
     stateText.textContent = email
-      ? "נכנסת לדברים שלך. בהמשך יוצגו כאן צפנים שמורים, הזמנות, קבצים אישיים והעדפות."
+      ? "נכנסת לדברים שלך. כאן אפשר לעקוב אחרי בקשות תוספות לצפנים וקבצים להמשך עבודה."
       : "כלי החיפוש נשאר פתוח בלי כניסה. משתמש נכנס רק כשהוא רוצה לראות דברים פרטיים שלו.";
     signOut.hidden = !email;
+  }
+
+  function readAdditions() {
+    try {
+      const raw = localStorage.getItem(ADDITIONS_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function renderAdditions() {
+    if (!additionsList) return;
+    const items = readAdditions().slice().reverse();
+    additionsList.replaceChildren();
+    if (!items.length) {
+      const empty = document.createElement("p");
+      empty.textContent = "עדיין לא נשלחו בקשות תוספות לצפנים מהמכשיר הזה.";
+      additionsList.appendChild(empty);
+      return;
+    }
+    items.forEach((item) => {
+      const box = document.createElement("article");
+      box.className = "account-item";
+      const title = document.createElement("strong");
+      title.textContent = item.title || "צופן";
+      const details = document.createElement("span");
+      const date = item.at ? new Date(item.at).toLocaleString("he-IL") : "";
+      details.textContent = `${item.details || ""}${date ? ` | ${date}` : ""}`;
+      box.append(title, details);
+      if (item.projectUrl) {
+        const link = document.createElement("a");
+        link.className = "button secondary";
+        link.href = item.projectUrl;
+        link.textContent = "פתח קובץ להמשך עבודה";
+        box.appendChild(link);
+      } else {
+        const waiting = document.createElement("small");
+        waiting.textContent = "ממתין לצירוף קובץ פרויקט על ידי המנהל.";
+        box.appendChild(waiting);
+      }
+      additionsList.appendChild(box);
+    });
   }
 
   async function refreshSession() {
@@ -93,4 +139,5 @@
   });
 
   refreshSession();
+  renderAdditions();
 })();

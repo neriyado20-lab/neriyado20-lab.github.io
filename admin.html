@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ניהול אתר - גל עיני</title>
   <meta name="description" content="לוח ניהול מקומי לאתר גל עיני: צפיות, שימושים, סימוני עיון, הערות ונרשמים.">
-  <link rel="stylesheet" href="styles.css?v=78">
+  <link rel="stylesheet" href="styles.css?v=79">
 </head>
 <body class="admin-locked">
   <section class="admin-login" id="adminLoginPanel" aria-label="כניסה לניהול">
@@ -183,6 +183,20 @@
 
       <article class="admin-panel">
         <div class="admin-panel-head">
+          <h2>בקשות תוספות לצפנים</h2>
+        </div>
+        <div id="adminCipherAdditionsList" class="admin-list"></div>
+      </article>
+
+      <article class="admin-panel">
+        <div class="admin-panel-head">
+          <h2>פרויקטים לארכיון</h2>
+        </div>
+        <div id="adminProjectArchiveList" class="admin-list"></div>
+      </article>
+
+      <article class="admin-panel">
+        <div class="admin-panel-head">
           <h2>הודעות על צופן חדש</h2>
         </div>
         <div id="adminNotifyList" class="admin-list"></div>
@@ -229,6 +243,6 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=3"></script>
-  <script src="admin.js?v=9"></script>
+  <script src="admin.js?v=10"></script>
 </body>
 </html>
