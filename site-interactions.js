@@ -24,13 +24,13 @@
     const kindByType = {
       notify_signup: "notification",
       cipher_interest: "interest",
-      cipher_note: "note"
+      cipher_note: "note",
     };
     if (window.GalEinaiBackend && kindByType[type]) {
       return window.GalEinaiBackend.submit(kindByType[type], {
         ...payload,
         page: location.pathname,
-        at: new Date().toISOString()
+        at: new Date().toISOString(),
       });
     }
     if (!CONFIG.enabled || !CONFIG.endpoint) return false;
@@ -42,8 +42,8 @@
           type,
           payload,
           page: location.pathname,
-          at: new Date().toISOString()
-        })
+          at: new Date().toISOString(),
+        }),
       });
       return true;
     } catch {

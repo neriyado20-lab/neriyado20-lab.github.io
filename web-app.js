@@ -45,6 +45,8 @@
     pendingColorKey: null,
     colorOverrides: {},
     removedWordKeys: new Set(),
+    hiddenDisplayResults: new Set(),
+    hiddenMarksTableResults: new Set(),
     draggedWordKey: null,
     pointerZone: "torah",
     displayControlsVisible: true,
@@ -152,6 +154,8 @@
     avotPrev: $("avotPrevButton"),
     avotNext: $("avotNextButton"),
     avotVisible: $("showAvotTickerInput"),
+    clearDisplayMarks: $("clearDisplayMarksButton"),
+    clearMarksTable: $("clearMarksTableButton"),
     removeDateMarks: $("removeDateMarksButton"),
     avotSpeed: $("avotSpeedInput"),
     avotSpeedValue: $("avotSpeedValue"),
@@ -408,7 +412,7 @@
   function projectData() {
     return {
       format: "gal_einai_web",
-      version: "W046",
+      version: "W052",
       saved_at: new Date().toISOString(),
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
@@ -419,6 +423,8 @@
       manual_color_overrides: state.colorOverrides,
       manual_removed_words: Array.from(state.removedWordKeys),
       manual_frame_words: Array.from(state.frameKeys),
+      manual_hidden_display_results: Array.from(state.hiddenDisplayResults),
+      manual_hidden_marks_table_results: Array.from(state.hiddenMarksTableResults),
       saved: state.results.map((result) => ({
         primary: serializableMatch(result.primary),
         matches: result.matches.map(serializableMatch),
@@ -630,7 +636,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W046",
+      version: "W052",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1187,6 +1193,8 @@
       : {};
     state.removedWordKeys = new Set(Array.isArray(data.manual_removed_words) ? data.manual_removed_words.map(String) : []);
     state.frameKeys = new Set(Array.isArray(data.manual_frame_words) ? data.manual_frame_words.map(String) : []);
+    state.hiddenDisplayResults = new Set(Array.isArray(data.manual_hidden_display_results) ? data.manual_hidden_display_results.map(String) : []);
+    state.hiddenMarksTableResults = new Set(Array.isArray(data.manual_hidden_marks_table_results) ? data.manual_hidden_marks_table_results.map(String) : []);
     const saved = Array.isArray(data.saved) ? data.saved : [];
     state.results = saved.map(resultFromSavedItem).filter(Boolean).slice(0, PRO_MAX_RESULTS);
     state.current = Math.max(0, Math.min(Number.parseInt(data.current, 10) || 0, Math.max(0, state.results.length - 1)));
@@ -1498,6 +1506,12 @@
     return match.word;
   }
 
+  function resultKey(result) {
+    const primary = result?.primary;
+    if (!primary) return "";
+    return `${primary.word}|${primary.start}|${primary.skip}`;
+  }
+
   function resetSkipRange() {
     els.skipFrom.value = String(DEFAULT_SKIP_FROM);
     els.skipTo.value = String(DEFAULT_SKIP_TO);
@@ -1638,6 +1652,36 @@
     setStatus(removed ? `הוסרו ${removed} סימוני תאריכים מהצופן הנוכחי` : "אין סימוני תאריכים בצופן הנוכחי", 0);
   }
 
+  function clearDisplayMarksFromCurrent() {
+    const current = state.results[state.current];
+    if (!current) return;
+    const secondaryCount = current.matches.filter((match) => match.kind !== "primary").length;
+    if (!secondaryCount) {
+      setStatus("אין סימוני תצוגה לניקוי בצופן הנוכחי", 0);
+      return;
+    }
+    state.hiddenDisplayResults.add(resultKey(current));
+    state.lineKeys.clear();
+    renderCurrent();
+    saveDraft();
+    setStatus("סימוני התצוגה נוקו. טבלת הממצאים וטבלת הסימונים נשארו כפי שהיו.", 0);
+  }
+
+  function clearMarksTableFromCurrent() {
+    const current = state.results[state.current];
+    if (!current) return;
+    const secondaryCount = current.matches.filter((match) => match.kind !== "primary").length;
+    if (!secondaryCount) {
+      setStatus("אין טבלת סימונים לניקוי בצופן הנוכחי", 0);
+      return;
+    }
+    state.hiddenMarksTableResults.add(resultKey(current));
+    state.lineKeys.clear();
+    renderCurrent();
+    saveDraft();
+    setStatus("טבלת הסימונים העליונה נוקתה. סימוני האותיות בתצוגה נשארו כפי שהיו.", 0);
+  }
+
   function toggleWordFrame(key) {
     const current = state.results[state.current];
     const target = current?.matches.find((match) => matchKey(match) === key);
@@ -1711,6 +1755,10 @@
 
   function renderTopWords(result) {
     els.topWords.innerHTML = "";
+    if (state.hiddenMarksTableResults.has(resultKey(result))) {
+      requestAnimationFrame(drawConnections);
+      return;
+    }
     const chips = [];
     const grouped = new Map();
     result.matches.forEach((match) => {
@@ -1812,7 +1860,10 @@
   function renderGrid(result) {
     const { grid, cols, center } = result.windowInfo;
     const markByPos = new Map();
-    result.matches.forEach((match) => {
+    const displayMatches = state.hiddenDisplayResults.has(resultKey(result))
+      ? result.matches.filter((match) => match.kind === "primary")
+      : result.matches;
+    displayMatches.forEach((match) => {
       positionsForMatch(match).forEach((pos) => {
         const existing = markByPos.get(pos);
         if (!existing || existing.kind !== "primary" && (isDateMatch(existing) || !isDateMatch(match))) {
@@ -1862,7 +1913,7 @@
       cell.style.removeProperty("--line-target-color");
       cell.style.removeProperty("--line-target-text");
     });
-    if (!current || !state.lineKeys.size) return;
+    if (!current || !state.lineKeys.size || state.hiddenDisplayResults.has(resultKey(current)) || state.hiddenMarksTableResults.has(resultKey(current))) return;
     const panel = els.connectionOverlay.parentElement;
     const panelRect = panel.getBoundingClientRect();
     els.connectionOverlay.setAttribute("viewBox", `0 0 ${panelRect.width} ${panelRect.height}`);
@@ -1955,6 +2006,8 @@
     state.primaryResume = null;
     state.colorOverrides = {};
     state.removedWordKeys = new Set();
+    state.hiddenDisplayResults.clear();
+    state.hiddenMarksTableResults.clear();
     state.lineKeys.clear();
     state.frameKeys.clear();
     try {
@@ -2309,6 +2362,8 @@
     state.avotVisible = els.avotVisible.checked;
     applyAvotSettings();
   });
+  els.clearDisplayMarks.addEventListener("click", clearDisplayMarksFromCurrent);
+  els.clearMarksTable.addEventListener("click", clearMarksTableFromCurrent);
   els.removeDateMarks.addEventListener("click", removeDateMarksFromCurrent);
   els.avotSpeed.addEventListener("input", () => {
     state.avotSpeed = Number(els.avotSpeed.value) || 4;
