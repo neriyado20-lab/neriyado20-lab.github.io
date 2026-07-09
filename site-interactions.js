@@ -173,8 +173,25 @@
     });
   }
 
+  function ensureLegalFooter() {
+    const footer = document.querySelector("footer");
+    if (!footer || footer.querySelector("[data-legal-footer]")) return;
+    const legal = document.createElement("span");
+    legal.dataset.legalFooter = "true";
+    legal.className = "legal-footer";
+    const copyright = document.createElement("span");
+    copyright.textContent = "© 2026 גל עיני. כל הזכויות שמורות.";
+    const separator = document.createTextNode(" | ");
+    const terms = document.createElement("a");
+    terms.href = "terms.html";
+    terms.textContent = "תנאי שימוש וזכויות יוצרים";
+    legal.append(copyright, separator, terms);
+    footer.appendChild(legal);
+  }
+
   const store = readStore();
   countVisit(store);
   document.querySelectorAll(".sample-card[data-example-id]").forEach((card) => ensureFeedback(card, store));
   wireNotifications(store);
+  ensureLegalFooter();
 })();

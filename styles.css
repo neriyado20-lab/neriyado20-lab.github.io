@@ -773,6 +773,38 @@ footer {
   font-size: 14px;
 }
 
+footer .legal-footer {
+  display: block;
+  width: 100%;
+}
+
+footer .legal-footer a,
+.legal-content a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal-page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.legal-content {
+  max-width: 780px;
+  margin: 0 auto 48px;
+}
+
+.legal-content h2 {
+  margin: 28px 0 8px;
+  font-size: 1.25rem;
+}
+
+.legal-content p {
+  line-height: 1.8;
+}
+
 .admin-locked > header,
 .admin-locked > main,
 .admin-locked > footer {
