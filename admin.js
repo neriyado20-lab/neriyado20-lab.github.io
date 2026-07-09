@@ -442,11 +442,15 @@
     if (supabaseClient) {
       const safeName = upload.name.replace(/[^a-zA-Z0-9._-]/g, "_");
       const path = `${upload.category}__${Date.now()}__${safeName}`;
+      const bucket = upload.category === "examples" ? "public-ciphers" : "admin-uploads";
       const { error } = await supabaseClient.storage
-        .from("admin-uploads")
+        .from(bucket)
         .upload(path, upload.file, { contentType: upload.type, upsert: false });
       if (error) throw error;
-      return true;
+      const publicData = bucket === "public-ciphers"
+        ? supabaseClient.storage.from(bucket).getPublicUrl(path).data
+        : null;
+      return { bucket, path, publicUrl: publicData?.publicUrl || "" };
     }
     if (!AUTH.uploadEndpoint) return false;
     const form = new FormData();
@@ -455,7 +459,7 @@
     form.append("title", upload.title);
     form.append("file", upload.file, upload.name);
     await fetch(AUTH.uploadEndpoint, { method: "POST", body: form });
-    return true;
+    return { bucket: "", path: "", publicUrl: "" };
   }
 
   async function renderUploads() {
@@ -506,10 +510,14 @@
     const list = $("adminUploadsList");
     const counter = $("adminUploadCount");
     if (!list || !counter) return;
-    const { data, error } = await supabaseClient.storage
-      .from("admin-uploads")
-      .list("", { limit: 200, sortBy: { column: "created_at", order: "desc" } });
-    if (error || !Array.isArray(data)) return;
+    const buckets = ["public-ciphers", "admin-uploads"];
+    const results = await Promise.all(buckets.map(async (bucket) => {
+      const { data, error } = await supabaseClient.storage
+        .from(bucket)
+        .list("", { limit: 200, sortBy: { column: "created_at", order: "desc" } });
+      return error || !Array.isArray(data) ? [] : data.map((file) => ({ ...file, bucket }));
+    }));
+    const data = results.flat().sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
 
     counter.textContent = data.length;
     list.replaceChildren();
@@ -522,7 +530,7 @@
       const category = parts.length > 2 ? parts[0] : "קובץ";
       const displayName = parts.length > 2 ? parts.slice(2).join("__") : file.name;
       const size = Number(file.metadata?.size || 0);
-      const item = row(displayName, `${category} | ${formatBytes(size)} | ${new Date(file.created_at).toLocaleString("he-IL")}`);
+      const item = row(displayName, `${file.bucket} | ${category} | ${formatBytes(size)} | ${new Date(file.created_at).toLocaleString("he-IL")}`);
       const actions = document.createElement("div");
       actions.className = "admin-file-actions";
 
@@ -532,7 +540,7 @@
       download.textContent = "הורד";
       download.addEventListener("click", async () => {
         const { data: signed } = await supabaseClient.storage
-          .from("admin-uploads")
+          .from(file.bucket)
           .createSignedUrl(file.name, 60);
         if (signed?.signedUrl) window.open(signed.signedUrl, "_blank", "noopener");
       });
@@ -542,7 +550,7 @@
       remove.type = "button";
       remove.textContent = "מחק";
       remove.addEventListener("click", async () => {
-        await supabaseClient.storage.from("admin-uploads").remove([file.name]);
+        await supabaseClient.storage.from(file.bucket).remove([file.name]);
         await renderRemoteUploads();
       });
       actions.append(download, remove);
@@ -561,6 +569,44 @@
     }[type] || type;
   }
 
+  function statusLabel(status) {
+    return {
+      active: "פעיל",
+      draft: "טיוטה",
+      archive: "ארכיון",
+      past_dates: "מאגר תאריכי עבר"
+    }[status] || status || "פעיל";
+  }
+
+  function metadataDescription(description, topic) {
+    const clean = String(description || "").replace(/\[topic:[^\]]+\]/g, "").trim();
+    const marker = topic ? `[topic:${topic}]` : "";
+    return [marker, clean].filter(Boolean).join("\n");
+  }
+
+  function contentPayload(item) {
+    return {
+      id: item.id,
+      type: item.type,
+      title: item.title,
+      url: item.url,
+      status: item.status,
+      description: item.description,
+      created_at: item.at,
+      updated_at: item.updatedAt
+    };
+  }
+
+  async function upsertRemoteContent(item) {
+    if (!supabaseClient) return;
+    await supabaseClient.from("admin_content").upsert(contentPayload(item));
+  }
+
+  async function deleteRemoteContent(id) {
+    if (!supabaseClient) return;
+    await supabaseClient.from("admin_content").delete().eq("id", id);
+  }
+
   function resetContentForm() {
     $("adminContentId").value = "";
     $("adminContentType").value = "announcement";
@@ -568,6 +614,27 @@
     $("adminContentUrl").value = "";
     $("adminContentStatus").value = "active";
     $("adminContentDescription").value = "";
+  }
+
+  function populateUploadExisting() {
+    const select = $("adminUploadExisting");
+    if (!select) return;
+    const current = select.value;
+    select.replaceChildren();
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = "צופן חדש";
+    select.appendChild(blank);
+    readContentItems()
+      .filter((item) => item.type === "example")
+      .sort((a, b) => String(a.title).localeCompare(String(b.title), "he"))
+      .forEach((item) => {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = `${item.title} - ${statusLabel(item.status)}`;
+        select.appendChild(option);
+      });
+    select.value = current;
   }
 
   function renderContentItems() {
@@ -583,7 +650,7 @@
     }
     items.forEach((item) => {
       const date = item.updatedAt || item.at ? new Date(item.updatedAt || item.at).toLocaleString("he-IL") : "";
-      const line = row(item.title || "פריט ללא כותרת", `${contentLabel(item.type)} | ${item.status || "active"}${item.url ? ` | ${item.url}` : ""}${date ? ` | ${date}` : ""}${item.description ? ` | ${item.description}` : ""}`);
+      const line = row(item.title || "פריט ללא כותרת", `${contentLabel(item.type)} | ${statusLabel(item.status)}${item.url ? ` | ${item.url}` : ""}${date ? ` | ${date}` : ""}${item.description ? ` | ${item.description}` : ""}`);
       const actions = document.createElement("div");
       actions.className = "admin-file-actions";
       const edit = document.createElement("button");
@@ -599,18 +666,51 @@
         $("adminContentDescription").value = item.description || "";
         $("adminContentTitle").focus();
       });
+      const publish = document.createElement("button");
+      publish.className = "button secondary";
+      publish.type = "button";
+      publish.textContent = "פרסם";
+      publish.addEventListener("click", async () => {
+        const next = { ...item, status: "active", updatedAt: new Date().toISOString() };
+        writeContentItems([next, ...readContentItems().filter((candidate) => candidate.id !== item.id)]);
+        await upsertRemoteContent(next);
+        renderContentItems();
+      });
+      const past = document.createElement("button");
+      past.className = "button secondary";
+      past.type = "button";
+      past.textContent = "תאריכי עבר";
+      past.addEventListener("click", async () => {
+        const next = { ...item, status: "past_dates", updatedAt: new Date().toISOString() };
+        writeContentItems([next, ...readContentItems().filter((candidate) => candidate.id !== item.id)]);
+        await upsertRemoteContent(next);
+        renderContentItems();
+      });
+      const archive = document.createElement("button");
+      archive.className = "button secondary";
+      archive.type = "button";
+      archive.textContent = "ארכיון";
+      archive.addEventListener("click", async () => {
+        const next = { ...item, status: "archive", updatedAt: new Date().toISOString() };
+        writeContentItems([next, ...readContentItems().filter((candidate) => candidate.id !== item.id)]);
+        await upsertRemoteContent(next);
+        renderContentItems();
+      });
       const remove = document.createElement("button");
       remove.className = "button secondary";
       remove.type = "button";
       remove.textContent = "מחק";
-      remove.addEventListener("click", () => {
+      remove.addEventListener("click", async () => {
+        if (!window.confirm(`למחוק את "${item.title}" מרשימת התוכן?`)) return;
         writeContentItems(readContentItems().filter((candidate) => candidate.id !== item.id));
+        await deleteRemoteContent(item.id);
         renderContentItems();
       });
-      actions.append(edit, remove);
+      actions.append(edit, publish, past, archive, remove);
       line.appendChild(actions);
       list.appendChild(line);
     });
+    populateUploadExisting();
   }
 
   async function loadRemoteContent() {
@@ -800,12 +900,15 @@
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const file = $("adminUploadFile").files?.[0];
-      const status = $("adminUploadStatus");
+      const status = $("adminUploadStatusText");
       if (!file) return;
       const upload = {
         id: `upload-${Date.now()}-${Math.random().toString(16).slice(2)}`,
         category: $("adminUploadCategory").value,
         title: $("adminUploadTitle").value.trim() || file.name,
+        publishStatus: $("adminUploadStatus")?.value || "active",
+        topic: $("adminUploadTopic")?.value || "users",
+        existingContentId: $("adminUploadExisting")?.value || "",
         name: file.name,
         type: file.type || "application/octet-stream",
         size: file.size,
@@ -815,8 +918,29 @@
       await saveUpload(upload);
       try {
         const sent = await sendUpload(upload);
+        if (upload.category === "examples" && sent?.publicUrl) {
+          const now = new Date().toISOString();
+          const id = upload.existingContentId || `example-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+          const items = readContentItems();
+          const existing = items.find((item) => item.id === id);
+          const content = {
+            id,
+            type: "example",
+            title: upload.title,
+            url: sent.publicUrl,
+            status: upload.publishStatus,
+            description: metadataDescription(existing?.description || "", upload.topic),
+            at: existing?.at || now,
+            updatedAt: now
+          };
+          writeContentItems([content, ...items.filter((item) => item.id !== id)]);
+          await upsertRemoteContent(content);
+          renderContentItems();
+        }
         status.textContent = sent
-          ? "הקובץ נשמר ונשלח לשרת ההעלאות."
+          ? upload.category === "examples"
+            ? "הצופן הועלה ונוסף לרשימת הצפנים לפי הסטטוס שנבחר."
+            : "הקובץ נשמר ונשלח לשרת ההעלאות."
           : "הקובץ נשמר בדפדפן הניהול. לחיבור העלאה אמיתית לאתר צריך להגדיר uploadEndpoint.";
       } catch {
         status.textContent = "הקובץ נשמר בדפדפן, אך השליחה לשרת נכשלה.";

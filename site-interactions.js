@@ -383,7 +383,11 @@
 
   const store = readStore();
   countVisit(store);
-  document.querySelectorAll(".sample-card[data-example-id]").forEach((card) => ensureFeedback(card, store));
+  function wireSampleCards() {
+    document.querySelectorAll(".sample-card[data-example-id]").forEach((card) => ensureFeedback(card, store));
+  }
+  window.GalEinaiWireSampleCards = wireSampleCards;
+  wireSampleCards();
   wireNotifications(store);
   ensureLegalFooter();
 })();

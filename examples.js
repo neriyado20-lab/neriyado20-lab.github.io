@@ -1,5 +1,7 @@
 (() => {
   const STORAGE_KEY = "gal-einai-seen-examples-v1";
+  const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_MqD3lXrftP5B36gcRjpDbw_csTVjpVK";
 
   function readSeen() {
     try {
@@ -65,6 +67,102 @@
     return document.querySelector("[data-topic-filter].is-active")?.textContent?.trim() || "כל הנושאים";
   }
 
+  function markerValue(text, name) {
+    const match = String(text || "").match(new RegExp(`\\[${name}:([^\\]]+)\\]`));
+    return match ? match[1].trim() : "";
+  }
+
+  function cleanDescription(text) {
+    return String(text || "").replace(/\[(topic|image|project):[^\]]+\]/g, "").trim();
+  }
+
+  function topicFor(item) {
+    if (item.status === "past_dates") return "past_dates";
+    return markerValue(item.description, "topic") || "users";
+  }
+
+  function isJsonUrl(url) {
+    return /\.json($|\?)/i.test(String(url || ""));
+  }
+
+  function absoluteUrl(url) {
+    try {
+      return new URL(url, location.href).href;
+    } catch {
+      return url;
+    }
+  }
+
+  function cardForContent(item) {
+    const id = `admin-${String(item.id || item.title).replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
+    const url = absoluteUrl(item.url || "");
+    const projectUrl = markerValue(item.description, "project") || (isJsonUrl(url) ? url : "");
+    const imageUrl = markerValue(item.description, "image") || (!isJsonUrl(url) ? url : "");
+    const article = document.createElement("article");
+    article.className = "sample-card";
+    article.dataset.exampleId = id;
+    article.dataset.uploaded = String(item.updated_at || item.created_at || new Date().toISOString()).slice(0, 10);
+    article.dataset.topic = topicFor(item);
+    const date = item.updated_at || item.created_at ? new Date(item.updated_at || item.created_at).toLocaleDateString("he-IL") : "";
+    const description = cleanDescription(item.description) || "צופן שפורסם מממשק הניהול.";
+    article.innerHTML = `
+      <div class="sample-copy">
+        <div class="sample-meta">
+          <span class="eyebrow">${item.status === "past_dates" ? "מאגר תאריכי עבר" : "צפני משתמשים"}</span>
+          ${date ? `<span class="upload-date">הועלה: ${date}</span>` : ""}
+          <span class="new-badge" hidden>חדש</span>
+        </div>
+        <h2></h2>
+        <p></p>
+        <div class="hero-actions">
+          ${projectUrl ? `<a class="button primary track-view" href="web.html?project=${encodeURIComponent(projectUrl)}">פתח באתר</a>` : ""}
+          ${imageUrl ? `<a class="button primary track-view" href="${imageUrl}" target="_blank" rel="noopener">פתח תמונה</a>` : ""}
+          ${url ? `<a class="button secondary" href="${url}" target="_blank" rel="noopener">פתח קובץ</a>` : ""}
+          <button class="button secondary mark-unseen" type="button">סמן עוד לא ראיתי</button>
+        </div>
+      </div>
+      ${imageUrl ? `<a class="sample-image-link track-view" href="${imageUrl}" target="_blank" rel="noopener"><img src="${imageUrl}" alt=""></a>` : ""}
+    `;
+    article.querySelector("h2").textContent = item.title || "צופן שפורסם";
+    article.querySelector("p").textContent = description;
+    const img = article.querySelector("img");
+    if (img) img.alt = `צילום מסך של ${item.title || "צופן"} מתוך גל עיני`;
+    return article;
+  }
+
+  async function loadPublishedContent(seen) {
+    const layout = document.querySelector(".sample-layout");
+    if (!layout) return;
+    try {
+      const params = new URLSearchParams({
+        select: "id,type,title,url,status,description,created_at,updated_at",
+        type: "eq.example",
+        status: "in.(active,past_dates)",
+        order: "updated_at.desc"
+      });
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/admin_content?${params}`, {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+      });
+      if (!response.ok) return;
+      const items = await response.json();
+      if (!Array.isArray(items) || !items.length) return;
+      items.forEach((item) => {
+        const id = `admin-${String(item.id || item.title).replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
+        if (document.querySelector(`[data-example-id="${CSS.escape(id)}"]`)) return;
+        const card = cardForContent(item);
+        layout.prepend(card);
+        setCardState(card, seen);
+      });
+      window.GalEinaiWireSampleCards?.();
+      applyFilter(seen);
+    } catch {
+      // Static examples remain available when the live list cannot be loaded.
+    }
+  }
+
   function updateCounter(cards, visibleCards) {
     const counter = document.getElementById("examplesCount");
     if (!counter) return;
@@ -126,4 +224,5 @@
     }
   });
   applyFilter(seen);
+  loadPublishedContent(seen);
 })();

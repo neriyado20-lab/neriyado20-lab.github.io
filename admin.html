@@ -122,6 +122,7 @@
               <option value="active">פעיל</option>
               <option value="draft">טיוטה</option>
               <option value="archive">ארכיון</option>
+              <option value="past_dates">מאגר תאריכי עבר</option>
             </select>
           </label>
           <label class="admin-content-wide">
@@ -156,11 +157,36 @@
             <input id="adminUploadTitle" type="text" maxlength="80" placeholder="לדוגמה: גרסה V341 ללא AI">
           </label>
           <label>
+            <span>פרסום</span>
+            <select id="adminUploadStatus">
+              <option value="active">פרסם באתר</option>
+              <option value="draft">טיוטה בלבד</option>
+              <option value="archive">העבר לארכיון</option>
+              <option value="past_dates">מאגר תאריכי עבר</option>
+            </select>
+          </label>
+          <label>
+            <span>נושא</span>
+            <select id="adminUploadTopic">
+              <option value="users">צפני משתמשים</option>
+              <option value="dates">תאריכים</option>
+              <option value="geula">גאולה ומשיח</option>
+              <option value="events">אירועים ואומות</option>
+              <option value="healing">רפואה וסגולות</option>
+            </select>
+          </label>
+          <label>
+            <span>עדכון צופן קיים</span>
+            <select id="adminUploadExisting">
+              <option value="">צופן חדש</option>
+            </select>
+          </label>
+          <label>
             <span>בחירת קובץ</span>
             <input id="adminUploadFile" type="file" required>
           </label>
           <button class="button primary" type="submit">העלה קובץ</button>
-          <p id="adminUploadStatus" class="admin-status" aria-live="polite"></p>
+          <p id="adminUploadStatusText" class="admin-status" aria-live="polite"></p>
         </form>
         <div id="adminUploadsList" class="admin-list"></div>
       </article>
@@ -266,6 +292,6 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=3"></script>
-  <script src="admin.js?v=11"></script>
+  <script src="admin.js?v=12"></script>
 </body>
 </html>
