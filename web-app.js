@@ -6,6 +6,8 @@
   const PRO_MAX_RESULTS = Number.MAX_SAFE_INTEGER;
   const DEFAULT_ROWS = 45;
   const DEFAULT_EXTRA_COLS = 10;
+  const SEARCH_EXTRA_ROWS = 8;
+  const SEARCH_EXTRA_COLS = 16;
   const DRAFT_KEY = "gal-einai-web-draft-v1";
   const LIBRARY_KEY = "gal-einai-web-library-v1";
   const LIBRARY_LIMIT = 20;
@@ -1114,10 +1116,12 @@
     return results;
   }
 
-  function positionsForPrimary(primary) {
+  function positionsForPrimary(primary, options = {}) {
     const skipAbs = Math.max(1, Math.abs(primary.skip || 1));
-    const cols = Math.min(180, Math.max(80, skipAbs + DEFAULT_EXTRA_COLS));
-    const rows = DEFAULT_ROWS;
+    const extraRows = Number.parseInt(options.extraRows || "0", 10) || 0;
+    const extraCols = Number.parseInt(options.extraCols || "0", 10) || 0;
+    const cols = Math.min(220, Math.max(80, skipAbs + DEFAULT_EXTRA_COLS + extraCols));
+    const rows = DEFAULT_ROWS + extraRows;
     const centerCol = Math.floor(cols / 2);
     const centerRow = Math.floor(rows / 2);
     const base = primary.start - centerRow * skipAbs - centerCol;
@@ -1215,9 +1219,25 @@
     return words.size;
   }
 
+  function countSecondaryWordsInWindow(matches, windowInfo) {
+    const words = new Set();
+    const visible = windowInfo?.set || new Set();
+    matches.forEach((match) => {
+      if (match.kind === "primary") return;
+      if (positionsForMatch(match).every((position) => visible.has(position))) words.add(match.word);
+    });
+    return words.size;
+  }
+
   function secondaryCountForResult(result) {
-    const count = countSecondaryWords(Array.isArray(result?.matches) ? result.matches : []);
-    if (result) result.secondaryCount = count;
+    const matches = Array.isArray(result?.matches) ? result.matches : [];
+    const count = result?.tableWindowInfo
+      ? countSecondaryWordsInWindow(matches, result.tableWindowInfo)
+      : countSecondaryWords(matches);
+    if (result) {
+      result.tableSecondaryCount = count;
+      result.secondaryCount = count;
+    }
     return count;
   }
 
@@ -1226,13 +1246,17 @@
     if (!primary) return null;
     primary.kind = "primary";
     const matches = dedupeMatches([primary, ...(Array.isArray(item.matches) ? item.matches.map((m) => cleanMatch(m)).filter(Boolean) : [])]);
-    const windowInfo = positionsForPrimary(primary);
+    const tableWindowInfo = positionsForPrimary(primary);
+    const windowInfo = positionsForPrimary(primary, { extraRows: SEARCH_EXTRA_ROWS, extraCols: SEARCH_EXTRA_COLS });
     windowInfo.primarySkip = primary.skip;
+    tableWindowInfo.primarySkip = primary.skip;
     const result = {
       primary,
       matches,
-      secondaryCount: countSecondaryWords(matches),
+      secondaryCount: countSecondaryWordsInWindow(matches, tableWindowInfo),
+      tableSecondaryCount: countSecondaryWordsInWindow(matches, tableWindowInfo),
       windowInfo,
+      tableWindowInfo,
     };
     return applyManualOverridesToResult(result);
   }
@@ -1398,13 +1422,19 @@
         const activeSecondaries = secondaries.filter((item) => item.word !== primaryMatch.word);
         const minRequired = requiredCount(activeSecondaries);
         const requiredWords = activeSecondaries.filter((item) => item.required).map((item) => item.word);
-        const windowInfo = positionsForPrimary(primaryMatch);
+        const tableWindowInfo = positionsForPrimary(primaryMatch);
+        const windowInfo = positionsForPrimary(primaryMatch, { extraRows: SEARCH_EXTRA_ROWS, extraCols: SEARCH_EXTRA_COLS });
+        tableWindowInfo.primarySkip = primaryMatch.skip;
         windowInfo.primarySkip = primaryMatch.skip;
         const local = [primaryMatch];
         const foundWords = new Set();
+        const tableWords = new Set();
         for (const secondary of activeSecondaries) {
           const matches = findInWindow(secondary.word, windowInfo);
           if (matches.length) foundWords.add(secondary.word);
+          if (matches.some((match) => positionsForMatch(match).every((position) => tableWindowInfo.set.has(position)))) {
+            tableWords.add(secondary.word);
+          }
           local.push(...matches);
         }
         const hasRequired = requiredWords.every((word) => foundWords.has(word));
@@ -1412,10 +1442,13 @@
           const result = applyManualOverridesToResult({
             primary: primaryMatch,
             matches: dedupeMatches(local),
-            secondaryCount: foundWords.size,
+            secondaryCount: tableWords.size,
+            tableSecondaryCount: tableWords.size,
+            searchSecondaryCount: foundWords.size,
             windowInfo,
+            tableWindowInfo,
           });
-          if (result.secondaryCount >= minRequired) state.results.push(result);
+          if ((result.searchSecondaryCount || result.secondaryCount) >= minRequired) state.results.push(result);
         }
         if (i % 5 === 0) {
           setStatus(`בודק משניות ${i + 1}/${primaries.length} | נשמרו ${state.results.length}`, 60 + Math.floor(((i + 1) / total) * 40));
@@ -1583,7 +1616,7 @@
       const color = state.colorOverrides[matchKey(match)];
       if (color && match.kind !== "primary") match.color = color;
     });
-    result.secondaryCount = countSecondaryWords(result.matches);
+    secondaryCountForResult(result);
     return result;
   }
 
@@ -1624,7 +1657,7 @@
     }
     state.removedWordKeys.add(key);
     current.matches = current.matches.filter((match) => matchKey(match) !== key);
-    current.secondaryCount = countSecondaryWords(current.matches);
+    secondaryCountForResult(current);
     state.lineKeys.delete(key);
     state.frameKeys.delete(key);
     renderResults();
@@ -1664,7 +1697,7 @@
       removed += 1;
       return false;
     });
-    current.secondaryCount = countSecondaryWords(current.matches);
+    secondaryCountForResult(current);
     if (!current.matches.some((match) => matchKey(match) === key)) {
       state.lineKeys.delete(key);
       state.frameKeys.delete(key);
@@ -1685,7 +1718,7 @@
     state.removedWordKeys.add(key);
     state.results.forEach((result) => {
       result.matches = result.matches.filter((match) => matchKey(match) !== key);
-      result.secondaryCount = countSecondaryWords(result.matches);
+      secondaryCountForResult(result);
     });
     state.lineKeys.delete(key);
     state.frameKeys.delete(key);
@@ -1700,7 +1733,7 @@
     if (!current) return;
     const before = current.matches.length;
     current.matches = current.matches.filter((match) => !isDateMatch(match));
-    current.secondaryCount = countSecondaryWords(current.matches);
+    secondaryCountForResult(current);
     const removed = before - current.matches.length;
     renderResults();
     renderCurrent();
@@ -1772,7 +1805,7 @@
       removed += 1;
       return false;
     });
-    current.secondaryCount = countSecondaryWords(current.matches);
+    secondaryCountForResult(current);
     renderResults();
     renderCurrent();
     saveDraft();
