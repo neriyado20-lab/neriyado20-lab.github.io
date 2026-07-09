@@ -604,6 +604,27 @@ h2 {
   margin-bottom: 0;
 }
 
+.examples-empty-state {
+  margin: 0 clamp(16px, 5vw, 72px) 12px;
+  padding: 18px;
+  border: 1px solid rgba(13, 109, 86, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 253, 246, 0.88);
+  box-shadow: 0 12px 28px rgba(23, 33, 29, 0.08);
+}
+
+.examples-empty-state[hidden] {
+  display: none;
+}
+
+.examples-empty-state h2 {
+  margin-bottom: 4px;
+}
+
+.examples-empty-state p:last-child {
+  margin-bottom: 0;
+}
+
 .sample-card {
   display: grid;
   grid-template-columns: minmax(280px, 0.45fr) minmax(320px, 1fr);

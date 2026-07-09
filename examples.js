@@ -174,6 +174,14 @@
     counter.textContent = `מוצגים ${visible} מתוך ${total} צפנים | חדשים: ${newCount}${topicText}`;
   }
 
+  function scrollToTopicResult(visibleCards) {
+    const topic = activeTopic();
+    const empty = document.getElementById("examplesEmptyState");
+    const target = visibleCards[0] || (topic === "users" ? document.getElementById("user-ciphers") : empty);
+    if (empty) empty.hidden = Boolean(visibleCards.length);
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function applyFilter(seen) {
     const filter = activeFilter();
     const topic = activeTopic();
@@ -191,7 +199,10 @@
     document.querySelectorAll("[data-user-ciphers-empty]").forEach((section) => {
       section.hidden = topic !== "users";
     });
+    const empty = document.getElementById("examplesEmptyState");
+    if (empty) empty.hidden = Boolean(visibleCards.length) || topic === "all" || topic === "users";
     updateCounter(cards, visibleCards);
+    return visibleCards;
   }
 
   const seen = readSeen();
@@ -206,10 +217,8 @@
     button.addEventListener("click", () => {
       document.querySelectorAll("[data-topic-filter]").forEach((item) => item.classList.remove("is-active"));
       button.classList.add("is-active");
-      applyFilter(seen);
-      if (button.dataset.topicFilter === "users") {
-        document.getElementById("user-ciphers")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      const visibleCards = applyFilter(seen);
+      scrollToTopicResult(visibleCards);
     });
   });
   document.querySelectorAll("[data-example-id]").forEach((card) => {
