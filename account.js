@@ -19,8 +19,8 @@
   function setSignedIn(email) {
     stateTitle.textContent = email ? `שלום, ${email}` : "אפשר לעבוד גם בלי חשבון";
     stateText.textContent = email
-      ? "נכנסת לאזור האישי. בשלב הבא יהיה אפשר לחבר לכאן שמירת צפנים, הזמנות והעדפות."
-      : "כלי החיפוש פתוח לציבור. חשבון אישי יעזור בהמשך לשמור פעולות, הזמנות והעדפות בין מכשירים.";
+      ? "נכנסת לדברים שלך. בהמשך יוצגו כאן צפנים שמורים, הזמנות, קבצים אישיים והעדפות."
+      : "כלי החיפוש נשאר פתוח בלי כניסה. משתמש נכנס רק כשהוא רוצה לראות דברים פרטיים שלו.";
     signOut.hidden = !email;
   }
 
@@ -89,7 +89,7 @@
   signOut?.addEventListener("click", async () => {
     if (client) await client.auth.signOut();
     setSignedIn("");
-    setStatus("יצאת מהאזור האישי.");
+    setStatus("יצאת מהדברים שלך.");
   });
 
   refreshSession();
