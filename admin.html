@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ניהול אתר - גל עיני</title>
   <meta name="description" content="לוח ניהול מקומי לאתר גל עיני: צפיות, שימושים, סימוני עיון, הערות ונרשמים.">
-  <link rel="stylesheet" href="styles.css?v=79">
+  <link rel="stylesheet" href="styles.css?v=80">
 </head>
 <body class="admin-locked">
   <section class="admin-login" id="adminLoginPanel" aria-label="כניסה לניהול">
@@ -223,6 +223,29 @@
         <div id="adminContactsList" class="admin-list"></div>
       </article>
 
+      <article class="admin-panel admin-retention-panel">
+        <div class="admin-panel-head">
+          <h2>מחיקת מידע שהתקבל באתר</h2>
+        </div>
+        <label class="admin-retention-control">
+          <span>שמירת מידע</span>
+          <select id="adminRetentionSelect">
+            <option value="manual">ידנית בלבד</option>
+            <option value="7">שבוע</option>
+            <option value="30">חודש</option>
+            <option value="90">3 חודשים</option>
+            <option value="180">6 חודשים</option>
+            <option value="365">שנה</option>
+            <option value="never">אף פעם לא למחוק אוטומטית</option>
+          </select>
+        </label>
+        <div class="admin-form-actions">
+          <button class="button secondary" id="adminDeleteExpiredButton" type="button">מחק לפי ההגדרה</button>
+          <button class="button secondary" id="adminDeleteAllReceivedButton" type="button">מחק את כל המידע שהתקבל</button>
+        </div>
+        <p id="adminRetentionStatus" class="admin-status" aria-live="polite"></p>
+      </article>
+
       <article class="admin-panel">
         <div class="admin-panel-head">
           <h2>חיבור עתידי</h2>
@@ -243,6 +266,6 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=3"></script>
-  <script src="admin.js?v=10"></script>
+  <script src="admin.js?v=11"></script>
 </body>
 </html>

@@ -669,10 +669,31 @@ h2 {
 }
 
 .like-count,
-.review-list {
+.review-list,
+.share-status {
   color: var(--muted);
   font-size: 13px;
   font-weight: 700;
+}
+
+.cipher-share-menu {
+  display: inline-grid;
+  gap: 3px;
+  min-width: min(210px, 100%);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cipher-share-menu select {
+  min-height: 36px;
+  border: 1px solid rgba(13, 109, 86, 0.22);
+  border-radius: 8px;
+  padding: 4px 10px;
+  background: #fff;
+  color: var(--accent-dark);
+  font: inherit;
+  font-weight: 800;
 }
 
 .review-form,
@@ -1190,6 +1211,28 @@ footer .legal-footer a,
   background: rgba(238, 246, 239, 0.74);
   color: var(--accent-dark);
   font-weight: 700;
+}
+
+.admin-retention-panel {
+  border-color: rgba(156, 63, 71, 0.22);
+}
+
+.admin-retention-control {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-weight: 800;
+}
+
+.admin-retention-control select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(30, 41, 59, 0.2);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
 }
 
 .admin-upload-form label,

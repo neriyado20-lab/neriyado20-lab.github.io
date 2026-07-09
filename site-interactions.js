@@ -53,6 +53,79 @@
     }
   }
 
+  function shareUrlFor(card) {
+    const project = projectUrlFor(card);
+    if (project) return project;
+    const imageLink = card.querySelector(".sample-image-link[href], a.track-view[href]");
+    const href = imageLink?.getAttribute("href") || location.href;
+    try {
+      return new URL(href, location.href).href;
+    } catch {
+      return href;
+    }
+  }
+
+  function setShareStatus(target, text) {
+    if (!target) return;
+    target.textContent = text;
+    window.setTimeout(() => {
+      if (target.textContent === text) target.textContent = "";
+    }, 3500);
+  }
+
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    const ok = document.execCommand("copy");
+    area.remove();
+    return ok;
+  }
+
+  async function runShareAction(action, card, title, status) {
+    const url = shareUrlFor(card);
+    const text = `צופן מתוך גל עיני: ${title}`;
+    if (action === "native") {
+      if (navigator.share) {
+        await navigator.share({ title, text, url });
+        setShareStatus(status, "השיתוף נפתח.");
+      } else {
+        await copyText(url);
+        setShareStatus(status, "הקישור הועתק.");
+      }
+      return;
+    }
+    if (action === "whatsapp") {
+      window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`, "_blank", "noopener");
+      setShareStatus(status, "נפתח שיתוף ב-WhatsApp.");
+      return;
+    }
+    if (action === "copy") {
+      await copyText(url);
+      setShareStatus(status, "הקישור הועתק.");
+      return;
+    }
+    if (action === "email") {
+      location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${text}\n${url}`)}`;
+      return;
+    }
+    if (action === "project") {
+      const project = projectUrlFor(card);
+      if (project) {
+        location.href = project;
+        return;
+      }
+      setShareStatus(status, "בצופן הזה אין עדיין קובץ פרויקט פתוח.");
+    }
+  }
+
   async function sendEvent(type, payload) {
     const kindByType = {
       notify_signup: "notification",
@@ -119,8 +192,20 @@
       <div class="feedback-row">
         <button class="button secondary like-cipher" type="button" aria-pressed="false">ראוי לעיון</button>
         <button class="button secondary request-additions" type="button">ראיתי תוספות</button>
+        <label class="cipher-share-menu">
+          <span>שתף צופן</span>
+          <select class="cipher-share-select">
+            <option value="">בחר פעולה</option>
+            <option value="native">שיתוף רגיל</option>
+            <option value="whatsapp">שלח ל-WhatsApp</option>
+            <option value="copy">העתק קישור</option>
+            <option value="email">שלח במייל</option>
+            <option value="project">פתח קובץ פרויקט</option>
+          </select>
+        </label>
         <span class="like-count">0 סימוני עיון במכשיר זה</span>
       </div>
+      <small class="share-status" aria-live="polite"></small>
       <form class="addition-form" hidden>
         <label>
           <span>פרטי קשר לקבלת קובץ להמשך עבודה</span>
@@ -152,6 +237,8 @@
     const likeButton = feedback.querySelector(".like-cipher");
     const likeCount = feedback.querySelector(".like-count");
     const additionsButton = feedback.querySelector(".request-additions");
+    const shareSelect = feedback.querySelector(".cipher-share-select");
+    const shareStatus = feedback.querySelector(".share-status");
     const additionsForm = feedback.querySelector(".addition-form");
     const additionsContact = feedback.querySelector(".addition-contact");
     const additionsText = feedback.querySelector(".addition-text");
@@ -228,6 +315,17 @@
       additionsStatus.textContent = request.projectUrl
         ? "הבקשה נשלחה. קישור הצופן זוהה ויופיע גם בדברים שלי."
         : "הבקשה נשלחה. בצופן הזה המנהל יצטרך לצרף קובץ פרויקט.";
+    });
+
+    shareSelect.addEventListener("change", async () => {
+      const action = shareSelect.value;
+      shareSelect.value = "";
+      if (!action) return;
+      try {
+        await runShareAction(action, card, title, shareStatus);
+      } catch {
+        setShareStatus(shareStatus, "לא הצלחתי לבצע את פעולת השיתוף.");
+      }
     });
 
     reviewForm.addEventListener("submit", (event) => {

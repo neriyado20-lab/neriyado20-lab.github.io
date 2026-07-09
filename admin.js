@@ -4,6 +4,7 @@
   const CONTENT_STORAGE_KEY = "gal-einai-admin-content-v1";
   const ADDITIONS_KEY = "gal-einai-my-cipher-additions-v1";
   const ARCHIVE_EVENT_KEY = "gal-einai-web-archive-events-v1";
+  const RETENTION_KEY = "gal-einai-admin-retention-v1";
   const AUTH_SESSION_KEY = "gal-einai-admin-authenticated-v1";
   const UPLOAD_DB_NAME = "gal-einai-admin-uploads-v1";
   const UPLOAD_STORE_NAME = "files";
@@ -12,6 +13,7 @@
   const supabaseClient = AUTH.supabaseUrl && AUTH.supabasePublishableKey && window.supabase
     ? window.supabase.createClient(AUTH.supabaseUrl, AUTH.supabasePublishableKey)
     : null;
+  let autoCleanupDone = false;
   const CIPHER_TITLES = {
     "ketamuz-1407": "כתמוז 1407",
     "ketamuz-hatashpu": "כתמוז תשפו",
@@ -188,6 +190,60 @@
     localStorage.setItem(CONTENT_STORAGE_KEY, JSON.stringify(items.slice(-200)));
   }
 
+  function retentionValue() {
+    return localStorage.getItem(RETENTION_KEY) || "manual";
+  }
+
+  function retentionDays() {
+    const value = retentionValue();
+    if (value === "manual" || value === "never") return null;
+    const days = Number.parseInt(value, 10);
+    return Number.isFinite(days) && days > 0 ? days : null;
+  }
+
+  function cutoffDate(days) {
+    return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+  }
+
+  function filterByRetention(items, days) {
+    if (!days) return items;
+    const cutoff = Date.parse(cutoffDate(days));
+    return items.filter((item) => {
+      const time = Date.parse(item.at || item.created_at || "");
+      return !Number.isFinite(time) || time >= cutoff;
+    });
+  }
+
+  function deleteLocalReceived(days = null) {
+    if (!days) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(CONTACT_STORAGE_KEY);
+      localStorage.removeItem(ADDITIONS_KEY);
+      localStorage.removeItem(ARCHIVE_EVENT_KEY);
+      return;
+    }
+    localStorage.setItem(CONTACT_STORAGE_KEY, JSON.stringify(filterByRetention(readContactItems(), days)));
+    localStorage.setItem(ADDITIONS_KEY, JSON.stringify(filterByRetention(readAdditionItems(), days)));
+    localStorage.setItem(ARCHIVE_EVENT_KEY, JSON.stringify(filterByRetention(readArchiveItems(), days)));
+  }
+
+  async function deleteRemoteReceived(days = null) {
+    if (!supabaseClient) return false;
+    let query = supabaseClient.from("site_submissions").delete();
+    if (days) query = query.lt("created_at", cutoffDate(days));
+    else query = query.neq("id", 0);
+    const { error } = await query;
+    if (error) throw error;
+    return true;
+  }
+
+  async function cleanupReceived(days = null) {
+    deleteLocalReceived(days);
+    await deleteRemoteReceived(days);
+    render();
+    await renderRemoteSubmissions();
+  }
+
   function titleFor(id) {
     return CIPHER_TITLES[id] || id;
   }
@@ -205,6 +261,16 @@
 
   async function renderRemoteSubmissions() {
     if (!supabaseClient) return;
+    const days = retentionDays();
+    if (days && !autoCleanupDone) {
+      autoCleanupDone = true;
+      try {
+        deleteLocalReceived(days);
+        await deleteRemoteReceived(days);
+      } catch {
+        $("adminRetentionStatus").textContent = "המחיקה האוטומטית לא הושלמה. אפשר לנסות מחיקה ידנית.";
+      }
+    }
     const { data, error } = await supabaseClient
       .from("site_submissions")
       .select("id,kind,payload,created_at")
@@ -820,10 +886,52 @@
     $("exportContentButton")?.addEventListener("click", exportContentJson);
   }
 
+  function wireRetention() {
+    const select = $("adminRetentionSelect");
+    const status = $("adminRetentionStatus");
+    if (!select) return;
+    select.value = retentionValue();
+    select.addEventListener("change", () => {
+      localStorage.setItem(RETENTION_KEY, select.value);
+      autoCleanupDone = false;
+      status.textContent = select.value === "manual"
+        ? "המחיקה תתבצע רק בלחיצה ידנית."
+        : select.value === "never"
+          ? "מידע שהתקבל לא יימחק אוטומטית."
+          : "ההגדרה נשמרה. בכניסה הבאה לניהול יימחק מידע ישן לפי הזמן שנבחר.";
+    });
+    $("adminDeleteExpiredButton")?.addEventListener("click", async () => {
+      const days = retentionDays();
+      if (!days) {
+        status.textContent = "בחר זמן שמירה כמו שבוע, חודש או שנה כדי למחוק לפי תאריך.";
+        return;
+      }
+      if (!window.confirm(`למחוק מידע שהתקבל לפני יותר מ-${select.options[select.selectedIndex].textContent}?`)) return;
+      status.textContent = "מוחק מידע ישן...";
+      try {
+        await cleanupReceived(days);
+        status.textContent = "המידע הישן נמחק.";
+      } catch {
+        status.textContent = "המחיקה נכשלה. בדוק שהכניסה לניהול מחוברת.";
+      }
+    });
+    $("adminDeleteAllReceivedButton")?.addEventListener("click", async () => {
+      if (!window.confirm("למחוק את כל המידע שהתקבל באתר? פעולה זו אינה הפיכה.")) return;
+      status.textContent = "מוחק את כל המידע שהתקבל...";
+      try {
+        await cleanupReceived(null);
+        status.textContent = "כל המידע שהתקבל נמחק.";
+      } catch {
+        status.textContent = "המחיקה נכשלה. בדוק שהכניסה לניהול מחוברת.";
+      }
+    });
+  }
+
   if (supabaseClient) wireSupabaseAuth();
   else wireAuth();
   wireContent();
   wireUploads();
+  wireRetention();
   $("refreshAdminButton").addEventListener("click", () => {
     render();
     renderRemoteSubmissions();
