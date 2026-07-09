@@ -49,6 +49,7 @@
   function wireAuth() {
     const loginForm = $("adminLoginForm");
     const logoutButton = $("adminLogoutButton");
+    const forgotButton = $("adminForgotPasswordButton");
     const status = $("adminLoginStatus");
     setAuthenticated(isAuthenticated());
 
@@ -66,6 +67,10 @@
       status.textContent = "קוד או סיסמה שגויים.";
     });
 
+    forgotButton?.addEventListener("click", () => {
+      status.textContent = "איפוס סיסמת מנהל נעשה דרך Supabase: Authentication > Users > admin@gal-einai.local > Send password reset. אם אין אימייל אמיתי, צריך לקבוע סיסמה חדשה שם.";
+    });
+
     logoutButton?.addEventListener("click", () => {
       setAuthenticated(false);
       $("adminLoginPassword").value = "";
@@ -76,6 +81,7 @@
   async function wireSupabaseAuth() {
     const loginForm = $("adminLoginForm");
     const logoutButton = $("adminLogoutButton");
+    const forgotButton = $("adminForgotPasswordButton");
     const status = $("adminLoginStatus");
     const { data } = await supabaseClient.auth.getSession();
     setAuthenticated(Boolean(data.session));
@@ -107,6 +113,15 @@
       render();
       renderRemoteSubmissions();
       loadRemoteContent();
+    });
+
+    forgotButton?.addEventListener("click", async () => {
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(AUTH.supabaseAdminEmail, {
+        redirectTo: `${location.origin}${location.pathname}`
+      });
+      status.textContent = error
+        ? "לא הצלחתי לשלוח איפוס. אם כתובת המנהל אינה אימייל אמיתי, יש לקבוע סיסמה חדשה ב-Supabase > Authentication > Users."
+        : "נשלח קישור איפוס סיסמה לאימייל המנהל, אם מוגדרת שליחת אימייל ב-Supabase.";
     });
 
     logoutButton?.addEventListener("click", async () => {
