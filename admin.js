@@ -406,7 +406,7 @@
     return {
       announcement: "הודעה באתר",
       download: "גרסה / קובץ להורדה",
-      example: "צופן לדוגמה",
+      example: "צופן לדוגמה / צופן משתמש",
       link: "קישור שימושי",
       note: "הערת מנהל"
     }[type] || type;

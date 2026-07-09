@@ -443,10 +443,15 @@ h2 {
   font-weight: 800;
 }
 
-.examples-filter {
+.examples-filter,
+.examples-topic-filter {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.examples-topic-filter {
+  flex: 1 1 520px;
 }
 
 .account-shell {
@@ -537,10 +542,38 @@ h2 {
   font-weight: 700;
 }
 
-.examples-filter .button.is-active {
+.examples-filter .button.is-active,
+.examples-topic-filter .button.is-active {
   border-color: rgba(13, 109, 86, 0.38);
   background: #d7eadf;
   color: var(--accent-dark);
+}
+
+.user-ciphers-band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 clamp(16px, 5vw, 72px) 12px;
+  padding: 18px;
+  border: 1px solid rgba(156, 63, 71, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 241, 200, 0.72)),
+    var(--panel);
+  box-shadow: 0 14px 34px rgba(23, 33, 29, 0.10);
+}
+
+.user-ciphers-band[hidden] {
+  display: none;
+}
+
+.user-ciphers-band h2 {
+  margin-bottom: 4px;
+}
+
+.user-ciphers-band p:last-child {
+  margin-bottom: 0;
 }
 
 .sample-card {
@@ -1091,6 +1124,17 @@ footer .legal-footer a,
   gap: 12px;
   align-items: end;
   margin-bottom: 16px;
+}
+
+.admin-help-text {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(13, 109, 86, 0.18);
+  border-radius: 8px;
+  background: rgba(238, 246, 239, 0.74);
+  color: var(--accent-dark);
+  font-weight: 700;
 }
 
 .admin-upload-form label,

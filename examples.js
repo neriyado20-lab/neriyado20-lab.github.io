@@ -57,25 +57,41 @@
     return document.querySelector("[data-example-filter].is-active")?.dataset.exampleFilter || "all";
   }
 
+  function activeTopic() {
+    return document.querySelector("[data-topic-filter].is-active")?.dataset.topicFilter || "all";
+  }
+
+  function activeTopicLabel() {
+    return document.querySelector("[data-topic-filter].is-active")?.textContent?.trim() || "כל הנושאים";
+  }
+
   function updateCounter(cards, visibleCards) {
     const counter = document.getElementById("examplesCount");
     if (!counter) return;
     const total = cards.length;
     const visible = visibleCards.length;
     const newCount = cards.filter((card) => card.classList.contains("is-new")).length;
-    counter.textContent = `מוצגים ${visible} מתוך ${total} צפנים | חדשים: ${newCount}`;
+    const topic = activeTopic();
+    const topicText = topic === "all" ? "" : ` | נושא: ${activeTopicLabel()}`;
+    counter.textContent = `מוצגים ${visible} מתוך ${total} צפנים | חדשים: ${newCount}${topicText}`;
   }
 
   function applyFilter(seen) {
     const filter = activeFilter();
+    const topic = activeTopic();
     const cards = Array.from(document.querySelectorAll(".sample-card[data-example-id]"));
     const visibleCards = [];
     cards.forEach((card) => {
       setCardState(card, seen);
       const seenNow = isSeen(card, seen);
-      const show = filter === "all" || (filter === "new" && !seenNow) || (filter === "seen" && seenNow);
+      const showBySeen = filter === "all" || (filter === "new" && !seenNow) || (filter === "seen" && seenNow);
+      const showByTopic = topic === "all" || card.dataset.topic === topic;
+      const show = showBySeen && showByTopic;
       card.hidden = !show;
       if (show) visibleCards.push(card);
+    });
+    document.querySelectorAll("[data-user-ciphers-empty]").forEach((section) => {
+      section.hidden = topic !== "users";
     });
     updateCounter(cards, visibleCards);
   }
@@ -86,6 +102,16 @@
       document.querySelectorAll("[data-example-filter]").forEach((item) => item.classList.remove("is-active"));
       button.classList.add("is-active");
       applyFilter(seen);
+    });
+  });
+  document.querySelectorAll("[data-topic-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll("[data-topic-filter]").forEach((item) => item.classList.remove("is-active"));
+      button.classList.add("is-active");
+      applyFilter(seen);
+      if (button.dataset.topicFilter === "users") {
+        document.getElementById("user-ciphers")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     });
   });
   document.querySelectorAll("[data-example-id]").forEach((card) => {

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>צפנים לדוגמה - גל עיני</title>
   <meta name="description" content="צפנים לדוגמה שנמצאו ונשמרו בתוכנת גל עיני, כולל תמונות מסך וקבצי צופן.">
-  <link rel="stylesheet" href="styles.css?v=77">
+  <link rel="stylesheet" href="styles.css?v=78">
 </head>
 <body>
   <header class="topbar">
@@ -44,6 +44,14 @@
         <button class="button secondary" type="button" data-example-filter="new">חדשים</button>
         <button class="button secondary" type="button" data-example-filter="seen">כבר ראיתי</button>
       </div>
+      <div class="examples-topic-filter" role="group" aria-label="סינון לפי נושא">
+        <button class="button secondary is-active" type="button" data-topic-filter="all">כל הנושאים</button>
+        <button class="button secondary" type="button" data-topic-filter="dates">תאריכים</button>
+        <button class="button secondary" type="button" data-topic-filter="geula">גאולה ומשיח</button>
+        <button class="button secondary" type="button" data-topic-filter="events">אירועים ואומות</button>
+        <button class="button secondary" type="button" data-topic-filter="healing">רפואה וסגולות</button>
+        <button class="button secondary" type="button" data-topic-filter="users">צפני משתמשים</button>
+      </div>
       <form class="notify-form" id="notifyForm">
         <label>
           <span>הודעה על צופן חדש</span>
@@ -54,8 +62,19 @@
       </form>
     </section>
 
+    <section class="user-ciphers-band" id="user-ciphers" data-user-ciphers-empty hidden>
+      <div>
+        <p class="eyebrow">צפני משתמשים</p>
+        <h2>צפנים שנשלחו לפרסום</h2>
+        <p>
+          כאן יופיעו צפנים שמשתמשים שלחו לאתר והמנהל אישר לפרסם. כרגע אין עדיין צופן משתמש פתוח לציבור.
+        </p>
+      </div>
+      <a class="button secondary" href="contact.html">שליחת צופן לפרסום</a>
+    </section>
+
     <section class="sample-layout">
-      <article class="sample-card" data-example-id="ketamuz-1407" data-uploaded="2026-07-04">
+      <article class="sample-card" data-example-id="ketamuz-1407" data-uploaded="2026-07-04" data-topic="dates">
         <div class="sample-copy">
           <div class="sample-meta">
             <span class="eyebrow">התשפו</span>
@@ -74,7 +93,7 @@
         </a>
       </article>
 
-      <article class="sample-card" data-example-id="ketamuz-hatashpu" data-uploaded="2026-07-04">
+      <article class="sample-card" data-example-id="ketamuz-hatashpu" data-uploaded="2026-07-04" data-topic="dates">
         <div class="sample-copy">
           <div class="sample-meta">
             <span class="eyebrow">התשפו</span>
@@ -93,7 +112,7 @@
         </a>
       </article>
 
-      <article class="sample-card" data-example-id="rav-amos-hatashpu-milchama" data-uploaded="2026-07-03">
+      <article class="sample-card" data-example-id="rav-amos-hatashpu-milchama" data-uploaded="2026-07-03" data-topic="events">
         <div class="sample-copy">
           <div class="sample-meta">
             <span class="eyebrow">התשפו</span>
@@ -112,7 +131,7 @@
         </a>
       </article>
 
-      <article class="sample-card" data-example-id="atom-petzatza-iran" data-uploaded="2026-06-21">
+      <article class="sample-card" data-example-id="atom-petzatza-iran" data-uploaded="2026-06-21" data-topic="events">
         <div class="sample-copy">
           <div class="sample-meta">
             <span class="eyebrow">התשפו</span>
@@ -133,7 +152,7 @@
         </a>
       </article>
 
-      <article class="sample-card" data-example-id="vetamuz-hatashpu-yenatzchu" data-uploaded="2026-06-21">
+      <article class="sample-card" data-example-id="vetamuz-hatashpu-yenatzchu" data-uploaded="2026-06-21" data-topic="events">
         <div class="sample-copy">
           <div class="sample-meta">
             <span class="eyebrow">התשפו</span>
@@ -154,7 +173,7 @@
         </a>
       </article>
 
-      <article class="sample-card" data-example-id="tamuz-hatashpu-podeh-melech-71" data-uploaded="2026-06-21">
+      <article class="sample-card" data-example-id="tamuz-hatashpu-podeh-melech-71" data-uploaded="2026-06-21" data-topic="geula">
         <div class="sample-copy">
           <div class="sample-meta">
             <span class="eyebrow">התשפו</span>
@@ -175,7 +194,7 @@
         </a>
       </article>
 
-      <article class="sample-card" data-example-id="geula-m-hapeh-bigevura" data-uploaded="2026-07-02">
+      <article class="sample-card" data-example-id="geula-m-hapeh-bigevura" data-uploaded="2026-07-02" data-topic="geula">
         <div class="sample-copy">
           <div class="sample-meta">
             <span class="eyebrow">התשפו</span>
@@ -194,7 +213,7 @@
         </a>
       </article>
 
-      <article class="sample-card" data-example-id="hey-july" data-uploaded="2026-07-02">
+      <article class="sample-card" data-example-id="hey-july" data-uploaded="2026-07-02" data-topic="dates">
         <div class="sample-copy">
           <div class="sample-meta">
             <span class="eyebrow">התשפו</span>
@@ -213,7 +232,7 @@
         </a>
       </article>
 
-      <article class="sample-card" data-example-id="yom-mashiach-ba-583-ketamuz" data-uploaded="2026-07-02">
+      <article class="sample-card" data-example-id="yom-mashiach-ba-583-ketamuz" data-uploaded="2026-07-02" data-topic="geula">
         <div class="sample-copy">
           <div class="sample-meta">
             <span class="eyebrow">התשפו</span>
@@ -232,7 +251,7 @@
         </a>
       </article>
 
-      <article class="sample-card" data-example-id="leshiul-shemen-zayit-lechem-boker" data-uploaded="2026-07-02">
+      <article class="sample-card" data-example-id="leshiul-shemen-zayit-lechem-boker" data-uploaded="2026-07-02" data-topic="healing">
         <div class="sample-copy">
           <div class="sample-meta">
             <span class="eyebrow">התשפו</span>
@@ -251,7 +270,7 @@
         </a>
       </article>
 
-      <article class="sample-card" data-example-id="heymanot-kesau" data-uploaded="2026-07-02">
+      <article class="sample-card" data-example-id="heymanot-kesau" data-uploaded="2026-07-02" data-topic="events">
         <div class="sample-copy">
           <div class="sample-meta">
             <span class="eyebrow">התשפו</span>
@@ -280,6 +299,6 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="supabase-public.js?v=1"></script>
   <script src="site-interactions.js?v=5"></script>
-  <script src="examples.js?v=3"></script>
+  <script src="examples.js?v=4"></script>
 </body>
 </html>
