@@ -1,7 +1,10 @@
 (() => {
   const STORAGE_KEY = "gal-einai-seen-examples-v1";
+  const VIEW_DELAY_MS = 4000;
   const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
   const SUPABASE_KEY = "sb_publishable_MqD3lXrftP5B36gcRjpDbw_csTVjpVK";
+  const keepNewThisSession = new Set();
+  const viewTimers = new Map();
 
   function readSeen() {
     try {
@@ -39,7 +42,7 @@
 
   function markSeen(card, seen) {
     const id = card.dataset.exampleId;
-    if (!id) return;
+    if (!id || keepNewThisSession.has(id)) return;
     seen[id] = card.dataset.uploaded || new Date().toISOString().slice(0, 10);
     writeSeen(seen);
     setCardState(card, seen);
@@ -49,10 +52,52 @@
   function markUnseen(card, seen) {
     const id = card.dataset.exampleId;
     if (!id) return;
+    keepNewThisSession.add(id);
+    window.clearTimeout(viewTimers.get(id));
+    viewTimers.delete(id);
     delete seen[id];
     writeSeen(seen);
     setCardState(card, seen);
     applyFilter(seen);
+  }
+
+  function scheduleSeen(card, seen) {
+    const id = card.dataset.exampleId;
+    if (!id || keepNewThisSession.has(id) || isSeen(card, seen) || viewTimers.has(id)) return;
+    viewTimers.set(id, window.setTimeout(() => {
+      viewTimers.delete(id);
+      markSeen(card, seen);
+    }, VIEW_DELAY_MS));
+  }
+
+  function cancelScheduledSeen(card) {
+    const id = card.dataset.exampleId;
+    if (!id) return;
+    window.clearTimeout(viewTimers.get(id));
+    viewTimers.delete(id);
+  }
+
+  function wireSeenOnView(seen) {
+    const cards = Array.from(document.querySelectorAll(".sample-card[data-example-id]"));
+    if (!("IntersectionObserver" in window)) {
+      cards.forEach((card) => scheduleSeen(card, seen));
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const card = entry.target;
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.55 && !card.hidden) {
+          scheduleSeen(card, seen);
+        } else {
+          cancelScheduledSeen(card);
+        }
+      });
+    }, { threshold: [0, 0.55, 0.85] });
+    cards.forEach((card) => {
+      if (card.dataset.viewObserverWired === "true") return;
+      card.dataset.viewObserverWired = "true";
+      observer.observe(card);
+    });
   }
 
   function activeFilter() {
@@ -157,6 +202,7 @@
         setCardState(card, seen);
       });
       window.GalEinaiWireSampleCards?.();
+      wireSeenOnView(seen);
       applyFilter(seen);
     } catch {
       // Static examples remain available when the live list cannot be loaded.
@@ -233,5 +279,6 @@
     }
   });
   applyFilter(seen);
+  wireSeenOnView(seen);
   loadPublishedContent(seen);
 })();
