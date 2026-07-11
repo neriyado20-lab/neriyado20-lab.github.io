@@ -180,6 +180,18 @@ h2 {
   color: #35424d;
 }
 
+.launch-note {
+  max-width: 620px;
+  margin: 12px 0 0;
+  padding: 7px 11px;
+  border: 1px solid rgba(13, 109, 86, 0.22);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #263b36;
+  font-size: 15px;
+  font-weight: 700;
+}
+
 .trust-strip {
   display: flex;
   flex-wrap: wrap;
