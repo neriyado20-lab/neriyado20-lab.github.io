@@ -661,7 +661,7 @@ body[data-edition="free"] .search-actions {
 .torah-panel {
   position: relative;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr);
   overflow: hidden;
 }
 
@@ -792,16 +792,23 @@ body[data-edition="free"] .search-actions {
 }
 
 .display-controls {
-  position: sticky;
-  bottom: 0;
-  z-index: 6;
+  position: absolute;
+  left: 50%;
+  bottom: 7px;
+  z-index: 8;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  width: max-content;
+  max-width: calc(100% - 14px);
   gap: 1px;
-  padding: 1px 3px;
-  border-top: 1px solid #d8d0b6;
-  background: #edf5f0;
+  padding: 3px 5px;
+  border: 1px solid rgba(49, 95, 85, 0.32);
+  border-radius: 7px;
+  background: rgba(237, 245, 240, 0.94);
+  box-shadow: 0 4px 14px rgba(29, 55, 47, 0.18);
+  transform: translateX(-50%);
+  backdrop-filter: blur(7px);
 }
 
 .display-controls[hidden] {
@@ -927,7 +934,7 @@ body[data-edition="free"] .search-actions {
 .torah-grid {
   min-height: 0;
   overflow: auto;
-  padding: 0;
+  padding: 0 0 38px;
   direction: rtl;
   scroll-behavior: auto;
   background: #f7ecd6;

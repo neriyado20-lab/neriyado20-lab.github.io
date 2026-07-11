@@ -78,7 +78,7 @@
   }
 
   function wireSeenOnView(seen) {
-    const cards = Array.from(document.querySelectorAll(".sample-card[data-example-id]"));
+    const cards = Array.from(document.querySelectorAll("[data-example-id]"));
     if (!("IntersectionObserver" in window)) {
       cards.forEach((card) => scheduleSeen(card, seen));
       return;
