@@ -682,6 +682,10 @@ h2 {
   box-shadow: 0 6px 16px rgba(183, 24, 42, 0.22);
 }
 
+.new-badge[hidden] {
+  display: none !important;
+}
+
 .sample-card.is-new {
   border-color: rgba(183, 24, 42, 0.34);
 }
