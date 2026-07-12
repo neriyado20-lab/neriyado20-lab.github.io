@@ -43,6 +43,20 @@
     return sessionStorage.getItem(AUTH_SESSION_KEY) === "yes";
   }
 
+  function wirePasswordToggles() {
+    document.querySelectorAll("[data-password-toggle]").forEach((button) => {
+      const input = $(button.dataset.passwordToggle);
+      if (!input) return;
+      button.addEventListener("click", () => {
+        const shouldShow = input.type === "password";
+        input.type = shouldShow ? "text" : "password";
+        button.setAttribute("aria-label", shouldShow ? "הסתר סיסמה" : "הצג סיסמה");
+        button.title = shouldShow ? "הסתר סיסמה" : "הצג סיסמה";
+        button.classList.toggle("is-active", shouldShow);
+      });
+    });
+  }
+
   function setAuthenticated(value) {
     if (value) sessionStorage.setItem(AUTH_SESSION_KEY, "yes");
     else sessionStorage.removeItem(AUTH_SESSION_KEY);
@@ -1053,6 +1067,7 @@
 
   if (supabaseClient) wireSupabaseAuth();
   else wireAuth();
+  wirePasswordToggles();
   wireContent();
   wireUploads();
   wireRetention();

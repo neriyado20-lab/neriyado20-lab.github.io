@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ניהול אתר - גל עיני</title>
   <meta name="description" content="לוח ניהול מקומי לאתר גל עיני: צפיות, שימושים, סימוני עיון, הערות ונרשמים.">
-  <link rel="stylesheet" href="styles.css?v=80">
+  <link rel="stylesheet" href="styles.css?v=85">
 </head>
 <body class="admin-locked">
   <section class="admin-login" id="adminLoginPanel" aria-label="כניסה לניהול">
@@ -18,10 +18,13 @@
       </label>
       <label>
         <span>סיסמה</span>
-        <input id="adminLoginPassword" type="password" autocomplete="current-password" required>
+        <span class="password-field">
+          <input id="adminLoginPassword" type="password" autocomplete="current-password" required>
+          <button class="password-toggle" type="button" data-password-toggle="adminLoginPassword" aria-label="הצג סיסמה" title="הצג סיסמה">👁</button>
+        </span>
       </label>
       <button class="button primary" type="submit">כניסה</button>
-      <button class="link-button" id="adminForgotPasswordButton" type="button">שכחתי סיסמה</button>
+      <button class="link-button" id="adminForgotPasswordButton" type="button">איפוס סיסמה</button>
       <p id="adminLoginStatus" class="admin-status" aria-live="polite"></p>
     </form>
   </section>
@@ -40,7 +43,7 @@
       <a href="ai.html">עיון AI</a>
       <a href="examples.html">צפנים לדוגמה</a>
       <a href="order.html">חיפוש לפי הזמנה</a>
-      <a href="account.html">הדברים שלי</a>
+      <a href="account.html">אזור אישי</a>
       <button class="button secondary admin-logout" id="adminLogoutButton" type="button">יציאה</button>
     </nav>
   </header>
@@ -292,6 +295,6 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=3"></script>
-  <script src="admin.js?v=12"></script>
+  <script src="admin.js?v=13"></script>
 </body>
 </html>

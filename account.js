@@ -21,9 +21,23 @@
   function setSignedIn(email) {
     stateTitle.textContent = email ? `שלום, ${email}` : "אפשר לעבוד גם בלי חשבון";
     stateText.textContent = email
-      ? "נכנסת לדברים שלך. כאן אפשר לעקוב אחרי בקשות תוספות לצפנים וקבצים להמשך עבודה."
+      ? "נכנסת לאזור האישי. כאן אפשר לעקוב אחרי בקשות תוספות לצפנים וקבצים להמשך עבודה."
       : "כלי החיפוש נשאר פתוח בלי כניסה. משתמש נכנס רק כשהוא רוצה לראות דברים פרטיים שלו.";
     signOut.hidden = !email;
+  }
+
+  function wirePasswordToggles() {
+    document.querySelectorAll("[data-password-toggle]").forEach((button) => {
+      const input = $(button.dataset.passwordToggle);
+      if (!input) return;
+      button.addEventListener("click", () => {
+        const shouldShow = input.type === "password";
+        input.type = shouldShow ? "text" : "password";
+        button.setAttribute("aria-label", shouldShow ? "הסתר סיסמה" : "הצג סיסמה");
+        button.title = shouldShow ? "הסתר סיסמה" : "הצג סיסמה";
+        button.classList.toggle("is-active", shouldShow);
+      });
+    });
   }
 
   function readAdditions() {
@@ -120,7 +134,7 @@
     }
     const email = emailInput.value.trim();
     if (!email) {
-      setStatus("יש להזין אימייל ואז ללחוץ שוב על שכחתי סיסמה.");
+      setStatus("יש להזין אימייל ואז ללחוץ שוב על איפוס סיסמה.");
       emailInput.focus();
       return;
     }
@@ -135,9 +149,10 @@
   signOut?.addEventListener("click", async () => {
     if (client) await client.auth.signOut();
     setSignedIn("");
-    setStatus("יצאת מהדברים שלך.");
+    setStatus("יצאת מהאזור האישי.");
   });
 
+  wirePasswordToggles();
   refreshSession();
   renderAdditions();
 })();

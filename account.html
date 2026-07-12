@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>הדברים שלי - גל עיני</title>
-  <meta name="description" content="הדברים שלי בגל עיני: כניסה לפי בחירה לצפייה בדברים אישיים, הזמנות, קבצים וצפנים שמורים.">
-  <link rel="stylesheet" href="styles.css?v=80">
+  <title>אזור אישי - גל עיני</title>
+  <meta name="description" content="אזור אישי בגל עיני: כניסה לפי בחירה לצפייה בדברים אישיים, הזמנות, קבצים וצפנים שמורים.">
+  <link rel="stylesheet" href="styles.css?v=85">
 </head>
 <body class="account-page">
   <header class="topbar">
@@ -13,7 +13,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני</strong>
-        <span>הדברים שלי</span>
+        <span>אזור אישי</span>
       </div>
     </a>
     <nav aria-label="ניווט">
@@ -28,9 +28,9 @@
   <main class="account-shell">
     <section class="page-hero account-hero">
       <p class="eyebrow">בחירה למשתמשים</p>
-      <h1>הדברים שלי</h1>
+      <h1>אזור אישי</h1>
       <p class="lead">
-        הכניסה אינה חובה. היא נועדה רק למי שרוצה לצפות בדברים ששייכים לו:
+        האזור האישי אינו חובה. הוא נועד רק למי שרוצה לצפות בדברים ששייכים לו:
         צפנים שמורים, הזמנות, קבצים אישיים והעדפות שיתווספו בהמשך.
       </p>
     </section>
@@ -47,12 +47,15 @@
         </label>
         <label>
           <span>סיסמה</span>
-          <input id="accountPassword" type="password" autocomplete="current-password" minlength="6" required>
+          <span class="password-field">
+            <input id="accountPassword" type="password" autocomplete="current-password" minlength="6" required>
+            <button class="password-toggle" type="button" data-password-toggle="accountPassword" aria-label="הצג סיסמה" title="הצג סיסמה">👁</button>
+          </span>
         </label>
         <div class="account-actions">
           <button class="button primary" id="accountSignInButton" type="submit">כניסה</button>
           <button class="button secondary" id="accountSignUpButton" type="button">הרשמה</button>
-          <button class="link-button" id="accountForgotButton" type="button">שכחתי סיסמה</button>
+          <button class="link-button" id="accountForgotButton" type="button">איפוס סיסמה</button>
         </div>
         <p id="accountStatus" class="admin-status" aria-live="polite"></p>
       </form>
@@ -80,10 +83,10 @@
   </main>
 
   <footer>
-    <span>גל עיני - הדברים שלי</span>
+    <span>גל עיני - אזור אישי</span>
     <span>ניהול האתר נשאר במסך נפרד למנהל בלבד</span>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="account.js?v=2"></script>
+  <script src="account.js?v=4"></script>
 </body>
 </html>
