@@ -49,6 +49,13 @@
     applyFilter(seen);
   }
 
+  function markOpened(card, seen) {
+    const id = card.dataset.exampleId;
+    if (!id) return;
+    keepNewThisSession.delete(id);
+    markSeen(card, seen);
+  }
+
   function markUnseen(card, seen) {
     const id = card.dataset.exampleId;
     if (!id) return;
@@ -77,6 +84,28 @@
     viewTimers.delete(id);
   }
 
+  function hasMeaningfulVisibility(card) {
+    if (!card || card.hidden) return false;
+    const rect = card.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return false;
+    const visibleWidth = Math.min(rect.right, window.innerWidth) - Math.max(rect.left, 0);
+    const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+    if (visibleWidth <= 0 || visibleHeight <= 0) return false;
+    const visibleArea = visibleWidth * visibleHeight;
+    const totalArea = rect.width * rect.height;
+    return visibleArea / totalArea >= 0.25;
+  }
+
+  function scanVisibleCards(seen) {
+    document.querySelectorAll("[data-example-id]").forEach((card) => {
+      if (hasMeaningfulVisibility(card)) {
+        scheduleSeen(card, seen);
+      } else {
+        cancelScheduledSeen(card);
+      }
+    });
+  }
+
   function wireSeenOnView(seen) {
     const cards = Array.from(document.querySelectorAll("[data-example-id]"));
     if (!("IntersectionObserver" in window)) {
@@ -86,18 +115,34 @@
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         const card = entry.target;
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.55 && !card.hidden) {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.25 && !card.hidden) {
           scheduleSeen(card, seen);
         } else {
           cancelScheduledSeen(card);
         }
       });
-    }, { threshold: [0, 0.55, 0.85] });
+    }, { threshold: [0, 0.25, 0.55, 0.85] });
     cards.forEach((card) => {
       if (card.dataset.viewObserverWired === "true") return;
       card.dataset.viewObserverWired = "true";
       observer.observe(card);
     });
+    scanVisibleCards(seen);
+    if (document.documentElement.dataset.exampleViewEventsWired !== "true") {
+      document.documentElement.dataset.exampleViewEventsWired = "true";
+      let scanQueued = false;
+      const queueScan = () => {
+        if (scanQueued) return;
+        scanQueued = true;
+        window.requestAnimationFrame(() => {
+          scanQueued = false;
+          scanVisibleCards(seen);
+        });
+      };
+      window.addEventListener("scroll", queueScan, { passive: true });
+      window.addEventListener("resize", queueScan);
+      window.addEventListener("focus", queueScan);
+    }
   }
 
   function activeFilter() {
@@ -231,7 +276,7 @@
   function applyFilter(seen) {
     const filter = activeFilter();
     const topic = activeTopic();
-    const cards = Array.from(document.querySelectorAll(".sample-card[data-example-id]"));
+    const cards = Array.from(document.querySelectorAll("[data-example-id]"));
     const visibleCards = [];
     cards.forEach((card) => {
       setCardState(card, seen);
@@ -252,6 +297,12 @@
   }
 
   const seen = readSeen();
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest?.(".track-view");
+    if (!link) return;
+    const card = link.closest("[data-example-id]") || (link.matches("[data-example-id]") ? link : null);
+    if (card) markOpened(card, seen);
+  }, true);
   document.querySelectorAll("[data-example-filter]").forEach((button) => {
     button.addEventListener("click", () => {
       document.querySelectorAll("[data-example-filter]").forEach((item) => item.classList.remove("is-active"));
@@ -271,7 +322,7 @@
     setCardState(card, seen);
     const trackedLinks = card.matches(".track-view") ? [card] : Array.from(card.querySelectorAll(".track-view"));
     trackedLinks.forEach((link) => {
-      link.addEventListener("click", () => markSeen(card, seen));
+      link.addEventListener("click", () => markOpened(card, seen));
     });
     const markButton = card.querySelector(".mark-unseen");
     if (markButton) {
