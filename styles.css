@@ -181,15 +181,37 @@ h2 {
 }
 
 .launch-note {
-  max-width: 620px;
-  margin: 12px 0 0;
-  padding: 7px 11px;
+  max-width: 720px;
+  margin: 14px auto 0;
+  padding: 10px 14px;
   border: 1px solid rgba(13, 109, 86, 0.22);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.72);
   color: #263b36;
   font-size: 15px;
   font-weight: 700;
+  text-align: center;
+  box-shadow: 0 10px 24px rgba(23, 33, 29, 0.08);
+}
+
+.launch-note strong {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--accent-dark);
+  font-size: 16px;
+}
+
+.launch-note p {
+  max-width: none;
+  margin: 0;
+  color: inherit;
+  font-size: inherit;
+  line-height: 1.55;
+}
+
+.launch-note p + p {
+  margin-top: 6px;
+  font-weight: 600;
 }
 
 .trust-strip {
