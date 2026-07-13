@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>עיון AI מונחה בצפנים - גל עיני</title>
   <meta name="description" content="מאגר מילים מותרות והצעות חיפוש לעיון בצפנים, ללא הכרעה על אנשים וללא לשון הרע.">
-  <link rel="stylesheet" href="styles.css?v=91">
+  <link rel="stylesheet" href="styles.css?v=92">
 </head>
 <body class="ai-page">
   <header class="topbar">
@@ -96,6 +96,14 @@
         <div id="aiWordChips" class="ai-word-chips"></div>
       </article>
       <article>
+        <h2>עריכת מילים לבחירת המשתמש</h2>
+        <p class="payment-status">אפשר למחוק, להוסיף או לשנות מילים לפני העתקה או פתיחה בחיפוש.</p>
+        <textarea id="aiEditableWords" class="order-summary" rows="6" placeholder="לאחר יצירת הצעה תופיע כאן רשימת המילים לעריכה."></textarea>
+        <div class="order-actions">
+          <button id="applyAiWordsButton" class="button secondary" type="button" disabled>עדכן לפי העריכה</button>
+        </div>
+      </article>
+      <article>
         <h2>מילים שסוננו</h2>
         <p id="aiBlockedWords" class="admin-status">לא סוננו מילים.</p>
       </article>
@@ -113,6 +121,6 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="supabase-public.js?v=1"></script>
   <script src="site-interactions.js?v=5"></script>
-  <script src="ai.js?v=4"></script>
+  <script src="ai.js?v=5"></script>
 </body>
 </html>
