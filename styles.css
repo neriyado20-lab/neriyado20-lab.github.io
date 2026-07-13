@@ -2142,7 +2142,7 @@ footer .legal-footer a,
   gap: clamp(8px, 1.5vw, 16px);
   align-content: center;
   justify-items: center;
-  padding: clamp(26px, 4vw, 54px) clamp(16px, 5vw, 72px) clamp(24px, 4vw, 44px);
+  padding: clamp(46px, 5.5vw, 78px) clamp(16px, 5vw, 72px) clamp(24px, 4vw, 44px);
   background:
     linear-gradient(90deg, rgba(42, 4, 10, 0.34), transparent 18%, transparent 82%, rgba(42, 4, 10, 0.34)),
     radial-gradient(ellipse at 50% 45%, rgba(255, 246, 210, 0.24), rgba(255, 246, 210, 0.08) 45%, rgba(0, 0, 0, 0.08) 100%),
@@ -2242,7 +2242,7 @@ footer .legal-footer a,
   position: relative;
   justify-self: center;
   width: min(860px, 100%);
-  padding: clamp(10px, 1.6vw, 18px) clamp(18px, 3vw, 34px);
+  padding: clamp(22px, 2.5vw, 34px) clamp(18px, 3vw, 34px) clamp(10px, 1.6vw, 18px);
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -2251,7 +2251,7 @@ footer .legal-footer a,
   box-shadow: none;
   backdrop-filter: none;
   text-align: center;
-  transform: translateY(clamp(-112px, -7.8vw, -72px));
+  transform: translateY(clamp(-84px, -5.8vw, -48px));
 }
 
 .hero-overlay::before,
@@ -2271,6 +2271,9 @@ footer .legal-footer a,
 
 .hero-overlay .eyebrow {
   color: #0a6a53;
+  line-height: 1.45;
+  margin-top: 0;
+  padding-top: 2px;
 }
 
 .hero-overlay h1 {
