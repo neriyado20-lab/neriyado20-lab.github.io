@@ -1580,6 +1580,135 @@ footer .legal-footer a,
   font-weight: 800;
 }
 
+.rides-hero-visual {
+  position: relative;
+  height: clamp(170px, 24vw, 245px);
+  max-width: 820px;
+  margin: 18px auto 22px;
+  overflow: hidden;
+  border: 1px solid rgba(13, 109, 86, 0.18);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 246, 0.38), rgba(255, 253, 246, 0.82)),
+    linear-gradient(135deg, rgba(63, 127, 180, 0.18), rgba(214, 156, 37, 0.22)),
+    #eef6ef;
+  box-shadow: 0 18px 42px rgba(23, 33, 29, 0.12);
+}
+
+.rides-hero-visual::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(13, 109, 86, 0.10);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, transparent 0 48%, rgba(255, 255, 255, 0.72) 48% 52%, transparent 52%),
+    repeating-linear-gradient(0deg, rgba(13, 109, 86, 0.08) 0 1px, transparent 1px 22px);
+  opacity: 0.75;
+}
+
+.rides-road {
+  position: absolute;
+  inset-inline: -8%;
+  bottom: 18%;
+  height: 58px;
+  transform: rotate(-4deg);
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 42px, rgba(255, 255, 255, 0.86) 42px 70px, transparent 70px 112px),
+    linear-gradient(180deg, #536861, #2f453f);
+  box-shadow: 0 20px 30px rgba(23, 33, 29, 0.20);
+}
+
+.rides-car {
+  position: absolute;
+  right: 46%;
+  bottom: 33%;
+  width: 170px;
+  height: 72px;
+  transform: translateX(50%) rotate(-4deg);
+  border-radius: 24px 44px 18px 18px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.95) 0 18%, transparent 18%),
+    linear-gradient(135deg, #0d6d56, #084838);
+  box-shadow: 0 18px 28px rgba(13, 109, 86, 0.28);
+}
+
+.rides-car::before {
+  content: "";
+  position: absolute;
+  right: 44px;
+  top: -28px;
+  width: 78px;
+  height: 38px;
+  border-radius: 28px 28px 6px 6px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.86) 0 46%, rgba(255, 255, 255, 0.35) 46% 52%, rgba(255, 255, 255, 0.86) 52%),
+    #3f7fb4;
+  border: 5px solid #0d6d56;
+  border-bottom: 0;
+}
+
+.rides-car::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 31px;
+  width: 14px;
+  height: 10px;
+  border-radius: 999px;
+  background: #fff1c8;
+  box-shadow: 135px 0 0 rgba(255, 241, 200, 0.45);
+}
+
+.rides-car span {
+  position: absolute;
+  bottom: -12px;
+  width: 30px;
+  height: 30px;
+  border: 7px solid #17211d;
+  border-radius: 999px;
+  background: #d7dfd2;
+  box-shadow: inset 0 0 0 4px #ffffff;
+}
+
+.rides-car span:first-child {
+  right: 22px;
+}
+
+.rides-car span:last-child {
+  left: 24px;
+}
+
+.rides-pin {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: #9c3f47;
+  box-shadow: 0 8px 20px rgba(156, 63, 71, 0.25);
+}
+
+.rides-pin::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 999px;
+  background: #fffdf6;
+}
+
+.rides-pin-start {
+  right: 17%;
+  top: 26%;
+}
+
+.rides-pin-end {
+  left: 15%;
+  bottom: 28%;
+  background: #d69c25;
+}
+
 .order-form label,
 .order-form label span {
   display: grid;
@@ -1667,6 +1796,12 @@ footer .legal-footer a,
   margin-top: 18px;
 }
 
+.rides-form,
+.rides-panel {
+  align-content: start;
+  overflow: hidden;
+}
+
 .rides-results {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -1687,6 +1822,150 @@ footer .legal-footer a,
 .rides-panel h2 {
   margin: 0;
   color: var(--accent-dark);
+}
+
+.rides-card-visual {
+  position: relative;
+  min-height: 102px;
+  margin: -24px -24px 2px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(13, 109, 86, 0.14);
+  background:
+    linear-gradient(135deg, rgba(255, 253, 246, 0.76), rgba(238, 246, 239, 0.70)),
+    linear-gradient(120deg, rgba(214, 156, 37, 0.24), rgba(63, 127, 180, 0.14));
+}
+
+.rides-card-visual::before,
+.rides-card-visual::after {
+  content: "";
+  position: absolute;
+}
+
+.rides-card-visual::before {
+  width: 82px;
+  height: 82px;
+  right: 24px;
+  top: 16px;
+  border: 2px solid rgba(13, 109, 86, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.54);
+}
+
+.rides-card-visual::after {
+  left: 18px;
+  right: 128px;
+  bottom: 24px;
+  height: 6px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(90deg, rgba(13, 109, 86, 0.30) 0 24px, transparent 24px 42px);
+}
+
+.rides-card-driver::before,
+.rides-card-passenger::before,
+.rides-card-drivers-list::before,
+.rides-card-match::before {
+  width: 96px;
+  height: 44px;
+  top: 34px;
+  border-radius: 18px 30px 12px 12px;
+  background: linear-gradient(135deg, #0d6d56, #084838);
+  border: 0;
+  box-shadow:
+    18px 34px 0 -21px #17211d,
+    70px 34px 0 -21px #17211d,
+    inset 23px -20px 0 rgba(255, 241, 200, 0.88);
+}
+
+.rides-card-passenger::before {
+  background: linear-gradient(135deg, #3f7fb4, #0d6d56);
+}
+
+.rides-card-security::before,
+.rides-card-check::before {
+  right: 34px;
+  width: 62px;
+  height: 74px;
+  border-radius: 30px 30px 22px 22px;
+  background: linear-gradient(135deg, #0d6d56, #084838);
+  clip-path: polygon(50% 0, 92% 18%, 82% 78%, 50% 100%, 18% 78%, 8% 18%);
+  border: 0;
+}
+
+.rides-card-report::before {
+  right: 36px;
+  width: 72px;
+  height: 64px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fff1c8, #d69c25);
+  clip-path: polygon(50% 0, 100% 92%, 0 92%);
+  border: 0;
+}
+
+.rides-card-community::before,
+.rides-card-meeting::before {
+  right: 24px;
+  width: 86px;
+  height: 86px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 28%, #0d6d56 0 9px, transparent 10px),
+    radial-gradient(circle at 24% 48%, #3f7fb4 0 8px, transparent 9px),
+    radial-gradient(circle at 74% 48%, #d69c25 0 8px, transparent 9px),
+    linear-gradient(180deg, transparent 0 48%, rgba(13, 109, 86, 0.26) 49% 76%, transparent 77%),
+    rgba(255, 255, 255, 0.55);
+}
+
+.rides-card-code::before {
+  right: 34px;
+  width: 62px;
+  height: 74px;
+  border-radius: 12px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.84) 0 30%, transparent 30% 38%, rgba(255, 255, 255, 0.84) 38% 68%, transparent 68% 76%, rgba(255, 255, 255, 0.84) 76%),
+    #0d6d56;
+  box-shadow: 0 -18px 0 -8px #084838;
+}
+
+.rides-card-script::before,
+.rides-card-message::before {
+  right: 30px;
+  width: 74px;
+  height: 66px;
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(13, 109, 86, 0.14) 0 2px, transparent 2px 14px),
+    #ffffff;
+  background-size: 100% 14px;
+  box-shadow: inset 0 0 0 2px rgba(13, 109, 86, 0.32);
+}
+
+.rides-card-feedback::before,
+.rides-card-rating::before {
+  right: 26px;
+  width: 84px;
+  height: 78px;
+  border: 0;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 18% 68%, #d69c25 0 7px, transparent 8px),
+    radial-gradient(circle at 38% 50%, #d69c25 0 7px, transparent 8px),
+    radial-gradient(circle at 58% 32%, #d69c25 0 7px, transparent 8px),
+    radial-gradient(circle at 78% 18%, #d69c25 0 7px, transparent 8px),
+    linear-gradient(90deg, rgba(13, 109, 86, 0.28) 0 4px, transparent 4px),
+    linear-gradient(0deg, rgba(13, 109, 86, 0.28) 0 4px, transparent 4px);
+}
+
+.rides-card-lost::before {
+  right: 34px;
+  width: 66px;
+  height: 58px;
+  top: 34px;
+  border: 0;
+  border-radius: 12px 12px 18px 18px;
+  background:
+    linear-gradient(90deg, transparent 0 36%, rgba(255, 255, 255, 0.72) 36% 64%, transparent 64%),
+    #9c3f47;
+  box-shadow: 0 -18px 0 -8px #63343a;
 }
 
 .rides-list {
