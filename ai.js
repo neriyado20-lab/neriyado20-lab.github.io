@@ -164,9 +164,18 @@
     return { ...rankWords(groups, domain), namesHeld: uniqueWords(names) };
   }
 
-  function buildWebUrl(allowed) {
+  function wordsForSearch(allowed, namesHeld = []) {
     const primary = allowed[0] || "";
-    const secondary = allowed.slice(1, 18).join(" ");
+    const primaryKey = canonical(primary);
+    const secondaries = uniqueWords([...allowed.slice(1), ...namesHeld])
+      .filter((word) => canonical(word) !== primaryKey);
+    return primary ? [primary, ...secondaries] : secondaries;
+  }
+
+  function buildWebUrl(allowed, namesHeld = []) {
+    const searchWords = wordsForSearch(allowed, namesHeld);
+    const primary = searchWords[0] || "";
+    const secondary = searchWords.slice(1, 19).join(" ");
     const params = new URLSearchParams();
     if (primary) params.set("primary", primary);
     if (secondary) params.set("secondary", secondary);
@@ -179,8 +188,9 @@
   let lastNamesHeld = [];
 
   function buildSummaryText(allowed, namesHeld = lastNamesHeld) {
-    const topPrimary = allowed[0] || "";
-    const secondary = allowed.slice(1, 18);
+    const searchWords = wordsForSearch(allowed, namesHeld);
+    const topPrimary = searchWords[0] || "";
+    const secondary = searchWords.slice(1, 19);
     const domain = $("aiDomain").value;
     const summaryLines = [
       "עיון AI מונחה - גל עיני",
@@ -195,7 +205,7 @@
       secondary.join("\n"),
       "",
       "מילים נוספות להרחבה:",
-      allowed.slice(18).join("\n"),
+      searchWords.slice(19).join("\n"),
       "",
     ];
     if (domain === "case" || domain === "missing") {
@@ -218,10 +228,10 @@
     return summaryLines.join("\n");
   }
 
-  function applyAllowedWords(allowed, namesHeld = lastNamesHeld) {
-    const words = uniqueWords(allowed);
+  function applyAllowedWords(allowed, namesHeld = []) {
+    const words = wordsForSearch(uniqueWords(allowed), namesHeld);
     $("aiSummary").value = buildSummaryText(words, namesHeld);
-    $("openWebSearchButton").href = buildWebUrl(words);
+    $("openWebSearchButton").href = buildWebUrl(words, namesHeld);
     $("openWebSearchButton").classList.toggle("disabled", !words.length);
     if (words.length) $("openWebSearchButton").removeAttribute("aria-disabled");
     else $("openWebSearchButton").setAttribute("aria-disabled", "true");
@@ -235,18 +245,19 @@
     if (!$("aiConsent").checked) return;
     const { ordered, allowed, blocked, namesHeld } = buildSuggestions();
     lastNamesHeld = namesHeld;
-    renderChips(ordered);
-    const topPrimary = allowed[0] || "";
+    const searchWords = wordsForSearch(allowed, namesHeld);
+    renderChips(searchWords);
+    const topPrimary = searchWords[0] || "";
     $("aiBlockedWords").textContent = blocked.length ? blocked.join(", ") : "לא סוננו מילים.";
-    $("aiEditableWords").value = allowed.join("\n");
-    applyAllowedWords(allowed, namesHeld);
-    $("aiStatus").textContent = `נבנתה רשימה מדורגת של ${allowed.length} מילים מותרות לעיון.`;
+    $("aiEditableWords").value = searchWords.join("\n");
+    applyAllowedWords(searchWords, namesHeld);
+    $("aiStatus").textContent = `נבנתה רשימה מדורגת של ${searchWords.length} מילים מותרות לעיון, כולל שמות כמישניות.`;
     const store = readStore();
     store.aiGuides = Array.isArray(store.aiGuides) ? store.aiGuides : [];
     store.aiGuides.push({
       domain: $("aiDomain").value,
       topic: $("aiTopic").value.trim(),
-      words: allowed,
+      words: searchWords,
       blocked,
       namesHeld,
       primary: topPrimary,
