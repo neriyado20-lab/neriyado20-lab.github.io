@@ -72,6 +72,7 @@ a {
   align-items: center;
   gap: 10px;
   min-width: 0;
+  padding: 2px 0;
   color: inherit;
   text-decoration: none;
 }
@@ -98,6 +99,7 @@ a {
 .brand strong,
 .brand span {
   display: block;
+  line-height: 1.35;
   white-space: nowrap;
 }
 
@@ -431,43 +433,98 @@ h2 {
 
 .important-links-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
   margin-top: 18px;
 }
 
 .important-links-grid a {
-  min-height: 92px;
   display: grid;
-  align-content: center;
-  gap: 5px;
-  padding: 15px;
+  grid-template-rows: auto 1fr;
+  gap: 12px;
+  overflow: hidden;
   border: 1px solid rgba(13, 109, 86, 0.18);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.78);
   color: inherit;
   text-decoration: none;
   box-shadow: 0 10px 24px rgba(23, 33, 29, 0.07);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
 .important-links-grid a:hover {
   border-color: rgba(13, 109, 86, 0.36);
   background: #ffffff;
+  transform: translateY(-2px);
 }
 
-.important-links-grid strong,
-.important-links-grid span {
+.link-media {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(13, 109, 86, 0.16), rgba(206, 169, 87, 0.22)),
+    #f8f3e6;
+}
+
+.link-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.link-media:not(.link-symbol)::after {
+  content: "";
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 22px rgba(12, 24, 20, 0.22);
+}
+
+.link-media:not(.link-symbol)::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  width: 0;
+  height: 0;
+  margin-right: -4px;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 16px solid var(--accent-dark);
+}
+
+.link-symbol {
+  color: var(--accent-dark);
+  font-size: 44px;
+  font-weight: 800;
+}
+
+.link-copy {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-height: 104px;
+  padding: 0 15px 15px;
+}
+
+.link-copy strong,
+.link-copy span {
   display: block;
 }
 
-.important-links-grid strong {
+.link-copy strong {
   color: var(--accent-dark);
   font-size: 17px;
 }
 
-.important-links-grid span {
+.link-copy span {
   color: var(--muted);
   font-size: 14px;
+  line-height: 1.55;
 }
 
 .page-hero {
