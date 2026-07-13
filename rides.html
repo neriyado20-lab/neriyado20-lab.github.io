@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>גמ"ח תיווך טרמפים - גל עיני</title>
   <meta name="description" content="גמ״ח תיווך טרמפים עם הפרדה בין גברים לנשים ובדיקת התאמה לפי מסלול.">
-  <link rel="stylesheet" href="styles.css?v=85">
+  <link rel="stylesheet" href="styles.css?v=89">
 </head>
 <body class="rides-page">
   <header class="topbar">
@@ -30,6 +30,15 @@
     <section class="order-intro">
       <p class="eyebrow">גמ"ח תיווך</p>
       <h1>טרמפים בהפרדה ובאחריות</h1>
+      <div class="rides-hero-visual" aria-hidden="true">
+        <span class="rides-road"></span>
+        <span class="rides-car">
+          <span></span>
+          <span></span>
+        </span>
+        <span class="rides-pin rides-pin-start"></span>
+        <span class="rides-pin rides-pin-end"></span>
+      </div>
       <p>
         רשימת מסיעים מוצעים, בדיקה אם המבקש נמצא במסלול, והפרדה בין גברים לנשים.
         פרטי הנוסעים נשמרים ביומן מקומי גם למקרה של אובדן חפצים.
@@ -58,6 +67,7 @@
 
     <section class="rides-security-grid" aria-label="אבטחת גמ״ח הטרמפים">
       <div class="rides-panel">
+        <div class="rides-card-visual rides-card-security" aria-hidden="true"></div>
         <h2>שמירת ביטחון ושימוש ראוי</h2>
         <div class="rides-security-list">
           <span>שימוש קהילתי בלבד, עם שם וטלפון אמיתיים.</span>
@@ -76,6 +86,7 @@
       </div>
 
       <form id="securityReportForm" class="rides-form">
+        <div class="rides-card-visual rides-card-report" aria-hidden="true"></div>
         <h2>דיווח על חשש</h2>
         <label>
           <span>שם המדווח</span>
@@ -104,6 +115,7 @@
 
     <section class="rides-community-grid" aria-label="כניסה למעגל קהילתי">
       <div class="rides-panel">
+        <div class="rides-card-visual rides-card-community" aria-hidden="true"></div>
         <h2>מעגל קהילתי</h2>
         <p class="payment-status">הגמ"ח מיועד לפעול בתוך קהילות נפרדות. ניתן להצטרף רק לאחר פנייה לנציג מוסמך של הקהילה וקבלת קוד אישי.</p>
         <p class="payment-status">כאשר הדבר אפשרי, הודעת ראש הקהילה וקריאתו להצטרף תוצג באזור האישי של חברי הקהילה במערכת קהילתית כגון נדרים פלוס.</p>
@@ -111,6 +123,7 @@
       </div>
 
       <form id="communityAccessForm" class="rides-form">
+        <div class="rides-card-visual rides-card-code" aria-hidden="true"></div>
         <h2>כניסה עם קוד קהילתי</h2>
         <label>
           <span>שם הקהילה</span>
@@ -150,6 +163,7 @@
 
     <section class="rides-community-grid" aria-label="הודעה לנציג הקהילה">
       <div class="rides-panel">
+        <div class="rides-card-visual rides-card-meeting" aria-hidden="true"></div>
         <h2>הודעה לנציג הקהילה</h2>
         <p class="payment-status">
           הנציג מתבקש להביא את הגמ"ח לידיעת הציבור בהתכנסות רחבה או בכמה התכנסויות, להסביר בקצרה שהמערכת מזהה מסלולי נסיעה חופפים ומחברת בין מסיע לנוסע בתוך הקהילה.
@@ -160,6 +174,7 @@
       </div>
 
       <div class="rides-panel">
+        <div class="rides-card-visual rides-card-script" aria-hidden="true"></div>
         <h2>נוסח קצר להצגה</h2>
         <p class="payment-status">
           הגמ"ח מסייע למצוא התאמות בין מי שנוסע לבין מי שצריך טרמפ, לפי מסלול, זמן והפרדה מתאימה. ההצטרפות נעשית דרך נציג הקהילה וקוד אישי, כדי לשמור על אמון, אחריות ובטיחות.
@@ -169,6 +184,7 @@
 
     <section class="rides-grid" aria-label="טפסי גמ״ח טרמפים">
       <form id="driverForm" class="rides-form">
+        <div class="rides-card-visual rides-card-driver" aria-hidden="true"></div>
         <h2>אני יכול לקחת</h2>
         <label>
           <span>שם המסיע</span>
@@ -221,6 +237,7 @@
       </form>
 
       <form id="requestForm" class="rides-form">
+        <div class="rides-card-visual rides-card-passenger" aria-hidden="true"></div>
         <h2>אני צריך טרמפ</h2>
         <label>
           <span>שם המבקש</span>
@@ -283,6 +300,7 @@
 
     <section class="rides-feedback-grid" aria-label="משוב ואמינות בגמ״ח טרמפים">
       <form id="feedbackForm" class="rides-form">
+        <div class="rides-card-visual rides-card-feedback" aria-hidden="true"></div>
         <h2>משוב אחרי נסיעה</h2>
         <label>
           <span>אני מדרג בתור</span>
@@ -332,6 +350,7 @@
       </form>
 
       <div class="rides-panel">
+        <div class="rides-card-visual rides-card-rating" aria-hidden="true"></div>
         <h2>מדדי אמינות ואווירה</h2>
         <p class="payment-status">מוצג רק מדד מצטבר ועדין, בלי הערות מילוליות ובלי מסקנה ודאית על אדם.</p>
         <div id="feedbackSummaryList" class="rides-list"></div>
@@ -340,23 +359,28 @@
 
     <section class="rides-results" aria-label="תוצאות התאמה">
       <div class="rides-panel">
+        <div class="rides-card-visual rides-card-drivers-list" aria-hidden="true"></div>
         <h2>רשימת מסיעים מוצעים</h2>
         <div id="driverList" class="rides-list"></div>
       </div>
       <div class="rides-panel">
+        <div class="rides-card-visual rides-card-match" aria-hidden="true"></div>
         <h2>התאמות אפשריות</h2>
         <p id="ridesStatus" class="payment-status" aria-live="polite">עדיין לא בוצעה בדיקה.</p>
         <div id="matchList" class="rides-list"></div>
       </div>
       <div class="rides-panel">
+        <div class="rides-card-visual rides-card-lost" aria-hidden="true"></div>
         <h2>יומן נוסעים ואבידות</h2>
         <div id="requestList" class="rides-list"></div>
       </div>
       <div class="rides-panel">
+        <div class="rides-card-visual rides-card-message" aria-hidden="true"></div>
         <h2>הודעות באתר</h2>
         <div id="messageList" class="rides-list"></div>
       </div>
       <div class="rides-panel">
+        <div class="rides-card-visual rides-card-check" aria-hidden="true"></div>
         <h2>דיווחים חריגים לבדיקה</h2>
         <div id="securityReportList" class="rides-list"></div>
       </div>
