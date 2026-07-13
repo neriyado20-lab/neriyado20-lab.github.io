@@ -6,7 +6,7 @@
   <title>גל עיני Web - חיפוש צפנים בתורה</title>
   <meta name="description" content="גל עיני Web: חיפוש ראשיות ומשניות, תצוגת צפנים, שמירה, ניווט וכלי עבודה מקצועיים ישירות בדפדפן.">
   <link rel="stylesheet" href="styles.css?v=92">
-  <link rel="stylesheet" href="web-app.css?v=50">
+  <link rel="stylesheet" href="web-app.css?v=51">
 </head>
 <body class="web-app-page">
   <header class="topbar app-topbar">
@@ -75,7 +75,7 @@
         </label>
         <div class="search-actions">
           <button id="searchButton" class="button primary" type="submit">חפש</button>
-          <button id="secondaryScanButton" class="button secondary scan-secondary pro-only" type="button" title="סרוק את המשניות הנוכחיות בכל הראשיות שכבר נמצאו, ללא חיפוש ראשיות חוזר">סרוק משניות</button>
+          <button id="secondaryScanButton" class="button secondary scan-secondary pro-only" type="button" title="הוסף או שנה מישניות וחפש רק אותן על הראשית או הראשיות שכבר נמצאו">הוסף מישניות וחפש</button>
           <button id="stopButton" class="button secondary" type="button" disabled>עצור</button>
           <button id="clearButton" class="button secondary" type="button">נקה</button>
           <button id="openProjectButton" class="button secondary" type="button">פתח צופן</button>
@@ -233,7 +233,7 @@
           <li>הקלד ראשית אחת או יותר בהתאם למהדורה.</li>
           <li>הקלד משניות כשהן מופרדות ברווח. כתיבת <b>!</b> לפני מילה מחייבת את הופעתה בצופן.</li>
           <li>בחר טווח דילוגים ומספר מינימלי של משניות ולחץ <b>חפש</b>.</li>
-          <li class="pro-help">אם הראשיות כבר נמצאו, <b>סרוק משניות</b> בודק משניות חדשות בלי לחפש שוב את הראשיות.</li>
+          <li class="pro-help">אם הראשיות כבר נמצאו, <b>הוסף מישניות וחפש רק אותן</b> בודק את המישניות שבתיבה על הראשית או הראשיות הקיימות, בלי לחפש שוב את הראשיות.</li>
         </ol>
       </section>
       <section>
@@ -309,6 +309,6 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="supabase-public.js?v=1"></script>
   <script src="site-interactions.js?v=5"></script>
-  <script src="web-app.js?v=54"></script>
+  <script src="web-app.js?v=55"></script>
 </body>
 </html>
