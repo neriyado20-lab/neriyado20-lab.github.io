@@ -176,14 +176,11 @@
     return `web.html?${params.toString()}`;
   }
 
-  $("aiGuideForm").addEventListener("submit", (event) => {
-    event.preventDefault();
-    if (!$("aiConsent").checked) return;
-    const { ordered, allowed, blocked, namesHeld } = buildSuggestions();
-    renderChips(ordered);
+  let lastNamesHeld = [];
+
+  function buildSummaryText(allowed, namesHeld = lastNamesHeld) {
     const topPrimary = allowed[0] || "";
     const secondary = allowed.slice(1, 18);
-    const webUrl = buildWebUrl(allowed);
     const domain = $("aiDomain").value;
     const summaryLines = [
       "עיון AI מונחה - גל עיני",
@@ -218,12 +215,31 @@
     if (domain === "case") summaryLines.push("5. במקרה פלילי: רק גורמי חקירה מוסמכים יכולים לברר חשד מעשי; כאן מתקבל כיוון טקסטואלי בלבד.");
     if (domain === "missing") summaryLines.push("5. במקרה נעדר בזמן אמת: לפנות מיד למשטרה, הצלה או גורמי חיפוש מוסמכים; כאן מתקבלים כיווני עיון בלבד ולא מיקום ודאי.");
     summaryLines.push("", "הערה: זהו כלי עזר לעיון בלבד, ללא הכרעה על אדם וללא לשון הרע.");
+    return summaryLines.join("\n");
+  }
+
+  function applyAllowedWords(allowed, namesHeld = lastNamesHeld) {
+    const words = uniqueWords(allowed);
+    $("aiSummary").value = buildSummaryText(words, namesHeld);
+    $("openWebSearchButton").href = buildWebUrl(words);
+    $("openWebSearchButton").classList.toggle("disabled", !words.length);
+    if (words.length) $("openWebSearchButton").removeAttribute("aria-disabled");
+    else $("openWebSearchButton").setAttribute("aria-disabled", "true");
+    $("copyAiWordsButton").disabled = !words.length;
+    $("applyAiWordsButton").disabled = !words.length;
+    return words;
+  }
+
+  $("aiGuideForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!$("aiConsent").checked) return;
+    const { ordered, allowed, blocked, namesHeld } = buildSuggestions();
+    lastNamesHeld = namesHeld;
+    renderChips(ordered);
+    const topPrimary = allowed[0] || "";
     $("aiBlockedWords").textContent = blocked.length ? blocked.join(", ") : "לא סוננו מילים.";
-    $("aiSummary").value = summaryLines.join("\n");
-    $("openWebSearchButton").href = webUrl;
-    $("openWebSearchButton").classList.remove("disabled");
-    $("openWebSearchButton").removeAttribute("aria-disabled");
-    $("copyAiWordsButton").disabled = !allowed.length;
+    $("aiEditableWords").value = allowed.join("\n");
+    applyAllowedWords(allowed, namesHeld);
     $("aiStatus").textContent = `נבנתה רשימה מדורגת של ${allowed.length} מילים מותרות לעיון.`;
     const store = readStore();
     store.aiGuides = Array.isArray(store.aiGuides) ? store.aiGuides : [];
@@ -237,6 +253,15 @@
       at: new Date().toISOString(),
     });
     writeStore(store);
+  });
+
+  $("applyAiWordsButton").addEventListener("click", () => {
+    const { allowed, blocked } = filterWords(splitWords($("aiEditableWords").value));
+    $("aiEditableWords").value = allowed.join("\n");
+    renderChips(allowed);
+    $("aiBlockedWords").textContent = blocked.length ? blocked.join(", ") : "לא סוננו מילים.";
+    const words = applyAllowedWords(allowed);
+    $("aiStatus").textContent = `הרשימה עודכנה לפי בחירת המשתמש: ${words.length} מילים מותרות לעיון.`;
   });
 
   $("copyAiWordsButton").addEventListener("click", async () => {
