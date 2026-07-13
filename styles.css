@@ -445,6 +445,17 @@ h2 {
     var(--soft);
 }
 
+.inline-source-link {
+  color: #1f66c1;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.inline-source-link:hover {
+  color: #0d4f97;
+}
+
 .important-links-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
