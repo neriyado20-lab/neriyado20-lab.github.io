@@ -57,10 +57,10 @@ a {
   top: 0;
   z-index: 10;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
-  padding: 11px clamp(16px, 4vw, 56px);
+  padding: 7px clamp(16px, 4vw, 56px) 6px;
   background: rgba(255, 253, 246, 0.94);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(12px);
@@ -69,20 +69,20 @@ a {
 
 .brand {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   min-width: 0;
   flex-shrink: 0;
-  padding: 3px 0;
+  padding: 0;
   color: inherit;
   text-decoration: none;
 }
 
 .brand > div {
   display: grid;
-  gap: 1px;
+  gap: 0;
   min-width: 0;
-  padding-block: 1px;
+  padding-top: 1px;
 }
 
 .brand:focus-visible {
@@ -107,7 +107,7 @@ a {
 .brand strong,
 .brand span {
   display: block;
-  line-height: 1.42;
+  line-height: 1.28;
   white-space: nowrap;
 }
 
@@ -121,10 +121,16 @@ a {
   font-size: 14px;
 }
 
+.brand > div > span {
+  margin-top: 4px;
+  line-height: 1.25;
+}
+
 .topbar nav {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+  padding-top: 5px;
 }
 
 .topbar nav a {
