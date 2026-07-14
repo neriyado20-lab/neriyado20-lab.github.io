@@ -288,6 +288,10 @@ h2 {
   text-shadow: inherit;
 }
 
+.nowrap {
+  white-space: nowrap;
+}
+
 .home-hero > .dedication-note {
   position: absolute;
   left: clamp(42px, 4.2vw, 96px);
@@ -2305,7 +2309,7 @@ footer .legal-footer a,
   background: transparent;
   box-shadow:
     0 16px 42px rgba(32, 14, 10, 0.14);
-  transform: translateY(clamp(40px, 7vh, 78px)) rotate(-0.15deg);
+  transform: translateY(clamp(-6px, 2.5vh, 28px)) rotate(-0.15deg);
   margin-top: 0;
 }
 
