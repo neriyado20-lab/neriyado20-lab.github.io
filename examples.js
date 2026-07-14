@@ -246,6 +246,7 @@
         layout.prepend(card);
         setCardState(card, seen);
       });
+      updateVaultPicker();
       window.GalEinaiWireSampleCards?.();
       wireSeenOnView(seen);
       applyFilter(seen);
@@ -271,6 +272,53 @@
     const target = visibleCards[0] || (topic === "users" ? document.getElementById("user-ciphers") : empty);
     if (empty) empty.hidden = Boolean(visibleCards.length);
     if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function cardTitle(card) {
+    return card.querySelector("h2")?.textContent?.trim()
+      || card.querySelector("strong")?.textContent?.trim()
+      || card.dataset.exampleId
+      || "";
+  }
+
+  function updateVaultPicker() {
+    const select = document.getElementById("cipherVaultSelect");
+    if (!select) return;
+    const currentValue = select.value;
+    const cards = Array.from(document.querySelectorAll("[data-example-id]"))
+      .sort((a, b) => cardTitle(a).localeCompare(cardTitle(b), "he"));
+    select.replaceChildren();
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = "בחר צופן...";
+    select.appendChild(first);
+    cards.forEach((card) => {
+      const id = card.dataset.exampleId;
+      const title = cardTitle(card);
+      if (!id || !title) return;
+      const option = document.createElement("option");
+      option.value = id;
+      option.textContent = title;
+      select.appendChild(option);
+    });
+    if (currentValue && select.querySelector(`option[value="${CSS.escape(currentValue)}"]`)) {
+      select.value = currentValue;
+    }
+  }
+
+  function focusVaultCard(id, seen) {
+    if (!id) return;
+    const card = document.querySelector(`[data-example-id="${CSS.escape(id)}"]`);
+    if (!card) return;
+    document.querySelectorAll("[data-example-filter]").forEach((item) => item.classList.remove("is-active"));
+    document.querySelector('[data-example-filter="all"]')?.classList.add("is-active");
+    document.querySelectorAll("[data-topic-filter]").forEach((item) => item.classList.remove("is-active"));
+    document.querySelector('[data-topic-filter="all"]')?.classList.add("is-active");
+    applyFilter(seen);
+    card.hidden = false;
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.classList.add("vault-focus");
+    window.setTimeout(() => card.classList.remove("vault-focus"), 1800);
   }
 
   function applyFilter(seen) {
@@ -318,6 +366,9 @@
       scrollToTopicResult(visibleCards);
     });
   });
+  document.getElementById("cipherVaultSelect")?.addEventListener("change", (event) => {
+    focusVaultCard(event.target.value, seen);
+  });
   document.querySelectorAll("[data-example-id]").forEach((card) => {
     setCardState(card, seen);
     const trackedLinks = card.matches(".track-view") ? [card] : Array.from(card.querySelectorAll(".track-view"));
@@ -330,6 +381,7 @@
     }
   });
   applyFilter(seen);
+  updateVaultPicker();
   wireSeenOnView(seen);
   loadPublishedContent(seen);
 })();
