@@ -1126,23 +1126,6 @@ h2 {
   background: #fff;
 }
 
-.sample-image-link::after,
-.sample-preview::after {
-  content: "גל עיני";
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  z-index: 2;
-  padding: 3px 9px;
-  border: 1px solid rgba(13, 64, 52, 0.18);
-  border-radius: 999px;
-  background: rgba(255, 253, 246, 0.72);
-  color: rgba(7, 63, 51, 0.70);
-  font: 900 12px Arial, "Noto Sans Hebrew", sans-serif;
-  pointer-events: none;
-  box-shadow: 0 1px 4px rgba(23, 33, 29, 0.08);
-}
-
 .sample-image-link img {
   display: block;
   width: 100%;
