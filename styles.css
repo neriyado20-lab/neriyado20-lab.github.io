@@ -144,6 +144,19 @@ a {
   border-bottom-color: var(--gold);
 }
 
+.hebrew-date {
+  align-self: center;
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px solid rgba(13, 109, 86, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .hero {
   position: relative;
   min-height: calc(100vh - 59px);
@@ -230,12 +243,28 @@ h2 {
   font-weight: 600;
 }
 
+.announcement-note {
+  position: absolute;
+  right: clamp(8px, 1vw, 18px);
+  top: clamp(96px, 9vw, 128px);
+  z-index: 3;
+  width: min(280px, calc(100vw - 32px));
+  margin: 0;
+  background: rgba(255, 255, 255, 0.86);
+  text-align: right;
+  box-shadow: 0 14px 34px rgba(10, 29, 24, 0.12);
+}
+
+.announcement-note p {
+  font-size: 13px;
+}
+
 .dedication-note {
   position: absolute;
-  left: clamp(16px, 3vw, 44px);
+  left: clamp(8px, 1vw, 18px);
   top: clamp(86px, 10vw, 128px);
   z-index: 3;
-  width: min(290px, calc(100vw - 32px));
+  width: min(260px, calc(100vw - 32px));
   margin: 0;
   background: rgba(255, 253, 246, 0.86);
   text-align: right;
@@ -2470,8 +2499,10 @@ footer .legal-footer a,
     padding-top: 78px;
   }
 
+  .announcement-note,
   .dedication-note {
     position: relative;
+    right: auto;
     left: auto;
     top: auto;
     width: min(720px, 100%);
