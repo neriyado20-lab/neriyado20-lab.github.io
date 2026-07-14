@@ -230,6 +230,22 @@ h2 {
   font-weight: 600;
 }
 
+.dedication-note {
+  position: absolute;
+  left: clamp(16px, 3vw, 44px);
+  top: clamp(86px, 10vw, 128px);
+  z-index: 3;
+  width: min(290px, calc(100vw - 32px));
+  margin: 0;
+  background: rgba(255, 253, 246, 0.86);
+  text-align: right;
+  box-shadow: 0 14px 34px rgba(32, 14, 10, 0.12);
+}
+
+.dedication-note p {
+  font-size: 13px;
+}
+
 .trust-strip {
   display: flex;
   flex-wrap: wrap;
@@ -2452,6 +2468,14 @@ footer .legal-footer a,
     grid-template-columns: 1fr;
     align-items: center;
     padding-top: 78px;
+  }
+
+  .dedication-note {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: min(720px, 100%);
+    margin: 10px auto 0;
   }
 
   .home-hero::before {
