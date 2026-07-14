@@ -172,7 +172,7 @@
     const nextParams = new URLSearchParams(window.location.search);
     nextParams.delete("edition");
     els.editionBadge.textContent = "שימוש מלא באתר | הורדות פתוחות";
-    els.editionSwitch.textContent = "הורדת Windows";
+    els.editionSwitch.textContent = "הורדת תוכנת גל עיני ל-Windows";
     els.editionSwitch.href = "index.html#download";
     const maxSkip = PRO_MAX_SKIP;
     const maxSecondaries = PRO_MAX_SECONDARIES;
