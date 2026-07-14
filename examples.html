@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>צפנים לדוגמה - גל עיני</title>
-  <meta name="description" content="צפנים לדוגמה שנמצאו ונשמרו בתוכנת גל עיני, כולל תמונות מסך וקבצי צופן.">
-  <link rel="stylesheet" href="styles.css?v=95">
+  <title>אוצר הצפנים - גל עיני</title>
+  <meta name="description" content="אוצר הצפנים שנמצאו ונשמרו בתוכנת גל עיני, כולל תמונות מסך וקבצי צופן.">
+  <link rel="stylesheet" href="styles.css?v=97">
 </head>
 <body>
   <header class="topbar">
@@ -13,7 +13,7 @@
       <span class="brand-mark" aria-hidden="true">גע</span>
       <div>
         <strong>גל עיני</strong>
-        <span>צפנים לדוגמה</span>
+        <span>אוצר הצפנים</span>
       </div>
     </a>
     <span class="hebrew-date" data-hebrew-date aria-label="תאריך עברי"></span>
@@ -32,14 +32,20 @@
   <main>
     <section class="page-hero examples-hero">
       <p class="eyebrow">ממצאים מתוך התוכנה</p>
-      <h1>צפנים לדוגמה</h1>
+      <h1>אוצר הצפנים</h1>
       <p class="lead">
-        דוגמאות אמיתיות מתוך גל עיני, עם אפשרות לסמן מה כבר נצפה ולחזור לצפנים חדשים.
+        צפנים אמיתיים מתוך גל עיני, עם אפשרות לבחור צופן, לפתוח אותו ולעקוב מה כבר נצפה.
       </p>
     </section>
 
-    <section class="examples-toolbar" aria-label="סינון צפנים לדוגמה">
+    <section class="examples-toolbar" aria-label="סינון אוצר הצפנים">
       <div class="examples-count" id="examplesCount">טוען צפנים...</div>
+      <label class="cipher-vault-picker">
+        <span>בחר צופן מהאוצר</span>
+        <select id="cipherVaultSelect">
+          <option value="">בחר צופן...</option>
+        </select>
+      </label>
       <div class="examples-filter" role="group" aria-label="סינון לפי צפייה">
         <button class="button secondary is-active" type="button" data-example-filter="all">הכל</button>
         <button class="button secondary" type="button" data-example-filter="new">חדשים</button>
@@ -300,14 +306,14 @@
   </main>
 
   <footer>
-    <span>גל עיני - צפנים לדוגמה</span>
+    <span>גל עיני - אוצר הצפנים</span>
     <span><a href="index.html">חזרה לעמוד הראשי</a></span>
     <span id="siteActivity"></span>
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="supabase-public.js?v=1"></script>
   <script src="hebrew-date.js?v=1"></script>
-  <script src="site-interactions.js?v=8"></script>
-  <script src="examples.js?v=9"></script>
+  <script src="site-interactions.js?v=9"></script>
+  <script src="examples.js?v=10"></script>
 </body>
 </html>
