@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ניהול אתר - גל עיני</title>
   <meta name="description" content="לוח ניהול מקומי לאתר גל עיני: צפיות, שימושים, סימוני עיון, הערות ונרשמים.">
-  <link rel="stylesheet" href="styles.css?v=95">
+  <link rel="stylesheet" href="styles.css?v=97">
 </head>
 <body class="admin-locked">
   <section class="admin-login" id="adminLoginPanel" aria-label="כניסה לניהול">
@@ -42,7 +42,7 @@
       <a href="index.html">ראשי</a>
       <a href="web.html">עבודה באתר</a>
       <a href="ai.html">עיון AI</a>
-      <a href="examples.html">צפנים לדוגמה</a>
+      <a href="examples.html">אוצר הצפנים</a>
       <a href="order.html">חיפוש לפי הזמנה</a>
       <a href="account.html">אזור אישי</a>
       <button class="button secondary admin-logout" id="adminLogoutButton" type="button">יציאה</button>
@@ -69,7 +69,7 @@
         <strong id="adminWebUses">0</strong>
       </article>
       <article>
-        <span>צפייה בדוגמאות</span>
+        <span>צפייה באוצר הצפנים</span>
         <strong id="adminExamplesVisits">0</strong>
       </article>
       <article>
@@ -98,7 +98,7 @@
         </div>
         <form class="admin-content-form" id="adminContentForm">
           <p class="admin-help-text">
-            לפרסום צופן של משתמש: העלה את קובץ הצופן או התמונה, ואז שמור כאן פריט מסוג “צופן לדוגמה / צופן משתמש לפרסום”
+            לפרסום צופן של משתמש: העלה את קובץ הצופן או התמונה, ואז שמור כאן פריט מסוג “צופן מאוצר הצפנים / צופן משתמש לפרסום”
             עם הכותרת, הקישור והנושא המתאים.
           </p>
           <input id="adminContentId" type="hidden">
@@ -107,7 +107,7 @@
             <select id="adminContentType" required>
               <option value="announcement">הודעה באתר</option>
               <option value="download">גרסה / קובץ להורדה</option>
-              <option value="example">צופן לדוגמה / צופן משתמש לפרסום</option>
+              <option value="example">צופן מאוצר הצפנים / צופן משתמש לפרסום</option>
               <option value="link">קישור שימושי</option>
               <option value="note">הערת מנהל</option>
             </select>
@@ -151,7 +151,7 @@
             <span>סוג קובץ</span>
             <select id="adminUploadCategory" required>
               <option value="downloads">קובץ להורדה / גרסת תוכנה</option>
-              <option value="examples">צופן לדוגמה / צופן משתמש / תמונה</option>
+              <option value="examples">צופן מאוצר הצפנים / צופן משתמש / תמונה</option>
               <option value="assets">נכס אתר / תמונת עיצוב</option>
               <option value="documents">מסמך ניהולי</option>
             </select>
@@ -296,7 +296,7 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=3"></script>
-  <script src="admin.js?v=13"></script>
+  <script src="admin.js?v=14"></script>
   <script src="hebrew-date.js?v=1"></script>
 </body>
 </html>
