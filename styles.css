@@ -67,6 +67,14 @@ a {
   box-shadow: 0 10px 28px rgba(23, 33, 29, 0.08);
 }
 
+.brand-area {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
 .brand {
   display: flex;
   align-items: flex-start;
@@ -89,6 +97,30 @@ a {
   outline: 2px solid var(--gold);
   outline-offset: 4px;
   border-radius: 8px;
+}
+
+.topbar-rides-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  margin-top: 5px;
+  padding: 3px 11px;
+  border: 1px solid rgba(13, 109, 86, 0.22);
+  border-radius: 999px;
+  background: rgba(238, 246, 239, 0.82);
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.topbar-rides-link:hover {
+  border-color: rgba(214, 156, 37, 0.62);
+  background: rgba(255, 241, 200, 0.72);
 }
 
 .brand-mark {
@@ -171,34 +203,6 @@ a {
   text-shadow:
     0 2px 8px rgba(35, 4, 8, 0.78),
     0 0 14px rgba(255, 224, 151, 0.3);
-}
-
-.home-rides-button {
-  position: absolute;
-  left: clamp(18px, 3vw, 56px);
-  top: clamp(52px, 7.2vh, 78px);
-  z-index: 4;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 30px;
-  padding: 5px 12px;
-  border: 1px solid rgba(255, 246, 214, 0.46);
-  border-radius: 999px;
-  background: rgba(35, 4, 8, 0.26);
-  color: #fff6d6;
-  font-size: clamp(12px, 0.86vw, 14px);
-  font-weight: 800;
-  text-decoration: none;
-  box-shadow: 0 10px 26px rgba(35, 4, 8, 0.18);
-  text-shadow:
-    0 2px 8px rgba(35, 4, 8, 0.78),
-    0 0 14px rgba(255, 224, 151, 0.3);
-}
-
-.home-rides-button:hover {
-  background: rgba(255, 246, 214, 0.18);
-  border-color: rgba(255, 246, 214, 0.72);
 }
 
 .hero {
@@ -1394,6 +1398,10 @@ footer .legal-footer a,
     flex-direction: column;
   }
 
+  .brand-area {
+    flex-wrap: wrap;
+  }
+
   .hero,
   .content-grid,
   .feature-strip,
@@ -2571,17 +2579,6 @@ footer .legal-footer a,
     top: auto;
     margin: 0 auto 8px;
     color: #263b36;
-    text-shadow: none;
-  }
-
-  .home-rides-button {
-    position: relative;
-    left: auto;
-    top: auto;
-    margin: 0 auto 10px;
-    background: rgba(255, 255, 255, 0.72);
-    color: var(--accent-dark);
-    border-color: rgba(13, 109, 86, 0.18);
     text-shadow: none;
   }
 
