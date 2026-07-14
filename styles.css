@@ -157,6 +157,22 @@ a {
   white-space: nowrap;
 }
 
+.home-hero-date {
+  position: absolute;
+  left: clamp(18px, 3vw, 56px);
+  top: clamp(22px, 4vh, 44px);
+  z-index: 3;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #fff6d6;
+  font-size: clamp(13px, 1vw, 16px);
+  text-shadow:
+    0 2px 8px rgba(35, 4, 8, 0.78),
+    0 0 14px rgba(255, 224, 151, 0.3);
+}
+
 .hero {
   position: relative;
   min-height: calc(100vh - 59px);
@@ -245,14 +261,20 @@ h2 {
 
 .announcement-note {
   position: absolute;
-  right: clamp(8px, 1vw, 18px);
-  top: clamp(96px, 9vw, 128px);
+  right: clamp(22px, 4vw, 86px);
+  top: clamp(150px, 19vh, 210px);
   z-index: 3;
-  width: min(280px, calc(100vw - 32px));
+  width: min(330px, calc(100vw - 32px));
   margin: 0;
-  background: rgba(255, 255, 255, 0.86);
+  padding: 0;
+  border: 0;
+  background: transparent;
   text-align: right;
-  box-shadow: 0 14px 34px rgba(10, 29, 24, 0.12);
+  box-shadow: none;
+  color: #fff6d6;
+  text-shadow:
+    0 2px 8px rgba(35, 4, 8, 0.78),
+    0 0 14px rgba(255, 224, 151, 0.3);
 }
 
 .announcement-note p {
@@ -261,14 +283,20 @@ h2 {
 
 .dedication-note {
   position: absolute;
-  left: clamp(8px, 1vw, 18px);
-  top: clamp(86px, 10vw, 128px);
+  left: clamp(22px, 4vw, 86px);
+  top: clamp(150px, 19vh, 210px);
   z-index: 3;
-  width: min(260px, calc(100vw - 32px));
+  width: min(300px, calc(100vw - 32px));
   margin: 0;
-  background: rgba(255, 253, 246, 0.86);
+  padding: 0;
+  border: 0;
+  background: transparent;
   text-align: right;
-  box-shadow: 0 14px 34px rgba(32, 14, 10, 0.12);
+  box-shadow: none;
+  color: #fff6d6;
+  text-shadow:
+    0 2px 8px rgba(35, 4, 8, 0.78),
+    0 0 14px rgba(255, 224, 151, 0.3);
 }
 
 .dedication-note p {
@@ -2286,8 +2314,8 @@ footer .legal-footer a,
 .hero-overlay {
   position: relative;
   justify-self: center;
-  width: min(860px, 100%);
-  padding: clamp(22px, 2.5vw, 34px) clamp(18px, 3vw, 34px) clamp(10px, 1.6vw, 18px);
+  width: min(680px, 100%);
+  padding: 0 clamp(18px, 3vw, 34px);
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -2296,7 +2324,7 @@ footer .legal-footer a,
   box-shadow: none;
   backdrop-filter: none;
   text-align: center;
-  transform: translateY(clamp(-84px, -5.8vw, -48px));
+  transform: translateY(clamp(-126px, -8.5vw, -84px));
 }
 
 .hero-overlay::before,
@@ -2317,13 +2345,15 @@ footer .legal-footer a,
 .hero-overlay .eyebrow {
   color: #0a6a53;
   line-height: 1.45;
-  margin-top: 0;
-  padding-top: 2px;
+  margin: 0 0 14px;
+  padding-top: 0;
+  font-size: clamp(13px, 1vw, 16px);
+  font-weight: 900;
 }
 
 .hero-overlay h1 {
   margin: 0;
-  font-size: clamp(54px, 7.6vw, 104px);
+  font-size: clamp(46px, 6.8vw, 94px);
   line-height: 0.95;
   letter-spacing: 0;
   color: #103c32;
@@ -2507,6 +2537,18 @@ footer .legal-footer a,
     top: auto;
     width: min(720px, 100%);
     margin: 10px auto 0;
+    padding: 8px 0;
+    color: #263b36;
+    text-shadow: none;
+  }
+
+  .home-hero-date {
+    position: relative;
+    left: auto;
+    top: auto;
+    margin: 0 auto 8px;
+    color: #263b36;
+    text-shadow: none;
   }
 
   .home-hero::before {
