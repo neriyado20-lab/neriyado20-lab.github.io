@@ -577,7 +577,7 @@
     return {
       announcement: "הודעה באתר",
       download: "גרסה / קובץ להורדה",
-      example: "צופן לדוגמה / צופן משתמש",
+      example: "צופן מאוצר הצפנים / צופן משתמש",
       link: "קישור שימושי",
       note: "הערת מנהל"
     }[type] || type;
@@ -659,7 +659,7 @@
     counter.textContent = items.length;
     list.replaceChildren();
     if (!items.length) {
-      list.append(row("אין עדיין פריטי תוכן", "כאן יופיעו הודעות, קישורים, גרסאות, דוגמאות והערות מנהל."));
+      list.append(row("אין עדיין פריטי תוכן", "כאן יופיעו הודעות, קישורים, גרסאות, צפנים והערות מנהל."));
       return;
     }
     items.forEach((item) => {
