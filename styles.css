@@ -679,6 +679,30 @@ h2 {
   font-weight: 800;
 }
 
+.cipher-vault-picker {
+  display: grid;
+  gap: 5px;
+  flex: 1 1 320px;
+  max-width: 460px;
+}
+
+.cipher-vault-picker span {
+  color: var(--accent-dark);
+  font-weight: 800;
+}
+
+.cipher-vault-picker select {
+  width: 100%;
+  min-height: 40px;
+  padding: 7px 10px;
+  border: 1px solid rgba(13, 109, 86, 0.28);
+  border-radius: 6px;
+  background: #fffdf6;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+}
+
 .examples-filter,
 .examples-topic-filter {
   display: flex;
@@ -943,6 +967,12 @@ h2 {
 
 .sample-card.is-new {
   border-color: rgba(183, 24, 42, 0.34);
+}
+
+.sample-card.vault-focus {
+  outline: 3px solid var(--gold);
+  outline-offset: 4px;
+  box-shadow: 0 18px 42px rgba(214, 156, 37, 0.28);
 }
 
 .cipher-feedback {
