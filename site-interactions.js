@@ -170,7 +170,7 @@
     const visits = store.siteVisits || 0;
     const webUses = store.webUses || 0;
     const examplesVisits = store.examplesVisits || 0;
-    target.textContent = `במכשיר זה: ${visits} כניסות | ${webUses} שימושים בתוכנה | ${examplesVisits} צפייה בדוגמאות`;
+    target.textContent = `במכשיר זה: ${visits} כניסות | ${webUses} שימושים בתוכנה | ${examplesVisits} צפייה באוצר הצפנים`;
   }
 
   function countVisit(store) {
