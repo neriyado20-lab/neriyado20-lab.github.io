@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>גל עיני - תוכנה ואתר לחיפוש צפנים בתורה</title>
   <meta name="description" content="גל עיני - חיפוש דילוגים וצפנים בתורה בדפדפן וב-Windows, עם תצוגה, שמירה, גיבוי וכלים מקצועיים.">
-  <link rel="stylesheet" href="styles.css?v=94">
+  <link rel="stylesheet" href="styles.css?v=95">
 </head>
 <body>
   <header class="topbar">
@@ -16,6 +16,7 @@
         <span>חיפוש צפנים בתורה</span>
       </div>
     </a>
+    <span class="hebrew-date" data-hebrew-date aria-label="תאריך עברי"></span>
     <nav aria-label="ניווט">
       <a href="web.html">עבודה באתר</a>
       <a href="ai.html">עיון AI</a>
@@ -41,7 +42,7 @@
           כלי עברי לחיפוש ראשיות, משניות ודילוגים בתורה. אפשר להתחיל לעבוד מיד באתר,
           או להוריד את גרסת Windows לעבודה מקומית ומלאה יותר.
         </p>
-        <section class="launch-note" aria-label="פינת הודעות">
+        <section class="launch-note announcement-note" aria-label="פינת הודעות">
           <strong>פינת הודעות</strong>
           <p>גל עיני פתוח כעת בגרסת השקה. פניות לשיפור יתקבלו בברכה בלי התחיבות.</p>
           <p>
@@ -356,6 +357,7 @@
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="supabase-public.js?v=1"></script>
+  <script src="hebrew-date.js?v=1"></script>
   <script src="site-interactions.js?v=5"></script>
   <script src="examples.js?v=9"></script>
 </body>
