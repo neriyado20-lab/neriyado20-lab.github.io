@@ -29,6 +29,10 @@
   const TIME_WORDS = ["תשפ", "תש", "ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "יום", "חודש", "שנה", "שעה", "בוקר", "ערב", "לילה"];
   const EVENT_WORDS = ["מלחמה", "שלום", "ישועה", "גאולה", "ניצחון", "פגיעה", "אובדן", "מציאה", "חיפוש", "נסיעה", "נפילה", "עליה", "הצלה", "רפואה", "פריצה", "שריפה", "גשם"];
   const OBJECT_WORDS = ["רכב", "טלפון", "מסמך", "תיק", "בגד", "כסף", "מפתח", "דלת", "חלון", "מכתב", "ספר", "מים", "אש", "אבן", "דרך", "סימן", "עקבות"];
+  const PERSON_TYPE_WORDS = ["איש", "אשה", "אדם", "שם", "בן", "בת", "אב", "אם", "רב", "כהן", "לוי", "מלך", "שר", "עד", "חשוד", "חבר"];
+  const TIME_TYPE_WORDS = ["זמן", "יום", "חודש", "שנה", "שעה", "תאריך", "מועד", "בוקר", "ערב", "לילה", "תקופה"];
+  const TRAIT_WORDS = ["צדיק", "חכם", "ישר", "טוב", "נאמן", "חזק", "חלש", "קדוש", "ענו", "רחמן", "אמיץ", "זהיר", "נקי", "שמח", "עצוב", "גדול", "קטן"];
+  const DESCRIPTION_TYPE_WORDS = ["תכונה", "מידה", "סימן", "תיאור", "צבע", "גודל", "מצב", "דרך", "סיבה", "תוצאה", "פעולה", "כיוון"];
   const PERSON_NAME_WORDS = ["משה", "אהרן", "דוד", "שלמה", "יוסף", "יעקב", "יצחק", "אברהם", "שמואל", "שאול", "אליהו", "אלישע", "יהושע", "מרים", "שרה", "רבקה", "רחל", "לאה", "אסתר", "רות", "חיים", "נריה", "ישראל", "יהודה", "בנימין"];
   const TABLE_ROWS = 75;
   const TABLE_EXTRA_COLS = 70;
@@ -130,6 +134,22 @@
   function isPlaceTypeWord(word) {
     const clean = canonical(word);
     return PLACE_TYPE_WORDS.some((term) => clean === canonical(term));
+  }
+
+  function isFromList(word, list) {
+    const clean = canonical(word);
+    return list.some((term) => clean === canonical(term) || clean.includes(canonical(term)));
+  }
+
+  function relationSignal(pair, label, isSubject, isDescriptor, explanation) {
+    const aSubject = isSubject(pair.a.word);
+    const bSubject = isSubject(pair.b.word);
+    const aDescriptor = isDescriptor(pair.a.word);
+    const bDescriptor = isDescriptor(pair.b.word);
+    if (!(aSubject && bDescriptor || bSubject && aDescriptor)) return null;
+    const subject = aSubject ? pair.a.word : pair.b.word;
+    const descriptor = aDescriptor ? pair.a.word : pair.b.word;
+    return `${label}: ${subject} ליד/במפגש עם ${descriptor} - ${explanation}`;
   }
 
   function classifyDecodeWords(words, dates = []) {
@@ -568,6 +588,10 @@
       ...TIME_WORDS,
       ...EVENT_WORDS,
       ...OBJECT_WORDS,
+      ...PERSON_TYPE_WORDS,
+      ...TIME_TYPE_WORDS,
+      ...TRAIT_WORDS,
+      ...DESCRIPTION_TYPE_WORDS,
       ...BANK.general,
       ...BANK.case,
       ...BANK.missing,
@@ -676,6 +700,17 @@
         return `${place} ליד/במפגש עם ${type}`;
       });
     if (placeSignals.length) notes.push(`חיזוק לזיהוי מקום: ${placeSignals.join("; ")}. כאשר שם מקום נפגש או נוגע במילה כמו עיר/כפר/רחוב/מקום, כדאי לציין זאת ככיוון מקום אפשרי.`);
+
+    const semanticSignals = relatedPairs
+      .flatMap((pair) => [
+        relationSignal(pair, "חיזוק לזיהוי אדם/שם", looksLikePersonName, (word) => isFromList(word, PERSON_TYPE_WORDS), "המילה הסמוכה מתארת אדם או יחס משפחתי/תפקיד"),
+        relationSignal(pair, "חיזוק לזיהוי זמן", (word) => isFromList(word, TIME_WORDS) || /\d{3,4}/.test(word), (word) => isFromList(word, TIME_TYPE_WORDS), "המילה הסמוכה מציינת סוג זמן או מועד"),
+        relationSignal(pair, "חיזוק לתכונה", (word) => isFromList(word, TRAIT_WORDS), (word) => isFromList(word, DESCRIPTION_TYPE_WORDS), "התכונה סמוכה למילת תיאור/מידה"),
+        relationSignal(pair, "חיזוק לתיאור מבוקש", (word) => isFromList(word, OBJECT_WORDS) || isFromList(word, EVENT_WORDS), (word) => isFromList(word, DESCRIPTION_TYPE_WORDS), "המילה סמוכה למילת תיאור כללית"),
+      ])
+      .filter(Boolean)
+      .slice(0, 10);
+    if (semanticSignals.length) notes.push(`חיזוקים לפי סוג העניין המבוקש: ${semanticSignals.join("; ")}.`);
 
     const focus = focusBucketForIntent(intent || "general", classifyDecodeWords(hits.map((hit) => hit.word)));
     if (focus.words.length) {
