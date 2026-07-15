@@ -2656,7 +2656,7 @@ footer .legal-footer a,
 .home-hero > .hero-showcase {
   position: relative;
   justify-self: center;
-  width: min(760px, 74vw);
+  width: min(790px, 75vw);
   margin: 0;
   padding: 0;
   border: 0;
@@ -2665,8 +2665,8 @@ footer .legal-footer a,
   background: transparent;
   box-shadow:
     0 16px 42px rgba(32, 14, 10, 0.14);
-  transform: translateY(clamp(-6px, 2.5vh, 28px)) rotate(-0.15deg);
-  margin-top: 0;
+  transform: translateY(clamp(-86px, -9vh, -54px)) rotate(-0.15deg);
+  margin-top: clamp(110px, 18vh, 188px);
 }
 
 .hero-showcase::before,
@@ -2682,7 +2682,7 @@ footer .legal-footer a,
   display: block;
   width: 100%;
   height: auto;
-  max-height: min(38vh, 330px);
+  max-height: min(42vh, 360px);
   object-fit: contain;
   border: 0;
   background: transparent;
@@ -2754,14 +2754,18 @@ footer .legal-footer a,
 
 .hero-overlay h1 {
   margin: 0;
-  font-size: clamp(50px, 7vw, 96px);
-  line-height: 0.95;
+  font-family: "Frank Ruehl Libre", "FrankRuehl", "Narkisim", "David", "Times New Roman", serif;
+  font-size: clamp(58px, 8.4vw, 118px);
+  line-height: 0.88;
   letter-spacing: 0;
-  color: #103c32;
+  font-weight: 900;
+  color: #0d4438;
   text-shadow:
-    0 1px 0 rgba(255, 255, 245, 0.95),
-    0 0 22px rgba(255, 242, 198, 0.75),
-    0 14px 34px rgba(76, 45, 11, 0.26);
+    0 1px 0 #fff7d8,
+    0 3px 0 rgba(214, 156, 37, 0.26),
+    0 0 28px rgba(255, 242, 198, 0.88),
+    0 18px 36px rgba(48, 25, 6, 0.34);
+  -webkit-text-stroke: 0.7px rgba(255, 239, 181, 0.34);
 }
 
 .hero-overlay .lead {
