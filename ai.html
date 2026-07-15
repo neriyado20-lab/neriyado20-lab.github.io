@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>עיון AI מונחה בצפנים - גל עיני</title>
-  <meta name="description" content="מאגר מילים מותרות והצעות חיפוש לעיון בצפנים, ללא הכרעה על אנשים וללא לשון הרע.">
-  <link rel="stylesheet" href="styles.css?v=102">
+  <title>עיון AI ופענוח צפנים - גל עיני</title>
+  <meta name="description" content="מאגר מילים מותרות ופענוח זהיר של צפנים, ללא הכרעה על אנשים וללא לשון הרע.">
+  <link rel="stylesheet" href="styles.css?v=103">
 </head>
 <body class="ai-page">
   <header class="topbar">
@@ -14,7 +14,7 @@
         <span class="brand-mark" aria-hidden="true">גע</span>
         <div>
           <strong>גל עיני</strong>
-          <span>עיון AI מונחה</span>
+          <span>עיון AI ופענוח</span>
         </div>
       </a>
       <a class="topbar-rides-link" href="rides.html">גמ"ח טרמפים</a>
@@ -33,9 +33,12 @@
   <main class="ai-shell">
     <section class="order-intro">
       <p class="eyebrow">מאגר מילים מותרות</p>
-      <h1>עיון AI מונחה בצפנים</h1>
+      <h1>עיון AI ופענוח צפנים</h1>
       <p>
-        כלי עזר לבניית רשימת מילים לחיפוש: שמות שהוזנו, תאריכים, מאורעות ותכונות חיוביות.
+        שלב א׳ בונה רשימת מילים לחיפוש. שלב ב׳ מסדר פענוח זהיר של צופן שכבר נמצא:
+        ראשית, משניות, תאריכים, סמיכות, כיוון עיון, ומה צריך לבדוק בהמשך.
+      </p>
+      <p>
         הכלי אינו מכריע על אדם ואינו מחליף בירור, דעת תורה או אחריות אנושית.
       </p>
       <p class="order-note">
@@ -49,7 +52,93 @@
       </p>
     </section>
 
+    <section class="ai-stage-card" aria-label="שלב ב פענוח צופן">
+      <div class="section-head">
+        <p class="eyebrow">שלב ב</p>
+        <h2>פענוח צופן שנמצא</h2>
+        <p>להכניס את הממצא כפי שהוא נראה בתוכנה או באתר. המערכת תבנה פענוח מסודר וזהיר להמשך בדיקה.</p>
+      </div>
+      <form id="aiDecodeForm" class="ai-form">
+        <label>
+          <span>טעינת קובץ צופן קיים</span>
+          <input id="decodeProjectFile" type="file" accept=".json,.gal_einai.json,application/json">
+        </label>
+        <label>
+          <span>שם הצופן / כותרת</span>
+          <input id="decodeTitle" type="text" maxlength="120" placeholder="לדוגמה: כתמוז תשפ״ו - ממצא ישועה">
+        </label>
+        <label>
+          <span>השאלה המנחה לפענוח</span>
+          <input id="decodeQuestion" type="text" placeholder="לדוגמה: מי השמות שעלו? איפה המקום האפשרי? מתי הזמן?">
+        </label>
+        <label>
+          <span>סוג חיפוש בפענוח</span>
+          <select id="decodeIntent">
+            <option value="auto">זיהוי אוטומטי לפי השאלה</option>
+            <option value="who">מי / שמות אנשים שעלו לעיון</option>
+            <option value="where">איפה / שמות מקומות אפשריים</option>
+            <option value="when">מתי / תאריכים וזמנים</option>
+            <option value="what">מה / חפצים, סימנים ונושאים</option>
+            <option value="event">מה קרה / אירועים ופעולות</option>
+            <option value="general">כללי</option>
+          </select>
+        </label>
+        <label>
+          <span>המילה הראשית</span>
+          <input id="decodePrimary" type="text" required placeholder="המילה הראשית בצופן">
+        </label>
+        <label>
+          <span>כל המילים שעלו בצופן / ברשימת החיפוש</span>
+          <textarea id="decodeSecondaries" rows="4" required placeholder="לא רק המסומנות בצבע: כל מילה שנמצאה, ראשיות נוספות, משניות, מקומות, שמות או תאריכים"></textarea>
+        </label>
+        <label>
+          <span>תאריכים / זמנים שנמצאו</span>
+          <textarea id="decodeDates" rows="2" placeholder="לדוגמה: כ״ט תמוז, תשפ״ו, 2026"></textarea>
+        </label>
+        <label>
+          <span>הערות תצוגה ומבנה</span>
+          <textarea id="decodeStructure" rows="3" placeholder="סמיכות, מפגשים, מקבץ, קווים, מילים מעל/מתחת, דילוגים חריגים"></textarea>
+        </label>
+        <label>
+          <span>רקע מותר לעיון</span>
+          <textarea id="decodeContext" rows="3" placeholder="רקע כללי בלבד, בלי האשמות ובלי מסקנות על אדם"></textarea>
+        </label>
+        <label>
+          <span>רמת זהירות רצויה</span>
+          <select id="decodeCaution">
+            <option value="high">גבוהה - ניסוח זהיר מאוד</option>
+            <option value="medium">בינונית - כיוון עיון עם הסתייגות</option>
+            <option value="research">מחקרית - רשימת בדיקות להמשך</option>
+          </select>
+        </label>
+        <label class="ai-consent">
+          <input id="decodeConsent" type="checkbox" required>
+          <span>אני מבין שזה פענוח עיוני בלבד, בלי הכרעה, בלי נבואה, ובלי קביעה על אדם או אירוע.</span>
+        </label>
+        <div class="order-actions">
+          <button class="button primary" type="submit">בנה פענוח זהיר</button>
+          <button id="copyDecodeButton" class="button secondary" type="button" disabled>העתק פענוח</button>
+        </div>
+        <p id="decodeStatus" class="payment-status" aria-live="polite"></p>
+      </form>
+      <div class="ai-results ai-decode-results" aria-label="פענוח מוצע">
+        <article>
+          <h2>פענוח מוצע</h2>
+          <textarea id="decodeOutput" class="order-summary" rows="12" readonly placeholder="לאחר מילוי הטופס יופיע כאן פענוח מסודר."></textarea>
+        </article>
+        <article>
+          <h2>בקשה ל־AI מתקדם</h2>
+          <p class="payment-status">נוסח זה מיועד להדבקה בכלי AI חיצוני או בשלב הבא של המערכת, עם כללי זהירות מובנים.</p>
+          <textarea id="decodePrompt" class="order-summary" rows="12" readonly></textarea>
+        </article>
+      </div>
+    </section>
+
     <form id="aiGuideForm" class="ai-form">
+      <div class="section-head compact-head">
+        <p class="eyebrow">שלב א</p>
+        <h2>בניית מילים לחיפוש</h2>
+      </div>
       <label>
         <span>תחום העיון</span>
         <select id="aiDomain">
@@ -125,6 +214,6 @@
   <script src="supabase-public.js?v=1"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=9"></script>
-  <script src="ai.js?v=6"></script>
+  <script src="ai.js?v=7"></script>
 </body>
 </html>
