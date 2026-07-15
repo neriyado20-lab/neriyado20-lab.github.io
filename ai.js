@@ -19,6 +19,15 @@
     ["י", ""],
     ["ה", "א"],
   ];
+  const PLACE_WORDS = [
+    "ירושלים", "בני ברק", "צפת", "טבריה", "חברון", "ביתר", "בית שמש", "מודיעין", "אלעד", "אשדוד", "אשקלון",
+    "תל אביב", "חיפה", "נתניה", "פתח תקוה", "לוד", "רמלה", "באר שבע", "אילת", "שומרון", "יהודה", "גליל",
+    "גולן", "עמק", "הר", "נחל", "ים", "יער", "שדה", "רחוב", "בית", "בנין", "תחנה", "כביש", "צומת", "שער",
+    "מערה", "קבר", "ישיבה", "בית כנסת", "מקוה", "חצר", "חדר", "כניסה", "עיר", "כפר", "מושב"
+  ];
+  const TIME_WORDS = ["תשפ", "תש", "ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "יום", "חודש", "שנה", "שעה", "בוקר", "ערב", "לילה"];
+  const EVENT_WORDS = ["מלחמה", "שלום", "ישועה", "גאולה", "ניצחון", "פגיעה", "אובדן", "מציאה", "חיפוש", "נסיעה", "נפילה", "עליה", "הצלה", "רפואה", "פריצה", "שריפה", "גשם"];
+  const OBJECT_WORDS = ["רכב", "טלפון", "מסמך", "תיק", "בגד", "כסף", "מפתח", "דלת", "חלון", "מכתב", "ספר", "מים", "אש", "אבן", "דרך", "סימן", "עקבות"];
 
   function $(id) {
     return document.getElementById(id);
@@ -49,6 +58,13 @@
       .filter(Boolean);
   }
 
+  function splitLinesOrWords(text) {
+    return uniqueWords(String(text || "")
+      .split(/[\n,;|]+|\s{2,}/)
+      .flatMap((part) => part.trim().includes(" ") ? part.trim().split(/\s+/) : [part.trim()])
+      .filter(Boolean));
+  }
+
   function canonical(text) {
     return text.replace(/[^\u0590-\u05ff0-9]/g, "");
   }
@@ -63,6 +79,70 @@
       kept.push(word);
     });
     return kept;
+  }
+
+  function inferIntent(question, selected) {
+    if (selected && selected !== "auto") return selected;
+    const q = canonical(question || "");
+    if (/מי|חשוד|חשודים|שם|שמות|אדם|איש|אשה/.test(q)) return "who";
+    if (/איפה|היכן|מקום|מקומות|עיר|רחוב|בית|כתובת/.test(q)) return "where";
+    if (/מתי|זמן|תאריך|שנה|חודש|יום|שעה/.test(q)) return "when";
+    if (/מהקרה|קרה|אירוע|פעולה|סיבה/.test(q)) return "event";
+    if (/מה|חפץ|סימן|רכב|טלפון|מסמך|תיק/.test(q)) return "what";
+    return "general";
+  }
+
+  function looksLikePersonName(word) {
+    const clean = canonical(word);
+    if (clean.length < 2 || clean.length > 12) return false;
+    if (PLACE_WORDS.some((place) => canonical(place) === clean || clean.includes(canonical(place)))) return false;
+    if (TIME_WORDS.some((term) => clean.includes(canonical(term)))) return false;
+    if (EVENT_WORDS.some((term) => clean.includes(canonical(term)))) return false;
+    if (OBJECT_WORDS.some((term) => clean.includes(canonical(term)))) return false;
+    return /^[\u0590-\u05ff]+$/.test(clean);
+  }
+
+  function classifyDecodeWords(words, dates = []) {
+    const buckets = {
+      people: [],
+      places: [],
+      times: uniqueWords(dates),
+      events: [],
+      objects: [],
+      other: [],
+    };
+    uniqueWords(words).forEach((word) => {
+      const clean = canonical(word);
+      if (!clean) return;
+      if (TIME_WORDS.some((term) => clean.includes(canonical(term))) || /\d{3,4}/.test(word)) buckets.times.push(word);
+      else if (PLACE_WORDS.some((term) => clean.includes(canonical(term)))) buckets.places.push(word);
+      else if (EVENT_WORDS.some((term) => clean.includes(canonical(term)))) buckets.events.push(word);
+      else if (OBJECT_WORDS.some((term) => clean.includes(canonical(term)))) buckets.objects.push(word);
+      else if (looksLikePersonName(word)) buckets.people.push(word);
+      else buckets.other.push(word);
+    });
+    Object.keys(buckets).forEach((key) => { buckets[key] = uniqueWords(buckets[key]); });
+    return buckets;
+  }
+
+  function intentLabel(intent) {
+    return {
+      who: "מי / שמות שעלו לעיון",
+      where: "איפה / מקומות אפשריים",
+      when: "מתי / זמנים ותאריכים",
+      what: "מה / חפצים וסימנים",
+      event: "מה קרה / אירועים ופעולות",
+      general: "כללי",
+    }[intent] || "כללי";
+  }
+
+  function focusBucketForIntent(intent, buckets) {
+    if (intent === "who") return { title: "שמות שעלו לעיון", words: buckets.people, warning: "אין לקרוא לשמות אלו חשודים. הם שמות שעלו בצופן בלבד, וכל שימוש מעשי מחייב בירור חיצוני מוסמך." };
+    if (intent === "where") return { title: "מקומות אפשריים שעלו", words: buckets.places, warning: "אין לראות בזה מיקום ודאי. אלו מקומות/רמזי מקום לעיון בלבד." };
+    if (intent === "when") return { title: "זמנים ותאריכים שעלו", words: buckets.times, warning: "אין לראות בזה תאריך ודאי. יש לבדוק אם התאריך מופיע בצורה חריגה ומנומקת." };
+    if (intent === "what") return { title: "חפצים, סימנים ונושאים שעלו", words: buckets.objects, warning: "אלו סימנים לעיון בלבד, לא הוכחה." };
+    if (intent === "event") return { title: "אירועים ופעולות שעלו", words: buckets.events, warning: "אין להסיק שאירוע התרחש או יתרחש מתוך הצופן בלבד." };
+    return { title: "מילים מרכזיות שעלו", words: uniqueWords([...buckets.people, ...buckets.places, ...buckets.times, ...buckets.events, ...buckets.objects, ...buckets.other]), warning: "הפענוח כללי וזהיר." };
   }
 
   function makeVariants(word) {
@@ -240,6 +320,204 @@
     return words;
   }
 
+  function cautionText(level) {
+    if (level === "research") return "הניסוח מחקרי: להציג כיווני בדיקה, שאלות פתוחות ומה חסר, בלי מסקנה סופית.";
+    if (level === "medium") return "הניסוח בינוני: אפשר להציע כיוון עיון, אך כל משפט מסקנתי חייב הסתייגות.";
+    return "הניסוח זהיר מאוד: לכתוב בלשון אפשרות בלבד, בלי קביעה ובלי הכרעה.";
+  }
+
+  function buildDecodeText() {
+    const title = $("decodeTitle").value.trim() || "צופן ללא כותרת";
+    const question = $("decodeQuestion").value.trim();
+    const intent = inferIntent(question, $("decodeIntent").value);
+    const primary = $("decodePrimary").value.trim();
+    const secondaries = splitLinesOrWords($("decodeSecondaries").value);
+    const dates = splitLinesOrWords($("decodeDates").value);
+    const structure = $("decodeStructure").value.trim();
+    const context = $("decodeContext").value.trim();
+    const caution = $("decodeCaution").value;
+    const { allowed: safeSecondaries, blocked } = filterWords(secondaries);
+    const { allowed: safeContextWords, blocked: blockedContext } = filterWords(splitWords(context));
+    const allBlocked = uniqueWords([...blocked, ...blockedContext]);
+    const buckets = classifyDecodeWords(safeSecondaries, dates);
+    const focus = focusBucketForIntent(intent, buckets);
+    const clusters = safeSecondaries.slice(0, 8);
+    const support = safeSecondaries.slice(8, 22);
+    const primaryClean = canonical(primary);
+    const primaryEcho = safeSecondaries.filter((word) => canonical(word).includes(primaryClean) || primaryClean.includes(canonical(word))).slice(0, 3);
+
+    const lines = [
+      "פענוח צופן - גל עיני AI שלב ב",
+      "",
+      `שם הצופן: ${title}`,
+      `שאלה מנחה: ${question || "לא הוזנה"}`,
+      `סוג פענוח: ${intentLabel(intent)}`,
+      `ראשית: ${primary || "לא הוזנה"}`,
+      "",
+      "מה נראה בממצא:",
+      safeSecondaries.length ? safeSecondaries.map((word) => `- ${word}`).join("\n") : "- לא הוזנו משניות.",
+      "",
+      "תאריכים / זמנים:",
+      dates.length ? dates.map((word) => `- ${word}`).join("\n") : "- לא הוזנו תאריכים.",
+      "",
+      `${focus.title}:`,
+      focus.words.length ? focus.words.map((word) => `- ${word}`).join("\n") : "- לא זוהו מילים מובהקות בקטגוריה זו.",
+      `זהירות: ${focus.warning}`,
+      "",
+      "סיווג מלא של המילים:",
+      `- שמות/אנשים שעלו לעיון: ${buckets.people.join(", ") || "לא זוהו"}`,
+      `- מקומות אפשריים: ${buckets.places.join(", ") || "לא זוהו"}`,
+      `- זמנים ותאריכים: ${buckets.times.join(", ") || "לא זוהו"}`,
+      `- אירועים/פעולות: ${buckets.events.join(", ") || "לא זוהו"}`,
+      `- חפצים/סימנים: ${buckets.objects.join(", ") || "לא זוהו"}`,
+      "",
+      "מבנה וסמיכות:",
+      structure || "לא הוזנו הערות מבנה.",
+      "",
+      "כיוון עיון אפשרי:",
+      clusters.length
+        ? `נראה שהממצא מתרכז סביב הראשית "${primary}" יחד עם המילים ${clusters.join(", ")}. יש להתייחס לזה ככיוון עיון בלבד, ולבדוק אם הסמיכות, הדילוגים והחזרה של המילים אכן חריגים ביחס לחיפוש רגיל.`
+        : "אין מספיק מילים משניות כדי להציע כיוון עיון.",
+      "",
+      "חיזוקים לבדיקה:",
+      support.length ? support.map((word) => `- לבדוק אם "${word}" סמוכה לראשית או למילים המרכזיות.`).join("\n") : "- להוסיף משניות או תאריכים כדי לחזק/להחליש את הכיוון.",
+      "",
+      "נקודות זהירות:",
+      `- ${cautionText(caution)}`,
+      "- אין להסיק נבואה, הכרעה מעשית, אשמה, פסול או קביעה על אדם מתוך הצופן.",
+      "- אם יש שמות אנשים, יש להשתמש בהם כרקע לעיון בלבד ולא כמסקנה.",
+      "- הסיווג נעשה לפי כל המילים שהוזנו או נטענו מהקובץ, ולא רק לפי סימוני צבע בתצוגה.",
+      "- לפני פרסום, מומלץ לבדוק תיעוד: צילום, קובץ פרויקט, רשימת דילוגים, והאם נמצאו תוצאות דומות באקראי.",
+    ];
+    if (primaryEcho.length) {
+      lines.splice(15, 0, `יש מילים קרובות לראשית מבחינת כתיב/שורש: ${primaryEcho.join(", ")}. כדאי לבדוק שלא מדובר בכפילות טכנית.`);
+    }
+    if (context) {
+      lines.push("", "רקע שהוזן לעיון:", safeContextWords.length ? safeContextWords.join(", ") : "הרקע נשמר, אך לא חולצו ממנו מילים מותרות.");
+    }
+    if (allBlocked.length) {
+      lines.push("", `מילים שסוננו מטעמי זהירות: ${allBlocked.join(", ")}`);
+    }
+    return {
+      title,
+      question,
+      intent,
+      primary,
+      secondaries: safeSecondaries,
+      dates,
+      buckets,
+      focus,
+      structure,
+      context,
+      blocked: allBlocked,
+      text: lines.join("\n"),
+    };
+  }
+
+  function projectWordsFromSaved(saved) {
+    const words = [];
+    (Array.isArray(saved) ? saved : []).forEach((item) => {
+      if (item?.primary?.word) words.push(item.primary.word);
+      (Array.isArray(item?.matches) ? item.matches : []).forEach((match) => {
+        if (match?.word) words.push(match.word);
+      });
+    });
+    return uniqueWords(words);
+  }
+
+  function fillDecodeFromProject(data, fileName = "קובץ צופן") {
+    if (!data || typeof data !== "object") throw new Error("קובץ הצופן אינו תקין");
+    const saved = Array.isArray(data.saved) ? data.saved : [];
+    const current = Math.max(0, Math.min(Number.parseInt(data.current, 10) || 0, Math.max(0, saved.length - 1)));
+    const item = saved[current] || saved[0] || {};
+    const primary = item.primary?.word || data.primary || "";
+    const matches = Array.isArray(item.matches) ? item.matches : [];
+    const fieldWords = uniqueWords([
+      ...splitWords(data.primary || ""),
+      ...splitWords(data.secondary || ""),
+    ]);
+    const savedWords = projectWordsFromSaved(saved);
+    const currentWords = uniqueWords(matches
+      .filter((match) => match && match.word)
+      .map((match) => match.word));
+    const secondaries = uniqueWords([
+      ...fieldWords,
+      ...savedWords,
+      ...currentWords,
+    ]).filter((word) => canonical(word) !== canonical(primary));
+    const dates = secondaries.filter((word) => /תש|תמוז|אב|אלול|ניסן|אייר|סיון|טבת|שבט|אדר|חשון|כסלו|\d{4}/.test(word));
+    $("decodeTitle").value = data.name || data.title || fileName.replace(/\.(gal_einai\.)?json$/i, "");
+    if (!$("decodeQuestion").value.trim()) $("decodeQuestion").value = "מה אפשר ללמוד מהמילים שעלו בצופן?";
+    $("decodePrimary").value = primary;
+    $("decodeSecondaries").value = (secondaries.length ? secondaries : splitWords(data.secondary || "")).join("\n");
+    $("decodeDates").value = dates.join("\n");
+    $("decodeStructure").value = [
+      saved.length ? `בקובץ יש ${saved.length} ממצאים שמורים.` : "",
+      fieldWords.length ? `נאספו ${fieldWords.length} מילים משדות החיפוש.` : "",
+      savedWords.length ? `נאספו ${savedWords.length} מילים מכל הממצאים השמורים בקובץ, לא רק מהמסומן בצבע בממצא הנוכחי.` : "",
+      item.primary?.skip ? `דילוג ראשית: ${Math.abs(item.primary.skip)}` : "",
+      matches.length ? `בממצא הנוכחי ${matches.length} סימונים/מילים.` : "",
+    ].filter(Boolean).join("\n");
+    $("decodeStatus").textContent = `נטען קובץ צופן: ${fileName}`;
+  }
+
+  function buildDecodePrompt(payload) {
+    return [
+      "אתה מסייע בפענוח זהיר של צופן תורה.",
+      "כללים מחייבים:",
+      "1. אין לקבוע נבואה, ודאות, אשמה, פסול או הכרעה על אדם.",
+      "2. יש לנסח בלשון אפשרות: ייתכן, אפשר לעיין, טעון בדיקה.",
+      "3. יש להפריד בין נתונים שנמצאו לבין פרשנות.",
+      "4. יש לציין מה חסר לבדיקה: דילוגים, מרחקים, צילום, קובץ פרויקט, השוואת אקראיות.",
+      "5. יש להתייחס לכל המילים שנמסרו, לא רק למילים שסומנו בצבע בתמונה.",
+      "",
+      `שם הצופן: ${payload.title}`,
+      `שאלה מנחה: ${payload.question || "לא הוזנה"}`,
+      `סוג פענוח: ${intentLabel(payload.intent)}`,
+      `ראשית: ${payload.primary}`,
+      `משניות: ${payload.secondaries.join(", ")}`,
+      `תאריכים: ${payload.dates.join(", ") || "לא הוזנו"}`,
+      `שמות/אנשים שעלו לעיון: ${payload.buckets.people.join(", ") || "לא זוהו"}`,
+      `מקומות אפשריים: ${payload.buckets.places.join(", ") || "לא זוהו"}`,
+      `זמנים: ${payload.buckets.times.join(", ") || "לא זוהו"}`,
+      `אירועים/פעולות: ${payload.buckets.events.join(", ") || "לא זוהו"}`,
+      `חפצים/סימנים: ${payload.buckets.objects.join(", ") || "לא זוהו"}`,
+      `מבנה: ${payload.structure || "לא הוזן"}`,
+      `רקע: ${payload.context || "לא הוזן"}`,
+      "",
+      "בנה פענוח עברי מסודר בארבעה חלקים: נתונים, כיוון עיון, בדיקות המשך, הסתייגויות."
+    ].join("\n");
+  }
+
+  function saveDecode(payload) {
+    const store = readStore();
+    store.aiDecodes = Array.isArray(store.aiDecodes) ? store.aiDecodes : [];
+    store.aiDecodes.push({
+      title: payload.title,
+      question: payload.question,
+      intent: payload.intent,
+      primary: payload.primary,
+      secondaries: payload.secondaries,
+      dates: payload.dates,
+      buckets: payload.buckets,
+      blocked: payload.blocked,
+      at: new Date().toISOString(),
+    });
+    writeStore(store);
+    window.GalEinaiBackend?.submit?.("ai_guide", {
+      kind: "decode",
+      title: payload.title,
+      question: payload.question,
+      intent: payload.intent,
+      primary: payload.primary,
+      secondaries: payload.secondaries,
+      dates: payload.dates,
+      buckets: payload.buckets,
+      text: payload.text,
+      blocked: payload.blocked,
+    }).catch(() => {});
+  }
+
   $("aiGuideForm").addEventListener("submit", (event) => {
     event.preventDefault();
     if (!$("aiConsent").checked) return;
@@ -285,6 +563,40 @@
       $("aiSummary").focus();
       $("aiSummary").select();
       $("aiStatus").textContent = "אפשר להעתיק ידנית מהתיבה.";
+    }
+  });
+
+  $("aiDecodeForm")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!$("decodeConsent").checked) return;
+    const payload = buildDecodeText();
+    $("decodeOutput").value = payload.text;
+    $("decodePrompt").value = buildDecodePrompt(payload);
+    $("copyDecodeButton").disabled = !payload.text;
+    $("decodeStatus").textContent = `נבנה פענוח זהיר לצופן "${payload.title}".`;
+    saveDecode(payload);
+  });
+
+  $("copyDecodeButton")?.addEventListener("click", async () => {
+    const text = [$("decodeOutput").value, "", "בקשה ל-AI מתקדם:", $("decodePrompt").value].join("\n");
+    if (!text.trim()) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      $("decodeStatus").textContent = "הפענוח הועתק.";
+    } catch {
+      $("decodeOutput").focus();
+      $("decodeOutput").select();
+      $("decodeStatus").textContent = "אפשר להעתיק ידנית מתיבת הפענוח.";
+    }
+  });
+
+  $("decodeProjectFile")?.addEventListener("change", async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      fillDecodeFromProject(JSON.parse(await file.text()), file.name);
+    } catch (error) {
+      $("decodeStatus").textContent = `לא הצלחתי לקרוא את קובץ הצופן: ${error.message}`;
     }
   });
 })();
