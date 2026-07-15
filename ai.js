@@ -17,7 +17,6 @@
   const LETTER_VARIANTS = [
     ["ו", ""],
     ["י", ""],
-    ["ה", "א"],
   ];
   const PLACE_WORDS = [
     "ירושלים", "בני ברק", "צפת", "טבריה", "חברון", "ביתר", "בית שמש", "מודיעין", "אלעד", "אשדוד", "אשקלון",
@@ -96,6 +95,33 @@
     return text.replace(/[^\u0590-\u05ff0-9]/g, "");
   }
 
+  function stripOptionalMatres(text) {
+    return canonical(text).replace(/[וי]/g, "");
+  }
+
+  function hebrewForms(text) {
+    const clean = canonical(text);
+    const forms = new Set([clean]);
+    if (clean.length > 3 && /^[ובלכמ]/.test(clean)) forms.add(clean.slice(1));
+    return Array.from(forms).filter(Boolean);
+  }
+
+  function sameAcceptedSpelling(word, term) {
+    const termClean = canonical(term);
+    if (!termClean) return false;
+    return hebrewForms(word).some((form) => (
+      form === termClean
+      || form.length >= 3 && termClean.length >= 3 && stripOptionalMatres(form) === stripOptionalMatres(termClean)
+    ));
+  }
+
+  function containsAcceptedTerm(word, term) {
+    const clean = canonical(word);
+    const termClean = canonical(term);
+    if (sameAcceptedSpelling(clean, termClean)) return true;
+    return termClean.length >= 4 && clean.includes(termClean);
+  }
+
   function uniqueWords(words) {
     const seen = new Set();
     const kept = [];
@@ -122,29 +148,23 @@
   function looksLikePersonName(word) {
     const clean = canonical(word);
     if (clean.length < 2 || clean.length > 12) return false;
-    if (PLACE_WORDS.some((place) => canonical(place) === clean || clean.includes(canonical(place)))) return false;
-    if (TIME_WORDS.some((term) => clean.includes(canonical(term)))) return false;
-    if (EVENT_WORDS.some((term) => clean.includes(canonical(term)))) return false;
-    if (OBJECT_WORDS.some((term) => clean.includes(canonical(term)))) return false;
+    if ([...PLACE_WORDS, ...CASE_PLACE_WORDS].some((place) => sameAcceptedSpelling(clean, place))) return false;
+    if (TIME_WORDS.some((term) => containsAcceptedTerm(clean, term))) return false;
+    if (EVENT_WORDS.some((term) => containsAcceptedTerm(clean, term))) return false;
+    if (OBJECT_WORDS.some((term) => containsAcceptedTerm(clean, term))) return false;
     return /^[\u0590-\u05ff]+$/.test(clean);
   }
 
   function isPlaceName(word) {
-    const clean = canonical(word);
-    return [...PLACE_WORDS, ...CASE_PLACE_WORDS].some((term) => {
-      const place = canonical(term);
-      return clean === place || clean.includes(place) || place.includes(clean);
-    });
+    return [...PLACE_WORDS, ...CASE_PLACE_WORDS].some((term) => sameAcceptedSpelling(word, term));
   }
 
   function isPlaceTypeWord(word) {
-    const clean = canonical(word);
-    return PLACE_TYPE_WORDS.some((term) => clean === canonical(term));
+    return PLACE_TYPE_WORDS.some((term) => sameAcceptedSpelling(word, term));
   }
 
   function isFromList(word, list) {
-    const clean = canonical(word);
-    return list.some((term) => clean === canonical(term) || clean.includes(canonical(term)));
+    return list.some((term) => containsAcceptedTerm(word, term));
   }
 
   function relationSignal(pair, label, isSubject, isDescriptor, explanation) {
@@ -170,10 +190,10 @@
     uniqueWords(words).forEach((word) => {
       const clean = canonical(word);
       if (!clean) return;
-      if (TIME_WORDS.some((term) => clean.includes(canonical(term))) || /\d{3,4}/.test(word)) buckets.times.push(word);
-      else if (PLACE_WORDS.some((term) => clean.includes(canonical(term)))) buckets.places.push(word);
-      else if (EVENT_WORDS.some((term) => clean.includes(canonical(term)))) buckets.events.push(word);
-      else if (OBJECT_WORDS.some((term) => clean.includes(canonical(term)))) buckets.objects.push(word);
+      if (TIME_WORDS.some((term) => containsAcceptedTerm(clean, term)) || /\d{3,4}/.test(word)) buckets.times.push(word);
+      else if ([...PLACE_WORDS, ...CASE_PLACE_WORDS].some((term) => sameAcceptedSpelling(clean, term))) buckets.places.push(word);
+      else if (EVENT_WORDS.some((term) => containsAcceptedTerm(clean, term))) buckets.events.push(word);
+      else if (OBJECT_WORDS.some((term) => containsAcceptedTerm(clean, term))) buckets.objects.push(word);
       else if (looksLikePersonName(word)) buckets.people.push(word);
       else buckets.other.push(word);
     });
