@@ -25,9 +25,26 @@
     "גולן", "עמק", "הר", "נחל", "ים", "יער", "שדה", "רחוב", "בית", "בנין", "תחנה", "כביש", "צומת", "שער",
     "מערה", "קבר", "ישיבה", "בית כנסת", "מקוה", "חצר", "חדר", "כניסה", "עיר", "כפר", "מושב"
   ];
+  const PLACE_TYPE_WORDS = ["עיר", "כפר", "קבוץ", "קיבוץ", "רחוב", "מקום", "בית", "בנין", "שכונה", "מושב", "צומת", "דרך", "כביש", "תחנה", "חצר", "חדר", "כניסה"];
   const TIME_WORDS = ["תשפ", "תש", "ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "יום", "חודש", "שנה", "שעה", "בוקר", "ערב", "לילה"];
   const EVENT_WORDS = ["מלחמה", "שלום", "ישועה", "גאולה", "ניצחון", "פגיעה", "אובדן", "מציאה", "חיפוש", "נסיעה", "נפילה", "עליה", "הצלה", "רפואה", "פריצה", "שריפה", "גשם"];
   const OBJECT_WORDS = ["רכב", "טלפון", "מסמך", "תיק", "בגד", "כסף", "מפתח", "דלת", "חלון", "מכתב", "ספר", "מים", "אש", "אבן", "דרך", "סימן", "עקבות"];
+  const PERSON_NAME_WORDS = ["משה", "אהרן", "דוד", "שלמה", "יוסף", "יעקב", "יצחק", "אברהם", "שמואל", "שאול", "אליהו", "אלישע", "יהושע", "מרים", "שרה", "רבקה", "רחל", "לאה", "אסתר", "רות", "חיים", "נריה", "ישראל", "יהודה", "בנימין"];
+  const TABLE_ROWS = 75;
+  const TABLE_EXTRA_COLS = 70;
+  const TABLE_MAX_COLS = 260;
+  const MAX_TABLE_WORD_LENGTH = 14;
+  const TABLE_DIRECTIONS = [
+    { dr: 0, dc: 1, label: "אופקי" },
+    { dr: 0, dc: -1, label: "אופקי הפוך" },
+    { dr: 1, dc: 0, label: "אנכי" },
+    { dr: -1, dc: 0, label: "אנכי הפוך" },
+    { dr: 1, dc: 1, label: "אלכסון יורד ימינה" },
+    { dr: 1, dc: -1, label: "אלכסון יורד שמאלה" },
+    { dr: -1, dc: 1, label: "אלכסון עולה ימינה" },
+    { dr: -1, dc: -1, label: "אלכסון עולה שמאלה" },
+  ];
+  let torahTextPromise = null;
 
   function $(id) {
     return document.getElementById(id);
@@ -100,6 +117,19 @@
     if (EVENT_WORDS.some((term) => clean.includes(canonical(term)))) return false;
     if (OBJECT_WORDS.some((term) => clean.includes(canonical(term)))) return false;
     return /^[\u0590-\u05ff]+$/.test(clean);
+  }
+
+  function isPlaceName(word) {
+    const clean = canonical(word);
+    return PLACE_WORDS.some((term) => {
+      const place = canonical(term);
+      return clean === place || clean.includes(place) || place.includes(clean);
+    });
+  }
+
+  function isPlaceTypeWord(word) {
+    const clean = canonical(word);
+    return PLACE_TYPE_WORDS.some((term) => clean === canonical(term));
   }
 
   function classifyDecodeWords(words, dates = []) {
@@ -354,7 +384,7 @@
       `סוג פענוח: ${intentLabel(intent)}`,
       `ראשית: ${primary || "לא הוזנה"}`,
       "",
-      "מה נראה בממצא:",
+      "המילים לפי סדר עדיפות לפענוח:",
       safeSecondaries.length ? safeSecondaries.map((word) => `- ${word}`).join("\n") : "- לא הוזנו משניות.",
       "",
       "תאריכים / זמנים:",
@@ -425,11 +455,276 @@
     return uniqueWords(words);
   }
 
-  function fillDecodeFromProject(data, fileName = "קובץ צופן") {
+  function positionsForProjectMatch(match) {
+    const start = Number(match?.start);
+    const skip = Number(match?.skip || 1);
+    const word = canonical(match?.word || "");
+    if (!Number.isFinite(start) || !Number.isFinite(skip) || !word) return [];
+    return Array.from({ length: word.length }, (_value, index) => start + index * skip);
+  }
+
+  function minPositionDistance(aPositions, bPositions) {
+    if (!aPositions.length || !bPositions.length) return Infinity;
+    let best = Infinity;
+    aPositions.forEach((a) => {
+      bPositions.forEach((b) => {
+        best = Math.min(best, Math.abs(a - b));
+      });
+    });
+    return best;
+  }
+
+  function makeWordStats() {
+    const stats = new Map();
+    return {
+      add(word, options = {}) {
+        const key = canonical(word);
+        if (!key) return;
+        const current = stats.get(key) || {
+          word,
+          count: 0,
+          distance: Infinity,
+          sources: new Set(),
+        };
+        current.word = current.word || word;
+        current.count += Number(options.count || 1);
+        if (Number.isFinite(options.distance)) current.distance = Math.min(current.distance, options.distance);
+        if (options.source) current.sources.add(options.source);
+        stats.set(key, current);
+      },
+      get(word) {
+        return stats.get(canonical(word));
+      },
+      map: stats,
+    };
+  }
+
+  function orderDecodeWords(words, wordStats, primary) {
+    const primaryKey = canonical(primary);
+    return uniqueWords(words).sort((a, b) => {
+      const aStats = wordStats.get(a) || {};
+      const bStats = wordStats.get(b) || {};
+      const aCount = aStats.count || 1;
+      const bCount = bStats.count || 1;
+      if (bCount !== aCount) return bCount - aCount;
+      const aDistance = Number.isFinite(aStats.distance) ? aStats.distance : Infinity;
+      const bDistance = Number.isFinite(bStats.distance) ? bStats.distance : Infinity;
+      if (aDistance !== bDistance) return aDistance - bDistance;
+      const aPrimary = primaryKey && (canonical(a).includes(primaryKey) || primaryKey.includes(canonical(a))) ? 1 : 0;
+      const bPrimary = primaryKey && (canonical(b).includes(primaryKey) || primaryKey.includes(canonical(b))) ? 1 : 0;
+      if (bPrimary !== aPrimary) return bPrimary - aPrimary;
+      return a.localeCompare(b, "he");
+    });
+  }
+
+  function pickPrimaryItem(data, saved, current) {
+    const item = saved[current] || saved[0] || {};
+    if (item.primary) return item;
+    const primary = data.primary && data.primary_start !== undefined
+      ? { word: data.primary, start: Number(data.primary_start), skip: Number(data.primary_skip || 1) }
+      : null;
+    return primary ? { ...item, primary } : item;
+  }
+
+  async function loadTorahText() {
+    if (!torahTextPromise) {
+      torahTextPromise = fetch("assets/torah_clean.txt", { cache: "force-cache" })
+        .then((response) => {
+          if (!response.ok) throw new Error("טקסט התורה אינו זמין לסריקת טבלה");
+          return response.text();
+        })
+        .then((text) => text.replace(/[^\u05d0-\u05ea]/g, ""));
+    }
+    return torahTextPromise;
+  }
+
+  function buildTableGrid(primary, torah) {
+    const skipAbs = Math.max(1, Math.abs(Number(primary?.skip || 1)));
+    const cols = Math.min(TABLE_MAX_COLS, Math.max(120, skipAbs + TABLE_EXTRA_COLS));
+    const rows = TABLE_ROWS;
+    const centerCol = Math.floor(cols / 2);
+    const centerRow = Math.floor(rows / 2);
+    const start = Number(primary?.start);
+    if (!Number.isFinite(start)) return null;
+    const base = start - centerRow * skipAbs - centerCol;
+    const grid = [];
+    for (let row = 0; row < rows; row += 1) {
+      const line = [];
+      for (let col = 0; col < cols; col += 1) {
+        const pos = base + row * skipAbs + col;
+        line.push(pos >= 0 && pos < torah.length ? torah[pos] : "");
+      }
+      grid.push(line);
+    }
+    return { grid, rows, cols, skipAbs, centerRow, centerCol };
+  }
+
+  function tableCandidateWords(words) {
+    return uniqueWords([
+      ...words,
+      ...PERSON_NAME_WORDS,
+      ...PLACE_WORDS,
+      ...PLACE_TYPE_WORDS,
+      ...TIME_WORDS,
+      ...EVENT_WORDS,
+      ...OBJECT_WORDS,
+      ...BANK.general,
+      ...BANK.case,
+      ...BANK.missing,
+    ]).map((word) => ({ display: word, clean: canonical(word) }))
+      .filter((entry) => entry.clean.length >= 2 && entry.clean.length <= MAX_TABLE_WORD_LENGTH);
+  }
+
+  function wordAtGrid(grid, row, col, direction, cellSkip, cleanWord) {
+    for (let index = 0; index < cleanWord.length; index += 1) {
+      const r = row + direction.dr * cellSkip * index;
+      const c = col + direction.dc * cellSkip * index;
+      if (!grid[r] || grid[r][c] !== cleanWord[index]) return false;
+    }
+    return true;
+  }
+
+  function scanGridForWords(table, candidates, cellSkips) {
+    if (!table) return [];
+    const found = [];
+    const seen = new Set();
+    for (const cellSkip of cellSkips) {
+      for (const candidate of candidates) {
+        for (let row = 0; row < table.rows; row += 1) {
+          for (let col = 0; col < table.cols; col += 1) {
+            for (const direction of TABLE_DIRECTIONS) {
+              if (!wordAtGrid(table.grid, row, col, direction, cellSkip, candidate.clean)) continue;
+              const key = `${candidate.clean}|${row}|${col}|${direction.label}|${cellSkip}`;
+              if (seen.has(key)) continue;
+              seen.add(key);
+              found.push({
+                word: candidate.display,
+                direction: direction.label,
+                cellSkip,
+                row: row + 1,
+                col: col + 1,
+                cells: Array.from({ length: candidate.clean.length }, (_value, index) => ({
+                  row: row + direction.dr * cellSkip * index,
+                  col: col + direction.dc * cellSkip * index,
+                })),
+              });
+              if (found.length >= 80) return found;
+            }
+          }
+        }
+      }
+    }
+    return found;
+  }
+
+  function minCellDistance(aCells, bCells) {
+    let best = Infinity;
+    (aCells || []).forEach((a) => {
+      (bCells || []).forEach((b) => {
+        best = Math.min(best, Math.abs(a.row - b.row) + Math.abs(a.col - b.col));
+      });
+    });
+    return best;
+  }
+
+  function summarizeTableRelations(hits, intent) {
+    if (!hits.length) return [];
+    const notes = [];
+    const byWord = new Map();
+    hits.forEach((hit) => {
+      const key = canonical(hit.word);
+      if (!byWord.has(key)) byWord.set(key, []);
+      byWord.get(key).push(hit);
+    });
+    const repeated = Array.from(byWord.values())
+      .filter((items) => items.length > 1)
+      .sort((a, b) => b.length - a.length)
+      .slice(0, 6)
+      .map((items) => `${items[0].word} (${items.length} פעמים)`);
+    if (repeated.length) notes.push(`מילים שחזרו יותר מפעם אחת בטבלה: ${repeated.join(", ")}.`);
+
+    const relatedPairs = [];
+    for (let i = 0; i < hits.length; i += 1) {
+      for (let j = i + 1; j < hits.length; j += 1) {
+        if (canonical(hits[i].word) === canonical(hits[j].word)) continue;
+        const distance = minCellDistance(hits[i].cells, hits[j].cells);
+        if (distance <= 1) {
+          relatedPairs.push({
+            a: hits[i],
+            b: hits[j],
+            distance,
+            mixedSkip: hits[i].cellSkip !== hits[j].cellSkip,
+          });
+        }
+      }
+    }
+    relatedPairs.sort((a, b) => a.distance - b.distance || Number(b.mixedSkip) - Number(a.mixedSkip));
+    const pairText = relatedPairs.slice(0, 8).map((pair) => (
+      `${pair.a.word} + ${pair.b.word} (${pair.distance === 0 ? "מצטלבות" : "נוגעות"}, דילוגי תאים ${pair.a.cellSkip}/${pair.b.cellSkip})`
+    ));
+    if (pairText.length) notes.push(`קשרי חיזוק בין מילים בטבלה: ${pairText.join("; ")}.`);
+
+    const placeSignals = relatedPairs
+      .filter((pair) => (
+        isPlaceName(pair.a.word) && isPlaceTypeWord(pair.b.word)
+        || isPlaceName(pair.b.word) && isPlaceTypeWord(pair.a.word)
+      ))
+      .slice(0, 6)
+      .map((pair) => {
+        const place = isPlaceName(pair.a.word) ? pair.a.word : pair.b.word;
+        const type = isPlaceTypeWord(pair.a.word) ? pair.a.word : pair.b.word;
+        return `${place} ליד/במפגש עם ${type}`;
+      });
+    if (placeSignals.length) notes.push(`חיזוק לזיהוי מקום: ${placeSignals.join("; ")}. כאשר שם מקום נפגש או נוגע במילה כמו עיר/כפר/רחוב/מקום, כדאי לציין זאת ככיוון מקום אפשרי.`);
+
+    const focus = focusBucketForIntent(intent || "general", classifyDecodeWords(hits.map((hit) => hit.word)));
+    if (focus.words.length) {
+      notes.push(`קשר לשאלה המנחה: נמצאו מילים שמתאימות ל"${intentLabel(intent || "general")}": ${focus.words.slice(0, 8).join(", ")}.`);
+    }
+    notes.push("החיזוק נמדד לפי ריבוי הופעות, קרבה לראשית, הצטלבות/נגיעה, וחזרה בדילוגי תאים שונים; עדיין אין בזה הוכחה סטטיסטית בפני עצמה.");
+    return notes;
+  }
+
+  async function tableWordsFromProject(data, item, baseWords, intent = "general") {
+    if (!item?.primary?.word || item.primary.start === undefined || item.primary.skip === undefined) {
+      return { words: [], hits: [], notes: ["לא נמצאה ראשית עם מיקום ודילוג לשחזור טבלת הדילוג."] };
+    }
+    try {
+      const torah = await loadTorahText();
+      const table = buildTableGrid(item.primary, torah);
+      const candidates = tableCandidateWords(baseWords)
+        .filter((entry) => canonical(entry.display) !== canonical(item.primary.word));
+      const firstPass = scanGridForWords(table, candidates, [1]);
+      const extraPass = firstPass.length >= 8 ? [] : scanGridForWords(table, candidates, [2, 3, 4]);
+      const hits = [...firstPass, ...extraPass].map((hit) => ({
+        ...hit,
+        distance: Math.abs(hit.row - 1 - table.centerRow) + Math.abs(hit.col - 1 - table.centerCol),
+      }));
+      const words = uniqueWords(hits.map((hit) => hit.word));
+      const details = [...firstPass, ...extraPass].slice(0, 18).map((hit) => (
+        `${hit.word} - ${hit.direction}, דילוג תאי ${hit.cellSkip}, שורה ${hit.row}, עמודה ${hit.col}`
+      ));
+      return {
+        words,
+        hits,
+        notes: [
+          `נסרקה טבלת הדילוג בטווח מורחב סביב הראשית: ${table.rows} שורות על ${table.cols} עמודות, כמו זום-אאוט גדול, דילוג ראשית ${table.skipAbs}.`,
+          firstPass.length ? `בדילוג תאי 1 נמצאו ${firstPass.length} התאמות מועמדות.` : "בדילוג תאי 1 לא נמצאו התאמות מספיקות.",
+          extraPass.length ? `נוספו ${extraPass.length} התאמות בדילוגי תאים 2-4.` : "",
+          details.length ? `פירוט ממצאים מהטבלה: ${details.join("; ")}` : "",
+          ...summarizeTableRelations(hits, intent),
+        ].filter(Boolean),
+      };
+    } catch (error) {
+      return { words: [], hits: [], notes: [`סריקת טבלת הדילוג לא הושלמה: ${error.message}`] };
+    }
+  }
+
+  async function fillDecodeFromProject(data, fileName = "קובץ צופן") {
     if (!data || typeof data !== "object") throw new Error("קובץ הצופן אינו תקין");
     const saved = Array.isArray(data.saved) ? data.saved : [];
     const current = Math.max(0, Math.min(Number.parseInt(data.current, 10) || 0, Math.max(0, saved.length - 1)));
-    const item = saved[current] || saved[0] || {};
+    const item = pickPrimaryItem(data, saved, current);
     const primary = item.primary?.word || data.primary || "";
     const matches = Array.isArray(item.matches) ? item.matches : [];
     const fieldWords = uniqueWords([
@@ -440,23 +735,44 @@
     const currentWords = uniqueWords(matches
       .filter((match) => match && match.word)
       .map((match) => match.word));
+    const wordStats = makeWordStats();
+    const primaryPositions = positionsForProjectMatch(item.primary);
+    fieldWords.forEach((word) => wordStats.add(word, { source: "שדות חיפוש" }));
+    (Array.isArray(saved) ? saved : []).forEach((savedItem) => {
+      (Array.isArray(savedItem?.matches) ? savedItem.matches : []).forEach((match) => {
+        const distance = minPositionDistance(primaryPositions, positionsForProjectMatch(match));
+        wordStats.add(match.word, { source: "ממצאים שמורים", distance });
+      });
+    });
+    matches.forEach((match) => {
+      const distance = minPositionDistance(primaryPositions, positionsForProjectMatch(match));
+      wordStats.add(match.word, { source: "הממצא הנוכחי", distance, count: 2 });
+    });
     const secondaries = uniqueWords([
       ...fieldWords,
       ...savedWords,
       ...currentWords,
     ]).filter((word) => canonical(word) !== canonical(primary));
+    if (!$("decodeQuestion").value.trim()) $("decodeQuestion").value = "מה אפשר ללמוד מהמילים שעלו בצופן?";
+    const intent = inferIntent($("decodeQuestion").value, $("decodeIntent").value);
+    const tableScan = await tableWordsFromProject(data, item, secondaries, intent);
+    tableScan.hits.forEach((hit) => wordStats.add(hit.word, { source: "טבלת דילוג", distance: hit.distance }));
+    const allSecondaries = orderDecodeWords([...secondaries, ...tableScan.words], wordStats, primary)
+      .filter((word) => canonical(word) !== canonical(primary));
     const dates = secondaries.filter((word) => /תש|תמוז|אב|אלול|ניסן|אייר|סיון|טבת|שבט|אדר|חשון|כסלו|\d{4}/.test(word));
     $("decodeTitle").value = data.name || data.title || fileName.replace(/\.(gal_einai\.)?json$/i, "");
-    if (!$("decodeQuestion").value.trim()) $("decodeQuestion").value = "מה אפשר ללמוד מהמילים שעלו בצופן?";
     $("decodePrimary").value = primary;
-    $("decodeSecondaries").value = (secondaries.length ? secondaries : splitWords(data.secondary || "")).join("\n");
+    $("decodeSecondaries").value = (allSecondaries.length ? allSecondaries : splitWords(data.secondary || "")).join("\n");
     $("decodeDates").value = dates.join("\n");
     $("decodeStructure").value = [
       saved.length ? `בקובץ יש ${saved.length} ממצאים שמורים.` : "",
       fieldWords.length ? `נאספו ${fieldWords.length} מילים משדות החיפוש.` : "",
       savedWords.length ? `נאספו ${savedWords.length} מילים מכל הממצאים השמורים בקובץ, לא רק מהמסומן בצבע בממצא הנוכחי.` : "",
+      allSecondaries.length ? "סדר המילים לפענוח נקבע לפי ריבוי הופעות תחילה, אחר כך קירבה לראשית, ואחר כך סדר לשוני." : "",
       item.primary?.skip ? `דילוג ראשית: ${Math.abs(item.primary.skip)}` : "",
       matches.length ? `בממצא הנוכחי ${matches.length} סימונים/מילים.` : "",
+      tableScan.words.length ? `נוספו ${tableScan.words.length} מילים מסריקת טבלת הדילוג עצמה, כולל אלכסונים.` : "",
+      ...tableScan.notes,
     ].filter(Boolean).join("\n");
     $("decodeStatus").textContent = `נטען קובץ צופן: ${fileName}`;
   }
@@ -594,7 +910,8 @@
     const file = event.target.files?.[0];
     if (!file) return;
     try {
-      fillDecodeFromProject(JSON.parse(await file.text()), file.name);
+      $("decodeStatus").textContent = "קורא את קובץ הצופן וסורק את טבלת הדילוג...";
+      await fillDecodeFromProject(JSON.parse(await file.text()), file.name);
     } catch (error) {
       $("decodeStatus").textContent = `לא הצלחתי לקרוא את קובץ הצופן: ${error.message}`;
     }
