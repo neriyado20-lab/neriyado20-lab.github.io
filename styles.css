@@ -2771,39 +2771,6 @@ footer .legal-footer a,
   -webkit-text-stroke: 0.55px rgba(255, 239, 181, 0.44);
 }
 
-.hero-overlay h1::before {
-  content: "";
-  position: absolute;
-  left: 6%;
-  right: 6%;
-  bottom: -0.08em;
-  height: 0.12em;
-  border-radius: 999px;
-  background:
-    radial-gradient(ellipse at 24% 50%, rgba(255, 241, 200, 0.88) 0 7%, transparent 8%),
-    linear-gradient(90deg, transparent, rgba(63, 127, 180, 0.46), rgba(214, 156, 37, 0.74), rgba(63, 127, 180, 0.46), transparent);
-  filter: drop-shadow(0 5px 8px rgba(42, 20, 5, 0.20));
-}
-
-.hero-overlay h1::after {
-  content: "";
-  position: absolute;
-  top: 0.12em;
-  left: 0.04em;
-  width: 0.34em;
-  height: 0.18em;
-  border: 2px solid rgba(255, 236, 176, 0.82);
-  border-radius: 52% 48% 52% 48%;
-  background:
-    radial-gradient(circle at 50% 50%, #0a3b34 0 18%, rgba(255, 253, 246, 0.92) 19% 37%, transparent 38%),
-    rgba(255, 241, 200, 0.22);
-  box-shadow:
-    0 0 12px rgba(255, 241, 200, 0.52),
-    inset 0 0 8px rgba(13, 109, 86, 0.18);
-  transform: rotate(-8deg);
-  opacity: 0.9;
-}
-
 .hero-overlay .lead {
   color: #354740;
   max-width: 760px;
