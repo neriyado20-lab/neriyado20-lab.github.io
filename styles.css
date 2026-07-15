@@ -2656,7 +2656,7 @@ footer .legal-footer a,
 .home-hero > .hero-showcase {
   position: relative;
   justify-self: center;
-  width: min(790px, 75vw);
+  width: min(810px, 76vw);
   margin: 0;
   padding: 0;
   border: 0;
@@ -2665,8 +2665,8 @@ footer .legal-footer a,
   background: transparent;
   box-shadow:
     0 16px 42px rgba(32, 14, 10, 0.14);
-  transform: translateY(clamp(-86px, -9vh, -54px)) rotate(-0.15deg);
-  margin-top: clamp(110px, 18vh, 188px);
+  transform: translateY(clamp(-158px, -15vh, -112px)) rotate(-0.15deg);
+  margin-top: clamp(54px, 9vh, 92px);
 }
 
 .hero-showcase::before,
@@ -2753,6 +2753,8 @@ footer .legal-footer a,
 }
 
 .hero-overlay h1 {
+  position: relative;
+  display: inline-block;
   margin: 0;
   font-family: "Frank Ruehl Libre", "FrankRuehl", "Narkisim", "David", "Times New Roman", serif;
   font-size: clamp(58px, 8.4vw, 118px);
@@ -2761,11 +2763,45 @@ footer .legal-footer a,
   font-weight: 900;
   color: #0d4438;
   text-shadow:
-    0 1px 0 #fff7d8,
-    0 3px 0 rgba(214, 156, 37, 0.26),
+    0 1px 0 rgba(255, 247, 216, 0.96),
+    0 3px 0 rgba(214, 156, 37, 0.28),
+    0 -1px 0 rgba(255, 240, 184, 0.52),
     0 0 28px rgba(255, 242, 198, 0.88),
     0 18px 36px rgba(48, 25, 6, 0.34);
-  -webkit-text-stroke: 0.7px rgba(255, 239, 181, 0.34);
+  -webkit-text-stroke: 0.55px rgba(255, 239, 181, 0.44);
+}
+
+.hero-overlay h1::before {
+  content: "";
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: -0.08em;
+  height: 0.12em;
+  border-radius: 999px;
+  background:
+    radial-gradient(ellipse at 24% 50%, rgba(255, 241, 200, 0.88) 0 7%, transparent 8%),
+    linear-gradient(90deg, transparent, rgba(63, 127, 180, 0.46), rgba(214, 156, 37, 0.74), rgba(63, 127, 180, 0.46), transparent);
+  filter: drop-shadow(0 5px 8px rgba(42, 20, 5, 0.20));
+}
+
+.hero-overlay h1::after {
+  content: "";
+  position: absolute;
+  top: 0.12em;
+  left: 0.04em;
+  width: 0.34em;
+  height: 0.18em;
+  border: 2px solid rgba(255, 236, 176, 0.82);
+  border-radius: 52% 48% 52% 48%;
+  background:
+    radial-gradient(circle at 50% 50%, #0a3b34 0 18%, rgba(255, 253, 246, 0.92) 19% 37%, transparent 38%),
+    rgba(255, 241, 200, 0.22);
+  box-shadow:
+    0 0 12px rgba(255, 241, 200, 0.52),
+    inset 0 0 8px rgba(13, 109, 86, 0.18);
+  transform: rotate(-8deg);
+  opacity: 0.9;
 }
 
 .hero-overlay .lead {
