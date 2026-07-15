@@ -605,6 +605,32 @@ h2 {
   font-weight: 750;
 }
 
+.temple-quote {
+  margin: 4px 0 8px;
+  padding: 10px 0;
+  border-block: 1px solid rgba(214, 156, 37, 0.34);
+  color: #7a4b12;
+  font-family: "Frank Ruehl Libre", "FrankRuehl", "Narkisim", "David", "Times New Roman", serif;
+  font-size: clamp(22px, 2.3vw, 34px);
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.home-visual-card-wide {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+  grid-template-rows: auto;
+  min-height: 360px;
+}
+
+.home-visual-card-wide img {
+  min-height: 360px;
+}
+
+.home-visual-card-wide div {
+  align-content: center;
+}
+
 .band,
 .content-grid {
   padding: 42px clamp(16px, 5vw, 72px);
@@ -2601,6 +2627,16 @@ footer .legal-footer a,
 
   .home-visual-card {
     grid-template-rows: 240px auto;
+  }
+
+  .home-visual-card-wide {
+    grid-template-columns: 1fr;
+    grid-template-rows: 240px auto;
+    min-height: 0;
+  }
+
+  .home-visual-card-wide img {
+    min-height: 240px;
   }
 }
 
