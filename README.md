@@ -13,7 +13,8 @@
 - `admin.html` - לוח ניהול מקומי לנתונים שנשמרו בדפדפן הזה.
 - `admin-config.js` - הגדרות כניסה והעלאה לניהול.
 - `styles.css` - עיצוב האתר.
-- `downloads/gal_einai_V340_no_AI.zip` - קובץ ההפצה העדכני שמקושר מהאתר.
+- `downloads/gal_einai_V341_no_AI.zip` - קובץ ההפצה העדכני שמקושר מהאתר.
+- `downloads/gal_einai_V340_no_AI.zip` - גרסה קודמת שמורה לתיקון/השוואה.
 - `downloads/gal_einai_V236_no_AI.zip` - קובץ הפצה נוסף שעדיין מקושר מהאתר.
 - `archive/` - קבצים ישנים או לא מקושרים שנשמרו לארכיון במקום להימחק.
 
