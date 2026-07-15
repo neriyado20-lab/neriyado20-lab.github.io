@@ -3,73 +3,76 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>גמ"ח תיווך טרמפים - גל עיני</title>
+  <title>גמ"ח טרמפים - תיווך נסיעות קהילתי</title>
   <meta name="description" content="גמ״ח תיווך טרמפים עם הפרדה בין גברים לנשים ובדיקת התאמה לפי מסלול.">
-  <link rel="stylesheet" href="styles.css?v=102">
+  <link rel="stylesheet" href="styles.css?v=104">
 </head>
-<body class="rides-page">
-  <header class="topbar">
+<body class="rides-page rides-standalone">
+  <header class="topbar rides-topbar">
     <div class="brand-area">
-      <a class="brand" href="index.html" aria-label="חזרה לשער">
-        <span class="brand-mark" aria-hidden="true">גע</span>
+      <a class="brand rides-brand" href="rides.html" aria-label="גמ״ח טרמפים">
+        <span class="brand-mark" aria-hidden="true">גמ</span>
         <div>
-          <strong>גל עיני</strong>
-          <span>גמ"ח טרמפים</span>
+          <strong>גמ"ח טרמפים</strong>
+          <span>תיווך נסיעות קהילתי</span>
         </div>
       </a>
-      <a class="topbar-rides-link" href="rides.html">גמ"ח טרמפים</a>
     </div>
     <span class="hebrew-date" data-hebrew-date aria-label="תאריך עברי"></span>
     <nav aria-label="ניווט">
-      <a href="index.html">ראשי</a>
-      <a href="web.html">עבודה באתר</a>
-      <a href="ai.html">עיון AI</a>
-      <a href="order.html">חיפוש לפי הזמנה</a>
-      <a href="account.html">אזור אישי</a>
-      <a href="contact.html">צור קשר</a>
+      <a href="#join">הצטרפות</a>
+      <a href="#rides-forms">רישום נסיעה</a>
+      <a href="#rides-results">התאמות</a>
+      <a href="#rides-safety">בטיחות</a>
+      <a href="index.html">חזרה לגל עיני</a>
     </nav>
   </header>
 
   <main class="rides-shell">
-    <section class="order-intro">
-      <p class="eyebrow">גמ"ח תיווך</p>
-      <h1>טרמפים בהפרדה ובאחריות</h1>
-      <div class="rides-hero-visual" aria-hidden="true">
-        <span class="rides-road"></span>
-        <span class="rides-car">
-          <span></span>
-          <span></span>
-        </span>
-        <span class="rides-pin rides-pin-start"></span>
-        <span class="rides-pin rides-pin-end"></span>
-      </div>
+    <section class="rides-site-hero">
+      <div class="rides-hero-copy">
+      <p class="eyebrow">גמ"ח קהילתי עצמאי</p>
+      <h1><span>טרמפים</span><span>בהפרדה</span><span>ובאחריות</span></h1>
       <p>
-        רשימת מסיעים מוצעים, בדיקה אם המבקש נמצא במסלול, והפרדה בין גברים לנשים.
-        פרטי הנוסעים נשמרים ביומן מקומי גם למקרה של אובדן חפצים.
+        מערכת תיווך נסיעות קהילתית: מסיעים, מבקשי נסיעה, מסלול, זמן, הפרדה,
+        אישור הדדי ושמירת פרטים בסיסית למקרה אבידה.
       </p>
-      <p class="order-note">
-        בטיחות לפני הכל: קטינים רק דרך הורים, לא עולים עם אדם לא מוכר בלי בירור,
-        והנסיעה מתואמת באישור הדדי של המסיע והנוסע דרך האתר. האחריות לנסיעה היא על המשתמשים בלבד.
-      </p>
-      <p class="ai-safety-note">
-        אימות GPS הוא אימות נקודתי של מיקום ושעה, לא מעקב רציף ולא הבטחת בטיחות מלאה.
-      </p>
-      <p class="ai-safety-note">
-        התקשורת בין מסיע לנוסע נעשית דרך האתר. פרטי קשר נחשפים רק אם שני הצדדים אישרו זאת, ומנהל הגמ"ח מתערב רק במקרה חריג או כאשר התוכנה לא נותנת מענה.
-      </p>
-      <p class="ai-safety-note">
-        האתר מסייע בתיווך בלבד ואינו ערב לזהות, לבטיחות, לנהיגה, לזמינות או להתנהגות המשתמשים.
-      </p>
-      <p class="ai-safety-note">
-        משוב משתמשים הוא אינדיקציה קהילתית בלבד, אינו קביעה על אדם, ואינו מחליף בירור ושיקול דעת במקרים חריגים.
-      </p>
+      <div class="rides-hero-actions">
+        <a class="button primary" href="#rides-forms">רישום נסיעה</a>
+        <a class="button secondary" href="#join">כניסה עם קוד קהילתי</a>
+      </div>
+      </div>
+      <figure class="rides-hero-image">
+        <img src="assets/rides-gemach-hero-v1.png?v=1" alt="דרך קהילתית עם רכב וסימוני מסלול">
+      </figure>
     </section>
 
-      <p class="ai-safety-note">
-        תחזוקת הגמ"ח תיעשה מפרסומות צנועות בלבד, המתאימות לאופי האתר והציבור, ללא פרסומות פוגעניות או לא ראויות.
-      </p>
+    <section class="rides-story-grid" aria-label="עיקרי הגמ״ח">
+      <article class="rides-story-card">
+        <span class="rides-story-icon rides-story-route" aria-hidden="true"></span>
+        <h2>מסלול לפני פרטים</h2>
+        <p>המערכת בודקת האם נקודת המוצא והיעד נמצאות במסלול המסיע לפני חשיפת קשר.</p>
+      </article>
+      <article class="rides-story-card">
+        <span class="rides-story-icon rides-story-community" aria-hidden="true"></span>
+        <h2>קהילה עם אחריות</h2>
+        <p>הצטרפות דרך נציג וקוד אישי, כדי שהגמ״ח יישאר במסגרת מוכרת ונקיה.</p>
+      </article>
+      <article class="rides-story-card">
+        <span class="rides-story-icon rides-story-shield" aria-hidden="true"></span>
+        <h2>זהירות לפני הכל</h2>
+        <p>אישור הדדי, דיווח חריג ומשוב עדין. אין כאן הבטחת בטיחות, אלא כלי עזר לתיווך.</p>
+      </article>
+    </section>
 
-    <section class="rides-security-grid" aria-label="אבטחת גמ״ח הטרמפים">
+    <section class="rides-notes-strip" id="rides-safety" aria-label="כללי בטיחות ותפעול">
+      <p>קטינים רק דרך הורים. לא עולים עם אדם לא מוכר בלי בירור. האחריות לנסיעה היא על המשתמשים בלבד.</p>
+      <p>אימות GPS הוא נקודתי בלבד, לא מעקב רציף ולא הבטחת בטיחות מלאה.</p>
+      <p>פרטי קשר נחשפים רק לאחר אישור הדדי. מנהל הגמ"ח מתערב רק במקרה חריג או כאשר המערכת לא נותנת מענה.</p>
+      <p>תחזוקת הגמ"ח תיעשה מפרסומות צנועות בלבד, המתאימות לאופי האתר והציבור.</p>
+    </section>
+
+    <section class="rides-security-grid" id="rides-security" aria-label="אבטחת גמ״ח הטרמפים">
       <div class="rides-panel">
         <div class="rides-card-visual rides-card-security" aria-hidden="true"></div>
         <h2>שמירת ביטחון ושימוש ראוי</h2>
@@ -117,7 +120,7 @@
       </form>
     </section>
 
-    <section class="rides-community-grid" aria-label="כניסה למעגל קהילתי">
+    <section class="rides-community-grid" id="join" aria-label="כניסה למעגל קהילתי">
       <div class="rides-panel">
         <div class="rides-card-visual rides-card-community" aria-hidden="true"></div>
         <h2>מעגל קהילתי</h2>
@@ -186,7 +189,7 @@
       </div>
     </section>
 
-    <section class="rides-grid" aria-label="טפסי גמ״ח טרמפים">
+    <section class="rides-grid" id="rides-forms" aria-label="טפסי גמ״ח טרמפים">
       <form id="driverForm" class="rides-form">
         <div class="rides-card-visual rides-card-driver" aria-hidden="true"></div>
         <h2>אני יכול לקחת</h2>
@@ -361,7 +364,7 @@
       </div>
     </section>
 
-    <section class="rides-results" aria-label="תוצאות התאמה">
+    <section class="rides-results" id="rides-results" aria-label="תוצאות התאמה">
       <div class="rides-panel">
         <div class="rides-card-visual rides-card-drivers-list" aria-hidden="true"></div>
         <h2>רשימת מסיעים מוצעים</h2>
