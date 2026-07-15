@@ -851,10 +851,24 @@
     const aiGuidesList = $("adminAiGuidesList");
     if (aiGuidesList) {
       const guides = Array.isArray(store.aiGuides) ? store.aiGuides : [];
+      const decodes = Array.isArray(store.aiDecodes) ? store.aiDecodes : [];
       aiGuidesList.replaceChildren();
-      if (!guides.length) {
-        aiGuidesList.append(row("אין עדיין עיוני AI", "רשימות מילים שייבנו במכשיר זה יופיעו כאן."));
+      if (!guides.length && !decodes.length) {
+        aiGuidesList.append(row("אין עדיין עיוני AI", "רשימות מילים ופענוחי צפנים שיייבנו במכשיר זה יופיעו כאן."));
       } else {
+        decodes.slice().reverse().forEach((decode) => {
+          const date = decode.at ? new Date(decode.at).toLocaleString("he-IL") : "";
+          const count = Array.isArray(decode.secondaries) ? decode.secondaries.length : 0;
+          const intent = {
+            who: "מי",
+            where: "איפה",
+            when: "מתי",
+            what: "מה",
+            event: "אירוע",
+            general: "כללי",
+          }[decode.intent] || "כללי";
+          aiGuidesList.append(row(`פענוח ${intent}: ${decode.title || decode.primary || "צופן"}`, `${decode.primary || ""} | ${count} משניות${decode.question ? ` | ${decode.question}` : ""}${date ? ` | ${date}` : ""}`));
+        });
         guides.slice().reverse().forEach((guide) => {
           const date = guide.at ? new Date(guide.at).toLocaleString("he-IL") : "";
           aiGuidesList.append(row(guide.topic || "עיון AI", `${guide.words?.length || 0} מילים${date ? ` | ${date}` : ""}`));
