@@ -1232,6 +1232,36 @@ h2 {
 
 .section-head {
   max-width: 840px;
+  position: relative;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  column-gap: 18px;
+  align-items: center;
+}
+
+.section-head .section-mini-visual {
+  grid-row: 1 / span 3;
+  width: 92px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 14px;
+  box-shadow: 0 10px 22px rgba(23, 33, 29, 0.12);
+}
+
+.section-head .eyebrow,
+.section-head h2,
+.section-head p {
+  grid-column: 2;
+}
+
+.article-mini-visual {
+  width: 86px;
+  height: 60px;
+  object-fit: contain;
+  float: inline-start;
+  margin: 0 0 10px 14px;
+  border-radius: 14px;
+  box-shadow: 0 9px 20px rgba(23, 33, 29, 0.11);
 }
 
 .pricing-band {
@@ -2637,6 +2667,23 @@ footer .legal-footer a,
 
   .home-visual-card-wide img {
     min-height: 240px;
+  }
+
+  .section-head {
+    grid-template-columns: 72px minmax(0, 1fr);
+    column-gap: 12px;
+  }
+
+  .section-head .section-mini-visual {
+    width: 68px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  .article-mini-visual {
+    width: 72px;
+    height: 50px;
+    margin: 0 0 8px 10px;
   }
 }
 
