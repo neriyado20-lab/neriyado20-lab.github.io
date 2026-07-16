@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /account.html
+Disallow: /supabase/
+Disallow: /.upload-tmp/
+
+Sitemap: https://neriyado20-lab.github.io/sitemap.xml
