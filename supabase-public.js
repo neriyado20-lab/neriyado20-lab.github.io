@@ -20,5 +20,22 @@
     }
   }
 
-  window.GalEinaiBackend = Object.freeze({ submit });
+  async function aiDecode(payload) {
+    const response = await fetch(`${url}/functions/v1/ai-decode`, {
+      method: "POST",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error || "פענוח AI חי אינו זמין כרגע");
+    }
+    return data;
+  }
+
+  window.GalEinaiBackend = Object.freeze({ submit, aiDecode });
 })();
