@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>עיון AI ופענוח צפנים - גל עיני</title>
   <meta name="description" content="מאגר מילים מותרות ופענוח זהיר של צפנים, ללא הכרעה על אנשים וללא לשון הרע.">
-  <link rel="stylesheet" href="styles.css?v=103">
+  <link rel="stylesheet" href="styles.css?v=110">
 </head>
 <body class="ai-page">
   <header class="topbar">
@@ -32,113 +32,38 @@
 
   <main class="ai-shell">
     <section class="order-intro">
-      <p class="eyebrow">מאגר מילים מותרות</p>
+      <p class="eyebrow">שני מסלולים מסודרים</p>
       <h1>עיון AI ופענוח צפנים</h1>
       <p>
-        שלב א׳ בונה רשימת מילים לחיפוש. שלב ב׳ מסדר פענוח זהיר של צופן שכבר נמצא:
-        ראשית, משניות, תאריכים, סמיכות, כיוון עיון, ומה צריך לבדוק בהמשך.
-      </p>
-      <p>
-        הכלי אינו מכריע על אדם ואינו מחליף בירור, דעת תורה או אחריות אנושית.
-      </p>
-      <p class="order-note">
-        לשידוכים או עבודה: להשתמש רק בהסכמה ובצורה מכבדת, בלי הכרעה על אנשים ובלי מסקנות שליליות על אדם.
+        בוחרים מסלול אחד: צופן חדש שעדיין צריך לחפש, או צופן מוכן שכבר נמצא.
+        בכל מסלול השלבים מופיעים פעם אחת לפי הסדר, בלי כפילות.
       </p>
       <p class="ai-safety-note">
-        בחקירת מקרה הכלי מחפש כיווני עיון ניטרליים בלבד. הוא אינו מזהה אשם, אינו מדרג אנשים, ואינו מוציא שם של אדם כחשוד.
-      </p>
-      <p class="ai-safety-note">
-        באיתור נעדרים הכלי יכול להציע מקומות, זמנים וסימנים לעיון בלבד. אין לראות בזה מיקום ודאי, ובמקרה אמת פונים מיד למשטרה או הצלה.
+        הכלי מסייע לעיון בלבד: אינו מכריע על אדם, אינו נבואה, אינו מחליף בירור, דעת תורה או אחריות אנושית.
       </p>
     </section>
 
-    <section class="ai-stage-card" aria-label="שלב ב פענוח צופן">
-      <div class="section-head">
-        <p class="eyebrow">שלב ב</p>
-        <h2>פענוח צופן שנמצא</h2>
-        <p>להכניס את הממצא כפי שהוא נראה בתוכנה או באתר. המערכת תבנה פענוח מסודר וזהיר להמשך בדיקה.</p>
-      </div>
-      <form id="aiDecodeForm" class="ai-form">
-        <label>
-          <span>טעינת קובץ צופן קיים</span>
-          <input id="decodeProjectFile" type="file" accept=".json,.gal_einai.json,application/json">
-        </label>
-        <label>
-          <span>שם הצופן / כותרת</span>
-          <input id="decodeTitle" type="text" maxlength="120" placeholder="לדוגמה: כתמוז תשפ״ו - ממצא ישועה">
-        </label>
-        <label>
-          <span>השאלה המנחה לפענוח</span>
-          <input id="decodeQuestion" type="text" placeholder="לדוגמה: מי השמות שעלו? איפה המקום האפשרי? מתי הזמן?">
-        </label>
-        <label>
-          <span>סוג חיפוש בפענוח</span>
-          <select id="decodeIntent">
-            <option value="auto">זיהוי אוטומטי לפי השאלה</option>
-            <option value="who">מי / שמות אנשים שעלו לעיון</option>
-            <option value="where">איפה / שמות מקומות אפשריים</option>
-            <option value="when">מתי / תאריכים וזמנים</option>
-            <option value="what">מה / חפצים, סימנים ונושאים</option>
-            <option value="event">מה קרה / אירועים ופעולות</option>
-            <option value="general">כללי</option>
-          </select>
-        </label>
-        <label>
-          <span>המילה הראשית</span>
-          <input id="decodePrimary" type="text" required placeholder="המילה הראשית בצופן">
-        </label>
-        <label>
-          <span>כל המילים שעלו בצופן / ברשימת החיפוש</span>
-          <textarea id="decodeSecondaries" rows="4" required placeholder="לא רק המסומנות בצבע: כל מילה שנמצאה, וגם מילים מטבלת הדילוג, אלכסונים ודילוג 1"></textarea>
-        </label>
-        <label>
-          <span>תאריכים / זמנים שנמצאו</span>
-          <textarea id="decodeDates" rows="2" placeholder="לדוגמה: כ״ט תמוז, תשפ״ו, 2026"></textarea>
-        </label>
-        <label>
-          <span>הערות תצוגה ומבנה</span>
-          <textarea id="decodeStructure" rows="3" placeholder="סמיכות, מפגשים, מקבץ, קווים, מילים מעל/מתחת, אלכסונים, דילוג 1 ודילוגים חריגים"></textarea>
-        </label>
-        <label>
-          <span>רקע מותר לעיון</span>
-          <textarea id="decodeContext" rows="3" placeholder="רקע כללי בלבד, בלי האשמות ובלי מסקנות על אדם"></textarea>
-        </label>
-        <label>
-          <span>רמת זהירות רצויה</span>
-          <select id="decodeCaution">
-            <option value="high">גבוהה - ניסוח זהיר מאוד</option>
-            <option value="medium">בינונית - כיוון עיון עם הסתייגות</option>
-            <option value="research">מחקרית - רשימת בדיקות להמשך</option>
-          </select>
-        </label>
-        <label class="ai-consent">
-          <input id="decodeConsent" type="checkbox" required>
-          <span>אני מבין שזה פענוח עיוני בלבד, בלי הכרעה, בלי נבואה, ובלי קביעה על אדם או אירוע.</span>
-        </label>
-        <div class="order-actions">
-          <button class="button primary" type="submit">בנה פענוח זהיר</button>
-          <button id="copyDecodeButton" class="button secondary" type="button" disabled>העתק פענוח</button>
-        </div>
-        <p id="decodeStatus" class="payment-status" aria-live="polite"></p>
-      </form>
-      <div class="ai-results ai-decode-results" aria-label="פענוח מוצע">
-        <article>
-          <h2>פענוח מוצע</h2>
-          <textarea id="decodeOutput" class="order-summary" rows="12" readonly placeholder="לאחר מילוי הטופס יופיע כאן פענוח מסודר."></textarea>
-        </article>
-        <article>
-          <h2>בקשה ל־AI מתקדם</h2>
-          <p class="payment-status">נוסח זה מיועד להדבקה בכלי AI חיצוני או בשלב הבא של המערכת, עם כללי זהירות מובנים.</p>
-          <textarea id="decodePrompt" class="order-summary" rows="12" readonly></textarea>
-        </article>
-      </div>
+    <section class="ai-route-grid" aria-label="בחירת מסלול">
+      <a class="ai-route-card" href="#new-cipher-route">
+        <span>מסלול א</span>
+        <strong>חיפוש צופן חדש לפענוח</strong>
+        <small>הצעות מילים → חיפוש הצופן → פענוח</small>
+      </a>
+      <a class="ai-route-card" href="#ready-cipher-route">
+        <span>מסלול ב</span>
+        <strong>צופן מוכן לפענוח</strong>
+        <small>טעינת צופן / מילוי נתונים → פענוח</small>
+      </a>
     </section>
 
-    <form id="aiGuideForm" class="ai-form">
+    <section id="new-cipher-route" class="ai-stage-card" aria-label="מסלול א חיפוש צופן חדש">
       <div class="section-head compact-head">
-        <p class="eyebrow">שלב א</p>
-        <h2>בניית מילים לחיפוש</h2>
+        <p class="eyebrow">מסלול א · שלב 1</p>
+        <h2>הצעות מילים לחיפוש צופן חדש</h2>
+        <p>מכניסים נושא ושאלה מנחה. המערכת מציעה מילים מותרות לחיפוש, ואפשר לערוך אותן לפני מעבר לחיפוש.</p>
       </div>
+
+      <form id="aiGuideForm" class="ai-form">
       <label>
         <span>תחום העיון</span>
         <select id="aiDomain">
@@ -177,13 +102,14 @@
       <div class="order-actions">
         <button class="button primary" type="submit">הצע מילים לחיפוש</button>
         <button id="copyAiWordsButton" class="button secondary" type="button" disabled>העתק מילים</button>
-        <a id="openWebSearchButton" class="button secondary disabled" href="web.html" aria-disabled="true">פתח בחיפוש האתר</a>
+        <a id="openWebSearchButton" class="button secondary disabled" href="web.html" aria-disabled="true">חיפוש הצופן באתר</a>
       </div>
       <p id="aiStatus" class="payment-status" aria-live="polite"></p>
-    </form>
+      </form>
 
-    <section class="ai-results" aria-label="תוצאות עיון AI">
+      <section class="ai-results" aria-label="תוצאות הצעות מילים">
       <article>
+        <p class="eyebrow">מסלול א · שלב 2</p>
         <h2>מילים מוצעות לפי עדיפות</h2>
         <div id="aiWordChips" class="ai-word-chips"></div>
       </article>
@@ -203,6 +129,100 @@
         <h2>נוסח להמשך חיפוש</h2>
         <textarea id="aiSummary" class="order-summary" rows="8" readonly></textarea>
       </article>
+      </section>
+
+      <div class="ai-next-step">
+        <p class="eyebrow">מסלול א · שלב 3</p>
+        <h2>אחרי שנמצא צופן</h2>
+        <p>לאחר חיפוש באתר או בתוכנת Windows, עוברים לטופס הפענוח שלמטה וטוענים את קובץ הצופן או ממלאים את הנתונים ידנית.</p>
+        <a class="button primary" href="#ready-cipher-route">עבור לפענוח הצופן</a>
+      </div>
+    </section>
+
+    <section id="ready-cipher-route" class="ai-stage-card" aria-label="מסלול ב פענוח צופן מוכן">
+      <div class="section-head">
+        <p class="eyebrow">מסלול ב · פענוח</p>
+        <h2>צופן מוכן לפענוח</h2>
+        <p>כאן לא צריך הצעות מילים לחיפוש. טוענים קובץ צופן קיים או ממלאים את נתוני הצופן, ומפעילים פענוח מסודר.</p>
+      </div>
+      <form id="aiDecodeForm" class="ai-form">
+        <label>
+          <span>טעינת קובץ צופן קיים</span>
+          <input id="decodeProjectFile" type="file" accept=".json,.gal_einai.json,application/json">
+        </label>
+        <label>
+          <span>שם הצופן / כותרת</span>
+          <input id="decodeTitle" type="text" maxlength="120" placeholder="לדוגמה: כתמוז תשפ״ו - ממצא ישועה">
+        </label>
+        <label>
+          <span>השאלה המנחה לפענוח</span>
+          <input id="decodeQuestion" type="text" placeholder="לדוגמה: מי השמות שעלו? איפה המקום האפשרי? מתי הזמן?">
+        </label>
+        <label>
+          <span>סוג פענוח</span>
+          <select id="decodeIntent">
+            <option value="auto">זיהוי אוטומטי לפי השאלה</option>
+            <option value="who">מי / שמות אנשים שעלו לעיון</option>
+            <option value="where">איפה / שמות מקומות אפשריים</option>
+            <option value="when">מתי / תאריכים וזמנים</option>
+            <option value="what">מה / חפצים, סימנים ונושאים</option>
+            <option value="event">מה קרה / אירועים ופעולות</option>
+            <option value="general">כללי</option>
+          </select>
+        </label>
+        <label>
+          <span>המילה הראשית</span>
+          <input id="decodePrimary" type="text" required placeholder="המילה הראשית בצופן">
+        </label>
+        <label>
+          <span>כל המילים שעלו בצופן</span>
+          <textarea id="decodeSecondaries" rows="4" required placeholder="לא רק המסומנות בצבע: כל מילה שנמצאה, וגם מילים מטבלת הדילוג, אלכסונים ודילוג 1"></textarea>
+        </label>
+        <label>
+          <span>תאריכים / זמנים שנמצאו</span>
+          <textarea id="decodeDates" rows="2" placeholder="לדוגמה: כ״ט תמוז, תשפ״ו, 2026"></textarea>
+        </label>
+        <label>
+          <span>הערות תצוגה ומבנה</span>
+          <textarea id="decodeStructure" rows="3" placeholder="סמיכות, מפגשים, מקבץ, קווים, מילים מעל/מתחת, אלכסונים, דילוג 1 ודילוגים חריגים"></textarea>
+        </label>
+        <label>
+          <span>רקע מותר לעיון</span>
+          <textarea id="decodeContext" rows="3" placeholder="רקע כללי בלבד, בלי האשמות ובלי מסקנות על אדם"></textarea>
+        </label>
+        <label>
+          <span>רמת זהירות רצויה</span>
+          <select id="decodeCaution">
+            <option value="high">גבוהה - ניסוח זהיר מאוד</option>
+            <option value="medium">בינונית - כיוון עיון עם הסתייגות</option>
+            <option value="research">מחקרית - רשימת בדיקות להמשך</option>
+          </select>
+        </label>
+        <label class="ai-consent">
+          <input id="decodeConsent" type="checkbox" required>
+          <span>אני מבין שזה פענוח עיוני בלבד, בלי הכרעה, בלי נבואה, ובלי קביעה על אדם או אירוע.</span>
+        </label>
+        <div class="order-actions">
+          <button id="decodeSubmitButton" class="button primary" type="submit">פענח צופן</button>
+          <button id="copyDecodeButton" class="button secondary" type="button" disabled>העתק פענוח</button>
+        </div>
+        <p id="decodeLoading" class="ai-loading" hidden aria-live="polite">
+          <span aria-hidden="true"></span>
+          מפענח את הצופן ומסדר תוצאה. נא להמתין עד לסיום.
+        </p>
+        <p id="decodeStatus" class="payment-status" aria-live="polite"></p>
+      </form>
+      <section class="ai-results ai-decode-results" aria-label="תוצאת פענוח">
+        <article>
+          <h2>תוצאה מסודרת</h2>
+          <textarea id="decodeOutput" class="order-summary" rows="12" readonly placeholder="לאחר הפענוח תופיע כאן תוצאה מסודרת."></textarea>
+        </article>
+        <article>
+          <h2>בקשה ל־AI מתקדם</h2>
+          <p class="payment-status">נוסח זה מיועד להדבקה בכלי AI חיצוני או בשלב הבא של המערכת, עם כללי זהירות מובנים.</p>
+          <textarea id="decodePrompt" class="order-summary" rows="12" readonly></textarea>
+        </article>
+      </section>
     </section>
   </main>
 
@@ -214,6 +234,6 @@
   <script src="supabase-public.js?v=1"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=9"></script>
-  <script src="ai.js?v=12"></script>
+  <script src="ai.js?v=13"></script>
 </body>
 </html>
