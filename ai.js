@@ -33,6 +33,7 @@
   ];
   const TIME_WORDS = ["תשפ", "תש", "ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "יום", "חודש", "שנה", "שעה", "בוקר", "ערב", "לילה"];
   const EVENT_WORDS = ["מלחמה", "שלום", "ישועה", "גאולה", "ניצחון", "פגיעה", "אובדן", "מציאה", "חיפוש", "נסיעה", "נפילה", "עליה", "הצלה", "רפואה", "פריצה", "שריפה", "גשם"];
+  let decodeActualScanReady = false;
   const OBJECT_WORDS = ["רכב", "טלפון", "מסמך", "תיק", "בגד", "כסף", "מפתח", "דלת", "חלון", "מכתב", "ספר", "מים", "אש", "אבן", "דרך", "סימן", "עקבות"];
   const PERSON_TYPE_WORDS = ["איש", "אשה", "אדם", "שם", "בן", "בת", "אב", "אם", "רב", "כהן", "לוי", "מלך", "שר", "עד", "חשוד", "חבר"];
   const TIME_TYPE_WORDS = ["זמן", "יום", "חודש", "שנה", "שעה", "תאריך", "מועד", "בוקר", "ערב", "לילה", "תקופה"];
@@ -407,7 +408,8 @@
     const question = $("decodeQuestion").value.trim();
     const intent = inferIntent(question, $("decodeIntent").value);
     const primary = $("decodePrimary").value.trim();
-    const secondaries = splitLinesOrWords($("decodeSecondaries").value);
+    const typedSecondaries = splitLinesOrWords($("decodeSecondaries").value);
+    const secondaries = decodeActualScanReady ? typedSecondaries : [];
     const dates = splitLinesOrWords($("decodeDates").value);
     const structure = $("decodeStructure").value.trim();
     const context = $("decodeContext").value.trim();
@@ -429,9 +431,12 @@
       `שאלה מנחה: ${question || "לא הוזנה"}`,
       `סוג פענוח: ${intentLabel(intent)}`,
       `ראשית: ${primary || "לא הוזנה"}`,
+      decodeActualScanReady
+        ? "מקור המילים: קובץ צופן נטען וסריקת טבלת דילוג בפועל."
+        : "מקור המילים: עדיין לא נטען קובץ צופן לסריקה; מילים שהוקלדו ידנית אינן נחשבות כממצא בפועל.",
       "",
       "המילים לפי סדר עדיפות לפענוח:",
-      safeSecondaries.length ? safeSecondaries.map((word) => `- ${word}`).join("\n") : "- לא הוזנו משניות.",
+      safeSecondaries.length ? safeSecondaries.map((word) => `- ${word}`).join("\n") : "- לא נמצאו מילים בפועל בסריקת צופן. יש לטעון קובץ צופן או לסרוק טבלת דילוג.",
       "",
       "תאריכים / זמנים:",
       dates.length ? dates.map((word) => `- ${word}`).join("\n") : "- לא הוזנו תאריכים.",
@@ -452,7 +457,7 @@
       "",
       "כיוון עיון אפשרי:",
       clusters.length
-        ? `נראה שהממצא מתרכז סביב הראשית "${primary}" יחד עם המילים ${clusters.join(", ")}. יש להתייחס לזה ככיוון עיון בלבד, ולבדוק אם הסמיכות, הדילוגים והחזרה של המילים אכן חריגים ביחס לחיפוש רגיל.`
+        ? `בסריקת הצופן בפועל נמצאו סביב הראשית "${primary}" המילים ${clusters.join(", ")}. יש להתייחס לזה ככיוון עיון בלבד, ולבדוק אם הסמיכות, הדילוגים והחזרה של המילים אכן חריגים ביחס לחיפוש רגיל.`
         : "אין מספיק מילים משניות כדי להציע כיוון עיון.",
       "",
       "חיזוקים לבדיקה:",
@@ -836,6 +841,7 @@
       tableScan.words.length ? `נוספו ${tableScan.words.length} מילים מסריקת טבלת הדילוג עצמה, כולל אלכסונים.` : "",
       ...tableScan.notes,
     ].filter(Boolean).join("\n");
+    decodeActualScanReady = true;
     $("decodeStatus").textContent = `נטען קובץ צופן: ${fileName}`;
   }
 
@@ -1004,6 +1010,7 @@
       $("decodeStatus").textContent = "קורא את קובץ הצופן וסורק את טבלת הדילוג...";
       await fillDecodeFromProject(JSON.parse(await file.text()), file.name);
     } catch (error) {
+      decodeActualScanReady = false;
       $("decodeStatus").textContent = `לא הצלחתי לקרוא את קובץ הצופן: ${error.message}`;
     } finally {
       setDecodeLoading(false);
