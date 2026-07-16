@@ -1014,6 +1014,20 @@
     $("aiDecodeForm")?.classList.toggle("is-loading", Boolean(isLoading));
   }
 
+  function isPaymentRequiredError(error) {
+    const text = String(error?.message || error || "").toLowerCase();
+    return text.includes("insufficient_quota")
+      || text.includes("quota")
+      || text.includes("billing")
+      || text.includes("תשלום")
+      || text.includes("קרדיט")
+      || text.includes("מכסה");
+  }
+
+  function openPaymentForAi() {
+    window.location.assign("purchase.html?source=ai_decode&reason=quota");
+  }
+
   $("aiDecodeForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!$("decodeConsent").checked) return;
@@ -1052,10 +1066,16 @@
             ].join("\n");
           }
         } catch (error) {
+          if (isPaymentRequiredError(error)) {
+            $("decodeStatus").textContent = "נדרש תשלום/קרדיט להפעלת AI חי. מועבר לחלון התשלום...";
+            setTimeout(openPaymentForAi, 900);
+          }
           outputText = [
             payload.text,
             "",
-            `הערת מערכת: פענוח AI חי לא הושלם כרגע (${error.message || error}). תיק הממצאים המקומי נשמר, ואפשר להפעיל שוב אחרי חיבור ה-Function.`,
+            isPaymentRequiredError(error)
+              ? "הערת מערכת: פענוח AI חי דורש הפעלת תשלום/קרדיט. לאחר השלמת התשלום אפשר לחזור וללחוץ שוב על פענח צופן."
+              : `הערת מערכת: פענוח AI חי לא הושלם כרגע (${error.message || error}). תיק הממצאים המקומי נשמר, ואפשר להפעיל שוב אחרי חיבור ה-Function.`,
           ].join("\n");
         }
       } else if (!payload.secondaries.length) {
