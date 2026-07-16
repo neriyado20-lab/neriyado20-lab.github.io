@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>עיון AI ופענוח צפנים - גל עיני</title>
   <meta name="description" content="מאגר מילים מותרות ופענוח זהיר של צפנים, ללא הכרעה על אנשים וללא לשון הרע.">
-  <link rel="stylesheet" href="styles.css?v=110">
+  <link rel="stylesheet" href="styles.css?v=111">
 </head>
 <body class="ai-page">
   <header class="topbar">
@@ -76,23 +76,23 @@
         </select>
       </label>
       <label>
-        <span>נושא או שאלה מנחה</span>
+        <span>נושא או שאלה מנחה <button class="speech-button" type="button" data-speech-target="aiTopic" title="הכתבה קולית" aria-label="הכתבה קולית לשדה נושא">🎙</button></span>
         <textarea id="aiTopic" rows="3" required placeholder="מה רוצים לחפש או לברר בצופן?"></textarea>
       </label>
       <label>
-        <span>שמות ידועים או שמות בהסכמה, אם יש</span>
+        <span>שמות ידועים או שמות בהסכמה, אם יש <button class="speech-button" type="button" data-speech-target="aiNames" title="הכתבה קולית" aria-label="הכתבה קולית לשדה שמות">🎙</button></span>
         <textarea id="aiNames" rows="2" placeholder="כל שם בשורה נפרדת. בחקירת מקרה או נעדרים השמות נשמרים כרקע ולא כמסקנה."></textarea>
       </label>
       <label>
-        <span>תאריכים / תקופות</span>
+        <span>תאריכים / תקופות <button class="speech-button" type="button" data-speech-target="aiDates" title="הכתבה קולית" aria-label="הכתבה קולית לשדה תאריכים">🎙</button></span>
         <textarea id="aiDates" rows="2" placeholder="לדוגמה: תשפ״ו, י״ז בתמוז, 2026"></textarea>
       </label>
       <label>
-        <span>מילים נוספות שהמשתמש מבקש</span>
+        <span>מילים נוספות שהמשתמש מבקש <button class="speech-button" type="button" data-speech-target="aiExtraWords" title="הכתבה קולית" aria-label="הכתבה קולית לשדה מילים נוספות">🎙</button></span>
         <textarea id="aiExtraWords" rows="3" placeholder="כל מילה בשורה נפרדת. מילים מאשימות על אדם יסוננו."></textarea>
       </label>
       <label>
-        <span>פרטי מקרה / נעדר ניטרליים</span>
+        <span>פרטי מקרה / נעדר ניטרליים <button class="speech-button" type="button" data-speech-target="aiCaseDetails" title="הכתבה קולית" aria-label="הכתבה קולית לשדה פרטי מקרה">🎙</button></span>
         <textarea id="aiCaseDetails" rows="3" placeholder="מקום אחרון, זמן, רחוב, תחנה, רכב, בגד, תיק, טלפון, סימן או עדות. בלי האשמות ובלי מסקנות."></textarea>
       </label>
       <label class="ai-consent">
@@ -155,8 +155,8 @@
           <input id="decodeTitle" type="text" maxlength="120" placeholder="לדוגמה: כתמוז תשפ״ו - ממצא ישועה">
         </label>
         <label>
-          <span>השאלה המנחה לפענוח</span>
-          <input id="decodeQuestion" type="text" placeholder="לדוגמה: מי השמות שעלו? איפה המקום האפשרי? מתי הזמן?">
+        <span>השאלה המנחה לפענוח <button class="speech-button" type="button" data-speech-target="decodeQuestion" title="הכתבה קולית" aria-label="הכתבה קולית לשאלת הפענוח">🎙</button></span>
+        <input id="decodeQuestion" type="text" placeholder="לדוגמה: מי השמות שעלו? איפה המקום האפשרי? מתי הזמן?">
         </label>
         <label>
           <span>סוג פענוח</span>
@@ -175,7 +175,7 @@
           <input id="decodePrimary" type="text" required placeholder="המילה הראשית בצופן">
         </label>
         <label>
-          <span>כל המילים שעלו בצופן</span>
+          <span>כל המילים שעלו בצופן <button class="speech-button" type="button" data-speech-target="decodeSecondaries" title="הכתבה קולית" aria-label="הכתבה קולית למילים שעלו">🎙</button></span>
           <textarea id="decodeSecondaries" rows="4" required placeholder="לא רק המסומנות בצבע: כל מילה שנמצאה, וגם מילים מטבלת הדילוג, אלכסונים ודילוג 1"></textarea>
         </label>
         <label>
@@ -187,7 +187,7 @@
           <textarea id="decodeStructure" rows="3" placeholder="סמיכות, מפגשים, מקבץ, קווים, מילים מעל/מתחת, אלכסונים, דילוג 1 ודילוגים חריגים"></textarea>
         </label>
         <label>
-          <span>רקע מותר לעיון</span>
+          <span>רקע מותר לעיון <button class="speech-button" type="button" data-speech-target="decodeContext" title="הכתבה קולית" aria-label="הכתבה קולית לרקע">🎙</button></span>
           <textarea id="decodeContext" rows="3" placeholder="רקע כללי בלבד, בלי האשמות ובלי מסקנות על אדם"></textarea>
         </label>
         <label>
@@ -234,6 +234,6 @@
   <script src="supabase-public.js?v=2"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=9"></script>
-  <script src="ai.js?v=18"></script>
+  <script src="ai.js?v=19"></script>
 </body>
 </html>
