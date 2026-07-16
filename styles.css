@@ -2230,12 +2230,114 @@ footer .legal-footer a,
   box-shadow: 0 14px 34px rgba(23, 33, 29, 0.08);
 }
 
+.ai-stage-card .section-head {
+  display: block;
+  max-width: none;
+}
+
+.ai-stage-card .section-head .eyebrow,
+.ai-stage-card .section-head h2,
+.ai-stage-card .section-head p {
+  grid-column: auto;
+}
+
+.ai-route-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 22px 0;
+}
+
+.ai-route-card {
+  display: grid;
+  gap: 8px;
+  min-height: 136px;
+  padding: 20px;
+  border: 1px solid rgba(13, 109, 86, 0.22);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fffdf6, #eef8f4);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 14px 30px rgba(23, 33, 29, 0.08);
+}
+
+.ai-route-card:hover {
+  border-color: rgba(13, 109, 86, 0.42);
+  background: #ffffff;
+}
+
+.ai-route-card span {
+  color: var(--gold-dark);
+  font-weight: 900;
+}
+
+.ai-route-card strong {
+  color: var(--accent-dark);
+  font-size: 22px;
+}
+
+.ai-route-card small {
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 750;
+}
+
 .compact-head {
   margin-top: 26px;
 }
 
 .ai-decode-results {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ai-next-step {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid rgba(214, 156, 37, 0.26);
+  border-radius: 8px;
+  background: rgba(255, 248, 224, 0.70);
+}
+
+.ai-next-step h2,
+.ai-next-step p {
+  margin: 0;
+}
+
+.ai-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(13, 109, 86, 0.18);
+  border-radius: 8px;
+  background: #eef8f4;
+  color: var(--accent-dark);
+  font-weight: 850;
+}
+
+.ai-loading[hidden] {
+  display: none;
+}
+
+.ai-loading span {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(13, 109, 86, 0.22);
+  border-top-color: var(--accent-dark);
+  border-radius: 999px;
+  animation: ai-spin 0.8s linear infinite;
+}
+
+.ai-form.is-loading {
+  opacity: 0.86;
+}
+
+@keyframes ai-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .ai-form label,
@@ -2576,6 +2678,7 @@ footer .legal-footer a,
   .admin-summary,
   .admin-grid,
   .home-visual-grid,
+  .ai-route-grid,
   .rides-site-hero,
   .rides-story-grid,
   .rides-notes-strip,
