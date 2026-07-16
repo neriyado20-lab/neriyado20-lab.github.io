@@ -1014,6 +1014,54 @@
     $("aiDecodeForm")?.classList.toggle("is-loading", Boolean(isLoading));
   }
 
+  function setupSpeechButtons() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const buttons = Array.from(document.querySelectorAll("[data-speech-target]"));
+    if (!buttons.length) return;
+    if (!SpeechRecognition) {
+      buttons.forEach((button) => {
+        button.disabled = true;
+        button.title = "הדפדפן אינו תומך בהכתבה קולית";
+      });
+      return;
+    }
+    let activeRecognition = null;
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const field = $(button.dataset.speechTarget);
+        if (!field) return;
+        if (activeRecognition) activeRecognition.stop();
+        const recognition = new SpeechRecognition();
+        activeRecognition = recognition;
+        recognition.lang = "he-IL";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        button.classList.add("is-listening");
+        const statusTarget = field.id.startsWith("decode") ? $("decodeStatus") : $("aiStatus");
+        if (statusTarget) statusTarget.textContent = "מאזין... אמור את המילים בעברית.";
+        recognition.onresult = (event) => {
+          const transcript = Array.from(event.results || [])
+            .map((result) => result[0]?.transcript || "")
+            .join(" ")
+            .trim();
+          if (!transcript) return;
+          const separator = field.tagName === "TEXTAREA" && field.value.trim() ? "\n" : field.value.trim() ? " " : "";
+          field.value = `${field.value}${separator}${transcript}`;
+          field.dispatchEvent(new Event("input", { bubbles: true }));
+          if (statusTarget) statusTarget.textContent = `נקלט בהכתבה: ${transcript}`;
+        };
+        recognition.onerror = () => {
+          if (statusTarget) statusTarget.textContent = "ההכתבה לא נקלטה. אפשר לנסות שוב או להקליד ידנית.";
+        };
+        recognition.onend = () => {
+          button.classList.remove("is-listening");
+          if (activeRecognition === recognition) activeRecognition = null;
+        };
+        recognition.start();
+      });
+    });
+  }
+
   function isPaymentRequiredError(error) {
     const text = String(error?.message || error || "").toLowerCase();
     return text.includes("insufficient_quota")
@@ -1123,4 +1171,6 @@
       setDecodeLoading(false);
     }
   });
+
+  setupSpeechButtons();
 })();
