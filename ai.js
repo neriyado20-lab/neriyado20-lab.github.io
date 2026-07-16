@@ -643,6 +643,18 @@
       .filter((entry) => entry.clean.length >= 2 && entry.clean.length <= MAX_TABLE_WORD_LENGTH);
   }
 
+  function relevanceWordSet(intent, baseWords) {
+    const sets = {
+      who: [...PERSON_NAME_WORDS, ...PERSON_TYPE_WORDS],
+      where: [...PLACE_WORDS, ...CASE_PLACE_WORDS, ...PLACE_TYPE_WORDS],
+      when: [...TIME_WORDS, ...TIME_TYPE_WORDS],
+      what: [...OBJECT_WORDS, ...DESCRIPTION_TYPE_WORDS],
+      event: [...EVENT_WORDS, ...DESCRIPTION_TYPE_WORDS],
+      general: [],
+    };
+    return new Set(uniqueWords([...(sets[intent] || []), ...baseWords]).map((word) => canonical(word)).filter(Boolean));
+  }
+
   function wordAtGrid(grid, row, col, direction, cellSkip, cleanWord) {
     for (let index = 0; index < cleanWord.length; index += 1) {
       const r = row + direction.dr * cellSkip * index;
@@ -652,7 +664,7 @@
     return true;
   }
 
-  function scanGridForWords(table, candidates, cellSkips) {
+  function scanGridForWords(table, candidates, cellSkips, maxResults = 160) {
     if (!table) return [];
     const found = [];
     const seen = new Set();
@@ -677,7 +689,7 @@
                   col: col + direction.dc * cellSkip * index,
                 })),
               });
-              if (found.length >= 80) return found;
+              if (found.length >= maxResults) return found;
             }
           }
         }
@@ -774,14 +786,30 @@
       const tables = buildFourScanPlanes(item.primary, torah);
       const candidates = tableCandidateWords(baseWords)
         .filter((entry) => canonical(entry.display) !== canonical(item.primary.word));
-      const hitsByPlane = tables.flatMap((table) => scanGridForWords(table, candidates, [1]).map((hit) => ({
+      const relevantSet = relevanceWordSet(intent, baseWords);
+      const hitsByPlane = tables.flatMap((table) => scanGridForWords(table, candidates, [1], 160).map((hit) => ({
         ...hit,
         distance: Math.abs(hit.row - 1 - table.centerRow) + Math.abs(hit.col - 1 - table.centerCol),
         tableRows: table.rows,
         tableCols: table.cols,
         tableSkip: table.rawSkip,
       })));
-      const hits = hitsByPlane.slice(0, 80);
+      const counts = hitsByPlane.reduce((acc, hit) => {
+        const key = canonical(hit.word);
+        acc.set(key, (acc.get(key) || 0) + 1);
+        return acc;
+      }, new Map());
+      const hits = hitsByPlane
+        .sort((a, b) => {
+          const aRel = relevantSet.has(canonical(a.word)) ? 1 : 0;
+          const bRel = relevantSet.has(canonical(b.word)) ? 1 : 0;
+          if (bRel !== aRel) return bRel - aRel;
+          const aCount = counts.get(canonical(a.word)) || 1;
+          const bCount = counts.get(canonical(b.word)) || 1;
+          if (bCount !== aCount) return bCount - aCount;
+          return a.distance - b.distance;
+        })
+        .slice(0, 80);
       const words = uniqueWords(hits.map((hit) => hit.word));
       const details = hits.slice(0, 18).map((hit) => (
         `${hit.word} - ${hit.plane}, ${hit.direction}, שורה ${hit.row}, עמודה ${hit.col}`
@@ -794,6 +822,7 @@
         hits,
         notes: [
           `נסרקו ארבעת מישורי הדילוג המחייבים בלבד: ${planeNames}.`,
+          `אפשרות א': תחילה נסרק מאגר מילים משמעותיות, ורק אחר כך הממצאים דורגו לפי קשר לשאלה המנחה וקבוצות מילים רלוונטיות.`,
           `כל מישור נסרק בטווח מורחב סביב הראשית: עד ${tableRows} שורות על ${tableCols} עמודות, כמו זום-אאוט גדול.`,
           hits.length ? `נמצאו ${hits.length} התאמות במישורי N, N+1, N-1, 1.` : "לא נמצאו התאמות מספיקות בארבעת המישורים.",
           hits.length < 8 ? "שלב המשך אפשרי: סריקה רחבה בכל דילוג, רק בבחירה מפורשת, משום שזה אובר-הד גדול." : "",
