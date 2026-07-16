@@ -589,8 +589,9 @@
     return torahTextPromise;
   }
 
-  function buildTableGrid(primary, torah) {
-    const skipAbs = Math.max(1, Math.abs(Number(primary?.skip || 1)));
+  function buildTableGrid(primary, torah, skipOverride = null, planeLabel = "") {
+    const rawSkip = Number(skipOverride ?? primary?.skip ?? 1) || 1;
+    const skipAbs = Math.max(1, Math.abs(rawSkip));
     const cols = Math.min(TABLE_MAX_COLS, Math.max(120, skipAbs + TABLE_EXTRA_COLS));
     const rows = TABLE_ROWS;
     const centerCol = Math.floor(cols / 2);
@@ -607,7 +608,18 @@
       }
       grid.push(line);
     }
-    return { grid, rows, cols, skipAbs, centerRow, centerCol };
+    return { grid, rows, cols, skipAbs, rawSkip, planeLabel: planeLabel || `מישור ${rawSkip}`, centerRow, centerCol };
+  }
+
+  function buildFourScanPlanes(primary, torah) {
+    const n = Number(primary?.skip || 1) || 1;
+    const planes = [
+      { label: `מישור N (${n})`, skip: n },
+      { label: `מישור N+1 (${n + 1})`, skip: n + 1 },
+      { label: `מישור N-1 (${n - 1})`, skip: n - 1 },
+      { label: "מישור 1", skip: 1 },
+    ].filter((plane) => plane.skip !== 0);
+    return planes.map((plane) => buildTableGrid(primary, torah, plane.skip, plane.label)).filter(Boolean);
   }
 
   function tableCandidateWords(words) {
@@ -655,6 +667,7 @@
               seen.add(key);
               found.push({
                 word: candidate.display,
+                plane: table.planeLabel,
                 direction: direction.label,
                 cellSkip,
                 row: row + 1,
@@ -758,26 +771,32 @@
     }
     try {
       const torah = await loadTorahText();
-      const table = buildTableGrid(item.primary, torah);
+      const tables = buildFourScanPlanes(item.primary, torah);
       const candidates = tableCandidateWords(baseWords)
         .filter((entry) => canonical(entry.display) !== canonical(item.primary.word));
-      const firstPass = scanGridForWords(table, candidates, [1]);
-      const extraPass = firstPass.length >= 8 ? [] : scanGridForWords(table, candidates, [2, 3, 4]);
-      const hits = [...firstPass, ...extraPass].map((hit) => ({
+      const hitsByPlane = tables.flatMap((table) => scanGridForWords(table, candidates, [1]).map((hit) => ({
         ...hit,
         distance: Math.abs(hit.row - 1 - table.centerRow) + Math.abs(hit.col - 1 - table.centerCol),
-      }));
+        tableRows: table.rows,
+        tableCols: table.cols,
+        tableSkip: table.rawSkip,
+      })));
+      const hits = hitsByPlane.slice(0, 80);
       const words = uniqueWords(hits.map((hit) => hit.word));
-      const details = [...firstPass, ...extraPass].slice(0, 18).map((hit) => (
-        `${hit.word} - ${hit.direction}, דילוג תאי ${hit.cellSkip}, שורה ${hit.row}, עמודה ${hit.col}`
+      const details = hits.slice(0, 18).map((hit) => (
+        `${hit.word} - ${hit.plane}, ${hit.direction}, שורה ${hit.row}, עמודה ${hit.col}`
       ));
+      const planeNames = tables.map((table) => table.planeLabel).join(", ");
+      const tableRows = Math.max(...tables.map((table) => table.rows));
+      const tableCols = Math.max(...tables.map((table) => table.cols));
       return {
         words,
         hits,
         notes: [
-          `נסרקה טבלת הדילוג בטווח מורחב סביב הראשית: ${table.rows} שורות על ${table.cols} עמודות, כמו זום-אאוט גדול, דילוג ראשית ${table.skipAbs}.`,
-          firstPass.length ? `בדילוג תאי 1 נמצאו ${firstPass.length} התאמות מועמדות.` : "בדילוג תאי 1 לא נמצאו התאמות מספיקות.",
-          extraPass.length ? `נוספו ${extraPass.length} התאמות בדילוגי תאים 2-4.` : "",
+          `נסרקו ארבעת מישורי הדילוג המחייבים בלבד: ${planeNames}.`,
+          `כל מישור נסרק בטווח מורחב סביב הראשית: עד ${tableRows} שורות על ${tableCols} עמודות, כמו זום-אאוט גדול.`,
+          hits.length ? `נמצאו ${hits.length} התאמות במישורי N, N+1, N-1, 1.` : "לא נמצאו התאמות מספיקות בארבעת המישורים.",
+          hits.length < 8 ? "שלב המשך אפשרי: סריקה רחבה בכל דילוג, רק בבחירה מפורשת, משום שזה אובר-הד גדול." : "",
           details.length ? `פירוט ממצאים מהטבלה: ${details.join("; ")}` : "",
           ...summarizeTableRelations(hits, intent),
         ].filter(Boolean),
@@ -804,7 +823,6 @@
       .map((match) => match.word));
     const wordStats = makeWordStats();
     const primaryPositions = positionsForProjectMatch(item.primary);
-    fieldWords.forEach((word) => wordStats.add(word, { source: "שדות חיפוש" }));
     (Array.isArray(saved) ? saved : []).forEach((savedItem) => {
       (Array.isArray(savedItem?.matches) ? savedItem.matches : []).forEach((match) => {
         const distance = minPositionDistance(primaryPositions, positionsForProjectMatch(match));
@@ -816,24 +834,24 @@
       wordStats.add(match.word, { source: "הממצא הנוכחי", distance, count: 2 });
     });
     const secondaries = uniqueWords([
-      ...fieldWords,
       ...savedWords,
       ...currentWords,
     ]).filter((word) => canonical(word) !== canonical(primary));
     if (!$("decodeQuestion").value.trim()) $("decodeQuestion").value = "מה אפשר ללמוד מהמילים שעלו בצופן?";
     const intent = inferIntent($("decodeQuestion").value, $("decodeIntent").value);
-    const tableScan = await tableWordsFromProject(data, item, secondaries, intent);
+    const scanCandidates = uniqueWords([...fieldWords, ...secondaries]);
+    const tableScan = await tableWordsFromProject(data, item, scanCandidates, intent);
     tableScan.hits.forEach((hit) => wordStats.add(hit.word, { source: "טבלת דילוג", distance: hit.distance }));
     const allSecondaries = orderDecodeWords([...secondaries, ...tableScan.words], wordStats, primary)
       .filter((word) => canonical(word) !== canonical(primary));
-    const dates = secondaries.filter((word) => /תש|תמוז|אב|אלול|ניסן|אייר|סיון|טבת|שבט|אדר|חשון|כסלו|\d{4}/.test(word));
+    const dates = allSecondaries.filter((word) => /תש|תמוז|אב|אלול|ניסן|אייר|סיון|טבת|שבט|אדר|חשון|כסלו|\d{4}/.test(word));
     $("decodeTitle").value = data.name || data.title || fileName.replace(/\.(gal_einai\.)?json$/i, "");
     $("decodePrimary").value = primary;
-    $("decodeSecondaries").value = (allSecondaries.length ? allSecondaries : splitWords(data.secondary || "")).join("\n");
+    $("decodeSecondaries").value = allSecondaries.join("\n");
     $("decodeDates").value = dates.join("\n");
     $("decodeStructure").value = [
       saved.length ? `בקובץ יש ${saved.length} ממצאים שמורים.` : "",
-      fieldWords.length ? `נאספו ${fieldWords.length} מילים משדות החיפוש.` : "",
+      fieldWords.length ? `בשדות החיפוש היו ${fieldWords.length} מילים; הן שימשו כמועמדות לסריקה בלבד ולא נכנסו לפענוח אם לא נמצאו בפועל.` : "",
       savedWords.length ? `נאספו ${savedWords.length} מילים מכל הממצאים השמורים בקובץ, לא רק מהמסומן בצבע בממצא הנוכחי.` : "",
       allSecondaries.length ? "סדר המילים לפענוח נקבע לפי ריבוי הופעות תחילה, אחר כך קירבה לראשית, ואחר כך סדר לשוני." : "",
       item.primary?.skip ? `דילוג ראשית: ${Math.abs(item.primary.skip)}` : "",
@@ -847,13 +865,14 @@
 
   function buildDecodePrompt(payload) {
     return [
-      "אתה מסייע בפענוח זהיר של צופן תורה.",
+      "אתה מסייע בפענוח זהיר של צופן תורה לאחר סריקה בפועל.",
       "כללים מחייבים:",
       "1. אין לקבוע נבואה, ודאות, אשמה, פסול או הכרעה על אדם.",
       "2. יש לנסח בלשון אפשרות: ייתכן, אפשר לעיין, טעון בדיקה.",
       "3. יש להפריד בין נתונים שנמצאו לבין פרשנות.",
       "4. יש לציין מה חסר לבדיקה: דילוגים, מרחקים, צילום, קובץ פרויקט, השוואת אקראיות.",
-      "5. יש להתייחס לכל המילים שנמסרו, לא רק למילים שסומנו בצבע בתמונה.",
+      "5. אסור להוסיף מילה שלא מופיעה ברשימת המשניות/המבנה שנמסרה כאן.",
+      "6. אם חסרים ממצאים, אמור זאת במפורש במקום להשלים לבד.",
       "",
       `שם הצופן: ${payload.title}`,
       `שאלה מנחה: ${payload.question || "לא הוזנה"}`,
@@ -969,7 +988,7 @@
   $("aiDecodeForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!$("decodeConsent").checked) return;
-    setDecodeLoading(true, "מפענח את הצופן ומסדר תוצאה. נא להמתין עד לסיום.");
+    setDecodeLoading(true, "סורק את הצופן ומפעיל AI חי על הממצאים שנמצאו בפועל. נא להמתין עד לסיום.");
     $("decodeStatus").textContent = "הפענוח בעבודה...";
     $("decodeOutput").value = "";
     $("decodePrompt").value = "";
@@ -977,11 +996,50 @@
     try {
       await new Promise((resolve) => setTimeout(resolve, 350));
       const payload = buildDecodeText();
-      $("decodeOutput").value = payload.text;
-      $("decodePrompt").value = buildDecodePrompt(payload);
+      const prompt = buildDecodePrompt(payload);
+      $("decodePrompt").value = prompt;
+      let outputText = payload.text;
+      if (window.GalEinaiBackend?.aiDecode && payload.secondaries.length) {
+        $("decodeStatus").textContent = "AI חי מנתח את תיק הממצאים שנמצא בסריקה...";
+        try {
+          const live = await window.GalEinaiBackend.aiDecode({
+            title: payload.title,
+            question: payload.question,
+            intent: payload.intent,
+            primary: payload.primary,
+            secondaries: payload.secondaries,
+            dates: payload.dates,
+            buckets: payload.buckets,
+            structure: payload.structure,
+            context: payload.context,
+            prompt,
+          });
+          if (live?.text) {
+            outputText = [
+              payload.text,
+              "",
+              "ניתוח AI חי על סמך הממצאים שנמצאו בפועל:",
+              live.text,
+            ].join("\n");
+          }
+        } catch (error) {
+          outputText = [
+            payload.text,
+            "",
+            `הערת מערכת: פענוח AI חי לא הושלם כרגע (${error.message || error}). תיק הממצאים המקומי נשמר, ואפשר להפעיל שוב אחרי חיבור ה-Function.`,
+          ].join("\n");
+        }
+      } else if (!payload.secondaries.length) {
+        outputText = [
+          payload.text,
+          "",
+          "הערת מערכת: לא הופעל AI חי כי לא נמצאו מילים בפועל בסריקת הצופן.",
+        ].join("\n");
+      }
+      $("decodeOutput").value = outputText;
       $("copyDecodeButton").disabled = !payload.text;
       $("decodeStatus").textContent = `הפענוח הסתיים. נבנתה תוצאה מסודרת לצופן "${payload.title}".`;
-      saveDecode(payload);
+      saveDecode({ ...payload, text: outputText });
     } catch (error) {
       $("decodeStatus").textContent = `לא הצלחתי לבנות פענוח: ${error.message || error}`;
     } finally {
