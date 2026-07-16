@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 112" role="img" aria-label="פענוח AI">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#eef8f4"/>
+      <stop offset="1" stop-color="#fff4d6"/>
+    </linearGradient>
+  </defs>
+  <rect width="160" height="112" rx="18" fill="url(#bg)"/>
+  <circle cx="80" cy="56" r="24" fill="#0d6d56"/>
+  <g fill="#f6cf68">
+    <circle cx="50" cy="32" r="8"/>
+    <circle cx="110" cy="32" r="8"/>
+    <circle cx="45" cy="82" r="8"/>
+    <circle cx="115" cy="82" r="8"/>
+  </g>
+  <g stroke="#0d6d56" stroke-width="5" stroke-linecap="round">
+    <path d="M57 36l16 12M103 36L87 48M55 78l18-14M105 78L87 64"/>
+  </g>
+  <path d="M69 56h22M80 45v22" stroke="#fff8e8" stroke-width="6" stroke-linecap="round"/>
+</svg>
