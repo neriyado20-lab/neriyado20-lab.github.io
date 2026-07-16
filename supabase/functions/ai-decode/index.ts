@@ -73,7 +73,12 @@ Deno.serve(async (request) => {
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    return jsonResponse({ error: data?.error?.message || "OpenAI request failed" }, 502);
+    const message = data?.error?.message || "OpenAI request failed";
+    const code = data?.error?.code || "";
+    if (response.status === 429 && (code === "insufficient_quota" || String(message).includes("quota"))) {
+      return jsonResponse({ error: "נדרש תשלום או קרדיט להפעלת פענוח AI חי", code: "insufficient_quota" }, 402);
+    }
+    return jsonResponse({ error: message }, 502);
   }
 
   const text = data.output_text
