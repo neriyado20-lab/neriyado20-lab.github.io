@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 112" role="img" aria-label="עזרה ותמיכה">
+  <rect width="160" height="112" rx="18" fill="#f7f4ee"/>
+  <circle cx="80" cy="56" r="34" fill="#fffdf6" stroke="#d6a441" stroke-width="5"/>
+  <path d="M68 46c2-10 22-12 25 0 3 13-13 13-13 24" fill="none" stroke="#0d6d56" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="80" cy="82" r="4.5" fill="#963f47"/>
+  <path d="M42 84l-16 10 8-18" fill="#0d6d56" opacity=".9"/>
+</svg>
