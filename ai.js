@@ -336,7 +336,7 @@
     if (primary) params.set("primary", primary);
     if (secondary) params.set("secondary", secondary);
     params.set("skipFrom", "0");
-    params.set("skipTo", "1200");
+    params.set("skipTo", "5000");
     params.set("minSecondary", "1");
     return `web.html?${params.toString()}`;
   }
@@ -944,15 +944,43 @@
     }
   });
 
-  $("aiDecodeForm")?.addEventListener("submit", (event) => {
+  function setDecodeLoading(isLoading, message = "") {
+    const loading = $("decodeLoading");
+    const button = $("decodeSubmitButton");
+    if (loading) {
+      loading.hidden = !isLoading;
+      if (message) {
+        const spinner = loading.querySelector("span");
+        loading.textContent = "";
+        if (spinner) loading.appendChild(spinner);
+        loading.append(` ${message}`);
+      }
+    }
+    if (button) button.disabled = Boolean(isLoading);
+    $("aiDecodeForm")?.classList.toggle("is-loading", Boolean(isLoading));
+  }
+
+  $("aiDecodeForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!$("decodeConsent").checked) return;
-    const payload = buildDecodeText();
-    $("decodeOutput").value = payload.text;
-    $("decodePrompt").value = buildDecodePrompt(payload);
-    $("copyDecodeButton").disabled = !payload.text;
-    $("decodeStatus").textContent = `נבנה פענוח זהיר לצופן "${payload.title}".`;
-    saveDecode(payload);
+    setDecodeLoading(true, "מפענח את הצופן ומסדר תוצאה. נא להמתין עד לסיום.");
+    $("decodeStatus").textContent = "הפענוח בעבודה...";
+    $("decodeOutput").value = "";
+    $("decodePrompt").value = "";
+    $("copyDecodeButton").disabled = true;
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      const payload = buildDecodeText();
+      $("decodeOutput").value = payload.text;
+      $("decodePrompt").value = buildDecodePrompt(payload);
+      $("copyDecodeButton").disabled = !payload.text;
+      $("decodeStatus").textContent = `הפענוח הסתיים. נבנתה תוצאה מסודרת לצופן "${payload.title}".`;
+      saveDecode(payload);
+    } catch (error) {
+      $("decodeStatus").textContent = `לא הצלחתי לבנות פענוח: ${error.message || error}`;
+    } finally {
+      setDecodeLoading(false);
+    }
   });
 
   $("copyDecodeButton")?.addEventListener("click", async () => {
@@ -972,10 +1000,13 @@
     const file = event.target.files?.[0];
     if (!file) return;
     try {
+      setDecodeLoading(true, "קורא את קובץ הצופן וסורק את טבלת הדילוג...");
       $("decodeStatus").textContent = "קורא את קובץ הצופן וסורק את טבלת הדילוג...";
       await fillDecodeFromProject(JSON.parse(await file.text()), file.name);
     } catch (error) {
       $("decodeStatus").textContent = `לא הצלחתי לקרוא את קובץ הצופן: ${error.message}`;
+    } finally {
+      setDecodeLoading(false);
     }
   });
 })();
