@@ -2046,6 +2046,58 @@
     requestAnimationFrame(drawConnections);
   }
 
+  function setGridZoom(delta) {
+    const next = Math.max(16, Math.min(34, state.zoom + delta));
+    if (next === state.zoom) return;
+    state.zoom = next;
+    renderCurrent();
+  }
+
+  function bindPinchZoom() {
+    const active = new Map();
+    let lastDistance = 0;
+
+    const distance = () => {
+      const points = Array.from(active.values());
+      if (points.length < 2) return 0;
+      return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+    };
+
+    const endPointer = (event) => {
+      active.delete(event.pointerId);
+      if (active.size < 2) lastDistance = 0;
+    };
+
+    els.grid.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "mouse") return;
+      active.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (active.size === 2) {
+        lastDistance = distance();
+        els.grid.setPointerCapture?.(event.pointerId);
+      }
+    });
+
+    els.grid.addEventListener("pointermove", (event) => {
+      if (!active.has(event.pointerId)) return;
+      active.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (active.size < 2) return;
+      event.preventDefault();
+      const currentDistance = distance();
+      if (!lastDistance) {
+        lastDistance = currentDistance;
+        return;
+      }
+      const diff = currentDistance - lastDistance;
+      if (Math.abs(diff) < 18) return;
+      setGridZoom(diff > 0 ? 2 : -2);
+      lastDistance = currentDistance;
+    }, { passive: false });
+
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach((name) => {
+      els.grid.addEventListener(name, endPointer);
+    });
+  }
+
   function bindRepeatingButton(button, action) {
     let delayTimer = 0;
     let repeatTimer = 0;
@@ -2329,17 +2381,16 @@
   bindRepeatingButton(els.scrollUp, () => scrollDisplay(0, -1));
   bindRepeatingButton(els.scrollDown, () => scrollDisplay(0, 1));
   els.zoomIn.addEventListener("click", () => {
-    state.zoom = Math.min(34, state.zoom + 2);
-    renderCurrent();
+    setGridZoom(2);
   });
   els.zoomOut.addEventListener("click", () => {
-    state.zoom = Math.max(16, state.zoom - 2);
-    renderCurrent();
+    setGridZoom(-2);
   });
   els.zoomReset.addEventListener("click", () => {
     state.zoom = 24;
     renderCurrent();
   });
+  bindPinchZoom();
   els.grid.addEventListener("scroll", () => requestAnimationFrame(drawConnections), { passive: true });
   if (els.resultsPanel) {
     els.resultsPanel.addEventListener("mouseenter", focusResultsTable);
@@ -2357,6 +2408,10 @@
   els.grid.addEventListener("wheel", (event) => {
     if (pointerIsOverResults()) return;
     event.preventDefault();
+    if (event.ctrlKey) {
+      setGridZoom(event.deltaY < 0 ? 2 : -2);
+      return;
+    }
     if (event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
       const horizontalDelta = event.deltaX || event.deltaY;
       scrollDisplay(horizontalDelta > 0 ? 1 : -1, 0);
