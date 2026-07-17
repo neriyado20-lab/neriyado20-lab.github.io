@@ -12,7 +12,7 @@
   <meta property="og:description" content="אוצר הצפנים שנמצאו ונשמרו בתוכנת גל עיני, כולל תמונות מסך וקבצי צופן.">
   <meta property="og:url" content="https://neriyado20-lab.github.io/examples.html">
   <meta name="twitter:card" content="summary">
-  <link rel="stylesheet" href="styles.css?v=102">
+  <link rel="stylesheet" href="styles.css?v=113">
 </head>
 <body>
   <header class="topbar">
@@ -77,6 +77,15 @@
         <button class="button secondary" type="submit">שמור</button>
         <small id="notifyStatus" aria-live="polite"></small>
       </form>
+    </section>
+
+    <section class="examples-manager-strip" id="examplesManagerStrip" hidden>
+      <div>
+        <p class="eyebrow">מצב מנהל</p>
+        <h2>ניהול אוצר הצפנים מתוך האתר</h2>
+        <p>כפתורי ניהול מופיעים על כל צופן: החלפה, פרסום, ארכיון, תאריכי עבר ומחיקה.</p>
+      </div>
+      <a class="button secondary" href="account.html">חזרה לאזור האישי</a>
     </section>
 
     <section class="user-ciphers-band" id="user-ciphers" data-user-ciphers-empty hidden>
@@ -321,8 +330,10 @@
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="supabase-public.js?v=1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="admin-config.js?v=1"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=9"></script>
-  <script src="examples.js?v=10"></script>
+  <script src="examples.js?v=11"></script>
 </body>
 </html>
