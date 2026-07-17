@@ -13,17 +13,27 @@
   const stateText = $("accountStateText");
   const signOut = $("accountSignOutButton");
   const additionsList = $("accountAdditionsList");
+  const adminVaultButton = $("accountAdminVaultButton");
 
   function setStatus(text) {
     status.textContent = text;
   }
 
+  function isAdminEmail(email) {
+    const adminEmail = window.GAL_EINAI_ADMIN_AUTH?.supabaseAdminEmail || "admin@gal-einai.local";
+    return String(email || "").trim().toLowerCase() === String(adminEmail).trim().toLowerCase();
+  }
+
   function setSignedIn(email) {
+    const admin = isAdminEmail(email);
     stateTitle.textContent = email ? `שלום, ${email}` : "אפשר לעבוד גם בלי חשבון";
-    stateText.textContent = email
+    stateText.textContent = admin
+      ? "נכנסת כמנהל. אפשר לנהל את אוצר הצפנים מתוך האתר עצמו, בלי להסתבך בלוח הניהול."
+      : email
       ? "נכנסת לאזור האישי. כאן אפשר לעקוב אחרי בקשות תוספות לצפנים וקבצים להמשך עבודה."
       : "כלי החיפוש נשאר פתוח בלי כניסה. משתמש נכנס רק כשהוא רוצה לראות דברים פרטיים שלו.";
     signOut.hidden = !email;
+    if (adminVaultButton) adminVaultButton.hidden = !admin;
   }
 
   function wirePasswordToggles() {
