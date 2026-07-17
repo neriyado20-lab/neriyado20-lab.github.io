@@ -3,8 +3,12 @@
   const VIEW_DELAY_MS = 4000;
   const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
   const SUPABASE_KEY = "sb_publishable_MqD3lXrftP5B36gcRjpDbw_csTVjpVK";
+  const ADMIN_EMAIL = window.GAL_EINAI_ADMIN_AUTH?.supabaseAdminEmail || "admin@gal-einai.local";
+  const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
   const keepNewThisSession = new Set();
   const viewTimers = new Map();
+  const contentById = new Map();
+  let managerMode = false;
 
   function readSeen() {
     try {
@@ -175,6 +179,71 @@
     return /\.json($|\?)/i.test(String(url || ""));
   }
 
+  function itemIdForCard(card) {
+    return card.dataset.contentId || `static-${card.dataset.exampleId}`;
+  }
+
+  function titleForCard(card) {
+    return card.querySelector("h2")?.textContent?.trim()
+      || card.querySelector("strong")?.textContent?.trim()
+      || "צופן";
+  }
+
+  function primaryUrlForCard(card) {
+    const project = card.querySelector('a[href*="web.html?project="]')?.getAttribute("href") || "";
+    const image = card.querySelector(".sample-image-link")?.getAttribute("href") || "";
+    const first = card.querySelector(".track-view")?.getAttribute("href") || "";
+    return project || image || first || location.href;
+  }
+
+  function shareUrlForCard(card) {
+    return new URL(primaryUrlForCard(card), location.href).href;
+  }
+
+  function metadataForCard(card, next = {}) {
+    const description = cleanDescription(next.description ?? card.querySelector("p")?.textContent ?? "");
+    const topic = next.topic ?? card.dataset.topic ?? "users";
+    const url = next.url ?? primaryUrlForCard(card);
+    const absolute = absoluteUrl(url);
+    const markers = [`[topic:${topic}]`];
+    if (isJsonUrl(url) || String(url).includes("web.html?project=")) {
+      markers.push(`[project:${absolute}]`);
+    } else {
+      markers.push(`[image:${absolute}]`);
+    }
+    return [markers.join("\n"), description].filter(Boolean).join("\n");
+  }
+
+  function payloadForCard(card, status, patch = {}) {
+    const id = itemIdForCard(card);
+    const existing = contentById.get(id) || {};
+    const now = new Date().toISOString();
+    return {
+      id,
+      type: "example",
+      title: patch.title ?? existing.title ?? titleForCard(card),
+      url: patch.url ?? existing.url ?? absoluteUrl(primaryUrlForCard(card)),
+      status,
+      description: patch.description ?? metadataForCard(card, patch),
+      created_at: existing.created_at || existing.at || now,
+      updated_at: now
+    };
+  }
+
+  async function upsertContent(item) {
+    if (!supabaseClient) throw new Error("החיבור לניהול אינו פעיל.");
+    const { error } = await supabaseClient.from("admin_content").upsert(item);
+    if (error) throw error;
+    contentById.set(item.id, item);
+  }
+
+  async function deleteContent(id) {
+    if (!supabaseClient) throw new Error("החיבור לניהול אינו פעיל.");
+    const { error } = await supabaseClient.from("admin_content").delete().eq("id", id);
+    if (error) throw error;
+    contentById.delete(id);
+  }
+
   function absoluteUrl(url) {
     try {
       return new URL(url, location.href).href;
@@ -191,6 +260,7 @@
     const article = document.createElement("article");
     article.className = "sample-card";
     article.dataset.exampleId = id;
+    article.dataset.contentId = item.id || "";
     article.dataset.uploaded = String(item.updated_at || item.created_at || new Date().toISOString()).slice(0, 10);
     article.dataset.topic = topicFor(item);
     const date = item.updated_at || item.created_at ? new Date(item.updated_at || item.created_at).toLocaleDateString("he-IL") : "";
@@ -220,6 +290,72 @@
     return article;
   }
 
+  function rebuildCardActions(card, item, seen) {
+    const actions = card.querySelector(".hero-actions");
+    if (!actions) return;
+    const url = absoluteUrl(item.url || primaryUrlForCard(card));
+    const projectUrl = markerValue(item.description, "project") || (isJsonUrl(url) ? url : "");
+    const imageUrl = markerValue(item.description, "image") || (!isJsonUrl(url) ? url : "");
+    actions.replaceChildren();
+    if (projectUrl) {
+      const openProject = document.createElement("a");
+      openProject.className = "button primary track-view";
+      openProject.href = `web.html?project=${encodeURIComponent(projectUrl)}`;
+      openProject.textContent = "פתח באתר";
+      actions.appendChild(openProject);
+    }
+    if (imageUrl) {
+      const openImage = document.createElement("a");
+      openImage.className = "button primary track-view";
+      openImage.href = imageUrl;
+      openImage.target = "_blank";
+      openImage.rel = "noopener";
+      openImage.textContent = "פתח תמונה";
+      actions.appendChild(openImage);
+      const imageLink = card.querySelector(".sample-image-link");
+      const img = imageLink?.querySelector("img");
+      if (imageLink) imageLink.href = imageUrl;
+      if (img) img.src = imageUrl;
+    }
+    if (url) {
+      const openFile = document.createElement("a");
+      openFile.className = "button secondary";
+      openFile.href = url;
+      openFile.target = "_blank";
+      openFile.rel = "noopener";
+      openFile.textContent = "פתח קובץ";
+      actions.appendChild(openFile);
+    }
+    const mark = document.createElement("button");
+    mark.className = "button secondary mark-unseen";
+    mark.type = "button";
+    mark.textContent = "סמן עוד לא ראיתי";
+    mark.addEventListener("click", () => markUnseen(card, seen));
+    actions.appendChild(mark);
+  }
+
+  function applyStaticOverride(item, seen) {
+    if (!item.id || !String(item.id).startsWith("static-")) return;
+    const exampleId = String(item.id).slice("static-".length);
+    const card = document.querySelector(`[data-example-id="${CSS.escape(exampleId)}"]`);
+    if (!card) return;
+    card.dataset.contentId = item.id;
+    if (item.status !== "active" && item.status !== "past_dates") {
+      card.dataset.adminHidden = "true";
+      card.hidden = true;
+      return;
+    }
+    delete card.dataset.adminHidden;
+    card.dataset.topic = topicFor(item);
+    card.dataset.uploaded = String(item.updated_at || item.created_at || card.dataset.uploaded || new Date().toISOString()).slice(0, 10);
+    const title = card.querySelector("h2");
+    const description = card.querySelector("p");
+    if (title && item.title) title.textContent = item.title;
+    if (description) description.textContent = cleanDescription(item.description) || description.textContent;
+    rebuildCardActions(card, item, seen);
+    setCardState(card, seen);
+  }
+
   async function loadPublishedContent(seen) {
     const layout = document.querySelector(".sample-layout");
     if (!layout) return;
@@ -227,7 +363,6 @@
       const params = new URLSearchParams({
         select: "id,type,title,url,status,description,created_at,updated_at",
         type: "eq.example",
-        status: "in.(active,past_dates)",
         order: "updated_at.desc"
       });
       const response = await fetch(`${SUPABASE_URL}/rest/v1/admin_content?${params}`, {
@@ -239,14 +374,20 @@
       if (!response.ok) return;
       const items = await response.json();
       if (!Array.isArray(items) || !items.length) return;
+      items.forEach((item) => contentById.set(item.id, item));
+      items.filter((item) => String(item.id || "").startsWith("static-")).forEach((item) => applyStaticOverride(item, seen));
       items.forEach((item) => {
+        if (String(item.id || "").startsWith("static-")) return;
+        if (item.status !== "active" && item.status !== "past_dates") return;
         const id = `admin-${String(item.id || item.title).replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
         if (document.querySelector(`[data-example-id="${CSS.escape(id)}"]`)) return;
         const card = cardForContent(item);
         layout.prepend(card);
         setCardState(card, seen);
+        card.querySelector(".mark-unseen")?.addEventListener("click", () => markUnseen(card, seen));
       });
       updateVaultPicker();
+      wireShareAndAdminTools(seen);
       window.GalEinaiWireSampleCards?.();
       wireSeenOnView(seen);
       applyFilter(seen);
@@ -286,6 +427,7 @@
     if (!select) return;
     const currentValue = select.value;
     const cards = Array.from(document.querySelectorAll("[data-example-id]"))
+      .filter((card) => card.dataset.adminHidden !== "true")
       .sort((a, b) => cardTitle(a).localeCompare(cardTitle(b), "he"));
     select.replaceChildren();
     const first = document.createElement("option");
@@ -324,9 +466,14 @@
   function applyFilter(seen) {
     const filter = activeFilter();
     const topic = activeTopic();
-    const cards = Array.from(document.querySelectorAll("[data-example-id]"));
+    const cards = Array.from(document.querySelectorAll("[data-example-id]"))
+      .filter((card) => card.dataset.adminHidden !== "true");
     const visibleCards = [];
     cards.forEach((card) => {
+      if (card.dataset.adminHidden === "true") {
+        card.hidden = true;
+        return;
+      }
       setCardState(card, seen);
       const seenNow = isSeen(card, seen);
       const showBySeen = filter === "all" || (filter === "new" && !seenNow) || (filter === "seen" && seenNow);
@@ -342,6 +489,145 @@
     if (empty) empty.hidden = Boolean(visibleCards.length) || topic === "all" || topic === "users";
     updateCounter(cards, visibleCards);
     return visibleCards;
+  }
+
+  async function shareCard(card) {
+    const title = titleForCard(card);
+    const url = shareUrlForCard(card);
+    const text = `${title} - גל עיני`;
+    if (navigator.share) {
+      await navigator.share({ title, text, url });
+      return;
+    }
+    await navigator.clipboard?.writeText(url);
+    alert("הקישור הועתק. אפשר להדביק אותו בכל מקום.");
+  }
+
+  function openShareMenu(card) {
+    const title = encodeURIComponent(titleForCard(card));
+    const url = encodeURIComponent(shareUrlForCard(card));
+    const choice = window.prompt("שיתוף: כתוב 1 לווטסאפ, 2 למייל, 3 להעתקת קישור", "1");
+    if (choice === "1") {
+      window.open(`https://wa.me/?text=${title}%20${url}`, "_blank", "noopener");
+    } else if (choice === "2") {
+      location.href = `mailto:?subject=${title}&body=${url}`;
+    } else {
+      navigator.clipboard?.writeText(decodeURIComponent(url));
+      alert("הקישור הועתק.");
+    }
+  }
+
+  function ensureToolArea(card) {
+    let area = card.querySelector(".cipher-card-tools");
+    if (!area) {
+      area = document.createElement("div");
+      area.className = "cipher-card-tools";
+      card.querySelector(".sample-copy")?.appendChild(area);
+    }
+    return area;
+  }
+
+  function addShareButton(card) {
+    const area = ensureToolArea(card);
+    if (area.querySelector("[data-share-cipher]")) return;
+    const share = document.createElement("button");
+    share.className = "button secondary";
+    share.type = "button";
+    share.dataset.shareCipher = "true";
+    share.textContent = "שתף";
+    share.addEventListener("click", async () => {
+      try {
+        await shareCard(card);
+      } catch {
+        openShareMenu(card);
+      }
+    });
+    area.prepend(share);
+  }
+
+  function addAdminActions(card, seen) {
+    if (!managerMode || card.querySelector(".cipher-admin-actions")) return;
+    const area = document.createElement("div");
+    area.className = "cipher-admin-actions";
+    const action = (label, handler) => {
+      const button = document.createElement("button");
+      button.className = "button secondary";
+      button.type = "button";
+      button.textContent = label;
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        try {
+          await handler();
+        } catch (error) {
+          alert(error.message || "הפעולה נכשלה.");
+        } finally {
+          button.disabled = false;
+        }
+      });
+      return button;
+    };
+    const saveStatus = async (status) => {
+      const item = payloadForCard(card, status);
+      await upsertContent(item);
+      if (status === "archive" || status === "draft") {
+        card.dataset.adminHidden = "true";
+        card.hidden = true;
+      } else {
+        delete card.dataset.adminHidden;
+        card.dataset.topic = topicFor(item);
+        card.hidden = false;
+      }
+      applyFilter(seen);
+      updateVaultPicker();
+    };
+    area.append(
+      action("פרסם", () => saveStatus("active")),
+      action("תאריכי עבר", () => saveStatus("past_dates")),
+      action("ארכיון", () => saveStatus("archive")),
+      action("החלף קישור", async () => {
+        const current = primaryUrlForCard(card);
+        const url = window.prompt("הדבק קישור חדש לתמונה או לקובץ הצופן", current);
+        if (!url) return;
+        const title = window.prompt("שם הצופן", titleForCard(card)) || titleForCard(card);
+        const item = payloadForCard(card, "active", { url: absoluteUrl(url), title });
+        await upsertContent(item);
+        alert("הקישור הוחלף. רענון הדף יציג את העדכון.");
+      }),
+      action("מחק", async () => {
+        if (!window.confirm(`למחוק/להסתיר את "${titleForCard(card)}" מהאתר?`)) return;
+        const id = itemIdForCard(card);
+        if (id.startsWith("static-")) {
+          await saveStatus("archive");
+        } else {
+          await deleteContent(id);
+          card.remove();
+          applyFilter(seen);
+          updateVaultPicker();
+        }
+      })
+    );
+    ensureToolArea(card).appendChild(area);
+  }
+
+  function wireShareAndAdminTools(seen) {
+    document.querySelectorAll("[data-example-id]").forEach((card) => {
+      addShareButton(card);
+      addAdminActions(card, seen);
+    });
+  }
+
+  async function detectManagerMode(seen) {
+    if (!supabaseClient) return;
+    try {
+      const { data } = await supabaseClient.auth.getSession();
+      const email = data.session?.user?.email || "";
+      managerMode = String(email).trim().toLowerCase() === String(ADMIN_EMAIL).trim().toLowerCase();
+      document.getElementById("examplesManagerStrip").hidden = !managerMode;
+      document.body.classList.toggle("manager-mode", managerMode);
+      wireShareAndAdminTools(seen);
+    } catch {
+      managerMode = false;
+    }
   }
 
   const seen = readSeen();
@@ -382,6 +668,8 @@
   });
   applyFilter(seen);
   updateVaultPicker();
+  wireShareAndAdminTools(seen);
+  detectManagerMode(seen);
   wireSeenOnView(seen);
   loadPublishedContent(seen);
 })();
