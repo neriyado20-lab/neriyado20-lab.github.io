@@ -12,7 +12,7 @@
   <meta property="og:description" content="מאגר מילים מותרות ופענוח זהיר של צפנים, ללא הכרעה על אנשים וללא לשון הרע.">
   <meta property="og:url" content="https://neriyado20-lab.github.io/ai.html">
   <meta name="twitter:card" content="summary">
-  <link rel="stylesheet" href="styles.css?v=111">
+  <link rel="stylesheet" href="styles.css?v=112">
 </head>
 <body class="ai-page">
   <header class="topbar">
@@ -177,6 +177,25 @@
             <option value="general">כללי</option>
           </select>
         </label>
+        <fieldset class="ai-source-options" aria-label="מקור בינה מלאכותית">
+          <legend>מקור הבינה המלאכותית</legend>
+          <label>
+            <input type="radio" name="decodeAiSource" value="site" checked>
+            <span>AI של גל עיני דרך האתר - תשלום/קרדיט באתר לפי שימוש</span>
+          </label>
+          <label>
+            <input type="radio" name="decodeAiSource" value="private">
+            <span>מפתח OpenAI פרטי שלי - אני משלם ישירות לחשבון שלי</span>
+          </label>
+          <label>
+            <input type="radio" name="decodeAiSource" value="none">
+            <span>בלי AI חי - הצג רק דו"ח סריקה מקומי</span>
+          </label>
+          <label id="privateAiKeyRow" class="private-ai-key-row" hidden>
+            <span>מפתח OpenAI פרטי</span>
+            <input id="privateOpenAiKey" type="password" autocomplete="off" placeholder="sk-... המפתח נשאר בדפדפן ולא נשמר באתר">
+          </label>
+        </fieldset>
         <label>
           <span>המילה הראשית</span>
           <input id="decodePrimary" type="text" required placeholder="המילה הראשית בצופן">
@@ -241,6 +260,6 @@
   <script src="supabase-public.js?v=2"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=9"></script>
-  <script src="ai.js?v=19"></script>
+  <script src="ai.js?v=20"></script>
 </body>
 </html>
