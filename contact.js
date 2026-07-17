@@ -1,5 +1,7 @@
 (() => {
   const STORAGE_KEY = "gal-einai-contact-v1";
+  const CONTACT_EMAIL = "neriyado20@gmail.com";
+  const FORM_ENDPOINT = `https://formsubmit.co/ajax/${CONTACT_EMAIL}`;
   const $ = (id) => document.getElementById(id);
 
   function readItems() {
@@ -27,6 +29,26 @@
       "תוכן הפנייה:",
       item.message,
     ].join("\n");
+  }
+
+  async function sendEmailNotification(item) {
+    const form = new FormData();
+    form.append("name", item.name);
+    form.append("return_to", item.returnTo);
+    form.append("topic", item.topic);
+    form.append("message", item.message);
+    form.append("_subject", `פנייה חדשה מאתר גל עיני - ${item.topic}`);
+    form.append("_template", "table");
+    form.append("_captcha", "false");
+    form.append("_replyto", item.returnTo.includes("@") ? item.returnTo : CONTACT_EMAIL);
+    form.append("summary", buildSummary(item));
+    const response = await fetch(FORM_ENDPOINT, {
+      method: "POST",
+      headers: { Accept: "application/json" },
+      body: form,
+    });
+    if (!response.ok) throw new Error("mail_failed");
+    return true;
   }
 
   function renderList() {
@@ -64,12 +86,23 @@
     const items = readItems();
     items.push(item);
     writeItems(items);
+    let savedRemote = false;
+    let sentEmail = false;
     if (window.GalEinaiBackend) {
-      await window.GalEinaiBackend.submit("contact", item);
+      savedRemote = await window.GalEinaiBackend.submit("contact", item);
+    }
+    try {
+      sentEmail = await sendEmailNotification(item);
+    } catch {
+      sentEmail = false;
     }
     $("contactSummary").value = buildSummary(item);
     $("copyContactButton").disabled = false;
-    $("contactStatus").textContent = "הפנייה נשמרה, ואפשר להעתיק את הנוסח לשליחה לאחראי.";
+    $("contactStatus").textContent = sentEmail
+      ? "הפנייה נשלחה למייל ונשמרה במערכת."
+      : savedRemote
+      ? "הפנייה נשמרה במערכת. שליחת המייל הזמנית עדיין דורשת אישור/בדיקה."
+      : "הפנייה נשמרה במכשיר. אם המייל הזמני עדיין לא הופעל, אפשר להעתיק את הנוסח.";
     renderList();
   });
 
