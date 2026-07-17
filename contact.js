@@ -32,20 +32,25 @@
   }
 
   async function sendEmailNotification(item) {
-    const form = new FormData();
-    form.append("name", item.name);
-    form.append("return_to", item.returnTo);
-    form.append("topic", item.topic);
-    form.append("message", item.message);
-    form.append("_subject", `פנייה חדשה מאתר גל עיני - ${item.topic}`);
-    form.append("_template", "table");
-    form.append("_captcha", "false");
-    form.append("_replyto", item.returnTo.includes("@") ? item.returnTo : CONTACT_EMAIL);
-    form.append("summary", buildSummary(item));
     const response = await fetch(FORM_ENDPOINT, {
       method: "POST",
-      headers: { Accept: "application/json" },
-      body: form,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: item.name,
+        email: item.returnTo.includes("@") ? item.returnTo : CONTACT_EMAIL,
+        return_to: item.returnTo,
+        topic: item.topic,
+        message: item.message,
+        summary: buildSummary(item),
+        _subject: `פנייה חדשה מאתר גל עיני - ${item.topic}`,
+        _template: "table",
+        _captcha: "false",
+        _replyto: item.returnTo.includes("@") ? item.returnTo : CONTACT_EMAIL,
+        _url: location.href,
+      }),
     });
     if (!response.ok) throw new Error("mail_failed");
     return true;
