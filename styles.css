@@ -1156,6 +1156,48 @@ h2 {
   font-weight: 800;
 }
 
+.examples-manager-strip {
+  margin: 0 clamp(16px, 5vw, 72px) 18px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid rgba(122, 48, 38, 0.24);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255, 248, 226, 0.95), rgba(255, 236, 211, 0.92));
+  box-shadow: 0 12px 28px rgba(23, 33, 29, 0.10);
+}
+
+.examples-manager-strip[hidden] {
+  display: none;
+}
+
+.examples-manager-strip h2,
+.examples-manager-strip p {
+  margin: 0;
+}
+
+.cipher-card-tools,
+.cipher-admin-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.cipher-admin-actions {
+  padding-top: 8px;
+  border-top: 1px solid rgba(122, 48, 38, 0.16);
+}
+
+.cipher-admin-actions .button {
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
 .review-form,
 .addition-form {
   display: grid;
