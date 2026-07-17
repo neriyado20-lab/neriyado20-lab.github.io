@@ -1076,6 +1076,67 @@
     window.location.assign("purchase.html?source=ai_decode&reason=quota");
   }
 
+  function selectedAiSource() {
+    return document.querySelector("input[name='decodeAiSource']:checked")?.value || "site";
+  }
+
+  async function privateOpenAiDecode(payload, prompt) {
+    const key = $("privateOpenAiKey")?.value.trim();
+    if (!key) throw new Error("בחרת מפתח פרטי, אבל לא הוזן מפתח OpenAI.");
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4.1",
+        input: [
+          "אתה מסייע בפענוח זהיר של צופן תורה לאחר סריקה בפועל.",
+          "התייחס רק למילים ולנתונים שנמסרו. אל תוסיף מילה שלא נמצאה בפועל.",
+          prompt,
+          "",
+          "נתוני פענוח:",
+          JSON.stringify({
+            title: payload.title,
+            question: payload.question,
+            intent: payload.intent,
+            primary: payload.primary,
+            secondaries: payload.secondaries,
+            dates: payload.dates,
+            buckets: payload.buckets,
+            structure: payload.structure,
+            context: payload.context,
+          }, null, 2),
+        ].join("\n"),
+      }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const message = data?.error?.message || "OpenAI לא החזיר תשובה תקינה";
+      const code = data?.error?.code || "";
+      throw new Error(code ? `${message} (${code})` : message);
+    }
+    return data.output_text
+      || (Array.isArray(data.output)
+        ? data.output.flatMap((item) => Array.isArray(item.content) ? item.content : [])
+          .map((content) => content.text || content.output_text || "")
+          .filter(Boolean)
+          .join("\n")
+        : "");
+  }
+
+  function setupAiSourceOptions() {
+    const privateRow = $("privateAiKeyRow");
+    const update = () => {
+      if (privateRow) privateRow.hidden = selectedAiSource() !== "private";
+    };
+    document.querySelectorAll("input[name='decodeAiSource']").forEach((input) => {
+      input.addEventListener("change", update);
+    });
+    update();
+  }
+
   $("aiDecodeForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!$("decodeConsent").checked) return;
@@ -1090,39 +1151,54 @@
       const prompt = buildDecodePrompt(payload);
       $("decodePrompt").value = prompt;
       let outputText = payload.text;
-      if (window.GalEinaiBackend?.aiDecode && payload.secondaries.length) {
-        $("decodeStatus").textContent = "AI חי מנתח את תיק הממצאים שנמצא בסריקה...";
+      const aiSource = selectedAiSource();
+      if (aiSource !== "none" && payload.secondaries.length) {
+        $("decodeStatus").textContent = aiSource === "private"
+          ? "AI חי במפתח הפרטי שלך מנתח את תיק הממצאים..."
+          : "AI חי של גל עיני מנתח את תיק הממצאים שנמצא בסריקה...";
         try {
-          const live = await window.GalEinaiBackend.aiDecode({
-            title: payload.title,
-            question: payload.question,
-            intent: payload.intent,
-            primary: payload.primary,
-            secondaries: payload.secondaries,
-            dates: payload.dates,
-            buckets: payload.buckets,
-            structure: payload.structure,
-            context: payload.context,
-            prompt,
-          });
-          if (live?.text) {
+          let liveText = "";
+          if (aiSource === "private") {
+            liveText = await privateOpenAiDecode(payload, prompt);
+          } else if (window.GalEinaiBackend?.aiDecode) {
+            const live = await window.GalEinaiBackend.aiDecode({
+              title: payload.title,
+              question: payload.question,
+              intent: payload.intent,
+              primary: payload.primary,
+              secondaries: payload.secondaries,
+              dates: payload.dates,
+              buckets: payload.buckets,
+              structure: payload.structure,
+              context: payload.context,
+              prompt,
+            });
+            liveText = live?.text || "";
+          } else {
+            throw new Error("AI של האתר עדיין לא מחובר. אפשר לבחור מפתח OpenAI פרטי או לנסות מאוחר יותר.");
+          }
+          if (liveText) {
             outputText = [
               payload.text,
               "",
-              "ניתוח AI חי על סמך הממצאים שנמצאו בפועל:",
-              live.text,
+              aiSource === "private"
+                ? "ניתוח AI חי במפתח הפרטי שלך על סמך הממצאים שנמצאו בפועל:"
+                : "ניתוח AI חי של גל עיני על סמך הממצאים שנמצאו בפועל:",
+              liveText,
             ].join("\n");
           }
         } catch (error) {
-          if (isPaymentRequiredError(error)) {
+          if (aiSource === "site" && isPaymentRequiredError(error)) {
             $("decodeStatus").textContent = "נדרש תשלום/קרדיט להפעלת AI חי. מועבר לחלון התשלום...";
             setTimeout(openPaymentForAi, 900);
           }
           outputText = [
             payload.text,
             "",
-            isPaymentRequiredError(error)
+            aiSource === "site" && isPaymentRequiredError(error)
               ? "הערת מערכת: פענוח AI חי דורש הפעלת תשלום/קרדיט. לאחר השלמת התשלום אפשר לחזור וללחוץ שוב על פענח צופן."
+              : aiSource === "private" && isPaymentRequiredError(error)
+                ? "הערת מערכת: המפתח הפרטי הגיע למכסת שימוש/חיוב בחשבון OpenAI שלך. אפשר להסדיר זאת בחשבון שלך או לבחור AI של גל עיני דרך האתר."
               : `הערת מערכת: פענוח AI חי לא הושלם כרגע (${error.message || error}). תיק הממצאים המקומי נשמר, ואפשר להפעיל שוב אחרי חיבור ה-Function.`,
           ].join("\n");
         }
@@ -1173,4 +1249,5 @@
   });
 
   setupSpeechButtons();
+  setupAiSourceOptions();
 })();
