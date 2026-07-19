@@ -1586,7 +1586,7 @@
       return;
     }
     const spp = sppAt(current.primary.start);
-    els.title.textContent = `טבלה בדילוג ${Math.abs(current.primary.skip)}${spp ? ` | ספ״פ ${spp}` : ""} | ממצא ${state.current + 1}/${state.results.length}`;
+    els.title.textContent = `טבלה בדילוג ${Math.abs(current.primary.skip)}${spp ? ` | ${spp}` : ""} | ממצא ${state.current + 1}/${state.results.length}`;
     renderTopWords(current);
     renderGrid(current);
   }
