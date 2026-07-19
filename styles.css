@@ -1178,6 +1178,72 @@ h2 {
   margin: 0;
 }
 
+.examples-manager-archive {
+  width: min(1180px, calc(100% - 28px));
+  margin: 0 auto 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(13, 109, 86, 0.20);
+  border-radius: 8px;
+  background: rgba(255, 253, 246, 0.92);
+  box-shadow: 0 12px 28px rgba(23, 33, 29, 0.08);
+}
+
+.examples-manager-archive[hidden] {
+  display: none;
+}
+
+.archive-heading,
+.archive-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.archive-heading {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(13, 109, 86, 0.16);
+}
+
+.archive-heading h2,
+.archive-heading p {
+  margin: 0;
+}
+
+.archive-heading span {
+  color: var(--green);
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.archive-list {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+}
+
+.archive-item {
+  padding: 10px;
+  border: 1px solid rgba(122, 48, 38, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.archive-item strong {
+  display: block;
+}
+
+.archive-item small {
+  color: var(--muted);
+}
+
+.archive-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
 .cipher-card-tools,
 .cipher-admin-actions {
   display: flex;
