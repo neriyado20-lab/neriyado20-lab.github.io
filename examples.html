@@ -12,7 +12,7 @@
   <meta property="og:description" content="אוצר הצפנים שנמצאו ונשמרו בתוכנת גל עיני, כולל תמונות מסך וקבצי צופן.">
   <meta property="og:url" content="https://neriyado20-lab.github.io/examples.html">
   <meta name="twitter:card" content="summary">
-  <link rel="stylesheet" href="styles.css?v=113">
+  <link rel="stylesheet" href="styles.css?v=114">
 </head>
 <body>
   <header class="topbar">
@@ -86,6 +86,18 @@
         <p>כפתורי ניהול מופיעים על כל צופן: החלפה, פרסום, ארכיון, תאריכי עבר ומחיקה.</p>
       </div>
       <a class="button secondary" href="account.html">חזרה לאזור האישי</a>
+    </section>
+
+    <section class="examples-manager-archive" id="examplesManagerArchive" hidden>
+      <div class="archive-heading">
+        <div>
+          <p class="eyebrow">מנהל בלבד</p>
+          <h2>ארכיון צפנים</h2>
+          <p>צפנים שהועברו לארכיון מוסתרים מהציבור ומופיעים כאן לניהול.</p>
+        </div>
+        <span id="examplesArchiveCount">0 בארכיון</span>
+      </div>
+      <div class="archive-list" id="examplesArchiveList"></div>
     </section>
 
     <section class="user-ciphers-band" id="user-ciphers" data-user-ciphers-empty hidden>
@@ -334,6 +346,6 @@
   <script src="admin-config.js?v=1"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=9"></script>
-  <script src="examples.js?v=11"></script>
+  <script src="examples.js?v=12"></script>
 </body>
 </html>
