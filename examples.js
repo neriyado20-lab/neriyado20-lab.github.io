@@ -356,6 +356,109 @@
     setCardState(card, seen);
   }
 
+  function archivedItems() {
+    return Array.from(contentById.values())
+      .filter((item) => item.type === "example" && (item.status === "archive" || item.status === "draft"))
+      .sort((a, b) => String(b.updated_at || b.updatedAt || "").localeCompare(String(a.updated_at || a.updatedAt || "")));
+  }
+
+  function archiveDetailFor(item) {
+    const dateValue = item.updated_at || item.updatedAt || item.created_at || item.at || "";
+    const date = dateValue ? new Date(dateValue).toLocaleDateString("he-IL") : "";
+    const topic = topicFor(item);
+    const label = topic === "past_dates" ? "תאריכי עבר" : topic === "users" ? "צפני משתמשים" : topic || "אוצר הצפנים";
+    return [label, date ? `עודכן: ${date}` : "", item.url || ""].filter(Boolean).join(" | ");
+  }
+
+  function updateCardAfterManagerStatus(item, seen) {
+    if (String(item.id || "").startsWith("static-")) {
+      applyStaticOverride(item, seen);
+      return;
+    }
+    const id = `admin-${String(item.id || item.title).replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
+    const existingCard = document.querySelector(`[data-example-id="${CSS.escape(id)}"]`);
+    if (item.status === "archive" || item.status === "draft") {
+      if (existingCard) {
+        existingCard.dataset.adminHidden = "true";
+        existingCard.hidden = true;
+      }
+      return;
+    }
+    if (existingCard) {
+      delete existingCard.dataset.adminHidden;
+      existingCard.dataset.topic = topicFor(item);
+      existingCard.hidden = false;
+      rebuildCardActions(existingCard, item, seen);
+      setCardState(existingCard, seen);
+      return;
+    }
+    const layout = document.querySelector(".sample-layout");
+    if (!layout) return;
+    const card = cardForContent(item);
+    layout.prepend(card);
+    setCardState(card, seen);
+    card.querySelector(".mark-unseen")?.addEventListener("click", () => markUnseen(card, seen));
+  }
+
+  function renderManagerArchive(seen) {
+    const panel = document.getElementById("examplesManagerArchive");
+    const list = document.getElementById("examplesArchiveList");
+    const count = document.getElementById("examplesArchiveCount");
+    if (!panel || !list || !count) return;
+    panel.hidden = !managerMode;
+    if (!managerMode) return;
+    const items = archivedItems();
+    count.textContent = `${items.length} בארכיון`;
+    list.replaceChildren();
+    if (!items.length) {
+      const empty = document.createElement("div");
+      empty.className = "archive-item";
+      empty.innerHTML = "<div><strong>אין כרגע צפנים בארכיון</strong><small>לחיצה על ארכיון בצופן תעביר אותו לכאן ותסתיר אותו מהציבור.</small></div>";
+      list.appendChild(empty);
+      return;
+    }
+    items.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "archive-item";
+      const text = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = item.title || "צופן בארכיון";
+      const detail = document.createElement("small");
+      detail.textContent = archiveDetailFor(item);
+      text.append(title, detail);
+      const actions = document.createElement("div");
+      actions.className = "archive-actions";
+      const changeStatus = (label, status) => {
+        const button = document.createElement("button");
+        button.className = "button secondary";
+        button.type = "button";
+        button.textContent = label;
+        button.addEventListener("click", async () => {
+          button.disabled = true;
+          try {
+            const next = { ...item, status, updated_at: new Date().toISOString() };
+            await upsertContent(next);
+            updateCardAfterManagerStatus(next, seen);
+            renderManagerArchive(seen);
+            applyFilter(seen);
+            updateVaultPicker();
+          } catch (error) {
+            alert(error.message || "הפעולה נכשלה.");
+          } finally {
+            button.disabled = false;
+          }
+        });
+        return button;
+      };
+      actions.append(
+        changeStatus("פרסם מחדש", "active"),
+        changeStatus("תאריכי עבר", "past_dates")
+      );
+      row.append(text, actions);
+      list.appendChild(row);
+    });
+  }
+
   async function loadPublishedContent(seen) {
     const layout = document.querySelector(".sample-layout");
     if (!layout) return;
@@ -388,6 +491,7 @@
       });
       updateVaultPicker();
       wireShareAndAdminTools(seen);
+      renderManagerArchive(seen);
       window.GalEinaiWireSampleCards?.();
       wireSeenOnView(seen);
       applyFilter(seen);
@@ -572,6 +676,9 @@
       if (status === "archive" || status === "draft") {
         card.dataset.adminHidden = "true";
         card.hidden = true;
+        renderManagerArchive(seen);
+        document.getElementById("examplesManagerArchive")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        alert("הצופן הועבר לארכיון מנהל והוסר מהאוצר הציבורי.");
       } else {
         delete card.dataset.adminHidden;
         card.dataset.topic = topicFor(item);
@@ -579,6 +686,7 @@
       }
       applyFilter(seen);
       updateVaultPicker();
+      renderManagerArchive(seen);
     };
     area.append(
       action("פרסם", () => saveStatus("active")),
@@ -625,8 +733,10 @@
       document.getElementById("examplesManagerStrip").hidden = !managerMode;
       document.body.classList.toggle("manager-mode", managerMode);
       wireShareAndAdminTools(seen);
+      renderManagerArchive(seen);
     } catch {
       managerMode = false;
+      renderManagerArchive(seen);
     }
   }
 
