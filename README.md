@@ -15,6 +15,10 @@
 - `styles.css` - עיצוב האתר.
 - `downloads/gal_einai_V355_with_AI.zip` - קובץ ההפצה העדכני עם הפניה לחלון התשלום כאשר פענוח AI חי דורש קרדיט, עד דילוג 5000.
 - `downloads/gal_einai_V355_no_AI.zip` - קובץ ההפצה העדכני ללא AI, עד דילוג 5000.
+- `downloads/gal_einai_V355_with_AI_installer.zip` - חבילת התקנה מלאה עם AI, כולל קובץ התקן וקיצור דרך.
+- `downloads/gal_einai_V355_no_AI_installer.zip` - חבילת התקנה מלאה בלי AI, כולל קובץ התקן וקיצור דרך.
+- `downloads/gal_einai_V355_with_AI_patch.zip` - עדכון קטן עם AI למחשב שכבר הותקנה בו החבילה המלאה.
+- `downloads/gal_einai_V355_no_AI_patch.zip` - עדכון קטן בלי AI למחשב שכבר הותקנה בו החבילה המלאה.
 - `downloads/` - נשמרות חמש גרסאות אחרונות נגישות.
 - `downloads/archive/` - גרסאות ישנות יותר נשמרות לארכיון.
 - `archive/` - קבצים ישנים או לא מקושרים שנשמרו לארכיון במקום להימחק.
