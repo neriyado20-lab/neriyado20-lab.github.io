@@ -16,6 +16,7 @@
   const DISPLAY_CONTROLS_KEY = "gal-einai-web-display-controls-v1";
   const TOP_WORDS_KEY = "gal-einai-web-top-words-v1";
   const AVOT_SETTINGS_KEY = "gal-einai-web-avot-v1";
+  const AVOT_DATA_VERSION = "v392";
   const HISTORY_LIMIT = 20;
   const FREE_MAX_SKIP = 400;
   const PRO_MAX_SKIP = TARGET_COUNT;
@@ -337,13 +338,19 @@
     if (!state.avotLines.length) return;
     els.avotTrack.replaceChildren();
     state.avotGroups = [];
+    state.avotX = 0;
+    state.avotLastFrame = 0;
     createAvotGroup(state.avotIndex % state.avotLines.length);
   }
 
   function stepAvot(direction) {
     if (!state.avotLines.length) return;
+    state.avotPaused = true;
     state.avotIndex = (state.avotIndex + direction + state.avotLines.length) % state.avotLines.length;
     showAvotLine();
+    window.setTimeout(() => {
+      state.avotPaused = false;
+    }, 1200);
   }
 
   function nextAutomaticAvotIndex(currentIndex = state.avotIndex) {
@@ -391,7 +398,7 @@
 
   async function loadAvot() {
     try {
-      const response = await fetch("assets/pirkei_avot_mishnayot.json", { cache: "force-cache" });
+      const response = await fetch(`assets/pirkei_avot_mishnayot.json?${AVOT_DATA_VERSION}`, { cache: "no-store" });
       if (!response.ok) return;
       const data = await response.json();
       state.avotLines = Array.isArray(data) ? data.filter((line) => String(line || "").trim()) : [];
