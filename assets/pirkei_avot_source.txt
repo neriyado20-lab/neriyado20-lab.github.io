@@ -1,0 +1,4 @@
+מקור נוסח פרקי אבות בתוכנה:
+Sefaria API, Pirkei Avot, Hebrew version: Torat Emet 357.
+Version source listed by Sefaria: http://www.toratemetfreeware.com/index.html?downloads
+Retrieved for Gal Einai on 2026-07-21.
