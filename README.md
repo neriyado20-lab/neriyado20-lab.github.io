@@ -13,12 +13,12 @@
 - `admin.html` - לוח ניהול מקומי לנתונים שנשמרו בדפדפן הזה.
 - `admin-config.js` - הגדרות כניסה והעלאה לניהול.
 - `styles.css` - עיצוב האתר.
-- `downloads/gal_einai_V378_with_AI.zip` - קובץ ההפצה העדכני עם הפניה לחלון התשלום כאשר פענוח AI חי דורש קרדיט, עד דילוג 5000.
-- `downloads/gal_einai_V378_no_AI.zip` - קובץ ההפצה העדכני ללא AI, עד דילוג 5000.
-- `downloads/gal_einai_V378_with_AI_setup.exe` - מתקין Windows מלא ונוח עם AI, קובץ אחד להפעלה.
-- `downloads/gal_einai_V378_no_AI_setup.exe` - מתקין Windows מלא ונוח בלי AI, קובץ אחד להפעלה.
-- `downloads/gal_einai_V378_with_AI_patch.zip` - עדכון קטן עם AI למחשב שכבר הותקנה בו החבילה המלאה.
-- `downloads/gal_einai_V378_no_AI_patch.zip` - עדכון קטן בלי AI למחשב שכבר הותקנה בו החבילה המלאה.
+- `downloads/gal_einai_V379_with_AI.zip` - קובץ ההפצה העדכני עם הפניה לחלון התשלום כאשר פענוח AI חי דורש קרדיט, עד דילוג 5000.
+- `downloads/gal_einai_V379_no_AI.zip` - קובץ ההפצה העדכני ללא AI, עד דילוג 5000.
+- `downloads/gal_einai_V379_with_AI_setup.exe` - מתקין Windows מלא ונוח עם AI, קובץ אחד להפעלה.
+- `downloads/gal_einai_V379_no_AI_setup.exe` - מתקין Windows מלא ונוח בלי AI, קובץ אחד להפעלה.
+- `downloads/gal_einai_V379_with_AI_patch.zip` - עדכון קטן עם AI למחשב שכבר הותקנה בו החבילה המלאה.
+- `downloads/gal_einai_V379_no_AI_patch.zip` - עדכון קטן בלי AI למחשב שכבר הותקנה בו החבילה המלאה.
 - `downloads/` - נשמרות חמש גרסאות אחרונות נגישות.
 - `downloads/archive/` - גרסאות ישנות יותר נשמרות לארכיון.
 - `archive/` - קבצים ישנים או לא מקושרים שנשמרו לארכיון במקום להימחק.
@@ -31,8 +31,8 @@
 
 למשתמש חדש מומלץ לשלוח את אחד מקובצי ההתקנה:
 
-- `gal_einai_V378_with_AI_setup.exe`
-- `gal_einai_V378_no_AI_setup.exe`
+- `gal_einai_V379_with_AI_setup.exe`
+- `gal_einai_V379_no_AI_setup.exe`
 
 המשתמש מפעיל את קובץ ההתקנה, עובר את אשף ההתקנה, ומקבל קיצור דרך בשולחן העבודה ובתפריט התחל.
 לעדכונים עתידיים אין צורך לשלוח שוב את כל החבילה: שולחים את קובץ ה-`patch.zip` המתאים, והוא מחליף רק את קוד התוכנה.
