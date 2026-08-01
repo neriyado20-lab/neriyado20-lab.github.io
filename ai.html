@@ -43,7 +43,7 @@
       <h1>עיון AI ופענוח צפנים</h1>
       <p>
         בוחרים מסלול אחד: צופן חדש שעדיין צריך לחפש, או צופן מוכן שכבר נמצא.
-        בכל מסלול השלבים מופיעים פעם אחת לפי הסדר, בלי כפילות.
+        בכל מסלול השלבים מופיעים פעם אחת לפי הסדר, ללא כפילות.
       </p>
       <p class="ai-safety-note">
         הכלי מסייע לעיון בלבד: אינו מכריע על אדם, אינו נבואה, אינו מחליף בירור, דעת תורה או אחריות אנושית.
@@ -100,11 +100,11 @@
       </label>
       <label>
         <span>פרטי מקרה / נעדר ניטרליים <button class="speech-button" type="button" data-speech-target="aiCaseDetails" title="הכתבה קולית" aria-label="הכתבה קולית לשדה פרטי מקרה">🎙</button></span>
-        <textarea id="aiCaseDetails" rows="3" placeholder="מקום אחרון, זמן, רחוב, תחנה, רכב, בגד, תיק, טלפון, סימן או עדות. בלי האשמות ובלי מסקנות."></textarea>
+        <textarea id="aiCaseDetails" rows="3" placeholder="מקום אחרון, זמן, רחוב, תחנה, רכב, בגד, תיק, טלפון, סימן או עדות. ללא האשמות וללא מסקנות."></textarea>
       </label>
       <label class="ai-consent">
         <input id="aiConsent" type="checkbox" required>
-        <span>אני מבקש כלי עזר לעיון בלבד, לקצה חוט בלבד, בלי הכרעה על אדם ובלי ודאות על מיקום.</span>
+        <span>אני מבקש כלי עזר לעיון בלבד, לקצה חוט בלבד, ללא הכרעה על אדם וללא ודאות על מיקום.</span>
       </label>
       <div class="order-actions">
         <button class="button primary" type="submit">הצע מילים לחיפוש</button>
@@ -150,7 +150,7 @@
       <div class="section-head">
         <p class="eyebrow">מסלול ב · פענוח</p>
         <h2>צופן מוכן לפענוח</h2>
-        <p>כאן לא צריך הצעות מילים לחיפוש. טוענים קובץ צופן קיים או ממלאים את נתוני הצופן, ומפעילים פענוח מסודר.</p>
+        <p>כאן אין צורך בהצעות מילים לחיפוש. טוענים קובץ צופן קיים או ממלאים את נתוני הצופן, ומפעילים פענוח מסודר.</p>
       </div>
       <form id="aiDecodeForm" class="ai-form">
         <label>
@@ -189,7 +189,7 @@
           </label>
           <label>
             <input type="radio" name="decodeAiSource" value="none">
-            <span>בלי AI חי - הצג רק דו"ח סריקה מקומי</span>
+            <span>ללא AI חי - הצג רק דו"ח סריקה מקומי</span>
           </label>
           <label id="privateAiKeyRow" class="private-ai-key-row" hidden>
             <span>מפתח OpenAI פרטי</span>
@@ -214,7 +214,7 @@
         </label>
         <label>
           <span>רקע מותר לעיון <button class="speech-button" type="button" data-speech-target="decodeContext" title="הכתבה קולית" aria-label="הכתבה קולית לרקע">🎙</button></span>
-          <textarea id="decodeContext" rows="3" placeholder="רקע כללי בלבד, בלי האשמות ובלי מסקנות על אדם"></textarea>
+          <textarea id="decodeContext" rows="3" placeholder="רקע כללי בלבד, ללא האשמות וללא מסקנות על אדם"></textarea>
         </label>
         <label>
           <span>רמת זהירות רצויה</span>
@@ -226,7 +226,7 @@
         </label>
         <label class="ai-consent">
           <input id="decodeConsent" type="checkbox" required>
-          <span>אני מבין שזה פענוח עיוני בלבד, בלי הכרעה, בלי נבואה, ובלי קביעה על אדם או אירוע.</span>
+          <span>אני מבין שזה פענוח עיוני בלבד, ללא הכרעה, ללא נבואה וללא קביעה על אדם או אירוע.</span>
         </label>
         <div class="order-actions">
           <button id="decodeSubmitButton" class="button primary" type="submit">פענח צופן</button>
