@@ -2890,6 +2890,17 @@ footer .legal-footer a,
   box-shadow: 0 14px 28px rgba(23, 33, 29, 0.10);
 }
 
+.rides-panel-image {
+  display: block;
+  width: calc(100% + 48px);
+  height: 136px;
+  margin: -24px -24px 2px;
+  object-fit: cover;
+  object-position: center;
+  border-bottom: 1px solid rgba(13, 109, 86, 0.14);
+  background: #f8f3e6;
+}
+
 .rides-page img[src*="parking-gemach-hero"] {
   object-position: 42% center;
 }
