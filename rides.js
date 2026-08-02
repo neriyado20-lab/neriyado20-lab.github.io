@@ -995,6 +995,17 @@
     renderParkingScores();
   });
 
+  on("parkingDetailPreset", "change", (event) => {
+    const value = event.target.value;
+    const details = $("parkingDetails");
+    if (!value || !details) return;
+    details.value = details.value.trim()
+      ? `${details.value.trim()} ${value}`
+      : value;
+    event.target.value = "";
+    details.focus();
+  });
+
   on("parkingRequestForm", "submit", (event) => {
     event.preventDefault();
     const community = readActiveCommunity();
