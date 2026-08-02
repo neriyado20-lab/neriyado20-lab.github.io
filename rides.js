@@ -415,7 +415,13 @@
     if (!box) return;
     const community = readActiveCommunity();
     if (!community) {
-      box.textContent = "לא נבחרה קהילה פעילה.";
+      box.textContent = $("parkingOfferForm")
+        ? "עדיין לא בוצע אימות ראשוני במכשיר זה."
+        : "לא נבחרה קהילה פעילה.";
+      return;
+    }
+    if ($("parkingOfferForm")) {
+      box.textContent = `אימות פעיל באזור ${community.communityName}. משתמש: ${community.userName}. טלפון מאומת: ${community.representative}. קוד התקבל באמצעות ${community.sourceLabel}.`;
       return;
     }
     box.textContent = `קהילה פעילה: ${community.communityName}. משתמש: ${community.userName}. איש קשר: ${community.contactPerson}. קוד התקבל באמצעות ${community.sourceLabel}.`;
@@ -915,8 +921,11 @@
       at: new Date().toISOString(),
     });
     event.target.reset();
-    setText("ridesStatus", "המעגל הקהילתי הופעל. כעת ההתאמות יוצגו רק בתוך הקהילה הזו.");
-    setText("parkingStatus", "המעגל הקהילתי הופעל. כעת דיווחי החניה נשמרים תחת קהילה פעילה.");
+    if ($("parkingOfferForm")) {
+      setText("parkingStatus", "האימות הראשוני הופעל. כעת ניתן לשלוח דיווחים ובקשות עם קוד קצר בכל פעולה.");
+    } else {
+      setText("ridesStatus", "המעגל הקהילתי הופעל. כעת ההתאמות יוצגו רק בתוך הקהילה הזו.");
+    }
     renderCommunityStatus();
     renderDrivers();
     renderRequests();
@@ -948,6 +957,7 @@
       code: parkingCodeFromId(id),
       reporterName: $("parkingReporterName").value.trim(),
       reporterPhone: $("parkingReporterPhone").value.trim(),
+      reporterCodeHint: $("parkingReporterCode")?.value.trim().slice(-2).padStart(($("parkingReporterCode")?.value.trim() || "").length, "*") || "",
       kind: $("parkingKind").value,
       location: $("parkingLocation").value.trim(),
       timing: $("parkingTiming").value,
@@ -1013,6 +1023,7 @@
       id: `parking-request-${Date.now()}`,
       name: $("parkingSeekerName").value.trim(),
       phone: $("parkingSeekerPhone").value.trim(),
+      requestCodeHint: $("parkingSeekerCode")?.value.trim().slice(-2).padStart(($("parkingSeekerCode")?.value.trim() || "").length, "*") || "",
       area: $("parkingWantedArea").value.trim(),
       urgency: $("parkingUrgency").value,
       permit: $("parkingSeekerPermit").value,
