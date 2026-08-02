@@ -2880,6 +2880,28 @@ footer .legal-footer a,
     linear-gradient(120deg, rgba(214, 156, 37, 0.24), rgba(63, 127, 180, 0.14));
 }
 
+.rides-story-image {
+  width: 100%;
+  aspect-ratio: 1.24;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 8px;
+  border: 1px solid rgba(13, 109, 86, 0.14);
+  box-shadow: 0 14px 28px rgba(23, 33, 29, 0.10);
+}
+
+.rides-page img[src*="parking-gemach-hero"] {
+  object-position: 42% center;
+}
+
+.rides-form input[list] {
+  background:
+    linear-gradient(45deg, transparent 50%, rgba(13, 109, 86, 0.72) 50%) left 18px center / 7px 7px no-repeat,
+    linear-gradient(135deg, rgba(13, 109, 86, 0.72) 50%, transparent 50%) left 12px center / 7px 7px no-repeat,
+    #ffffff;
+  padding-left: 34px;
+}
+
 .rides-card-visual::before,
 .rides-card-visual::after {
   content: "";
