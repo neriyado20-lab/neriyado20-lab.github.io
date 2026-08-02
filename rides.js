@@ -12,6 +12,17 @@
   const $ = (id) => document.getElementById(id);
   let pendingDriverGps = null;
 
+  function on(id, eventName, handler) {
+    const element = $(id);
+    if (!element) return;
+    element.addEventListener(eventName, handler);
+  }
+
+  function setText(id, text) {
+    const element = $(id);
+    if (element) element.textContent = text;
+  }
+
   function normalizePlace(value) {
     return String(value || "")
       .trim()
@@ -394,8 +405,8 @@
   function requireCommunity() {
     const community = readActiveCommunity();
     if (community) return community;
-    $("ridesStatus").textContent = "לפני רישום נסיעה יש להפעיל מעגל קהילתי עם שם משתמש וקוד אישי.";
-    $("communityStatus").textContent = "לא נבחרה קהילה פעילה. יש להזין קוד אישי שניתן על ידי נציג מוסמך.";
+    setText("ridesStatus", "לפני רישום נסיעה יש להפעיל מעגל קהילתי עם שם משתמש וקוד אישי.");
+    setText("communityStatus", "לא נבחרה קהילה פעילה. יש להזין קוד אישי שניתן על ידי נציג מוסמך.");
     return null;
   }
 
@@ -501,6 +512,7 @@
 
   function renderDrivers() {
     const box = $("driverList");
+    if (!box) return;
     const drivers = readDrivers();
     box.replaceChildren();
     if (!drivers.length) {
@@ -514,6 +526,7 @@
 
   function renderRequests() {
     const box = $("requestList");
+    if (!box) return;
     const requests = readRequests();
     box.replaceChildren();
     if (!requests.length) {
@@ -677,6 +690,7 @@
 
   function renderMessages() {
     const box = $("messageList");
+    if (!box) return;
     const messages = readMessages();
     box.replaceChildren();
     if (!messages.length) {
@@ -748,7 +762,7 @@
     });
   }
 
-  $("driverForm").addEventListener("submit", (event) => {
+  on("driverForm", "submit", (event) => {
     event.preventDefault();
     const community = requireCommunity();
     if (!community) return;
@@ -793,7 +807,7 @@
     renderDrivers();
   });
 
-  $("verifyDriverGpsButton").addEventListener("click", () => {
+  on("verifyDriverGpsButton", "click", () => {
     if (!navigator.geolocation) {
       $("driverGpsStatus").textContent = "הדפדפן אינו תומך באימות GPS.";
       return;
@@ -817,7 +831,7 @@
     );
   });
 
-  $("requestForm").addEventListener("submit", (event) => {
+  on("requestForm", "submit", (event) => {
     event.preventDefault();
     const community = requireCommunity();
     if (!community) return;
@@ -880,7 +894,7 @@
     renderMessages();
   });
 
-  $("communityAccessForm").addEventListener("submit", (event) => {
+  on("communityAccessForm", "submit", (event) => {
     event.preventDefault();
     const name = $("communityName").value.trim();
     const code = $("communityAccessCode").value.trim();
@@ -901,13 +915,14 @@
       at: new Date().toISOString(),
     });
     event.target.reset();
-    $("ridesStatus").textContent = "המעגל הקהילתי הופעל. כעת ההתאמות יוצגו רק בתוך הקהילה הזו.";
+    setText("ridesStatus", "המעגל הקהילתי הופעל. כעת ההתאמות יוצגו רק בתוך הקהילה הזו.");
+    setText("parkingStatus", "המעגל הקהילתי הופעל. כעת דיווחי החניה נשמרים תחת קהילה פעילה.");
     renderCommunityStatus();
     renderDrivers();
     renderRequests();
   });
 
-  $("securityReportForm").addEventListener("submit", (event) => {
+  on("securityReportForm", "submit", (event) => {
     event.preventDefault();
     const reports = readSecurityReports();
     reports.push({
@@ -918,11 +933,12 @@
     });
     writeSecurityReports(reports);
     event.target.reset();
-    $("ridesStatus").textContent = "הדיווח נשמר לבדיקה חריגה. אם יש חשש מיידי, יש לפנות לגורם מוסמך.";
+    setText("ridesStatus", "הדיווח נשמר לבדיקה חריגה. אם יש חשש מיידי, יש לפנות לגורם מוסמך.");
+    setText("parkingStatus", "הדיווח נשמר לבדיקה חריגה. אם יש חשש מיידי, יש לפנות לגורם מוסמך.");
     renderSecurityReports();
   });
 
-  $("parkingOfferForm").addEventListener("submit", (event) => {
+  on("parkingOfferForm", "submit", (event) => {
     event.preventDefault();
     const community = readActiveCommunity();
     const offers = readParkingOffers();
@@ -962,9 +978,15 @@
     const matches = readParkingRequests().filter((request) => parkingMatchesRequest(offer, request));
     $("parkingStatus").textContent = `דיווח חניה ${offer.code} נשמר. נמצאו ${matches.length} בקשות קרובות במכשיר זה.`;
     if (offer.leavingRide) {
-      $("driverTime").value = offer.from || parkingTimingLabel(offer.timing);
-      $("driverRoute").focus();
-      $("ridesStatus").textContent = "סומנה יציאה לנסיעה. אפשר לרשום מסלול טרמפ מתאים בטופס המסיע.";
+      const driverTime = $("driverTime");
+      const driverRoute = $("driverRoute");
+      if (driverTime && driverRoute) {
+        driverTime.value = offer.from || parkingTimingLabel(offer.timing);
+        driverRoute.focus();
+        setText("ridesStatus", "סומנה יציאה לנסיעה. אפשר לרשום מסלול טרמפ מתאים בטופס המסיע.");
+      } else {
+        $("parkingStatus").textContent += " אם אתה יוצא לנסיעה, ניתן לפתוח מכאן את גמ\"ח הטרמפים ולרשום מסלול.";
+      }
     }
     event.target.reset();
     restoreParkingPrefs();
@@ -973,7 +995,7 @@
     renderParkingScores();
   });
 
-  $("parkingRequestForm").addEventListener("submit", (event) => {
+  on("parkingRequestForm", "submit", (event) => {
     event.preventDefault();
     const community = readActiveCommunity();
     const request = {
@@ -1001,7 +1023,7 @@
     renderParkingOffers();
   });
 
-  $("parkingConfirmForm").addEventListener("submit", (event) => {
+  on("parkingConfirmForm", "submit", (event) => {
     event.preventDefault();
     const code = $("parkingConfirmCode").value.trim();
     const offer = readParkingOffers().find((item) => item.code === code);
@@ -1024,7 +1046,7 @@
     renderParkingOffers();
   });
 
-  $("feedbackForm").addEventListener("submit", (event) => {
+  on("feedbackForm", "submit", (event) => {
     event.preventDefault();
     const targetName = $("feedbackName").value.trim();
     const targetRole = $("feedbackTargetRole").value;
@@ -1049,11 +1071,11 @@
     });
     writeFeedback(feedback);
     event.target.reset();
-    $("feedbackRespect").value = "5";
-    $("feedbackCleanliness").value = "5";
-    $("feedbackTiming").value = "5";
-    $("feedbackAgain").value = "5";
-    $("ridesStatus").textContent = "המשוב נשמר. לציבור יוצג רק מדד מצטבר ועדין, והערות פרטיות נשמרות למקרה חריג בלבד.";
+    if ($("feedbackRespect")) $("feedbackRespect").value = "5";
+    if ($("feedbackCleanliness")) $("feedbackCleanliness").value = "5";
+    if ($("feedbackTiming")) $("feedbackTiming").value = "5";
+    if ($("feedbackAgain")) $("feedbackAgain").value = "5";
+    setText("ridesStatus", "המשוב נשמר. לציבור יוצג רק מדד מצטבר ועדין, והערות פרטיות נשמרות למקרה חריג בלבד.");
     renderDrivers();
     renderRequests();
     renderFeedbackSummary();
