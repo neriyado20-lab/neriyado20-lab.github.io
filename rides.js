@@ -5,6 +5,10 @@
   const FEEDBACK_KEY = "gal-einai-ride-feedback-v1";
   const SECURITY_REPORT_KEY = "gal-einai-ride-security-reports-v1";
   const COMMUNITY_KEY = "gal-einai-ride-active-community-v1";
+  const PARKING_OFFER_KEY = "gal-einai-parking-offers-v1";
+  const PARKING_REQUEST_KEY = "gal-einai-parking-requests-v1";
+  const PARKING_SCORE_KEY = "gal-einai-parking-scores-v1";
+  const PARKING_PREF_KEY = "gal-einai-parking-prefs-v1";
   const $ = (id) => document.getElementById(id);
   let pendingDriverGps = null;
 
@@ -89,6 +93,42 @@
     localStorage.setItem(COMMUNITY_KEY, JSON.stringify(community));
   }
 
+  function readParkingOffers() {
+    return readList(PARKING_OFFER_KEY);
+  }
+
+  function writeParkingOffers(offers) {
+    writeList(PARKING_OFFER_KEY, offers, 180);
+  }
+
+  function readParkingRequests() {
+    return readList(PARKING_REQUEST_KEY);
+  }
+
+  function writeParkingRequests(requests) {
+    writeList(PARKING_REQUEST_KEY, requests, 180);
+  }
+
+  function readParkingScores() {
+    return readList(PARKING_SCORE_KEY);
+  }
+
+  function writeParkingScores(scores) {
+    writeList(PARKING_SCORE_KEY, scores, 300);
+  }
+
+  function readParkingPrefs() {
+    try {
+      return JSON.parse(localStorage.getItem(PARKING_PREF_KEY) || "{}") || {};
+    } catch {
+      return {};
+    }
+  }
+
+  function writeParkingPrefs(prefs) {
+    localStorage.setItem(PARKING_PREF_KEY, JSON.stringify(prefs));
+  }
+
   function genderMatches(driverGender, requestGender) {
     if (driverGender === "family" || requestGender === "family") return true;
     return driverGender === requestGender;
@@ -113,6 +153,179 @@
 
   function frequencyLabel(value) {
     return { once: "חד פעמי", daily: "יומיומי / קבוע" }[value] || value;
+  }
+
+  function parkingKindLabel(value) {
+    return {
+      soon: "חניה ציבורית עומדת להתפנות",
+      private: "חניה פרטית פנויה",
+      area: "אזור פנוי",
+      knowledge: "מידע קבוע על מקום פנוי",
+    }[value] || value;
+  }
+
+  function parkingTimingLabel(value) {
+    return {
+      now: "עכשיו",
+      3: "בעוד 3 דקות",
+      5: "בעוד 5 דקות",
+      10: "בעוד 10 דקות",
+      later: "מאוחר יותר",
+    }[value] || value;
+  }
+
+  function parkingUrgencyLabel(value) {
+    return { now: "עכשיו", soon: "בזמן הקרוב", later: "בהמשך היום" }[value] || value;
+  }
+
+  function parkingVehicleLabel(value) {
+    return {
+      regular: "רכב רגיל",
+      small: "רכב קטן",
+      large: "רכב גדול",
+      unknown: "לא ידוע",
+    }[value] || value;
+  }
+
+  function parkingPaymentLabel(value) {
+    return { unknown: "תשלום לא ידוע", free: "חינם", paid: "בתשלום" }[value] || value;
+  }
+
+  function parkingLimitLabel(value) {
+    return {
+      unknown: "הגבלת זמן לא ידועה",
+      none: "ללא הגבלה ידועה",
+      "1h": "עד שעה",
+      "2h": "עד שעתיים",
+      other: "הגבלה אחרת",
+    }[value] || value;
+  }
+
+  function parkingPermitLabel(value) {
+    return {
+      any: "כל חניה",
+      unknown: "תו לא ידוע",
+      none: "ללא תו ידוע",
+      2: "תו 2",
+      5: "תו 5",
+      disabled: "תו נכה",
+      other: "תו אחר",
+    }[value] || value;
+  }
+
+  function parkingAccuracyLabel(value) {
+    return {
+      basic: "מידע בסיסי",
+      detailed: "מידע מפורט",
+      owner: "אושר על ידי בעל המקום",
+    }[value] || value;
+  }
+
+  function parkingCodeFromId(id) {
+    return String(id || "").replace(/\D/g, "").slice(-4).padStart(4, "0");
+  }
+
+  function parkingPersonKey(name, phone) {
+    return normalizePersonName(`${name || ""} ${phone || ""}`);
+  }
+
+  function locationLooksClose(a, b) {
+    const left = normalizePlace(a);
+    const right = normalizePlace(b);
+    if (!left || !right) return false;
+    if (left.includes(right) || right.includes(left)) return true;
+    const leftParts = left.split(" ").filter((part) => part.length > 1);
+    const rightParts = right.split(" ").filter((part) => part.length > 1);
+    return leftParts.some((part) => rightParts.includes(part));
+  }
+
+  function parkingMatchesRequest(offer, request) {
+    const permitOk =
+      request.permit === "any" ||
+      offer.permit === "unknown" ||
+      offer.permit === "none" ||
+      offer.permit === request.permit;
+    const vehicleOk =
+      offer.vehicle === "unknown" ||
+      offer.vehicle === "regular" ||
+      request.vehicle === "small" ||
+      offer.vehicle === request.vehicle;
+    return locationLooksClose(offer.location, request.area) && permitOk && vehicleOk;
+  }
+
+  function redactedPrivateParkingText(text) {
+    const value = String(text || "").trim();
+    if (!value) return "אזור כללי לא צוין";
+    return value
+      .replace(/\b\d+[א-תa-zA-Z]?\b/g, "")
+      .replace(/(?:קומה|דירה|כניסה|שער|קוד|עמוד)\s*[:：]?\s*\S+/gi, "")
+      .replace(/\s+/g, " ")
+      .trim() || "אזור כללי בלבד";
+  }
+
+  function publicParkingLocation(offer) {
+    if (offer.kind !== "private") return offer.location;
+    return `חניה פרטית באזור: ${redactedPrivateParkingText(offer.location)}. כתובת מדויקת נמסרת רק לאחר אישור פרטי וסמוך לזמן.`;
+  }
+
+  function publicParkingDetails(offer) {
+    if (!offer.details) return "";
+    if (offer.kind !== "private") return offer.details;
+    return "חניה פרטית: תנאי השימוש נשמרו במערכת, בלי פרסום פרטים מזהים של הבית.";
+  }
+
+  function parkingDetailScore(offer) {
+    let points = 1;
+    if (offer.details) points += 1;
+    if (offer.payment !== "unknown") points += 1;
+    if (offer.limit !== "unknown") points += 1;
+    if (offer.permit !== "unknown") points += 1;
+    if (offer.from || offer.until) points += 1;
+    if (offer.accuracy === "detailed") points += 1;
+    if (offer.accuracy === "owner") points += 2;
+    return points;
+  }
+
+  function addParkingScore(name, phone, points, reason) {
+    const cleanName = String(name || "").trim() || "משתמש";
+    const scores = readParkingScores();
+    scores.push({
+      id: `parking-score-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      name: cleanName,
+      phone: String(phone || "").trim(),
+      personKey: parkingPersonKey(cleanName, phone),
+      points,
+      reason,
+      at: new Date().toISOString(),
+    });
+    writeParkingScores(scores);
+  }
+
+  function reserveParkingOffer(offerCode) {
+    const offers = readParkingOffers();
+    const offer = offers.find((item) => item.code === offerCode);
+    if (!offer) {
+      $("parkingStatus").textContent = "דיווח החניה כבר אינו נמצא במכשיר זה.";
+      return;
+    }
+    if (offer.reservedAt) {
+      $("parkingStatus").textContent = "החניה כבר סומנה כמבוקשת והוסרה מפרסום פעיל.";
+      renderParkingOffers();
+      return;
+    }
+    const name = window.prompt("שם המבקש, כדי לשמור את החניה ולא להציג אותה לאחרים:");
+    if (!name || !name.trim()) return;
+    offer.reservedBy = name.trim();
+    offer.reservedAt = new Date().toISOString();
+    writeParkingOffers(offers);
+    addParkingScore(name.trim(), "", 1, "אישור רצון בחניה והפסקת פרסום פעיל.");
+    $("parkingConfirmCode").value = offer.code;
+    $("parkingConfirmerName").value = name.trim();
+    $("parkingConfirmResult").value = "parked";
+    $("parkingStatus").textContent = `דיווח ${offer.code} שוריין עבור ${name.trim()} והוסר מהרשימה הפעילה.`;
+    renderParkingOffers();
+    renderParkingRequests();
+    renderParkingScores();
   }
 
   function gpsLabel(gps) {
@@ -320,6 +533,145 @@
       appendText(item, "small", request.shareContact ? "הרשאת קשר: מותר לחשוף לאחר אישור הדדי" : "הרשאת קשר: דרך האתר בלבד");
       appendText(item, "small", request.notes ? `הערה: ${request.notes}` : `התאמות שנמצאו: ${request.matchCount}`);
       box.appendChild(item);
+    });
+  }
+
+  function buildParkingOfferItem(offer, requests = readParkingRequests()) {
+    const item = document.createElement("article");
+    item.className = "rides-item rides-parking-item";
+    const matchingRequests = requests.filter((request) => parkingMatchesRequest(offer, request));
+    appendText(item, "strong", `${parkingKindLabel(offer.kind)} | דיווח ${offer.code}`);
+    appendText(item, "span", publicParkingLocation(offer));
+    appendText(item, "small", `${parkingTimingLabel(offer.timing)}${offer.from ? ` | החל מ: ${offer.from}` : ""}${offer.until ? ` | עד: ${offer.until}` : ""}`);
+    appendText(item, "small", `${parkingVehicleLabel(offer.vehicle)} | ${parkingPaymentLabel(offer.payment)} | ${parkingLimitLabel(offer.limit)} | ${parkingPermitLabel(offer.permit)}`);
+    appendText(item, "small", `${parkingAccuracyLabel(offer.accuracy)} | התאמות לבקשות: ${matchingRequests.length}`);
+    const visibleDetails = publicParkingDetails(offer);
+    if (visibleDetails) appendText(item, "small", visibleDetails);
+    appendText(item, "small", `דווח על ידי ${offer.reporterName} | ${new Date(offer.at).toLocaleString("he-IL")}`);
+
+    const actions = document.createElement("div");
+    actions.className = "rides-item-actions";
+    const confirmButton = document.createElement("button");
+    confirmButton.type = "button";
+    confirmButton.className = "button secondary";
+    confirmButton.textContent = "חניתי בזכות זה";
+    confirmButton.addEventListener("click", () => {
+      $("parkingConfirmCode").value = offer.code;
+      $("parkingConfirmResult").value = "parked";
+      $("parkingConfirmerName").focus();
+    });
+    actions.appendChild(confirmButton);
+
+    if (!offer.reservedAt) {
+      const reserveButton = document.createElement("button");
+      reserveButton.type = "button";
+      reserveButton.className = "button primary";
+      reserveButton.textContent = "אני רוצה את החניה";
+      reserveButton.addEventListener("click", () => reserveParkingOffer(offer.code));
+      actions.appendChild(reserveButton);
+    }
+
+    const wazeButton = document.createElement("button");
+    wazeButton.type = "button";
+    wazeButton.className = "button secondary";
+    wazeButton.textContent = "פתח ניווט";
+    wazeButton.disabled = offer.kind === "private";
+    wazeButton.addEventListener("click", () => {
+      if (offer.kind === "private") {
+        $("parkingStatus").textContent = "בחניה פרטית אין פתיחת ניווט ציבורית לפני אישור פרטי, כדי שלא לפרסם בית פנוי.";
+        return;
+      }
+      window.open(`https://waze.com/ul?q=${encodeURIComponent(offer.location)}&navigate=yes`, "_blank", "noopener");
+    });
+    actions.appendChild(wazeButton);
+    item.appendChild(actions);
+    return item;
+  }
+
+  function renderParkingOffers() {
+    const box = $("parkingOfferList");
+    if (!box) return;
+    const allOffers = readParkingOffers();
+    const offers = allOffers.filter((offer) => !offer.reservedAt);
+    const requests = readParkingRequests();
+    box.replaceChildren();
+    if (!offers.length) {
+      const reservedCount = allOffers.length - offers.length;
+      box.textContent = reservedCount
+        ? `אין כרגע דיווחי חניה פעילים. ${reservedCount} דיווחים כבר שוריינו או ירדו מפרסום.`
+        : "אין עדיין דיווחי חניה שמורים במכשיר זה.";
+      return;
+    }
+    offers.slice().reverse().slice(0, 30).forEach((offer) => {
+      box.appendChild(buildParkingOfferItem(offer, requests));
+    });
+  }
+
+  function renderParkingRequests() {
+    const box = $("parkingRequestList");
+    if (!box) return;
+    const requests = readParkingRequests();
+    const offers = readParkingOffers();
+    box.replaceChildren();
+    if (!requests.length) {
+      box.textContent = "אין עדיין בקשות חניה שמורות במכשיר זה.";
+      return;
+    }
+    requests.slice().reverse().slice(0, 30).forEach((request) => {
+      const matches = offers.filter((offer) => parkingMatchesRequest(offer, request));
+      const item = document.createElement("article");
+      item.className = "rides-item rides-parking-item";
+      appendText(item, "strong", request.name);
+      appendText(item, "span", request.area);
+      appendText(item, "small", `דחיפות: ${parkingUrgencyLabel(request.urgency)} | ${parkingVehicleLabel(request.vehicle)} | ${parkingPermitLabel(request.permit)}`);
+      appendText(item, "small", request.alert === "ring" ? "מבקש צלצול מיוחד כשנמצאת חניה קרובה." : "מבקש התראה שקטה.");
+      appendText(item, "small", `נמצאו ${matches.length} דיווחים קרובים במכשיר זה.`);
+      box.appendChild(item);
+    });
+  }
+
+  function renderParkingScores() {
+    const box = $("parkingScoreList");
+    if (!box) return;
+    const scores = readParkingScores();
+    box.replaceChildren();
+    if (!scores.length) {
+      box.textContent = "עדיין אין ניקוד חניה.";
+      return;
+    }
+    const grouped = new Map();
+    scores.forEach((score) => {
+      const key = score.personKey || parkingPersonKey(score.name, score.phone);
+      if (!grouped.has(key)) grouped.set(key, { name: score.name, points: 0, count: 0, lastReason: "" });
+      const group = grouped.get(key);
+      group.points += Number(score.points) || 0;
+      group.count += 1;
+      group.lastReason = score.reason || group.lastReason;
+    });
+    Array.from(grouped.values())
+      .sort((a, b) => b.points - a.points || b.count - a.count || a.name.localeCompare(b.name, "he"))
+      .slice(0, 20)
+      .forEach((group) => {
+        const item = document.createElement("article");
+        item.className = "rides-item";
+        appendText(item, "strong", `${group.name} | ${group.points} נקודות`);
+        appendText(item, "small", `${group.count} פעולות שאושרו. ${group.lastReason}`);
+        box.appendChild(item);
+      });
+  }
+
+  function restoreParkingPrefs() {
+    const prefs = readParkingPrefs();
+    Object.entries({
+      parkingReporterName: prefs.name,
+      parkingReporterPhone: prefs.phone,
+      parkingVehicle: prefs.vehicle,
+      parkingPayment: prefs.payment,
+      parkingLimit: prefs.limit,
+      parkingPermit: prefs.permit,
+    }).forEach(([id, value]) => {
+      const input = $(id);
+      if (input && value) input.value = value;
     });
   }
 
@@ -570,6 +922,108 @@
     renderSecurityReports();
   });
 
+  $("parkingOfferForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const community = readActiveCommunity();
+    const offers = readParkingOffers();
+    const id = `parking-offer-${Date.now()}`;
+    const offer = {
+      id,
+      code: parkingCodeFromId(id),
+      reporterName: $("parkingReporterName").value.trim(),
+      reporterPhone: $("parkingReporterPhone").value.trim(),
+      kind: $("parkingKind").value,
+      location: $("parkingLocation").value.trim(),
+      timing: $("parkingTiming").value,
+      from: $("parkingFrom").value.trim(),
+      until: $("parkingUntil").value.trim(),
+      vehicle: $("parkingVehicle").value,
+      payment: $("parkingPayment").value,
+      limit: $("parkingLimit").value,
+      permit: $("parkingPermit").value,
+      accuracy: $("parkingAccuracy").value,
+      details: $("parkingDetails").value.trim(),
+      leavingRide: $("parkingLeavingRide").checked,
+      communityName: community?.communityName || "",
+      communityKey: community?.communityKey || "",
+      at: new Date().toISOString(),
+    };
+    offers.push(offer);
+    writeParkingOffers(offers);
+    writeParkingPrefs({
+      name: offer.reporterName,
+      phone: offer.reporterPhone,
+      vehicle: offer.vehicle,
+      payment: offer.payment,
+      limit: offer.limit,
+      permit: offer.permit,
+    });
+    addParkingScore(offer.reporterName, offer.reporterPhone, parkingDetailScore(offer), "דיווח חניה מפורט נשמר.");
+    const matches = readParkingRequests().filter((request) => parkingMatchesRequest(offer, request));
+    $("parkingStatus").textContent = `דיווח חניה ${offer.code} נשמר. נמצאו ${matches.length} בקשות קרובות במכשיר זה.`;
+    if (offer.leavingRide) {
+      $("driverTime").value = offer.from || parkingTimingLabel(offer.timing);
+      $("driverRoute").focus();
+      $("ridesStatus").textContent = "סומנה יציאה לנסיעה. אפשר לרשום מסלול טרמפ מתאים בטופס המסיע.";
+    }
+    event.target.reset();
+    restoreParkingPrefs();
+    renderParkingOffers();
+    renderParkingRequests();
+    renderParkingScores();
+  });
+
+  $("parkingRequestForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const community = readActiveCommunity();
+    const request = {
+      id: `parking-request-${Date.now()}`,
+      name: $("parkingSeekerName").value.trim(),
+      phone: $("parkingSeekerPhone").value.trim(),
+      area: $("parkingWantedArea").value.trim(),
+      urgency: $("parkingUrgency").value,
+      permit: $("parkingSeekerPermit").value,
+      vehicle: $("parkingSeekerVehicle").value,
+      alert: $("parkingAlert").value,
+      communityName: community?.communityName || "",
+      communityKey: community?.communityKey || "",
+      at: new Date().toISOString(),
+    };
+    const requests = readParkingRequests();
+    requests.push(request);
+    writeParkingRequests(requests);
+    const matches = readParkingOffers().filter((offer) => parkingMatchesRequest(offer, request));
+    $("parkingStatus").textContent = matches.length
+      ? `הבקשה נשמרה. נמצאו ${matches.length} דיווחי חניה קרובים.`
+      : "הבקשה נשמרה. כרגע אין דיווח חניה קרוב במכשיר זה.";
+    event.target.reset();
+    renderParkingRequests();
+    renderParkingOffers();
+  });
+
+  $("parkingConfirmForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const code = $("parkingConfirmCode").value.trim();
+    const offer = readParkingOffers().find((item) => item.code === code);
+    const confirmerName = $("parkingConfirmerName").value.trim();
+    const result = $("parkingConfirmResult").value;
+    const details = $("parkingConfirmDetails").value.trim();
+    if (!offer) {
+      $("parkingStatus").textContent = "לא נמצא דיווח חניה עם המספר שהוזן במכשיר זה.";
+      return;
+    }
+    const reporterPoints = { parked: 8, helpful: 4, update: 2, "not-found": 0 }[result] || 0;
+    const confirmerPoints = { parked: 3, helpful: 2, update: 2, "not-found": 1 }[result] || 0;
+    if (reporterPoints) addParkingScore(offer.reporterName, offer.reporterPhone, reporterPoints, `אישור לדיווח ${offer.code}: ${$("parkingConfirmResult").selectedOptions[0].textContent}`);
+    if (confirmerPoints) addParkingScore(confirmerName, "", confirmerPoints, "אישור תוצאת חניה לטובת דיוק המערכת.");
+    $("parkingStatus").textContent = details
+      ? `האישור נשמר. ${details}`
+      : "האישור נשמר וניקוד החסד עודכן.";
+    event.target.reset();
+    renderParkingScores();
+    renderParkingOffers();
+  });
+
   $("feedbackForm").addEventListener("submit", (event) => {
     event.preventDefault();
     const targetName = $("feedbackName").value.trim();
@@ -610,5 +1064,9 @@
   renderMessages();
   renderSecurityReports();
   renderCommunityStatus();
+  restoreParkingPrefs();
+  renderParkingOffers();
+  renderParkingRequests();
+  renderParkingScores();
   renderFeedbackSummary();
 })();
