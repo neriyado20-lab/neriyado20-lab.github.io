@@ -12,7 +12,7 @@
   <meta property="og:description" content="גמ״ח חניה פנויה: דיווח מוקדם על חניה שעומדת להתפנות, בקשות חניה, שריון אחראי וניקוד חסד.">
   <meta property="og:url" content="https://neriyado20-lab.github.io/parking.html">
   <meta name="twitter:card" content="summary">
-  <link rel="stylesheet" href="styles.css?v=118">
+  <link rel="stylesheet" href="styles.css?v=119">
 </head>
 <body class="rides-page rides-standalone">
   <header class="topbar rides-topbar">
@@ -52,13 +52,13 @@
       </div>
       </div>
       <figure class="rides-hero-image">
-        <img src="assets/rides-gemach-hero-v1.png?v=1" alt="מערכת קהילתית לתיאום חסד בדרך">
+        <img src="assets/parking-gemach-hero-v1.png?v=1" alt="חניה פנויה ברחוב קהילתי נקי">
       </figure>
     </section>
 
     <section class="rides-story-grid" aria-label="עיקרי הגמ״ח">
       <article class="rides-story-card">
-        <span class="rides-story-icon rides-story-parking" aria-hidden="true"></span>
+        <img class="rides-story-image" src="assets/parking-notification-feature-v1.png?v=1" alt="התראה על חניה פנויה">
         <h2>דיווח מוקדם</h2>
         <p>מי שעומד לצאת מחניה יכול לדווח כמה דקות מראש, כדי שמבקש קרוב יספיק להגיע.</p>
       </article>
@@ -68,7 +68,7 @@
         <p>הצטרפות דרך נציג וקוד אישי, כדי שהגמ״ח יישאר במסגרת מוכרת ונקיה.</p>
       </article>
       <article class="rides-story-card">
-        <span class="rides-story-icon rides-story-shield" aria-hidden="true"></span>
+        <img class="rides-story-image" src="assets/parking-privacy-feature-v1.png?v=1" alt="שמירת פרטיות בחניה פרטית">
         <h2>פרטיות לפני הכל</h2>
         <p>חניה פרטית לא מפרסמת כתובת בית מלאה, אלא אזור כללי ופרטים רק לאחר אישור מתאים.</p>
       </article>
@@ -84,7 +84,6 @@
       <p>חניה פרטית תימסר רק ברשות בעל המקום, בלי פרסום כתובת בית מלאה לציבור.</p>
       <p>פרטים מדויקים נמסרים רק לאחר אישור מתאים ובזמן הסמוך לשימוש.</p>
       <p>תחזוקת הגמ"ח תיעשה מפרסומות צנועות בלבד, המתאימות לאופי האתר והציבור.</p>
-      <p>חניה פרטית תפורסם רק ברשות בעל המקום. חניה ציבורית היא מידע זמני בלבד ואינה שמירת מקום.</p>
     </section>
 
     <section class="rides-security-grid" id="rides-security" aria-label="אבטחת גמ״ח החניה">
@@ -227,7 +226,7 @@
         </label>
         <label>
           <span>מיקום / אזור</span>
-          <textarea id="parkingLocation" rows="2" required placeholder="בחניה ציבורית: רחוב וצד רחוב. בחניה פרטית: אזור כללי בלבד, בלי כתובת בית מדויקת לפרסום."></textarea>
+          <input id="parkingLocation" list="parkingLocationOptions" required placeholder="בחר או כתוב אזור כללי">
         </label>
         <p class="payment-status">בחניה פרטית אין לפרסם כתובת בית מלאה, קוד שער, קומה או סימן מזהה רגיש. פרטים מדויקים יימסרו רק למבקש שאושר ובזמן הסמוך לשימוש.</p>
         <div class="rides-rating-grid">
@@ -243,11 +242,11 @@
           </label>
           <label>
             <span>זמין החל מיום/שעה</span>
-            <input id="parkingFrom" placeholder="לדוגמה: היום 20:30">
+            <input id="parkingFrom" list="parkingTimeOptions" placeholder="בחר זמן או כתוב שעה">
           </label>
           <label>
             <span>עד</span>
-            <input id="parkingUntil" placeholder="לדוגמה: 22:00 / מוצאי שבת">
+            <input id="parkingUntil" list="parkingUntilOptions" placeholder="בחר משך או כתוב שעה">
           </label>
           <label>
             <span>סוג רכב</span>
@@ -299,6 +298,20 @@
           </label>
         </div>
         <label>
+          <span>פרטים מוכנים</span>
+          <select id="parkingDetailPreset">
+            <option value="">בחר פרט להוספה אם מתאים</option>
+            <option value="חניה בצד ימין של הרחוב.">צד ימין של הרחוב</option>
+            <option value="חניה בצד שמאל של הרחוב.">צד שמאל של הרחוב</option>
+            <option value="קרוב לכניסה לבניין / מוסד.">קרוב לכניסה</option>
+            <option value="מתאים לרכב קטן בלבד.">רכב קטן בלבד</option>
+            <option value="נראה מתאים גם לרכב גדול.">מתאים לרכב גדול</option>
+            <option value="צריך לשים לב לתמרור במקום.">לבדוק תמרור במקום</option>
+            <option value="ייתכן תשלום במדחן / אפליקציה.">ייתכן תשלום</option>
+            <option value="חניה פרטית: למסור פרטים מדויקים רק לאחר אישור.">חניה פרטית בזהירות</option>
+          </select>
+        </label>
+        <label>
           <span>פרטים חשובים</span>
           <textarea id="parkingDetails" rows="2" placeholder="בחניה ציבורית: תשלום, תו, צד רחוב. בחניה פרטית: תנאי שימוש בלבד, בלי פרטים שמגלים בית ריק."></textarea>
         </label>
@@ -327,7 +340,7 @@
         </label>
         <label>
           <span>אזור מבוקש</span>
-          <textarea id="parkingWantedArea" rows="2" required placeholder="רחוב / שכונה / סמוך ליעד"></textarea>
+          <input id="parkingWantedArea" list="parkingLocationOptions" required placeholder="בחר או כתוב אזור מבוקש">
         </label>
         <div class="rides-rating-grid">
           <label>
@@ -372,6 +385,43 @@
         <p id="parkingStatus" class="payment-status" aria-live="polite">עדיין לא נרשמה בקשת חניה.</p>
       </form>
     </section>
+
+    <datalist id="parkingLocationOptions">
+      <option value="מרכז העיר">
+      <option value="אזור בית הכנסת">
+      <option value="אזור תלמוד תורה / ישיבה">
+      <option value="אזור קופת חולים">
+      <option value="אזור תחנה מרכזית">
+      <option value="אזור חנויות / מרכז מסחרי">
+      <option value="רחוב ראשי">
+      <option value="רחוב צדדי">
+      <option value="חניון ציבורי">
+      <option value="חניה פרטית - אזור כללי בלבד">
+      <option value="סמוך לכניסה לשכונה">
+      <option value="סמוך ליציאה מהעיר">
+    </datalist>
+
+    <datalist id="parkingTimeOptions">
+      <option value="עכשיו">
+      <option value="בעוד 3 דקות">
+      <option value="בעוד 5 דקות">
+      <option value="בעוד 10 דקות">
+      <option value="בעוד רבע שעה">
+      <option value="היום בערב">
+      <option value="מחר בבוקר">
+      <option value="מוצאי שבת">
+    </datalist>
+
+    <datalist id="parkingUntilOptions">
+      <option value="רבע שעה">
+      <option value="חצי שעה">
+      <option value="שעה">
+      <option value="שעתיים">
+      <option value="עד הערב">
+      <option value="עד מחר בבוקר">
+      <option value="כל היום">
+      <option value="כל השבוע באישור פרטי בלבד">
+    </datalist>
 
     <section class="rides-results" id="parking-results" aria-label="תוצאות גמ״ח חניה">
       <div class="rides-panel">
@@ -434,6 +484,6 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=9"></script>
-  <script src="rides.js?v=12"></script>
+  <script src="rides.js?v=13"></script>
 </body>
 </html>
