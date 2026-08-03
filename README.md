@@ -1,4 +1,4 @@
-﻿# אתר גל עיני - גרסה חינמית ללא AI
+# אתר גל עיני - גרסה חינמית ללא AI
 
 תיקייה זו היא אתר סטטי שאפשר לפתוח ישירות בדפדפן או להעלות בחינם ל-GitHub Pages.
 
@@ -13,8 +13,8 @@
 - `admin.html` - לוח ניהול לפניות, תוכן, העלאות ונתוני האתר.
 - `admin-config.js` - הגדרות כניסה והעלאה לניהול.
 - `styles.css` - עיצוב האתר.
-- קישור ציבורי פעיל: `https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v470/public-no-ai.exe` - מתקין V470 ללא AI, מוגבל עד דילוג 5000.
-- קישור מנהל פעיל: `https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v470/manager-no-ai.exe` - מתקין V470 ללא AI, ללא מגבלת דילוג.
+- קישור ציבורי פעיל: `https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v471/public-no-ai.exe` - מתקין V471 ללא AI, מוגבל עד דילוג 5000.
+- קישור מנהל פעיל: `https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v471/manager-no-ai.exe` - מתקין V471 ללא AI, ללא מגבלת דילוג.
 - `downloads/archive/` - גרסאות ישנות יותר נשמרות לארכיון.
 - `archive/` - קבצים ישנים או לא מקושרים שנשמרו לארכיון במקום להימחק.
 
@@ -24,10 +24,10 @@
 
 ## התקנת תוכנת Windows למכותבים
 
-קבצי V470 ללא AI נבנו מחדש לאחר התראת Windows Defender, נסרקו מקומית, ונבדקו בהתקנה שקטה:
+קבצי V471 ללא AI נבנו מחדש לאחר התראת Windows Defender, נסרקו מקומית, ונבדקו בהתקנה שקטה:
 
-- ציבורי: `APP_VERSION = "V470"`, `FREE_SKIP_LIMIT = 5000`, `AI_FEATURES_ENABLED = False`.
-- מנהל: `APP_VERSION = "V470"`, `FREE_SKIP_LIMIT = 0`, `AI_FEATURES_ENABLED = False`.
+- ציבורי: `APP_VERSION = "V471"`, `FREE_SKIP_LIMIT = 5000`, `AI_FEATURES_ENABLED = False`.
+- מנהל: `APP_VERSION = "V471"`, `FREE_SKIP_LIMIT = 0`, `AI_FEATURES_ENABLED = False`.
 
 לוח הניהול נמצא ב-`admin.html`. כאשר Supabase פעיל הוא מציג פניות ונתונים מכל המכשירים
 מטבלת `site_submissions`; במקביל נשמר עותק מקומי בדפדפן לגיבוי ולבדיקות.
