@@ -13,8 +13,8 @@
 - `admin.html` - לוח ניהול לפניות, תוכן, העלאות ונתוני האתר.
 - `admin-config.js` - הגדרות כניסה והעלאה לניהול.
 - `styles.css` - עיצוב האתר.
-- `downloads/README.md` - מצב ההורדות לאחר הסרת קבצי ההתקנה וה-ZIP.
-- `downloads/` - אין כרגע קבצי התקנה פעילים עד לבנייה נקייה ובדיקה מחודשת.
+- קישור ציבורי פעיל: `https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v470/public-no-ai.exe` - מתקין V470 ללא AI, מוגבל עד דילוג 5000.
+- קישור מנהל פעיל: `https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v470/manager-no-ai.exe` - מתקין V470 ללא AI, ללא מגבלת דילוג.
 - `downloads/archive/` - גרסאות ישנות יותר נשמרות לארכיון.
 - `archive/` - קבצים ישנים או לא מקושרים שנשמרו לארכיון במקום להימחק.
 
@@ -24,7 +24,10 @@
 
 ## התקנת תוכנת Windows למכותבים
 
-קבצי ההתקנה הוסרו לאחר התראת Windows Defender. אין לשלוח כרגע קישור הורדה עד לבנייה נקייה, סריקה ואימות מחדש.
+קבצי V470 ללא AI נבנו מחדש לאחר התראת Windows Defender, נסרקו מקומית, ונבדקו בהתקנה שקטה:
+
+- ציבורי: `APP_VERSION = "V470"`, `FREE_SKIP_LIMIT = 5000`, `AI_FEATURES_ENABLED = False`.
+- מנהל: `APP_VERSION = "V470"`, `FREE_SKIP_LIMIT = 0`, `AI_FEATURES_ENABLED = False`.
 
 לוח הניהול נמצא ב-`admin.html`. כאשר Supabase פעיל הוא מציג פניות ונתונים מכל המכשירים
 מטבלת `site_submissions`; במקביל נשמר עותק מקומי בדפדפן לגיבוי ולבדיקות.
