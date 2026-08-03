@@ -13,15 +13,8 @@
 - `admin.html` - לוח ניהול לפניות, תוכן, העלאות ונתוני האתר.
 - `admin-config.js` - הגדרות כניסה והעלאה לניהול.
 - `styles.css` - עיצוב האתר.
-- `downloads/gal_einai_latest_with_AI.zip` - קובץ ההפצה הציבורי העדכני עם AI, עד דילוג 5000.
-- `downloads/gal_einai_latest_no_AI.zip` - קובץ ההפצה הציבורי העדכני ללא AI, עד דילוג 5000.
-- `downloads/gal_einai_latest_with_AI_setup.exe` - מתקין Windows ציבורי עדכני עם AI, עד דילוג 5000.
-- `downloads/gal_einai_latest_no_AI_setup.exe` - מתקין Windows ציבורי עדכני בלי AI, עד דילוג 5000.
-- `downloads/gal_einai_latest_with_AI_patch.zip` - עדכון ציבורי קטן עם AI, עד דילוג 5000.
-- `downloads/gal_einai_latest_no_AI_patch.zip` - עדכון ציבורי קטן בלי AI, עד דילוג 5000.
-- `downloads/gal_einai_manager_unlimited_with_AI_setup.exe` - קישור מנהל לגרסה מלאה בלי מגבלת דילוג.
-- `downloads/gal_einai_manager_unlimited_no_AI_setup.exe` - קישור מנהל לגרסה מלאה בלי מגבלת דילוג וללא AI.
-- `downloads/` - נשמרות חמש גרסאות אחרונות נגישות.
+- `downloads/README.md` - מצב ההורדות לאחר הסרת קבצי ההתקנה וה-ZIP.
+- `downloads/` - אין כרגע קבצי התקנה פעילים עד לבנייה נקייה ובדיקה מחודשת.
 - `downloads/archive/` - גרסאות ישנות יותר נשמרות לארכיון.
 - `archive/` - קבצים ישנים או לא מקושרים שנשמרו לארכיון במקום להימחק.
 
@@ -31,13 +24,7 @@
 
 ## התקנת תוכנת Windows למכותבים
 
-למשתמש חדש מומלץ לשלוח את אחד מקובצי ההתקנה:
-
-- `gal_einai_latest_with_AI_setup.exe`
-- `gal_einai_latest_no_AI_setup.exe`
-
-המשתמש מפעיל את קובץ ההתקנה, עובר את אשף ההתקנה, ומקבל קיצור דרך בשולחן העבודה ובתפריט התחל.
-לעדכונים עתידיים אין צורך לשלוח שוב את כל החבילה: שולחים את קובץ ה-`patch.zip` המתאים, והוא מחליף רק את קוד התוכנה.
+קבצי ההתקנה הוסרו לאחר התראת Windows Defender. אין לשלוח כרגע קישור הורדה עד לבנייה נקייה, סריקה ואימות מחדש.
 
 לוח הניהול נמצא ב-`admin.html`. כאשר Supabase פעיל הוא מציג פניות ונתונים מכל המכשירים
 מטבלת `site_submissions`; במקביל נשמר עותק מקומי בדפדפן לגיבוי ולבדיקות.
