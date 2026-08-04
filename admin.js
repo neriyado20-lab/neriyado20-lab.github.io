@@ -592,10 +592,36 @@
     }[status] || status || "פעיל";
   }
 
-  function metadataDescription(description, topic) {
-    const clean = String(description || "").replace(/\[topic:[^\]]+\]/g, "").trim();
-    const marker = topic ? `[topic:${topic}]` : "";
-    return [marker, clean].filter(Boolean).join("\n");
+  function markerValue(text, name) {
+    const match = String(text || "").match(new RegExp(`\\[${name}:([^\\]]+)\\]`));
+    return match ? match[1].trim() : "";
+  }
+
+  function cleanMetadataDescription(description) {
+    return String(description || "").replace(/\[(topic|expire|image|project):[^\]]+\]/g, "").trim();
+  }
+
+  function metadataDescription(description, topic, expire = "", markerSource = description) {
+    const clean = cleanMetadataDescription(description);
+    const markers = [];
+    if (topic) markers.push(`[topic:${topic}]`);
+    if (expire) markers.push(`[expire:${expire}]`);
+    ["image", "project"].forEach((name) => {
+      const value = markerValue(markerSource, name);
+      if (value) markers.push(`[${name}:${value}]`);
+    });
+    return [markers.join("\n"), clean].filter(Boolean).join("\n");
+  }
+
+  function isExpiredContent(item) {
+    if (!item || item.type !== "example") return false;
+    if (item.status !== "active" && item.status !== "past_dates") return false;
+    const expire = markerValue(item.description, "expire");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(expire)) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const limit = new Date(`${expire}T00:00:00`);
+    return Number.isFinite(limit.getTime()) && limit < today;
   }
 
   function contentPayload(item) {
@@ -627,6 +653,7 @@
     $("adminContentTitle").value = "";
     $("adminContentUrl").value = "";
     $("adminContentStatus").value = "active";
+    if ($("adminContentExpire")) $("adminContentExpire").value = "";
     $("adminContentDescription").value = "";
   }
 
@@ -651,6 +678,145 @@
     select.value = current;
   }
 
+  function populateCipherExisting() {
+    const select = $("adminCipherExisting");
+    if (!select) return;
+    const current = select.value;
+    select.replaceChildren();
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = "צופן חדש";
+    select.appendChild(blank);
+    readContentItems()
+      .filter((item) => item.type === "example")
+      .sort((a, b) => String(a.title).localeCompare(String(b.title), "he"))
+      .forEach((item) => {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = `${item.title} - ${statusLabel(item.status)}`;
+        select.appendChild(option);
+      });
+    select.value = current;
+  }
+
+  function storagePathFromPublicUrl(url) {
+    if (!url || !supabaseClient) return "";
+    try {
+      const parsed = new URL(url, location.href);
+      const marker = "/storage/v1/object/public/public-ciphers/";
+      const index = parsed.pathname.indexOf(marker);
+      if (index === -1) return "";
+      return decodeURIComponent(parsed.pathname.slice(index + marker.length));
+    } catch {
+      return "";
+    }
+  }
+
+  async function removeCipherFileIfPossible(url) {
+    const path = storagePathFromPublicUrl(url);
+    if (!path || !supabaseClient) return false;
+    const { error } = await supabaseClient.storage.from("public-ciphers").remove([path]);
+    if (error) throw error;
+    return true;
+  }
+
+  async function setCipherStatus(item, status) {
+    const next = { ...item, status, updatedAt: new Date().toISOString() };
+    writeContentItems([next, ...readContentItems().filter((candidate) => candidate.id !== item.id)]);
+    await upsertRemoteContent(next);
+    renderContentItems();
+    renderCipherManager();
+  }
+
+  async function deleteCipherItem(item) {
+    const removedFile = await removeCipherFileIfPossible(item.url);
+    writeContentItems(readContentItems().filter((candidate) => candidate.id !== item.id));
+    await deleteRemoteContent(item.id);
+    renderContentItems();
+    renderCipherManager();
+    return removedFile;
+  }
+
+  function renderCipherManager() {
+    const list = $("adminCipherList");
+    if (!list) return;
+    const items = readContentItems()
+      .filter((item) => item.type === "example")
+      .sort((a, b) => String(b.updatedAt || b.at).localeCompare(String(a.updatedAt || a.at)));
+    list.replaceChildren();
+    populateCipherExisting();
+    if (!items.length) {
+      list.append(row("אין עדיין צפנים לניהול", "צפנים שתעלה מכאן יופיעו כאן עם אפשרויות פרסום, ארכיון ומחיקה."));
+      return;
+    }
+    items.forEach((item) => {
+      const date = item.updatedAt || item.at ? new Date(item.updatedAt || item.at).toLocaleString("he-IL") : "";
+      const detail = [statusLabel(item.status), markerValue(item.description, "topic") || "users", date, item.url].filter(Boolean).join(" | ");
+      const line = row(item.title || "צופן ללא שם", detail);
+      const actions = document.createElement("div");
+      actions.className = "admin-file-actions";
+
+      const open = document.createElement("a");
+      open.className = "button secondary";
+      open.href = item.url || "examples.html";
+      open.target = item.url ? "_blank" : "";
+      open.rel = item.url ? "noopener" : "";
+      open.textContent = "פתח";
+
+      const publish = document.createElement("button");
+      publish.className = "button secondary";
+      publish.type = "button";
+      publish.textContent = "פרסם";
+      publish.addEventListener("click", () => setCipherStatus(item, "active"));
+
+      const past = document.createElement("button");
+      past.className = "button secondary";
+      past.type = "button";
+      past.textContent = "תאריכי עבר";
+      past.addEventListener("click", () => setCipherStatus(item, "past_dates"));
+
+      const archive = document.createElement("button");
+      archive.className = "button secondary";
+      archive.type = "button";
+      archive.textContent = "מחק";
+      archive.title = "מעביר לארכיון ומסתיר מהציבור";
+      archive.addEventListener("click", async () => {
+        archive.disabled = true;
+        try {
+          await setCipherStatus(item, "archive");
+          $("adminCipherStatusText").textContent = "הצופן הועבר לארכיון והוסתר מהציבור.";
+        } catch {
+          $("adminCipherStatusText").textContent = "המעבר לארכיון נכשל. בדוק חיבור מנהל.";
+        } finally {
+          archive.disabled = false;
+        }
+      });
+
+      const removeForever = document.createElement("button");
+      removeForever.className = "button secondary danger-button";
+      removeForever.type = "button";
+      removeForever.textContent = "מחק לצמיתות";
+      removeForever.addEventListener("click", async () => {
+        if (!window.confirm(`למחוק לצמיתות את "${item.title}"? פעולה זו אינה הפיכה.`)) return;
+        removeForever.disabled = true;
+        try {
+          const removedFile = await deleteCipherItem(item);
+          $("adminCipherStatusText").textContent = removedFile
+            ? "הצופן נמחק לצמיתות וגם קובץ האחסון נמחק."
+            : "הצופן נמחק לצמיתות מהרשימה. אם הקובץ אינו באחסון הציבורי, יש למחוק אותו בנפרד לפי הצורך.";
+        } catch {
+          $("adminCipherStatusText").textContent = "המחיקה נכשלה. בדוק חיבור מנהל והרשאות אחסון.";
+        } finally {
+          removeForever.disabled = false;
+        }
+      });
+
+      actions.append(open, publish, past, archive, removeForever);
+      line.appendChild(actions);
+      list.appendChild(line);
+    });
+  }
+
   function renderContentItems() {
     const list = $("adminContentList");
     const counter = $("adminContentCount");
@@ -664,7 +830,9 @@
     }
     items.forEach((item) => {
       const date = item.updatedAt || item.at ? new Date(item.updatedAt || item.at).toLocaleString("he-IL") : "";
-      const line = row(item.title || "פריט ללא כותרת", `${contentLabel(item.type)} | ${statusLabel(item.status)}${item.url ? ` | ${item.url}` : ""}${date ? ` | ${date}` : ""}${item.description ? ` | ${item.description}` : ""}`);
+      const expire = markerValue(item.description, "expire");
+      const cleanDescription = cleanMetadataDescription(item.description);
+      const line = row(item.title || "פריט ללא כותרת", `${contentLabel(item.type)} | ${statusLabel(item.status)}${expire ? ` | ארכוב אוטומטי: ${expire}` : ""}${item.url ? ` | ${item.url}` : ""}${date ? ` | ${date}` : ""}${cleanDescription ? ` | ${cleanDescription}` : ""}`);
       const actions = document.createElement("div");
       actions.className = "admin-file-actions";
       const edit = document.createElement("button");
@@ -677,7 +845,8 @@
         $("adminContentTitle").value = item.title || "";
         $("adminContentUrl").value = item.url || "";
         $("adminContentStatus").value = item.status || "active";
-        $("adminContentDescription").value = item.description || "";
+        if ($("adminContentExpire")) $("adminContentExpire").value = markerValue(item.description, "expire");
+        $("adminContentDescription").value = cleanMetadataDescription(item.description);
         $("adminContentTitle").focus();
       });
       const publish = document.createElement("button");
@@ -725,6 +894,7 @@
       list.appendChild(line);
     });
     populateUploadExisting();
+    renderCipherManager();
   }
 
   async function loadRemoteContent() {
@@ -734,7 +904,9 @@
       .select("*")
       .order("updated_at", { ascending: false });
     if (error || !Array.isArray(data)) return;
-    writeContentItems(data.map((item) => ({
+    const now = new Date().toISOString();
+    const normalized = data.map((item) => {
+      const local = {
       id: item.id,
       type: item.type,
       title: item.title,
@@ -743,7 +915,12 @@
       description: item.description,
       at: item.created_at,
       updatedAt: item.updated_at
-    })));
+      };
+      return isExpiredContent(local) ? { ...local, status: "archive", updatedAt: now } : local;
+    });
+    const expired = normalized.filter((item) => item.status === "archive" && data.some((source) => source.id === item.id && source.status !== "archive"));
+    await Promise.all(expired.map((item) => upsertRemoteContent(item).catch(() => null)));
+    writeContentItems(normalized);
     renderContentItems();
   }
 
@@ -880,7 +1057,7 @@
     if (contactsList) {
       contactsList.replaceChildren();
       if (!contactItems.length) {
-        contactsList.append(row("אין עדיין פניות צור קשר", "פניות שנשמרו בדף צור קשר במכשיר זה יופיעו כאן."));
+        contactsList.append(row("אין עדיין פניות צור קשר", "פניות שיישלחו דרך צור קשר יופיעו כאן לאחר חיבור המערכת, וישמרו גם עותק מקומי לגיבוי."));
       } else {
         contactItems.slice().reverse().forEach((contact) => {
           const date = contact.at ? new Date(contact.at).toLocaleString("he-IL") : "";
@@ -890,7 +1067,9 @@
       }
     }
 
-    $("adminBackendStatus").textContent = CONFIG.enabled && CONFIG.endpoint
+    $("adminBackendStatus").textContent = supabaseClient
+      ? "מחובר ל-Supabase. הנתונים מוצגים מכל המכשירים."
+      : CONFIG.enabled && CONFIG.endpoint
       ? "חיבור נתונים מרכזי מוגדר."
       : "מצב נוכחי: נתונים מקומיים בלבד, ללא שליחה לשרת.";
   }
@@ -936,6 +1115,7 @@
         title: $("adminUploadTitle").value.trim() || file.name,
         publishStatus: $("adminUploadStatus")?.value || "active",
         topic: $("adminUploadTopic")?.value || "users",
+        expireAt: $("adminUploadExpire")?.value || "",
         existingContentId: $("adminUploadExisting")?.value || "",
         name: file.name,
         type: file.type || "application/octet-stream",
@@ -957,7 +1137,12 @@
             title: upload.title,
             url: sent.publicUrl,
             status: upload.publishStatus,
-            description: metadataDescription(existing?.description || "", upload.topic),
+            description: metadataDescription(
+              cleanMetadataDescription(existing?.description || ""),
+              upload.topic,
+              upload.expireAt,
+              existing?.description || ""
+            ),
             at: existing?.at || now,
             updatedAt: now
           };
@@ -976,6 +1161,80 @@
       form.reset();
       await renderUploads();
       await renderRemoteUploads();
+    });
+  }
+
+  function wireCipherManager() {
+    const form = $("adminCipherUploadForm");
+    if (!form) return;
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const file = $("adminCipherFile").files?.[0];
+      const status = $("adminCipherStatusText");
+      if (!file) return;
+      const title = $("adminCipherTitle").value.trim() || file.name;
+      const upload = {
+        id: `cipher-upload-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        category: "examples",
+        title,
+        publishStatus: $("adminCipherStatus").value || "active",
+        topic: $("adminCipherTopic").value || "users",
+        expireAt: $("adminCipherExpire").value || "",
+        existingContentId: $("adminCipherExisting").value || "",
+        name: file.name,
+        type: file.type || "application/octet-stream",
+        size: file.size,
+        at: new Date().toISOString(),
+        file
+      };
+      status.textContent = "מעלה את הצופן...";
+      await saveUpload(upload);
+      try {
+        const sent = await sendUpload(upload);
+        if (!sent?.publicUrl) {
+          status.textContent = "הקובץ נשמר בדפדפן, אך אין כרגע חיבור העלאה פעיל לאוצר הציבורי.";
+          await renderUploads();
+          return;
+        }
+        const now = new Date().toISOString();
+        const id = upload.existingContentId || `example-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        const items = readContentItems();
+        const existing = items.find((item) => item.id === id);
+        const content = {
+          id,
+          type: "example",
+          title,
+          url: sent.publicUrl,
+          status: upload.publishStatus,
+          description: metadataDescription(
+            $("adminCipherDescription").value.trim() || cleanMetadataDescription(existing?.description || ""),
+            upload.topic,
+            upload.expireAt,
+            existing?.description || ""
+          ),
+          at: existing?.at || now,
+          updatedAt: now
+        };
+        writeContentItems([content, ...items.filter((item) => item.id !== id)]);
+        await upsertRemoteContent(content);
+        form.reset();
+        $("adminCipherTopic").value = "users";
+        $("adminCipherStatus").value = "active";
+        status.textContent = upload.existingContentId
+          ? "הצופן הקיים עודכן באוצר הצפנים."
+          : "הצופן הועלה ונוסף לאוצר הצפנים.";
+        renderContentItems();
+        await renderUploads();
+        await renderRemoteUploads();
+      } catch {
+        status.textContent = "ההעלאה נכשלה. בדוק שהמנהל מחובר ושיש הרשאות ל-public-ciphers.";
+      }
+    });
+    $("refreshCipherManagerButton")?.addEventListener("click", async () => {
+      $("adminCipherStatusText").textContent = "מרענן...";
+      await loadRemoteContent();
+      renderCipherManager();
+      $("adminCipherStatusText").textContent = "הרשימה רועננה.";
     });
   }
 
@@ -1010,7 +1269,12 @@
         title: $("adminContentTitle").value.trim(),
         url: $("adminContentUrl").value.trim(),
         status: $("adminContentStatus").value,
-        description: $("adminContentDescription").value.trim(),
+        description: metadataDescription(
+          $("adminContentDescription").value.trim(),
+          markerValue(existing?.description || "", "topic"),
+          $("adminContentExpire")?.value || "",
+          existing?.description || ""
+        ),
         at: existing?.at || now,
         updatedAt: now
       };
@@ -1084,11 +1348,12 @@
   wirePasswordToggles();
   wireContent();
   wireUploads();
+  wireCipherManager();
   wireRetention();
-  $("refreshAdminButton").addEventListener("click", () => {
+  $("refreshAdminButton")?.addEventListener("click", () => {
     render();
     renderRemoteSubmissions();
   });
-  $("exportAdminButton").addEventListener("click", exportCsv);
+  $("exportAdminButton")?.addEventListener("click", exportCsv);
   if (!supabaseClient && isAuthenticated()) render();
 })();
