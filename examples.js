@@ -729,7 +729,10 @@
     area.append(
       action("פרסם", () => saveStatus("active")),
       action("תאריכי עבר", () => saveStatus("past_dates")),
-      action("ארכיון", () => saveStatus("archive")),
+      action("ארכיון", async () => {
+        if (!window.confirm(`להעביר את "${titleForCard(card)}" לארכיון ולהסתיר מהציבור?`)) return;
+        await saveStatus("archive");
+      }),
       action("החלף קישור", async () => {
         const current = primaryUrlForCard(card);
         const url = window.prompt("הדבק קישור חדש לתמונה או לקובץ הצופן", current);
@@ -738,10 +741,6 @@
         const item = payloadForCard(card, "active", { url: absoluteUrl(url), title });
         await upsertContent(item);
         alert("הקישור הוחלף. רענון הדף יציג את העדכון.");
-      }),
-      action("מחק", async () => {
-        if (!window.confirm(`להעביר את "${titleForCard(card)}" לארכיון ולהסתיר מהציבור?`)) return;
-        await saveStatus("archive");
       }),
       action("מחק לצמיתות", async () => {
         if (!window.confirm(`למחוק לצמיתות את "${titleForCard(card)}"? פעולה זו אינה הפיכה.`)) return;
