@@ -391,6 +391,32 @@
     setCardState(card, seen);
   }
 
+  function hideArchivedCards(item, sourceCard, seen) {
+    const cards = new Set();
+    if (sourceCard) cards.add(sourceCard);
+    if (item.id) {
+      document.querySelectorAll(`[data-content-id="${CSS.escape(String(item.id))}"]`).forEach((card) => cards.add(card));
+      if (String(item.id).startsWith("static-")) {
+        const exampleId = String(item.id).slice("static-".length);
+        document.querySelectorAll(`[data-example-id="${CSS.escape(exampleId)}"]`).forEach((card) => cards.add(card));
+      }
+    }
+    const targetUrl = absoluteUrl(item.url || "");
+    if (targetUrl) {
+      document.querySelectorAll("[data-example-id]").forEach((card) => {
+        if (absoluteUrl(primaryUrlForCard(card)) === targetUrl) cards.add(card);
+      });
+    }
+    cards.forEach((card) => {
+      if (!card) return;
+      if (item.id) card.dataset.contentId = item.id;
+      card.dataset.adminHidden = "true";
+      card.hidden = true;
+      cancelScheduledSeen(card);
+    });
+    applyFilter(seen);
+  }
+
   function archivedItems() {
     return Array.from(contentById.values())
       .filter((item) => item.type === "example" && (item.status === "archive" || item.status === "draft"))
@@ -413,10 +439,7 @@
     const id = `admin-${String(item.id || item.title).replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
     const existingCard = document.querySelector(`[data-example-id="${CSS.escape(id)}"]`);
     if (item.status === "archive" || item.status === "draft") {
-      if (existingCard) {
-        existingCard.dataset.adminHidden = "true";
-        existingCard.hidden = true;
-      }
+      hideArchivedCards(item, existingCard, seen);
       return;
     }
     if (existingCard) {
@@ -712,8 +735,7 @@
       const item = payloadForCard(card, status);
       await upsertContent(item);
       if (status === "archive" || status === "draft") {
-        card.dataset.adminHidden = "true";
-        card.hidden = true;
+        hideArchivedCards(item, card, seen);
         renderManagerArchive(seen);
         document.getElementById("examplesManagerArchive")?.scrollIntoView({ behavior: "smooth", block: "start" });
         alert("הצופן הועבר לארכיון מנהל והוסר מהאוצר הציבורי.");
