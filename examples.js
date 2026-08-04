@@ -1,5 +1,6 @@
 (() => {
   const STORAGE_KEY = "gal-einai-seen-examples-v1";
+  const ARCHIVED_CONTENT_KEY = "gal-einai-archived-content-v1";
   const VIEW_DELAY_MS = 4000;
   const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
   const SUPABASE_KEY = "sb_publishable_MqD3lXrftP5B36gcRjpDbw_csTVjpVK";
@@ -26,6 +27,35 @@
     } catch {
       // The page still works when storage is blocked; only the "new" memory is unavailable.
     }
+  }
+
+  function readLocalArchivedContent() {
+    try {
+      const raw = localStorage.getItem(ARCHIVED_CONTENT_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function writeLocalArchivedContent(items) {
+    try {
+      localStorage.setItem(ARCHIVED_CONTENT_KEY, JSON.stringify(items.slice(-300)));
+    } catch {
+      // Archive actions still try the remote save; local persistence is only a manager-side fallback.
+    }
+  }
+
+  function rememberLocalArchive(item) {
+    if (!item?.id) return;
+    const items = readLocalArchivedContent().filter((candidate) => candidate.id !== item.id);
+    writeLocalArchivedContent([...items, item]);
+  }
+
+  function forgetLocalArchive(item) {
+    if (!item?.id) return;
+    writeLocalArchivedContent(readLocalArchivedContent().filter((candidate) => candidate.id !== item.id));
   }
 
   function isSeen(card, seen) {
@@ -458,6 +488,26 @@
     card.querySelector(".mark-unseen")?.addEventListener("click", () => markUnseen(card, seen));
   }
 
+  function applyLocalArchivedContent(seen) {
+    readLocalArchivedContent().forEach((item) => {
+      if (!item?.id) return;
+      const archived = {
+        ...item,
+        status: item.status === "draft" ? "draft" : "archive",
+        type: item.type || "example"
+      };
+      contentById.set(archived.id, archived);
+      if (String(archived.id).startsWith("static-")) {
+        applyStaticOverride(archived, seen);
+      } else {
+        updateCardAfterManagerStatus(archived, seen);
+      }
+    });
+    renderManagerArchive(seen);
+    applyFilter(seen);
+    updateVaultPicker();
+  }
+
   function renderManagerArchive(seen) {
     const panel = document.getElementById("examplesManagerArchive");
     const list = document.getElementById("examplesArchiveList");
@@ -496,6 +546,8 @@
           try {
             const next = { ...item, status, updated_at: new Date().toISOString() };
             await upsertContent(next);
+            if (status === "archive" || status === "draft") rememberLocalArchive(next);
+            else forgetLocalArchive(next);
             updateCardAfterManagerStatus(next, seen);
             renderManagerArchive(seen);
             applyFilter(seen);
@@ -536,8 +588,10 @@
       const items = await response.json();
       if (!Array.isArray(items) || !items.length) return;
       items.forEach((item) => contentById.set(item.id, item));
+      applyLocalArchivedContent(seen);
       await archiveExpiredContent(items);
       items.filter((item) => String(item.id || "").startsWith("static-")).forEach((item) => applyStaticOverride(item, seen));
+      applyLocalArchivedContent(seen);
       applyFilter(seen);
       items.forEach((item) => {
         if (String(item.id || "").startsWith("static-")) return;
@@ -734,11 +788,13 @@
       const item = payloadForCard(card, status);
       await upsertContent(item);
       if (status === "archive" || status === "draft") {
+        rememberLocalArchive(item);
         hideArchivedCards(item, card, seen);
         renderManagerArchive(seen);
         document.getElementById("examplesManagerArchive")?.scrollIntoView({ behavior: "smooth", block: "start" });
         alert("הצופן הועבר לארכיון מנהל והוסר מהאוצר הציבורי.");
       } else {
+        forgetLocalArchive(item);
         delete card.dataset.adminHidden;
         card.dataset.topic = topicFor(item);
         card.hidden = false;
@@ -839,6 +895,7 @@
       markButton.addEventListener("click", () => markUnseen(card, seen));
     }
   });
+  applyLocalArchivedContent(seen);
   applyFilter(seen);
   updateVaultPicker();
   wireShareAndAdminTools(seen);
