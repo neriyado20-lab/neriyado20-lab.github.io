@@ -1120,7 +1120,7 @@
       const decodes = Array.isArray(store.aiDecodes) ? store.aiDecodes : [];
       aiGuidesList.replaceChildren();
       if (!guides.length && !decodes.length) {
-        aiGuidesList.append(row("אין עדיין עיוני AI", "רשימות מילים ופענוחי צפנים שיייבנו במכשיר זה יופיעו כאן."));
+        aiGuidesList.append(row("אין עדיין עיונים שמורים", "רשימות מילים ופענוחי צפנים שיייבנו במכשיר זה יופיעו כאן."));
       } else {
         decodes.slice().reverse().forEach((decode) => {
           const date = decode.at ? new Date(decode.at).toLocaleString("he-IL") : "";
@@ -1137,7 +1137,7 @@
         });
         guides.slice().reverse().forEach((guide) => {
           const date = guide.at ? new Date(guide.at).toLocaleString("he-IL") : "";
-          aiGuidesList.append(row(guide.topic || "עיון AI", `${guide.words?.length || 0} מילים${date ? ` | ${date}` : ""}`));
+          aiGuidesList.append(row(guide.topic || "עיון מונחה", `${guide.words?.length || 0} מילים${date ? ` | ${date}` : ""}`));
         });
       }
     }
