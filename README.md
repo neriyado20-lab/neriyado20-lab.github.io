@@ -14,7 +14,8 @@
 - `admin-config.js` - הגדרות כניסה והעלאה לניהול.
 - `styles.css` - עיצוב האתר.
 - קישור ציבורי פעיל: `https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v471/public-no-ai.exe` - מתקין V471 ללא AI, מוגבל עד דילוג 5000.
-- קישור מנהל פעיל: `https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v471/manager-no-ai.exe` - מתקין V471 ללא AI, ללא מגבלת דילוג.
+- עדכון ציבורי פעיל: `https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v475/gal_einai_V475_public_no_AI_small_update.zip` - עדכון V475 ללא AI, מוגבל עד דילוג 5000.
+- קבצי מנהל ללא מגבלת דילוג אינם עולים ל-Release ציבורי ואינם מקושרים באתר; שולחים אותם רק באופן פרטי לבעלי הרשאה.
 - `downloads/archive/` - גרסאות ישנות יותר נשמרות לארכיון.
 - `archive/` - קבצים ישנים או לא מקושרים שנשמרו לארכיון במקום להימחק.
 
@@ -24,10 +25,10 @@
 
 ## התקנת תוכנת Windows למכותבים
 
-קבצי V471 ללא AI נבנו מחדש לאחר התראת Windows Defender, נסרקו מקומית, ונבדקו בהתקנה שקטה:
+קבצי V475 ללא AI נבדקו מקומית כעדכוני Python קטנים לבעלי התקנה קיימת:
 
-- ציבורי: `APP_VERSION = "V471"`, `FREE_SKIP_LIMIT = 5000`, `AI_FEATURES_ENABLED = False`.
-- מנהל: `APP_VERSION = "V471"`, `FREE_SKIP_LIMIT = 0`, `AI_FEATURES_ENABLED = False`.
+- ציבורי: `APP_VERSION = "V475"`, `FREE_SKIP_LIMIT = 5000`, `AI_FEATURES_ENABLED = False`.
+- מנהל פרטי בלבד: `APP_VERSION = "V475"`, `FREE_SKIP_LIMIT = 0`, `AI_FEATURES_ENABLED = False`.
 
 לוח הניהול נמצא ב-`admin.html`. כאשר Supabase פעיל הוא מציג פניות ונתונים מכל המכשירים
 מטבלת `site_submissions`; במקביל נשמר עותק מקומי בדפדפן לגיבוי ולבדיקות.
