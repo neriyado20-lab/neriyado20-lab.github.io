@@ -508,6 +508,27 @@
     updateVaultPicker();
   }
 
+  function markManagerChangedCardsSeen(item, sourceCard, seen) {
+    const cards = new Set();
+    if (sourceCard) cards.add(sourceCard);
+    if (item.id) {
+      document.querySelectorAll(`[data-content-id="${CSS.escape(String(item.id))}"]`).forEach((card) => cards.add(card));
+      const dynamicId = `admin-${String(item.id || item.title).replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
+      document.querySelectorAll(`[data-example-id="${CSS.escape(dynamicId)}"]`).forEach((card) => cards.add(card));
+      if (String(item.id).startsWith("static-")) {
+        const exampleId = String(item.id).slice("static-".length);
+        document.querySelectorAll(`[data-example-id="${CSS.escape(exampleId)}"]`).forEach((card) => cards.add(card));
+      }
+    }
+    cards.forEach((card) => {
+      if (!card?.dataset?.exampleId) return;
+      seen[card.dataset.exampleId] = card.dataset.uploaded || new Date().toISOString().slice(0, 10);
+      cancelScheduledSeen(card);
+      setCardState(card, seen);
+    });
+    writeSeen(seen);
+  }
+
   function renderManagerArchive(seen) {
     const panel = document.getElementById("examplesManagerArchive");
     const list = document.getElementById("examplesArchiveList");
@@ -671,6 +692,10 @@
     if (!id) return;
     const card = document.querySelector(`[data-example-id="${CSS.escape(id)}"]`);
     if (!card) return;
+    if (card.dataset.adminHidden === "true") {
+      applyFilter(seen);
+      return;
+    }
     document.querySelectorAll("[data-example-filter]").forEach((item) => item.classList.remove("is-active"));
     document.querySelector('[data-example-filter="all"]')?.classList.add("is-active");
     document.querySelectorAll("[data-topic-filter]").forEach((item) => item.classList.remove("is-active"));
@@ -795,9 +820,8 @@
         alert("הצופן הועבר לארכיון מנהל והוסר מהאוצר הציבורי.");
       } else {
         forgetLocalArchive(item);
-        delete card.dataset.adminHidden;
-        card.dataset.topic = topicFor(item);
-        card.hidden = false;
+        updateCardAfterManagerStatus(item, seen);
+        markManagerChangedCardsSeen(item, card, seen);
       }
       applyFilter(seen);
       updateVaultPicker();
