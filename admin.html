@@ -59,8 +59,8 @@
       <p class="eyebrow">ניהול האתר</p>
       <h1>לוח ניהול גל עיני</h1>
       <p class="lead">
-        בשלב זה הלוח מציג את הנתונים שנשמרו בדפדפן הזה. לאחר חיבור שירות נתונים מרכזי,
-        אותו לוח יוכל להציג נתוני אמת מכל המשתמשים.
+        הלוח מחובר לניהול האתר. לפני כל שינוי באתר נבדק שהכניסה למנהל עדיין פעילה,
+        כדי שלא תצטרך לנחש אם ההעלאה, הפרסום או המחיקה באמת נקלטו.
       </p>
     </section>
 
@@ -353,11 +353,10 @@
 
       <article class="admin-panel">
         <div class="admin-panel-head">
-          <h2>חיבור עתידי</h2>
+          <h2>חיבור ניהול</h2>
         </div>
         <p>
-          כאשר נחבר Supabase או שירות דומה, הנתונים שייכנסו לכאן יהיו מכל המשתמשים:
-          צפיות, סימוני עיון, הערות שאפשר לאשר או למחוק, ונרשמים לשליחת הודעה.
+          אם החיבור פעיל אפשר לשנות את האתר מכאן. אם הכניסה פגה, הלוח יבקש כניסה מחדש לפני ביצוע שינוי.
         </p>
         <p id="adminBackendStatus" class="admin-status"></p>
       </article>
@@ -371,7 +370,7 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=3"></script>
-  <script src="admin.js?v=16"></script>
+  <script src="admin.js?v=17"></script>
   <script src="hebrew-date.js?v=2"></script>
 </body>
 </html>
