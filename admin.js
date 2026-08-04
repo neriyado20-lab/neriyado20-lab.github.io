@@ -64,6 +64,78 @@
     document.body.classList.toggle("admin-unlocked", value);
   }
 
+  function friendlyError(error) {
+    const message = String(error?.message || error?.error_description || error || "").trim();
+    if (!message) return "";
+    if (/jwt|session|auth|login|not authenticated/i.test(message)) return "הכניסה למנהל פגה. יש להיכנס מחדש.";
+    if (/row-level|policy|permission|unauthorized|forbidden|403/i.test(message)) return "אין הרשאת מנהל לאחסון הצפנים. צריך לסדר את הרשאת האחסון של חשבון המנהל.";
+    if (/network|fetch|failed to fetch|timeout/i.test(message)) return "הדפדפן לא הצליח להתחבר לשרת האחסון. בדוק אינטרנט או סינון.";
+    return message;
+  }
+
+  async function requireCipherStorageReady(statusElement = null) {
+    if (!supabaseClient) {
+      return {
+        ok: false,
+        message: "העלאה לאתר עדיין לא מחוברת. צריך חיבור מנהל לשרת האחסון."
+      };
+    }
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) {
+      return { ok: false, message: friendlyError(error) || "לא הצלחתי לבדוק את הכניסה למנהל." };
+    }
+    const email = data.session?.user?.email || "";
+    if (!data.session) {
+      return { ok: false, message: "צריך להיכנס מחדש למנהל לפני העלאת צופן." };
+    }
+    if (String(email).trim().toLowerCase() !== String(AUTH.supabaseAdminEmail).trim().toLowerCase()) {
+      return {
+        ok: false,
+        message: `הדפדפן מחובר כ-${email || "משתמש אחר"}, ולא כחשבון המנהל. יש לצאת ולהיכנס מחדש.`
+      };
+    }
+    if (statusElement) statusElement.textContent = "בודק הרשאת אחסון...";
+    const { error: listError } = await supabaseClient.storage.from("public-ciphers").list("", { limit: 1 });
+    if (listError) {
+      return {
+        ok: false,
+        message: friendlyError(listError) || "אין כרגע הרשאת העלאה לאוצר הצפנים."
+      };
+    }
+    return { ok: true, message: "החיבור לאוצר הצפנים פעיל." };
+  }
+
+  async function requireAdminConnection(statusElement = null) {
+    if (!supabaseClient) {
+      return { ok: false, message: "אין כרגע חיבור ניהול לאתר. השינוי יישמר רק בדפדפן הזה." };
+    }
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) {
+      const message = friendlyError(error) || "לא הצלחתי לבדוק את החיבור למנהל.";
+      if (statusElement) statusElement.textContent = message;
+      return { ok: false, message };
+    }
+    const email = data.session?.user?.email || "";
+    if (!data.session) {
+      setAuthenticated(false);
+      const message = "הכניסה למנהל פגה. הכנס קוד וסיסמה ואז נסה שוב.";
+      if (statusElement) statusElement.textContent = message;
+      $("adminLoginCode")?.focus();
+      return { ok: false, message };
+    }
+    if (String(email).trim().toLowerCase() !== String(AUTH.supabaseAdminEmail).trim().toLowerCase()) {
+      const message = `מחובר כ-${email || "משתמש אחר"}, לא כחשבון המנהל. צא והיכנס מחדש.`;
+      if (statusElement) statusElement.textContent = message;
+      return { ok: false, message };
+    }
+    return { ok: true, message: "חיבור המנהל פעיל." };
+  }
+
+  async function assertAdminConnection() {
+    const ready = await requireAdminConnection();
+    if (!ready.ok) throw new Error(ready.message);
+  }
+
   function wireAuth() {
     const loginForm = $("adminLoginForm");
     const logoutButton = $("adminLogoutButton");
@@ -107,7 +179,18 @@
       render();
       renderRemoteSubmissions();
       loadRemoteContent();
+      requireAdminConnection($("adminBackendStatus"));
     }
+
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      setAuthenticated(Boolean(session));
+      if (session) {
+        render();
+        renderRemoteSubmissions();
+        loadRemoteContent();
+        requireAdminConnection($("adminBackendStatus"));
+      }
+    });
 
     loginForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -131,6 +214,7 @@
       render();
       renderRemoteSubmissions();
       loadRemoteContent();
+      requireAdminConnection($("adminBackendStatus"));
     });
 
     forgotButton?.addEventListener("click", async () => {
@@ -386,7 +470,7 @@
 
     $("adminContactCount").textContent = data.filter((entry) => entry.kind === "contact").length;
     $("adminInterestCount").textContent = data.filter((entry) => entry.kind === "interest").length;
-    $("adminBackendStatus").textContent = "מחובר ל-Supabase. הנתונים מוצגים מכל המכשירים.";
+    $("adminBackendStatus").textContent = "חיבור המנהל פעיל. הנתונים מוצגים מכל המכשירים.";
   }
 
   function openUploadDb() {
@@ -454,6 +538,7 @@
 
   async function sendUpload(upload) {
     if (supabaseClient) {
+      await assertAdminConnection();
       const safeName = upload.name.replace(/[^a-zA-Z0-9._-]/g, "_");
       const path = `${upload.category}__${Date.now()}__${safeName}`;
       const bucket = upload.category === "examples" ? "public-ciphers" : "admin-uploads";
@@ -639,11 +724,13 @@
 
   async function upsertRemoteContent(item) {
     if (!supabaseClient) return;
+    await assertAdminConnection();
     await supabaseClient.from("admin_content").upsert(contentPayload(item));
   }
 
   async function deleteRemoteContent(id) {
     if (!supabaseClient) return;
+    await assertAdminConnection();
     await supabaseClient.from("admin_content").delete().eq("id", id);
   }
 
@@ -1067,11 +1154,14 @@
       }
     }
 
-    $("adminBackendStatus").textContent = supabaseClient
-      ? "מחובר ל-Supabase. הנתונים מוצגים מכל המכשירים."
-      : CONFIG.enabled && CONFIG.endpoint
-      ? "חיבור נתונים מרכזי מוגדר."
-      : "מצב נוכחי: נתונים מקומיים בלבד, ללא שליחה לשרת.";
+    if (supabaseClient) {
+      $("adminBackendStatus").textContent = "בודק חיבור מנהל...";
+      requireAdminConnection($("adminBackendStatus"));
+    } else {
+      $("adminBackendStatus").textContent = CONFIG.enabled && CONFIG.endpoint
+        ? "חיבור נתונים מרכזי מוגדר."
+        : "מצב נוכחי: נתונים מקומיים בלבד, ללא שליחה לשרת.";
+    }
   }
 
   function exportCsv() {
@@ -1154,9 +1244,9 @@
           ? upload.category === "examples"
             ? "הצופן הועלה ונוסף לרשימת הצפנים לפי הסטטוס שנבחר."
             : "הקובץ נשמר ונשלח לשרת ההעלאות."
-          : "הקובץ נשמר בדפדפן הניהול. לחיבור העלאה אמיתית לאתר צריך להגדיר uploadEndpoint.";
-      } catch {
-        status.textContent = "הקובץ נשמר בדפדפן, אך השליחה לשרת נכשלה.";
+          : "הקובץ נשמר בדפדפן הניהול, אבל לא נשלח לאתר החי.";
+      } catch (error) {
+        status.textContent = friendlyError(error) || "הקובץ נשמר בדפדפן, אך השליחה לאתר נכשלה. היכנס מחדש למנהל ונסה שוב.";
       }
       form.reset();
       await renderUploads();
@@ -1172,6 +1262,12 @@
       const file = $("adminCipherFile").files?.[0];
       const status = $("adminCipherStatusText");
       if (!file) return;
+      status.textContent = "בודק חיבור מנהל...";
+      const ready = await requireCipherStorageReady(status);
+      if (!ready.ok) {
+        status.textContent = ready.message;
+        return;
+      }
       const title = $("adminCipherTitle").value.trim() || file.name;
       const upload = {
         id: `cipher-upload-${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -1226,12 +1322,17 @@
         renderContentItems();
         await renderUploads();
         await renderRemoteUploads();
-      } catch {
-        status.textContent = "ההעלאה נכשלה. בדוק שהמנהל מחובר ושיש הרשאות ל-public-ciphers.";
+      } catch (error) {
+        status.textContent = friendlyError(error) || "ההעלאה לא הצליחה. נסה להיכנס מחדש למנהל ואז להעלות שוב.";
       }
     });
     $("refreshCipherManagerButton")?.addEventListener("click", async () => {
-      $("adminCipherStatusText").textContent = "מרענן...";
+      $("adminCipherStatusText").textContent = "בודק חיבור ומרענן...";
+      const ready = await requireCipherStorageReady($("adminCipherStatusText"));
+      if (!ready.ok) {
+        $("adminCipherStatusText").textContent = ready.message;
+        return;
+      }
       await loadRemoteContent();
       renderCipherManager();
       $("adminCipherStatusText").textContent = "הרשימה רועננה.";
@@ -1259,6 +1360,10 @@
     if (!form) return;
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
+      const status = $("adminContentStatusText");
+      status.textContent = "בודק חיבור מנהל...";
+      const ready = await requireAdminConnection(status);
+      if (!ready.ok) return;
       const now = new Date().toISOString();
       const id = $("adminContentId").value || `content-${Date.now()}-${Math.random().toString(16).slice(2)}`;
       const items = readContentItems();
@@ -1279,19 +1384,13 @@
         updatedAt: now
       };
       writeContentItems([next, ...items.filter((item) => item.id !== id)]);
-      if (supabaseClient) {
-        await supabaseClient.from("admin_content").upsert({
-          id: next.id,
-          type: next.type,
-          title: next.title,
-          url: next.url,
-          status: next.status,
-          description: next.description,
-          created_at: next.at,
-          updated_at: next.updatedAt
-        });
+      try {
+        await upsertRemoteContent(next);
+      } catch (error) {
+        status.textContent = friendlyError(error) || "השמירה באתר נכשלה. היכנס מחדש למנהל ונסה שוב.";
+        return;
       }
-      $("adminContentStatusText").textContent = "הפריט נשמר.";
+      status.textContent = "הפריט נשמר באתר.";
       resetContentForm();
       renderContentItems();
     });
