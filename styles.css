@@ -3499,8 +3499,8 @@ footer .legal-footer a,
   background: transparent;
   box-shadow:
     0 16px 42px rgba(32, 14, 10, 0.14);
-  transform: translateY(clamp(-46px, -5vh, -24px)) rotate(-0.15deg);
-  margin-top: clamp(88px, 14vh, 132px);
+  transform: translateY(clamp(-76px, -8vh, -38px)) rotate(-0.15deg);
+  margin-top: clamp(34px, 7vh, 78px);
 }
 
 .hero-showcase::before,
