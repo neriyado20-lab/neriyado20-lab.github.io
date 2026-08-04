@@ -725,13 +725,15 @@
   async function upsertRemoteContent(item) {
     if (!supabaseClient) return;
     await assertAdminConnection();
-    await supabaseClient.from("admin_content").upsert(contentPayload(item));
+    const { error } = await supabaseClient.from("admin_content").upsert(contentPayload(item));
+    if (error) throw error;
   }
 
   async function deleteRemoteContent(id) {
     if (!supabaseClient) return;
     await assertAdminConnection();
-    await supabaseClient.from("admin_content").delete().eq("id", id);
+    const { error } = await supabaseClient.from("admin_content").delete().eq("id", id);
+    if (error) throw error;
   }
 
   function resetContentForm() {
