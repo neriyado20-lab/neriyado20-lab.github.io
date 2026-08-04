@@ -2,6 +2,7 @@
   const STORAGE_KEY = "gal-einai-site-interactions-v1";
   const CONTACT_STORAGE_KEY = "gal-einai-contact-v1";
   const CONTENT_STORAGE_KEY = "gal-einai-admin-content-v1";
+  const ARCHIVED_CONTENT_KEY = "gal-einai-archived-content-v1";
   const ADDITIONS_KEY = "gal-einai-my-cipher-additions-v1";
   const ARCHIVE_EVENT_KEY = "gal-einai-web-archive-events-v1";
   const RETENTION_KEY = "gal-einai-admin-retention-v1";
@@ -286,6 +287,35 @@
 
   function writeContentItems(items) {
     localStorage.setItem(CONTENT_STORAGE_KEY, JSON.stringify(items.slice(-200)));
+  }
+
+  function readLocalArchivedContent() {
+    try {
+      const raw = localStorage.getItem(ARCHIVED_CONTENT_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function writeLocalArchivedContent(items) {
+    try {
+      localStorage.setItem(ARCHIVED_CONTENT_KEY, JSON.stringify(items.slice(-300)));
+    } catch {
+      // The remote save remains authoritative when browser storage is unavailable.
+    }
+  }
+
+  function rememberLocalArchive(item) {
+    if (!item?.id) return;
+    const items = readLocalArchivedContent().filter((candidate) => candidate.id !== item.id);
+    writeLocalArchivedContent([...items, { ...item, type: item.type || "example", status: item.status || "archive" }]);
+  }
+
+  function forgetLocalArchive(item) {
+    if (!item?.id) return;
+    writeLocalArchivedContent(readLocalArchivedContent().filter((candidate) => candidate.id !== item.id));
   }
 
   function retentionValue() {
@@ -813,6 +843,8 @@
     const next = { ...item, status, updatedAt: new Date().toISOString() };
     writeContentItems([next, ...readContentItems().filter((candidate) => candidate.id !== item.id)]);
     await upsertRemoteContent(next);
+    if (status === "archive" || status === "draft") rememberLocalArchive(next);
+    else forgetLocalArchive(next);
     renderContentItems();
     renderCipherManager();
   }
@@ -821,6 +853,7 @@
     const removedFile = await removeCipherFileIfPossible(item.url);
     writeContentItems(readContentItems().filter((candidate) => candidate.id !== item.id));
     await deleteRemoteContent(item.id);
+    forgetLocalArchive(item);
     renderContentItems();
     renderCipherManager();
     return removedFile;
