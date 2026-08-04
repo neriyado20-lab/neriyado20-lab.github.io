@@ -2,7 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /account.html
-Disallow: /ai.html
 Disallow: /supabase/
 Disallow: /.upload-tmp/
 
