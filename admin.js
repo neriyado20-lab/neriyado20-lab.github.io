@@ -829,16 +829,19 @@
   function renderCipherManager() {
     const list = $("adminCipherList");
     if (!list) return;
-    const items = readContentItems()
+    const archiveList = $("adminCipherArchiveList");
+    const allItems = readContentItems()
       .filter((item) => item.type === "example")
       .sort((a, b) => String(b.updatedAt || b.at).localeCompare(String(a.updatedAt || a.at)));
+    const items = allItems.filter((item) => item.status !== "archive" && item.status !== "draft");
+    const archivedItems = allItems.filter((item) => item.status === "archive" || item.status === "draft");
     list.replaceChildren();
+    if (archiveList) archiveList.replaceChildren();
     populateCipherExisting();
     if (!items.length) {
-      list.append(row("אין עדיין צפנים לניהול", "צפנים שתעלה מכאן יופיעו כאן עם אפשרויות פרסום, ארכיון ומחיקה לצמיתות."));
-      return;
+      list.append(row("אין כרגע צפנים פעילים לניהול", "צפנים פעילים או תאריכי עבר יופיעו כאן. צפנים שהועברו לארכיון מופיעים ברשימת ארכיון צפנים."));
     }
-    items.forEach((item) => {
+    const addCipherRow = (targetList, item, isArchiveList = false) => {
       const date = item.updatedAt || item.at ? new Date(item.updatedAt || item.at).toLocaleString("he-IL") : "";
       const detail = [statusLabel(item.status), markerValue(item.description, "topic") || "users", date, item.url].filter(Boolean).join(" | ");
       const line = row(item.title || "צופן ללא שם", detail);
@@ -900,10 +903,22 @@
         }
       });
 
-      actions.append(open, publish, past, archive, removeForever);
+      if (isArchiveList) {
+        actions.append(open, publish, past, removeForever);
+      } else {
+        actions.append(open, publish, past, archive, removeForever);
+      }
       line.appendChild(actions);
-      list.appendChild(line);
-    });
+      targetList.appendChild(line);
+    };
+    items.forEach((item) => addCipherRow(list, item, false));
+    if (archiveList) {
+      if (!archivedItems.length) {
+        archiveList.append(row("אין כרגע צפנים בארכיון", "לחיצה על ארכיון בצופן תעביר אותו לכאן ותסתיר אותו מהציבור."));
+      } else {
+        archivedItems.forEach((item) => addCipherRow(archiveList, item, true));
+      }
+    }
   }
 
   function renderContentItems() {
