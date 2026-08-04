@@ -835,7 +835,7 @@
     list.replaceChildren();
     populateCipherExisting();
     if (!items.length) {
-      list.append(row("אין עדיין צפנים לניהול", "צפנים שתעלה מכאן יופיעו כאן עם אפשרויות פרסום, ארכיון ומחיקה."));
+      list.append(row("אין עדיין צפנים לניהול", "צפנים שתעלה מכאן יופיעו כאן עם אפשרויות פרסום, ארכיון ומחיקה לצמיתות."));
       return;
     }
     items.forEach((item) => {
@@ -867,7 +867,7 @@
       const archive = document.createElement("button");
       archive.className = "button secondary";
       archive.type = "button";
-      archive.textContent = "מחק";
+      archive.textContent = "ארכיון";
       archive.title = "מעביר לארכיון ומסתיר מהציבור";
       archive.addEventListener("click", async () => {
         archive.disabled = true;
