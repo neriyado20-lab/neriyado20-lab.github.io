@@ -167,12 +167,46 @@
   }
 
   function cleanDescription(text) {
-    return String(text || "").replace(/\[(topic|image|project):[^\]]+\]/g, "").trim();
+    return String(text || "").replace(/\[(topic|image|project|expire):[^\]]+\]/g, "").trim();
   }
 
   function topicFor(item) {
     if (item.status === "past_dates") return "past_dates";
     return markerValue(item.description, "topic") || "users";
+  }
+
+  function isExpiredContent(item) {
+    if (!item || item.type !== "example") return false;
+    if (item.status !== "active" && item.status !== "past_dates") return false;
+    const expire = markerValue(item.description, "expire");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(expire)) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const limit = new Date(`${expire}T00:00:00`);
+    return Number.isFinite(limit.getTime()) && limit < today;
+  }
+
+  async function archiveExpiredContent(items) {
+    const expired = items.filter(isExpiredContent);
+    if (!expired.length || !supabaseClient) return;
+    try {
+      const { data } = await supabaseClient.auth.getSession();
+      const email = data.session?.user?.email || "";
+      if (String(email).trim().toLowerCase() !== String(ADMIN_EMAIL).trim().toLowerCase()) return;
+      const now = new Date().toISOString();
+      await Promise.all(expired.map((item) => upsertContent({
+        id: item.id,
+        type: item.type,
+        title: item.title,
+        url: item.url,
+        status: "archive",
+        description: item.description,
+        created_at: item.created_at,
+        updated_at: now
+      }).catch(() => null)));
+    } catch {
+      // Public visitors cannot archive; expired items are still hidden from the public list.
+    }
   }
 
   function isJsonUrl(url) {
@@ -340,7 +374,7 @@
     const card = document.querySelector(`[data-example-id="${CSS.escape(exampleId)}"]`);
     if (!card) return;
     card.dataset.contentId = item.id;
-    if (item.status !== "active" && item.status !== "past_dates") {
+    if (item.status !== "active" && item.status !== "past_dates" || isExpiredContent(item)) {
       card.dataset.adminHidden = "true";
       card.hidden = true;
       return;
@@ -478,9 +512,11 @@
       const items = await response.json();
       if (!Array.isArray(items) || !items.length) return;
       items.forEach((item) => contentById.set(item.id, item));
+      await archiveExpiredContent(items);
       items.filter((item) => String(item.id || "").startsWith("static-")).forEach((item) => applyStaticOverride(item, seen));
       items.forEach((item) => {
         if (String(item.id || "").startsWith("static-")) return;
+        if (isExpiredContent(item)) return;
         if (item.status !== "active" && item.status !== "past_dates") return;
         const id = `admin-${String(item.id || item.title).replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
         if (document.querySelector(`[data-example-id="${CSS.escape(id)}"]`)) return;
@@ -702,16 +738,21 @@
         alert("הקישור הוחלף. רענון הדף יציג את העדכון.");
       }),
       action("מחק", async () => {
-        if (!window.confirm(`למחוק/להסתיר את "${titleForCard(card)}" מהאתר?`)) return;
+        if (!window.confirm(`להעביר את "${titleForCard(card)}" לארכיון ולהסתיר מהציבור?`)) return;
+        await saveStatus("archive");
+      }),
+      action("מחק לצמיתות", async () => {
+        if (!window.confirm(`למחוק לצמיתות את "${titleForCard(card)}"? פעולה זו אינה הפיכה.`)) return;
         const id = itemIdForCard(card);
         if (id.startsWith("static-")) {
           await saveStatus("archive");
-        } else {
-          await deleteContent(id);
-          card.remove();
-          applyFilter(seen);
-          updateVaultPicker();
+          alert("צופן קבוע באתר הועבר לארכיון. מחיקה לצמיתות של קובץ קבוע צריכה להתבצע בקבצי האתר.");
+          return;
         }
+        await deleteContent(id);
+        card.remove();
+        applyFilter(seen);
+        updateVaultPicker();
       })
     );
     ensureToolArea(card).appendChild(area);
