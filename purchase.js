@@ -31,15 +31,15 @@
     if (config.enabled && selected.paymentUrl) window.location.assign(selected.paymentUrl);
   });
 
-  if (source === "ai_decode") {
-    if (introTitle) introTitle.textContent = "הפעלת פענוח AI חי";
-    if (introText) introText.textContent = "כדי לקבל ניתוח AI בזמן אמת לאחר סריקת הצופן, יש להפעיל מסלול תשלום/קרדיט. לאחר התשלום חוזרים לצופן ולוחצים שוב על פענח צופן.";
+  if (source === "guided_decode") {
+    if (introTitle) introTitle.textContent = "הפעלת עיון מונחה";
+    if (introText) introText.textContent = "כדי לקבל כלי עיון מורחבים לאחר סריקת הצופן, יש להפעיל מסלול תשלום/קרדיט. לאחר התשלום חוזרים לצופן וממשיכים בעבודה.";
   }
 
   status.textContent = config.enabled
     ? `התשלום מתבצע בעמוד המאובטח של ${config.provider || "חברת הסליקה"}.`
-    : source === "ai_decode" && reason === "quota"
-      ? "פענוח AI חי דורש תשלום/קרדיט פעיל. מערכת הרכישה מוכנה, אך החיוב עדיין כבוי עד לפתיחת חשבון הסליקה."
+    : source === "guided_decode" && reason === "quota"
+      ? "עיון מונחה דורש תשלום/קרדיט פעיל. מערכת הרכישה מוכנה, אך החיוב עדיין כבוי עד לפתיחת חשבון הסליקה."
       : "מערכת הרכישה מוכנה באתר, אך החיוב עדיין כבוי עד לפתיחת חשבון הסליקה.";
   support.textContent = config.supportEmail
     ? `לתמיכה ברכישה: ${config.supportEmail}`
