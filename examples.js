@@ -377,6 +377,7 @@
     if (item.status !== "active" && item.status !== "past_dates" || isExpiredContent(item)) {
       card.dataset.adminHidden = "true";
       card.hidden = true;
+      cancelScheduledSeen(card);
       return;
     }
     delete card.dataset.adminHidden;
@@ -514,6 +515,7 @@
       items.forEach((item) => contentById.set(item.id, item));
       await archiveExpiredContent(items);
       items.filter((item) => String(item.id || "").startsWith("static-")).forEach((item) => applyStaticOverride(item, seen));
+      applyFilter(seen);
       items.forEach((item) => {
         if (String(item.id || "").startsWith("static-")) return;
         if (isExpiredContent(item)) return;
