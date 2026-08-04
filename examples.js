@@ -631,8 +631,7 @@
   function applyFilter(seen) {
     const filter = activeFilter();
     const topic = activeTopic();
-    const cards = Array.from(document.querySelectorAll("[data-example-id]"))
-      .filter((card) => card.dataset.adminHidden !== "true");
+    const cards = Array.from(document.querySelectorAll("[data-example-id]"));
     const visibleCards = [];
     cards.forEach((card) => {
       if (card.dataset.adminHidden === "true") {
@@ -652,7 +651,7 @@
     });
     const empty = document.getElementById("examplesEmptyState");
     if (empty) empty.hidden = Boolean(visibleCards.length) || topic === "all" || topic === "users";
-    updateCounter(cards, visibleCards);
+    updateCounter(cards.filter((card) => card.dataset.adminHidden !== "true"), visibleCards);
     return visibleCards;
   }
 
