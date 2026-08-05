@@ -1,6 +1,7 @@
 (() => {
   const STORAGE_KEY = "gal-einai-seen-examples-v1";
   const ARCHIVED_CONTENT_KEY = "gal-einai-archived-content-v1";
+  const FEEDBACK_KEY = "gal-einai-cipher-feedback-v1";
   const VIEW_DELAY_MS = 4000;
   const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
   const SUPABASE_KEY = "sb_publishable_MqD3lXrftP5B36gcRjpDbw_csTVjpVK";
@@ -27,6 +28,111 @@
     } catch {
       // The page still works when storage is blocked; only the "new" memory is unavailable.
     }
+  }
+
+  function readFeedback() {
+    try {
+      const raw = localStorage.getItem(FEEDBACK_KEY);
+      const parsed = raw ? JSON.parse(raw) : {};
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function writeFeedback(feedback) {
+    try {
+      localStorage.setItem(FEEDBACK_KEY, JSON.stringify(feedback));
+    } catch {
+      // Feedback is a private convenience feature; the vault works without it.
+    }
+  }
+
+  function clampRating(value) {
+    const rating = Number(value) || 0;
+    return Math.max(0, Math.min(5, Math.round(rating)));
+  }
+
+  function addCipherFeedback(card) {
+    const id = card?.dataset?.exampleId;
+    if (!id || card.querySelector(".cipher-feedback")) return;
+    const feedback = readFeedback();
+    const saved = feedback[id] || {};
+    const savedRating = clampRating(saved.rating);
+    const savedComment = String(saved.comment || "");
+    const panel = document.createElement("section");
+    panel.className = "cipher-feedback";
+    panel.setAttribute("aria-label", "דירוג ותגובה לצופן");
+
+    const title = document.createElement("strong");
+    title.textContent = "דירוג ותגובה";
+
+    const stars = document.createElement("div");
+    stars.className = "cipher-rating";
+    stars.setAttribute("role", "radiogroup");
+    stars.setAttribute("aria-label", "דירוג הצופן");
+
+    const status = document.createElement("small");
+    status.className = "cipher-feedback-status";
+    status.setAttribute("aria-live", "polite");
+
+    const setRatingView = (rating) => {
+      stars.querySelectorAll("button").forEach((button) => {
+        const value = Number(button.dataset.rating) || 0;
+        button.classList.toggle("is-active", value <= rating);
+        button.setAttribute("aria-checked", String(value === rating));
+      });
+    };
+
+    for (let value = 1; value <= 5; value += 1) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.rating = String(value);
+      button.setAttribute("role", "radio");
+      button.setAttribute("aria-label", `דירוג ${value} מתוך 5`);
+      button.textContent = "★";
+      button.addEventListener("click", () => {
+        const current = readFeedback();
+        current[id] = {
+          ...(current[id] || {}),
+          rating: value,
+          updatedAt: new Date().toISOString()
+        };
+        writeFeedback(current);
+        setRatingView(value);
+        status.textContent = "הדירוג נשמר במכשיר זה.";
+      });
+      stars.appendChild(button);
+    }
+
+    const comment = document.createElement("textarea");
+    comment.rows = 2;
+    comment.maxLength = 500;
+    comment.placeholder = "תגובה אישית על הצופן";
+    comment.value = savedComment;
+    comment.addEventListener("input", () => {
+      const current = readFeedback();
+      const text = comment.value.trim();
+      if (text || current[id]?.rating) {
+        current[id] = {
+          ...(current[id] || {}),
+          comment: text,
+          updatedAt: new Date().toISOString()
+        };
+      } else {
+        delete current[id];
+      }
+      writeFeedback(current);
+      status.textContent = "התגובה נשמרה במכשיר זה.";
+    });
+
+    setRatingView(savedRating);
+    panel.append(title, stars, comment, status);
+    card.querySelector(".sample-copy")?.appendChild(panel);
+  }
+
+  function wireCipherFeedback() {
+    document.querySelectorAll("[data-example-id]").forEach(addCipherFeedback);
   }
 
   function readLocalArchivedContent() {
@@ -489,6 +595,7 @@
     const card = cardForContent(item);
     layout.prepend(card);
     setCardState(card, seen);
+    addCipherFeedback(card);
     card.querySelector(".mark-unseen")?.addEventListener("click", () => markUnseen(card, seen));
   }
 
@@ -632,6 +739,7 @@
         const card = cardForContent(item);
         layout.prepend(card);
         setCardState(card, seen);
+        addCipherFeedback(card);
         card.querySelector(".mark-unseen")?.addEventListener("click", () => markUnseen(card, seen));
       });
       updateVaultPicker();
@@ -882,7 +990,8 @@
       const { data } = await supabaseClient.auth.getSession();
       const email = data.session?.user?.email || "";
       managerMode = String(email).trim().toLowerCase() === String(ADMIN_EMAIL).trim().toLowerCase();
-      document.getElementById("examplesManagerStrip").hidden = !managerMode;
+      const managerStrip = document.getElementById("examplesManagerStrip");
+      if (managerStrip) managerStrip.hidden = !managerMode;
       document.body.classList.toggle("manager-mode", managerMode);
       wireShareAndAdminTools(seen);
       renderManagerArchive(seen);
@@ -931,6 +1040,7 @@
   applyLocalArchivedContent(seen);
   applyFilter(seen);
   updateVaultPicker();
+  wireCipherFeedback();
   wireShareAndAdminTools(seen);
   detectManagerMode(seen);
   wireSeenOnView(seen);
