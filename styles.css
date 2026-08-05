@@ -1411,6 +1411,14 @@ h2 {
   font-size: 13px;
 }
 
+.public-preview-mode .cipher-admin-actions {
+  display: none !important;
+}
+
+.public-preview-mode .examples-manager-archive {
+  display: none !important;
+}
+
 .review-form,
 .addition-form {
   display: grid;
