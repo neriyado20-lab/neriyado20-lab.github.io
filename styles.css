@@ -3763,7 +3763,8 @@ footer .legal-footer a,
   grid-area: visual;
   z-index: 2;
   justify-self: start;
-  width: min(100%, 620px);
+  width: min(100%, 560px);
+  min-height: 260px;
 }
 
 .netfree-hero-scroll {
@@ -3780,16 +3781,15 @@ footer .legal-footer a,
   position: absolute;
   z-index: 3;
   left: 50%;
-  top: 48%;
+  top: 50%;
   display: block;
-  width: min(56%, 340px);
+  width: min(82%, 420px);
   height: auto;
-  transform: translate(-50%, -50%) rotate(-0.4deg);
-  border-radius: 8px;
-  border: 1px solid rgba(13, 109, 86, 0.24);
-  box-shadow: 0 18px 44px rgba(23, 33, 29, 0.28);
-  background: rgba(255, 255, 255, 0.97);
-  filter: saturate(1.08) contrast(1.08);
+  transform: translate(-50%, -50%) rotate(-0.35deg);
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  filter: saturate(1.12) contrast(1.12) drop-shadow(0 10px 18px rgba(23, 33, 29, 0.22));
 }
 
 .netfree-strip {
@@ -3863,11 +3863,12 @@ footer .legal-footer a,
   .netfree-hero-image {
     justify-self: center;
     width: min(100%, 560px);
+    min-height: 220px;
   }
 
   .netfree-hero-cipher {
     top: 50%;
-    width: min(62%, 310px);
+    width: min(84%, 360px);
   }
 
   .netfree-strip {
