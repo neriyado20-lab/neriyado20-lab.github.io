@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>גל עיני - תוכנה ואתר לחיפוש צפנים בתורה</title>
-  <meta name="description" content="גל עיני - גישה להורדת התוכנה ולצפייה באוצר צפנים מתעדכן, עם חיפוש דילוגים וצפנים בתורה בדפדפן וב-Windows.">
+  <title>גל עיני - חיפוש צפנים בתורה</title>
+  <meta name="description" content="גל עיני - כלי פשוט לחיפוש צפנים ודילוגים בתורה, עבודה בדפדפן והורדת גרסת Windows ציבורית.">
   <link rel="canonical" href="https://neriyado20-lab.github.io/">
   <meta property="og:site_name" content="גל עיני">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="גל עיני - תוכנה ואתר לחיפוש צפנים בתורה">
-  <meta property="og:description" content="גל עיני - גישה להורדת התוכנה ולצפייה באוצר צפנים מתעדכן, עם חיפוש דילוגים וצפנים בתורה בדפדפן וב-Windows.">
+  <meta property="og:title" content="גל עיני - חיפוש צפנים בתורה">
+  <meta property="og:description" content="כלי פשוט לחיפוש צפנים ודילוגים בתורה, עבודה בדפדפן והורדת גרסת Windows ציבורית.">
   <meta property="og:url" content="https://neriyado20-lab.github.io/">
   <meta name="twitter:card" content="summary">
   <script type="application/ld+json">
@@ -20,7 +20,7 @@
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "Web, Windows",
     "url": "https://neriyado20-lab.github.io/",
-    "description": "אתר להורדת תוכנת גל עיני ולצפייה באוצר צפנים מתעדכן, עם חיפוש דילוגים וצפנים בתורה.",
+    "description": "כלי לחיפוש צפנים ודילוגים בתורה.",
     "inLanguage": "he",
     "offers": {
       "@type": "Offer",
@@ -29,7 +29,7 @@
     }
   }
   </script>
-  <link rel="stylesheet" href="styles.css?v=128">
+  <link rel="stylesheet" href="styles.css?v=129">
 </head>
 <body>
   <header class="topbar">
@@ -38,428 +38,132 @@
         <span class="brand-mark" aria-hidden="true">גע</span>
         <div>
           <strong>גל עיני</strong>
-          <span>חיפוש צפנים בתורה</span>
+          <span>צפנים בתורה</span>
         </div>
       </a>
-      <a class="topbar-rides-link" href="rides.html">גמ"ח טרמפים</a>
-      <a class="topbar-rides-link" href="parking.html">גמ"ח חניה</a>
     </div>
     <nav aria-label="ניווט">
       <a href="web.html">עבודה באתר</a>
       <a href="examples.html">אוצר הצפנים</a>
-      <a href="about.html">מה זה צופן</a>
-      <a href="order.html">חיפוש לפי הזמנה</a>
-      <a href="#full-version">גרסה מלאה</a>
+      <a href="about.html">הסבר</a>
       <a href="#download">הורדה</a>
-      <a href="#support">עזרה</a>
-      <a href="account.html">אזור אישי</a>
       <a href="contact.html">צור קשר</a>
     </nav>
   </header>
 
-  <main>
-    <section class="home-hero">
+  <main class="netfree-home">
+    <section class="netfree-hero" aria-labelledby="homeTitle">
       <div class="hero-bsd" aria-hidden="true">בס"ד</div>
       <span class="hebrew-date home-hero-date" data-hebrew-date aria-label="תאריך עברי"></span>
-      <div class="hero-overlay">
-        <p class="eyebrow">חיפוש צפנים בתורה</p>
-        <h1>גל עיני</h1>
-        <p class="lead">
-          האתר מיועד להורדת תוכנת גל עיני ולצפייה באוצר הצפנים המתעדכן בכל פעם שנוסף צופן חדש.
-          אפשר גם להתחיל לעבוד מיד באתר, או להוריד את גרסת Windows לעבודה מקומית נרחבת יותר.
-        </p>
-        <div class="trust-strip" aria-label="יתרונות מרכזיים">
-          <span>עברית מלאה</span>
-          <span>ללא הרשמה</span>
-          <span>תצוגת ממצאים</span>
-          <span>אוצר הצפנים</span>
+      <div class="netfree-hero-copy">
+        <p class="eyebrow">כלי עזר ללימוד ולעיון</p>
+        <h1 id="homeTitle">גל עיני</h1>
+        <p class="lead">חיפוש צפנים ודילוגים בתורה, עם תצוגת טבלה, סימון ממצאים ושמירת קבצי צופן.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="web.html">פתח עבודה באתר</a>
+          <a class="button secondary" href="#download">הורדת Windows</a>
         </div>
       </div>
-      <section class="launch-note announcement-note" aria-label="פינת הודעות">
-        <strong>פינת הודעות</strong>
-        <p>גל עיני פתוח כעת בגרסת השקה. פניות לשיפור יתקבלו בברכה, ללא התחייבות.</p>
-        <p>
-          האתר נבנה לכבוד ה' יתברך, לחיזוק האמונה בתורה כמסמך אלוקי.
-          כדי שלא תצא תקלה תחת ידינו ולא נגרום ח"ו לביטול תורה, כ"א יראה לא לבטל מהרגליו בלימוד.
-        </p>
-      </section>
-      <section class="launch-note dedication-note" aria-label="לזכות ולעילוי נשמה">
-        <strong>לזכות ולעילוי נשמה</strong>
-        <p>לע"נ פרופ' ריפס זצ"ל.</p>
-        <p>לזכות רבני ומאזיני קו סוד החשמל שמספרו <span class="nowrap">02-664-7979</span>, המצפים לישועה.</p>
-        <p>לזיווג הגון לחיים בן רות.</p>
-      </section>
-      <figure class="hero-showcase" aria-label="Gal Einai cipher preview">
-        <img src="examples/hero-cipher-short-cutout.png?v=1" alt="Gal Einai cipher preview">
+      <figure class="netfree-hero-image">
+        <img src="examples/hero-cipher-short-cutout.png?v=1" alt="תצוגת צופן לדוגמה">
       </figure>
     </section>
 
-    <section class="gateway-pair" aria-label="שירות אישי">
-      <div class="band personal-order-band" id="personal-order">
-        <div class="section-head">
-          <img class="section-mini-visual" src="assets/sheet-gal-einai-06.png?v=1" alt="">
-          <p class="eyebrow">שירות אישי</p>
-          <h2>הזמנת חיפוש צופן חדש לפי נושא</h2>
-          <p>
-            מי שמבקש עבודת חיפוש אישית יכול להזמין חיפוש צופן חדש לפי נושא, לפחות 10 מילים חשובות
-            ושאלה מנחה. השימוש הרגיל באתר נשאר פתוח לציבור.
-          </p>
-        </div>
-        <div class="download-box">
-          <div>
-            <strong>חיפוש צופן חדש לפי הזמנה</strong>
-            <span>ניסוח בקשה מסודר, בחירת מסלול והמשך טיפול לפי פרטי הבקשה.</span>
-          </div>
-          <a class="button primary" href="order.html">פתח הזמנה</a>
-        </div>
-      </div>
+    <section class="netfree-strip" aria-label="אפשרויות עיקריות">
+      <article>
+        <strong>עבודה בדפדפן</strong>
+        <span>חיפוש בסיסי ופתיחת קבצי צופן בלי התקנה.</span>
+      </article>
+      <article>
+        <strong>תוכנת Windows</strong>
+        <span>עבודה מקומית נוחה עם כלים רחבים יותר.</span>
+      </article>
+      <article>
+        <strong>אוצר הצפנים</strong>
+        <span>צפייה בדוגמאות ובקבצי צופן שפורסמו.</span>
+      </article>
     </section>
 
-    <section class="feature-strip" aria-label="אפשרויות עיקריות">
-      <div>
-        <b>עבודה בדפדפן</b>
-        <span>חיפוש, תצוגה ופתיחת צפנים בלי התקנה ובכל מערכת הפעלה מודרנית.</span>
-      </div>
-      <div>
-        <b>תוכנת Windows</b>
-        <span>גרסה מקומית עם חיפוש משניות רחב, תזוזה רציפה בחצים, קווים, מסגרות והדפסה.</span>
-      </div>
-      <div>
-        <b>אוצר הצפנים</b>
-        <span>תמונות וקבצי צופן שניתן לפתוח ולהציג.</span>
-      </div>
-      <div>
-        <b>פיתוח מדורג</b>
-        <span>כל שלב נבנה ונבדק בזהירות לפני השלב הבא.</span>
-      </div>
-    </section>
-
-    <section class="band explainer-band" id="what-is-cipher">
+    <section class="band netfree-band" id="about-short">
       <div class="section-head">
-        <img class="section-mini-visual" src="assets/sheet-gal-einai-01.png?v=1" alt="">
-        <p class="eyebrow">הסבר למתחילים</p>
-        <h2>מה מחפשים בגל עיני?</h2>
+        <p class="eyebrow">בקצרה</p>
+        <h2>מה עושים באתר?</h2>
         <p>
-          גם בלי להכיר את עולם הצפנים אפשר להתחיל מהר: בוחרים מילה מרכזית,
-          מוסיפים מילים קשורות, והמערכת מציגה האם נוצר סביבן ממצא מסודר לעיון.
-          המטרה היא להפוך חיפוש מורכב לעבודת בדיקה ברורה, חזותית ונוחה.
+          בוחרים מילה ראשית, מוסיפים מילים משניות, ומקבלים תצוגה מסודרת של אותיות, דילוגים וממצאים.
+          הכלי מיועד לעיון זהיר ולשמירת תוצאות לבדיקה נוספת.
         </p>
-      </div>
-      <div class="why-cipher-panel">
-        <strong>מה הכלי מאפשר?</strong>
-        <span>במקום לנחש או לחפש ידנית, גל עיני מרכזת את האותיות, הדילוגים, המשניות והטבלה במקום אחד.</span>
-        <span>כך אפשר לראות מהר אם יש סביב הראשית קשרים נוספים שמצדיקים עיון, שמירה או המשך חיפוש.</span>
-        <span>עם הזמן המשתמש מקבל הערכה איזה אורך מילה מתאים לאיזה דילוג. בדרך כלל רצוי לבחור מילה או רצף שאינם קצרים מדי, כ־4 אותיות לפחות, ואינם ארוכים מדי, עד כ־8 אותיות.</span>
       </div>
       <div class="term-grid">
         <article>
           <strong>ראשית</strong>
-          <p>המילה או הביטוי המרכזי שממנו מתחילים את החיפוש. לדוגמה: שם, תאריך, מקום או נושא.</p>
+          <p>המילה המרכזית שממנה מתחילים את החיפוש.</p>
         </article>
         <article>
           <strong>משנית</strong>
-          <p>מילה נוספת שבודקים אם היא מופיעה ליד הראשית, כגון תיאור, שם קשור, זמן או מקום.</p>
+          <p>מילה קשורה שבודקים אם היא מופיעה ליד הראשית.</p>
         </article>
         <article>
           <strong>דילוג</strong>
-          <p>המרחק הקבוע בין אות לאות בתוך המילה שנמצאה. דילוג 1 הוא טקסט רציף, ודילוג גדול יותר קופץ בין אותיות.</p>
+          <p>מרחק קבוע בין אות לאות בתוך המילה שנמצאה.</p>
         </article>
-        <article>
-          <strong>ממצא</strong>
-          <p>תוצאה שבה הראשית נמצאה, ולידה נמצאו משניות או קשרים נוספים שמצדיקים עיון זהיר.</p>
-        </article>
-      </div>
-      <div class="download-box">
-        <div>
-          <strong>חדש בעולם הצפנים?</strong>
-          <span>פתח הסבר קצר ומסודר עם דוגמה: מה כותבים בשדה ראשית, מה כותבים במשניות, ואיך קוראים את טבלת הממצאים.</span>
-        </div>
-        <a class="button primary" href="about.html">פתח הסבר מעשי</a>
       </div>
     </section>
 
-    <section class="home-visual-grid" aria-label="גל עיני בתמונות">
-      <article class="home-visual-card">
-        <img src="assets/gal-einai-torah-code-feature-v2.png?v=1" alt="ספר תורה וכלי המחשת מבנה צופן ללא טקסט מזויף">
-        <div>
-          <p class="eyebrow">עיון בצופן</p>
-          <h2>תורה, אותיות ומבנה</h2>
-          <p>העבודה מתחילה במילים, דילוגים, סמיכות ותצוגה שמאפשרת לראות את הממצא סביב הראשית.</p>
-        </div>
-      </article>
-      <article class="home-visual-card">
-        <img src="assets/gal-einai-software-real-v1.png?v=1" alt="צילום מסך אמיתי של ממשק גל עיני באתר">
-        <div>
-          <p class="eyebrow">כלי עבודה</p>
-          <h2>ממשק מסודר לחיפוש ושמירה</h2>
-          <p>חיפוש באתר או ב-Windows, שמירת פרויקט, אוצר צפנים, תצוגת טבלה וכלים להמשך עבודה.</p>
-        </div>
-      </article>
-      <article class="home-visual-card home-visual-card-wide">
-        <img src="assets/beit-hamikdash-feature-v1.png?v=1" alt="איור מכובד של בית המקדש בירושלים">
-        <div>
-          <p class="eyebrow">שאיפה ותפילה</p>
-          <h2>תורה, אמונה ותקוות הגאולה</h2>
-          <blockquote class="temple-quote">"ותחזינה עינינו בשובך לציון ברחמים"</blockquote>
-          <p>גל עיני נבנה לכבוד ה' יתברך, מתוך רצון לחזק אמונה בתורה ולעורר לב טוב בציפייה לבניין בית המקדש.</p>
-        </div>
-      </article>
-    </section>
-
-    <section class="band web-stage" id="web-version">
+    <section class="band netfree-band" id="download">
       <div class="section-head">
-        <img class="section-mini-visual" src="assets/sheet-gal-einai-02.png?v=1" alt="">
-        <p class="eyebrow">התוכנה בדפדפן</p>
-        <h2>עבודה ישירה בדפדפן</h2>
-        <p>
-          גל עיני Web כוללת חיפוש ראשיות ומשניות, טבלת ממצאים, תצוגת תורה מימין לשמאל,
-          ניווט אופקי ואנכי, צבעים, קווים ופתיחת קובצי צופן. השימוש באתר פתוח כעת
-          כולל ספרייה, גיבוי, היסטוריה, ייצוא והדפסה.
-        </p>
-      </div>
-      <div class="stage-grid">
-        <article>
-          <h3>חיפוש ותצוגה</h3>
-          <ul>
-            <li>לחפש כמה ראשיות ומשניות בהתאם למהדורה.</li>
-            <li>לדרג ממצאים ולפתוח אותם בטבלה.</li>
-            <li>לנווט בתורה בחצים, במקלדת ובגלגלת.</li>
-            <li>לשנות צבעים, להציג קווים ולנהל מילים בצופן.</li>
-          </ul>
-        </article>
-        <article>
-          <h3>ניהול עבודה מקצועי</h3>
-          <ul>
-            <li>ספריית צפנים מקומית עם חיפוש וגיבוי.</li>
-            <li>20 חיפושים אחרונים והפעלה חוזרת.</li>
-            <li>שמירה, הדפסה וייצוא CSV ל־Excel.</li>
-            <li>חלון עזרה עדכני המותאם למהדורה ולמסך.</li>
-            <li>חשבונות וגיבוי מוצפן בין מכשירים.</li>
-          </ul>
-        </article>
+        <p class="eyebrow">הורדה</p>
+        <h2>גרסת Windows ציבורית</h2>
+        <p>הגרסה הציבורית מיועדת לשימוש רגיל ומוגבלת עד דילוג 5000.</p>
       </div>
       <div class="download-box">
         <div>
-          <strong>גל עיני Web W049</strong>
-          <span>עבודה באתר, ללא התקנה וללא צורך להשאיר את המחשב שלך דולק.</span>
+          <strong>התקנה מלאה V471</strong>
+          <span>מתאימה למחשב שעדיין אין בו התקנה קודמת של גל עיני.</span>
         </div>
-        <a class="button primary" href="web.html">פתח עבודה באתר</a>
-        <a class="button secondary" href="#download">הורדת תוכנת גל עיני ל-Windows</a>
-      </div>
-    </section>
-
-    <section class="band sample-band" id="samples">
-      <div class="section-head">
-        <img class="section-mini-visual" src="assets/sheet-gal-einai-03.png?v=1" alt="">
-        <h2>אוצר הצפנים</h2>
-        <p>צפנים אמיתיים מתוך התוכנה.</p>
-      </div>
-      <div class="sample-preview-grid">
-        <a class="sample-preview track-view" data-example-id="ketamuz-1407" data-uploaded="2026-07-04" href="examples/ketamuz-1407.png" target="_blank" rel="noopener">
-          <img src="examples/ketamuz-1407.png" alt="צופן כתמוז 1407 מתוך גל עיני">
-          <strong>כתמוז 1407</strong>
-          <span class="preview-meta"><span>04/07/2026</span><span class="new-badge" hidden>חדש</span></span>
-        </a>
-        <a class="sample-preview track-view" data-example-id="ketamuz-hatashpu" data-uploaded="2026-07-04" href="examples/ketamuz-hatashpu.png" target="_blank" rel="noopener">
-          <img src="examples/ketamuz-hatashpu.png" alt="צופן כתמוז תשפו מתוך גל עיני">
-          <strong>כתמוז תשפו</strong>
-          <span class="preview-meta"><span>04/07/2026</span><span class="new-badge" hidden>חדש</span></span>
-        </a>
-        <a class="sample-preview track-view" data-example-id="rav-amos-hatashpu-milchama" data-uploaded="2026-07-03" href="examples/rav-amos-hatashpu-milchama.png" target="_blank" rel="noopener">
-          <img src="examples/rav-amos-hatashpu-milchama.png" alt="צופן הרב עמוס התשפו מלחמה מתוך גל עיני">
-          <strong>הרב עמוס התשפו מלחמה</strong>
-          <span class="preview-meta"><span>03/07/2026</span><span class="new-badge" hidden>חדש</span></span>
-        </a>
-        <a class="sample-preview track-view" data-example-id="atom-petzatza-iran" data-uploaded="2026-06-21" href="web.html?project=examples/atom-petzatza-iran.gal_einai.json">
-          <img src="examples/atom-petzatza-iran.png" alt="צופן אטום פצצה אירן מתוך גל עיני">
-          <strong>אטום פצצה אירן</strong>
-          <span class="preview-meta"><span>21/06/2026</span><span class="new-badge" hidden>חדש</span></span>
-        </a>
-        <a class="sample-preview track-view" data-example-id="vetamuz-hatashpu-yenatzchu" data-uploaded="2026-06-21" href="web.html?project=examples/vetamuz-yenatzchu-israel-iran-hatashpu.gal_einai.json">
-          <img src="examples/vetamuz-hatashpu-yenatzchu.png" alt="צופן ותמוז התשפו ינצחו מתוך גל עיני">
-          <strong>ותמוז התשפו ינצחו</strong>
-          <span class="preview-meta"><span>21/06/2026</span><span class="new-badge" hidden>חדש</span></span>
-        </a>
-        <a class="sample-preview track-view" data-example-id="tamuz-hatashpu-podeh-melech-71" data-uploaded="2026-06-21" href="web.html?project=examples/tamuz3.gal_einai.json">
-          <img src="examples/tamuz-hatashpu-podeh-melech-71.png" alt="צופן תמוז התשפו פודה מלך 71 מתוך גל עיני">
-          <strong>תמוז התשפו פודה מלך 71</strong>
-          <span class="preview-meta"><span>21/06/2026</span><span class="new-badge" hidden>חדש</span></span>
-        </a>
-        <a class="sample-preview track-view" data-example-id="geula-m-hapeh-bigevura" data-uploaded="2026-07-02" href="examples/geula-m-hapeh-bigevura.png" target="_blank" rel="noopener">
-          <img src="examples/geula-m-hapeh-bigevura.png" alt="צופן גאולה מ ה-פה בגבורה מתוך גל עיני">
-          <strong>גאולה מ ה-פה בגבורה</strong>
-          <span class="preview-meta"><span>02/07/2026</span><span class="new-badge" hidden>חדש</span></span>
-        </a>
-        <a class="sample-preview track-view" data-example-id="hey-july" data-uploaded="2026-07-02" href="examples/hey-july.png" target="_blank" rel="noopener">
-          <img src="examples/hey-july.png" alt="צופן ה יולי מתוך גל עיני">
-          <strong>ה יולי</strong>
-          <span class="preview-meta"><span>02/07/2026</span><span class="new-badge" hidden>חדש</span></span>
-        </a>
-        <a class="sample-preview track-view" data-example-id="yom-mashiach-ba-583-ketamuz" data-uploaded="2026-07-02" href="examples/yom-mashiach-ba-583-ketamuz.png" target="_blank" rel="noopener">
-          <img src="examples/yom-mashiach-ba-583-ketamuz.png" alt="צופן יום משיח בא 583 כתמוז מתוך גל עיני">
-          <strong>יום משיח בא 583 כתמוז</strong>
-          <span class="preview-meta"><span>02/07/2026</span><span class="new-badge" hidden>חדש</span></span>
-        </a>
-        <a class="sample-preview track-view" data-example-id="leshiul-shemen-zayit-lechem-boker" data-uploaded="2026-07-02" href="examples/leshiul-shemen-zayit-lechem-boker.png" target="_blank" rel="noopener">
-          <img src="examples/leshiul-shemen-zayit-lechem-boker.png" alt="צופן לשיעול שמן זית ולחם בקר מתוך גל עיני">
-          <strong>לשיעול שמן זית ולחם בקר</strong>
-          <span class="preview-meta"><span>02/07/2026</span><span class="new-badge" hidden>חדש</span></span>
-        </a>
-        <a class="sample-preview track-view" data-example-id="heymanot-kesau" data-uploaded="2026-07-02" href="examples/heymanot-kesau.png" target="_blank" rel="noopener">
-          <img src="examples/heymanot-kesau.png" alt="צופן הימנוט קסאו מתוך גל עיני">
-          <strong>הימנוט קסאו</strong>
-          <span class="preview-meta"><span>02/07/2026</span><span class="new-badge" hidden>חדש</span></span>
-        </a>
-      </div>
-    </section>
-
-    <section class="premium-flyer" id="full-version" aria-label="גרסת גל עיני המלאה">
-      <div class="premium-flyer-inner">
-        <div class="premium-copy">
-          <p class="eyebrow">גרסת Windows המלאה</p>
-          <h2>כלי החקירה המקצועיים של גל עיני</h2>
-          <p>
-            הגרסה החינמית מיועדת להתחלה בסיסית עד דילוג 5000. הגרסה המלאה פותחת שכבת עבודה רחבה יותר:
-            מפגשים, מקבצים, סריקות מאגרים, תאריכים וטווחים מורחבים.
-          </p>
-          <div class="premium-price-strip" aria-label="מחיר ועדכונים">
-            <span><strong>180 ש"ח</strong> מחיר השקה</span>
-            <span><strong>250 ש"ח</strong> מחיר רגיל</span>
-            <span><strong>שנה</strong> עדכונים כלולים</span>
-          </div>
-          <p class="premium-note">
-            ניתן להתנסות בכלים האלה בעבודה באתר. הגרסה המלאה מיועדת לעבודה מקומית רחבה וללא מגבלת הדילוג.
-          </p>
-          <div class="premium-compare" aria-label="השוואה בין חינם למלא">
-            <span><strong>חינם</strong> חיפוש בסיסי, תצוגה, שמירה וסימון ידני.</span>
-            <span><strong>מלא</strong> כלי עומק, סריקות מתקדמות, מקבצים ומפגשים.</span>
-          </div>
-        </div>
-        <div class="premium-feature-grid" aria-label="פיצ'רים בגרסה המלאה">
-          <article class="premium-feature accent-gold">
-            <strong>מפגשים</strong>
-            <span>בדיקת קשרים בין ראשית למשניות, כולל סמיכות ונגיעה.</span>
-          </article>
-          <article class="premium-feature accent-sky">
-            <strong>מקבץ 10x10</strong>
-            <span>חיפוש מקבצים סביב ראשיות קיימות או כחיפוש עצמאי.</span>
-          </article>
-          <article class="premium-feature accent-wine">
-            <strong>תאריכים מדויקים</strong>
-            <span>סריקה בארבעת המישורים: N, N+1, N-1 ודילוג 1.</span>
-          </article>
-          <article class="premium-feature accent-emerald">
-            <strong>מאגרים לפי נושאים</strong>
-            <span>מקומות, סוגי מקומות, תכונות, זמנים וקבוצות מילים לחקירה.</span>
-          </article>
-          <article class="premium-feature accent-gold">
-            <strong>חצי, שליש ורבע</strong>
-            <span>כלי דילוג מתקדמים לבדיקת מבנים נוספים בצופן.</span>
-          </article>
-          <article class="premium-feature accent-sky">
-            <strong>עמודות וחוזרות</strong>
-            <span>בדיקות עומק למציאת דפוסים שחוזרים סביב הממצא.</span>
-          </article>
-          <article class="premium-feature accent-emerald">
-            <strong>רחובות לפי יישוב</strong>
-            <span>העמקה ממקום כללי לשמות רחובות כשיש צורך חקירתי.</span>
-          </article>
-          <article class="premium-feature accent-gold">
-            <strong>טווח מורחב</strong>
-            <span>שמירת ראשיות וטווחים כדי לא לחפש שוב כשאין שינוי.</span>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="band" id="download">
-      <div class="section-head">
-        <img class="section-mini-visual" src="assets/sheet-gal-einai-05.png?v=1" alt="">
-        <h2>הורדת גרסת Windows</h2>
-        <p>
-          גרסת Windows מיועדת לעבודה המקומית המלאה. הקובץ פועל אצלך במחשב,
-          ללא צורך בהרשמה וללא תלות באתר פעיל.
-        </p>
+        <a class="button secondary" href="https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v471/gal_einai_V471_public_setup.exe" download>הורד התקנה</a>
       </div>
       <div class="download-box">
         <div>
-          <strong>גל עיני V471 - גרסת Windows ציבורית</strong>
-          <span>כוללת את כלי החיפוש והתצוגה המקומיים, שמירת פרויקטים, קווים, סימונים וסריקות משניות. יש לחלץ את כל התיקייה לפני ההפעלה.</span>
+          <strong>עדכון ציבורי V483</strong>
+          <span>מתאים למי שכבר התקין את התוכנה ורוצה לעדכן לגרסה האחרונה.</span>
         </div>
-        <a class="button secondary" href="https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v471/gal_einai_V471_public_setup.exe" download>הורד גל עיני V471</a>
-      </div>
-      <div class="download-box">
-        <div>
-          <strong>התקנה קלה לשליחה במייל - גל עיני V471</strong>
-          <span>למשתמש חדש מומלץ לשלוח את קובץ ההתקנה. מפעילים setup.exe, עוברים את אשף ההתקנה, ונוצר קיצור דרך בשולחן העבודה. עדכונים עתידיים נשלחים כקובץ קטן בלבד.</span>
-        </div>
-        <a class="button secondary" href="https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v471/gal_einai_V471_public_setup.exe" download>התקנת גל עיני V471</a>
-      </div>
-      <div class="download-box">
-        <div>
-          <strong>עדכון גל עיני V483 למי שכבר התקין</strong>
-          <span>מי שכבר התקין את גל עיני לא צריך להוריד שוב את כל החבילה. מורידים את קובץ העדכון הקטן, מחלצים, ומפעילים את קובץ ההפעלה המצורף. העדכון הציבורי נשאר מוגבל עד דילוג 5000.</span>
-        </div>
-        <a class="button secondary" href="https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v483/gal_einai_V483_public_update.zip" download>עדכון ציבורי V483</a>
+        <a class="button secondary" href="https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v483/gal_einai_V483_public_update.zip" download>הורד עדכון</a>
       </div>
     </section>
 
-    <section class="content-grid" id="guide">
+    <section class="content-grid netfree-guide" id="guide">
       <article>
-        <img class="article-mini-visual" src="assets/sheet-gal-einai-08.png?v=1" alt="">
         <h2>איך מתחילים באתר</h2>
         <ol>
-          <li>לוחצים על “פתח עבודה באתר”.</li>
+          <li>פותחים את סביבת העבודה באתר.</li>
           <li>מקלידים ראשית ומשניות.</li>
-          <li>בוחרים טווח דילוגים ומפעילים חיפוש.</li>
-          <li>בוחרים ממצא בטבלה ומנווטים בחצים או בגלגלת.</li>
-          <li>לוחצים על “עזרה” להסבר מלא המותאם למהדורה.</li>
+          <li>מפעילים חיפוש ובודקים את טבלת הממצאים.</li>
         </ol>
       </article>
       <article>
-        <img class="article-mini-visual" src="assets/sheet-community-b-06.png?v=1" alt="">
         <h2>איך מתחילים ב-Windows</h2>
         <ol>
-          <li>מורידים את קובץ ה-ZIP.</li>
-          <li>מחלצים את כל התיקייה למחשב.</li>
+          <li>מורידים את קובץ ההתקנה או העדכון.</li>
+          <li>מחלצים את הקבצים במקרה של עדכון.</li>
           <li>פותחים את קובץ ההפעלה שבתיקייה.</li>
-          <li>נעזרים בחיפוש המשניות הרחב, בפס המילים העליון, בקווי התאמה, במסגרות ובטבלת הממצאים.</li>
-          <li>שומרים צפנים או מדפיסים מתוך התוכנה.</li>
         </ol>
       </article>
-      <article id="support">
-        <img class="article-mini-visual" src="assets/sheet-community-a-12.png?v=1" alt="">
-        <h2>עזרה</h2>
-        <p>
-          האתר כולל חיפוש, תצוגה, שמירת צפנים, גיבוי, היסטוריה, הדפסה, ייצוא ואוצר הצפנים.
-          להסבר מפורט ניתן לפתוח את חלון העזרה מתוך סביבת העבודה באתר או בתוכנת Windows.
-        </p>
+      <article>
+        <h2>פרטים וקשר</h2>
+        <p>להסבר נוסף, דוגמאות או פנייה מסודרת ניתן להשתמש בקישורים שבראש האתר.</p>
+        <p class="small-note">לע"נ פרופ' ריפס זצ"ל. לזכות רבני ומאזיני קו סוד החשמל, ולזיווג הגון לחיים בן רות.</p>
       </article>
     </section>
-
   </main>
 
   <footer>
     <span>גל עיני - כלי לחיפוש צפנים ודילוגים בתורה</span>
-    <span>שימוש פתוח באתר | גרסת Windows ציבורית | עדכונים ושיפורים לפי הצורך</span>
+    <span>עבודה באתר | אוצר צפנים | גרסת Windows ציבורית</span>
     <span id="siteActivity"></span>
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="supabase-public.js?v=2"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=9"></script>
-  <script src="examples.js?v=15"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
