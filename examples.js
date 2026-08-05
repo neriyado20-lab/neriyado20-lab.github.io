@@ -443,8 +443,10 @@
       card.dataset.adminHidden = "true";
       card.hidden = true;
       cancelScheduledSeen(card);
+      card.remove();
     });
     applyFilter(seen);
+    updateVaultPicker();
   }
 
   function archivedItems() {
@@ -473,8 +475,10 @@
       return;
     }
     if (existingCard) {
+      if (item.id) existingCard.dataset.contentId = item.id;
       delete existingCard.dataset.adminHidden;
       existingCard.dataset.topic = topicFor(item);
+      existingCard.dataset.uploaded = String(item.updated_at || item.updatedAt || item.created_at || item.at || existingCard.dataset.uploaded || new Date().toISOString()).slice(0, 10);
       existingCard.hidden = false;
       rebuildCardActions(existingCard, item, seen);
       setCardState(existingCard, seen);
@@ -525,6 +529,10 @@
       seen[card.dataset.exampleId] = card.dataset.uploaded || new Date().toISOString().slice(0, 10);
       cancelScheduledSeen(card);
       setCardState(card, seen);
+      card.classList.remove("is-new");
+      card.classList.add("is-seen");
+      const badge = card.querySelector(".new-badge");
+      if (badge) badge.hidden = true;
     });
     writeSeen(seen);
   }
@@ -542,7 +550,7 @@
     if (!items.length) {
       const empty = document.createElement("div");
       empty.className = "archive-item";
-      empty.innerHTML = "<div><strong>אין כרגע צפנים בארכיון</strong><small>לחיצה על ארכיון בצופן תעביר אותו לכאן ותסתיר אותו מהציבור.</small></div>";
+      empty.innerHTML = "<div><strong>אין כרגע צפנים בארכיון</strong><small>לחיצה על ארכיון בצופן תעביר אותו לכאן ותוציא אותו מהאוצר הפעיל.</small></div>";
       list.appendChild(empty);
       return;
     }
@@ -570,6 +578,7 @@
             if (status === "archive" || status === "draft") rememberLocalArchive(next);
             else forgetLocalArchive(next);
             updateCardAfterManagerStatus(next, seen);
+            if (status !== "archive" && status !== "draft") markManagerChangedCardsSeen(next, null, seen);
             renderManagerArchive(seen);
             applyFilter(seen);
             updateVaultPicker();
@@ -817,7 +826,7 @@
         hideArchivedCards(item, card, seen);
         renderManagerArchive(seen);
         document.getElementById("examplesManagerArchive")?.scrollIntoView({ behavior: "smooth", block: "start" });
-        alert("הצופן הועבר לארכיון מנהל והוסר מהאוצר הציבורי.");
+        alert("הצופן הועבר לארכיון מנהל ויצא מהאוצר הפעיל.");
       } else {
         forgetLocalArchive(item);
         updateCardAfterManagerStatus(item, seen);
@@ -831,7 +840,7 @@
       action("פרסם", () => saveStatus("active")),
       action("תאריכי עבר", () => saveStatus("past_dates")),
       action("ארכיון", async () => {
-        if (!window.confirm(`להעביר את "${titleForCard(card)}" לארכיון ולהסתיר מהציבור?`)) return;
+        if (!window.confirm(`להעביר את "${titleForCard(card)}" לארכיון ולהוציא אותו מהאוצר הפעיל?`)) return;
         await saveStatus("archive");
       }),
       action("החלף קישור", async () => {
