@@ -904,12 +904,12 @@
       archive.className = "button secondary";
       archive.type = "button";
       archive.textContent = "ארכיון";
-      archive.title = "מעביר לארכיון ומסתיר מהציבור";
+      archive.title = "מעביר לארכיון ומוציא מהאוצר הפעיל";
       archive.addEventListener("click", async () => {
         archive.disabled = true;
         try {
           await setCipherStatus(item, "archive");
-          $("adminCipherStatusText").textContent = "הצופן הועבר לארכיון והוסתר מהציבור.";
+          $("adminCipherStatusText").textContent = "הצופן הועבר לארכיון ויצא מהאוצר הפעיל.";
         } catch {
           $("adminCipherStatusText").textContent = "המעבר לארכיון נכשל. בדוק חיבור מנהל.";
         } finally {
@@ -947,7 +947,7 @@
     items.forEach((item) => addCipherRow(list, item, false));
     if (archiveList) {
       if (!archivedItems.length) {
-        archiveList.append(row("אין כרגע צפנים בארכיון", "לחיצה על ארכיון בצופן תעביר אותו לכאן ותסתיר אותו מהציבור."));
+        archiveList.append(row("אין כרגע צפנים בארכיון", "לחיצה על ארכיון בצופן תעביר אותו לכאן ותוציא אותו מהאוצר הפעיל."));
       } else {
         archivedItems.forEach((item) => addCipherRow(archiveList, item, true));
       }
