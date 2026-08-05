@@ -2,6 +2,12 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /account.html
+Disallow: /manager-download.html
+Disallow: /purchase.html
+Disallow: /order.html
+Disallow: /rides.html
+Disallow: /parking.html
+Disallow: /videos/
 Disallow: /supabase/
 Disallow: /.upload-tmp/
 
