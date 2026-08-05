@@ -3678,7 +3678,9 @@ footer .legal-footer a,
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(90deg, rgba(245, 240, 230, 0.16), rgba(255, 255, 255, 0.52));
+  background:
+    linear-gradient(90deg, rgba(245, 240, 230, 0.12), rgba(255, 255, 255, 0.38) 46%, rgba(245, 240, 230, 0.88)),
+    linear-gradient(180deg, rgba(245, 240, 230, 0.04), rgba(245, 240, 230, 0.5));
 }
 
 .netfree-hero::after {
@@ -3705,6 +3707,18 @@ footer .legal-footer a,
   max-width: 660px;
   justify-self: end;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.64);
+}
+
+.netfree-hero-temple {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 42% center;
+  filter: saturate(1.08) contrast(1.04);
 }
 
 .netfree-hero h1 {
@@ -3806,6 +3820,16 @@ footer .legal-footer a,
 
   .netfree-hero h1 {
     font-size: 58px;
+  }
+
+  .netfree-hero::before {
+    background:
+      linear-gradient(180deg, rgba(245, 240, 230, 0.82), rgba(245, 240, 230, 0.48) 46%, rgba(245, 240, 230, 0.78)),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.42));
+  }
+
+  .netfree-hero-temple {
+    object-position: 42% center;
   }
 
   .netfree-hero-image {
