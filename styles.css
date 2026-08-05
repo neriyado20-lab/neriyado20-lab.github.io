@@ -3781,9 +3781,9 @@ footer .legal-footer a,
   position: absolute;
   z-index: 3;
   left: 50%;
-  top: 50%;
+  top: 42%;
   display: block;
-  width: min(82%, 420px);
+  width: min(92%, 490px);
   height: auto;
   transform: translate(-50%, -50%) rotate(-0.35deg);
   border: 0;
@@ -3867,8 +3867,8 @@ footer .legal-footer a,
   }
 
   .netfree-hero-cipher {
-    top: 50%;
-    width: min(84%, 360px);
+    top: 43%;
+    width: min(92%, 410px);
   }
 
   .netfree-strip {
