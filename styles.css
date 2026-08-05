@@ -3677,8 +3677,8 @@ footer .legal-footer a,
   inset: 0;
   z-index: 1;
   background:
-    linear-gradient(90deg, rgba(245, 240, 230, 0.14), rgba(245, 240, 230, 0.78) 54%, rgba(245, 240, 230, 0.94)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.72));
+    linear-gradient(90deg, rgba(245, 240, 230, 0.02), rgba(245, 240, 230, 0.38) 52%, rgba(245, 240, 230, 0.76)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.3));
 }
 
 .netfree-hero::after {
@@ -3701,6 +3701,7 @@ footer .legal-footer a,
   position: relative;
   z-index: 2;
   max-width: 660px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.64);
 }
 
 .netfree-hero h1 {
@@ -3742,6 +3743,7 @@ footer .legal-footer a,
   height: 100%;
   object-fit: cover;
   object-position: 38% center;
+  filter: saturate(1.08) contrast(1.04);
 }
 
 .netfree-hero-cipher {
@@ -3815,8 +3817,8 @@ footer .legal-footer a,
 
   .netfree-hero::before {
     background:
-      linear-gradient(180deg, rgba(245, 240, 230, 0.9), rgba(245, 240, 230, 0.64) 44%, rgba(245, 240, 230, 0.86)),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.62));
+      linear-gradient(180deg, rgba(245, 240, 230, 0.74), rgba(245, 240, 230, 0.42) 44%, rgba(245, 240, 230, 0.72)),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.38));
   }
 
   .netfree-hero-temple {
