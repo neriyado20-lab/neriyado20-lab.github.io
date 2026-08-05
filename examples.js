@@ -11,6 +11,11 @@
   const viewTimers = new Map();
   const contentById = new Map();
   let managerMode = false;
+  let publicPreviewMode = false;
+
+  function effectiveManagerMode() {
+    return managerMode && !publicPreviewMode;
+  }
 
   function readSeen() {
     try {
@@ -649,8 +654,8 @@
     const list = document.getElementById("examplesArchiveList");
     const count = document.getElementById("examplesArchiveCount");
     if (!panel || !list || !count) return;
-    panel.hidden = !managerMode;
-    if (!managerMode) return;
+    panel.hidden = !effectiveManagerMode();
+    if (!effectiveManagerMode()) return;
     const items = archivedItems();
     count.textContent = `${items.length} בארכיון`;
     list.replaceChildren();
@@ -906,7 +911,7 @@
   }
 
   function addAdminActions(card, seen) {
-    if (!managerMode || card.querySelector(".cipher-admin-actions")) return;
+    if (!effectiveManagerMode() || card.querySelector(".cipher-admin-actions")) return;
     const area = document.createElement("div");
     area.className = "cipher-admin-actions";
     const action = (label, handler) => {
@@ -984,19 +989,46 @@
     });
   }
 
+  function updateManagerPreviewControls(seen) {
+    const strip = document.getElementById("examplesManagerStrip");
+    const button = document.getElementById("publicPreviewToggle");
+    const status = document.getElementById("managerPreviewStatus");
+    if (strip) strip.hidden = !managerMode;
+    document.body.classList.toggle("manager-mode", managerMode);
+    document.body.classList.toggle("public-preview-mode", publicPreviewMode);
+    if (button) {
+      button.textContent = publicPreviewMode ? "חזור לתצוגת מנהל" : "הצג כמו ציבור";
+      button.setAttribute("aria-pressed", String(publicPreviewMode));
+    }
+    if (status) {
+      status.textContent = publicPreviewMode
+        ? "כעת האוצר מוצג בלי כלי עריכה, כמו מבקר ציבורי."
+        : "כעת מוצגים גם כלי עריכה. אפשר לעבור לתצוגה ציבורית בלי לצאת מהחשבון.";
+    }
+    wireShareAndAdminTools(seen);
+    renderManagerArchive(seen);
+  }
+
+  function wireManagerPreviewToggle(seen) {
+    document.getElementById("publicPreviewToggle")?.addEventListener("click", () => {
+      publicPreviewMode = !publicPreviewMode;
+      updateManagerPreviewControls(seen);
+      applyFilter(seen);
+      updateVaultPicker();
+    });
+  }
+
   async function detectManagerMode(seen) {
     if (!supabaseClient) return;
     try {
       const { data } = await supabaseClient.auth.getSession();
       const email = data.session?.user?.email || "";
       managerMode = String(email).trim().toLowerCase() === String(ADMIN_EMAIL).trim().toLowerCase();
-      const managerStrip = document.getElementById("examplesManagerStrip");
-      if (managerStrip) managerStrip.hidden = !managerMode;
-      document.body.classList.toggle("manager-mode", managerMode);
-      wireShareAndAdminTools(seen);
-      renderManagerArchive(seen);
+      updateManagerPreviewControls(seen);
     } catch {
       managerMode = false;
+      publicPreviewMode = false;
+      updateManagerPreviewControls(seen);
       renderManagerArchive(seen);
     }
   }
@@ -1042,6 +1074,7 @@
   updateVaultPicker();
   wireCipherFeedback();
   wireShareAndAdminTools(seen);
+  wireManagerPreviewToggle(seen);
   detectManagerMode(seen);
   wireSeenOnView(seen);
   loadPublishedContent(seen);
