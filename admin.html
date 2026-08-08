@@ -105,6 +105,9 @@
       <p class="admin-help-text">
         העלאה מכאן מוסיפה צופן לאוצר הציבורי לפי הסטטוס שנבחר. ארכיון מוציא את הצופן מהאוצר הפעיל ומעביר אותו לאזור ארכיון שמופיע רק בכניסת מנהל; מחיקה לצמיתות מוחקת גם את הרשומה, ואם הקובץ נמצא באחסון הציבורי של האתר היא מוחקת גם את הקובץ.
       </p>
+      <p class="admin-help-text">
+        אם מופיעה הודעה שחסר מאגר אחסון, צריך להריץ פעם אחת את <a href="supabase-setup.sql" target="_blank" rel="noopener">supabase-setup.sql</a> בלוח הבקרה של Supabase.
+      </p>
       <form class="admin-upload-form admin-cipher-form" id="adminCipherUploadForm">
         <label>
           <span>שם הצופן</span>
@@ -376,7 +379,7 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=3"></script>
-  <script src="admin.js?v=23"></script>
+  <script src="admin.js?v=24"></script>
   <script src="hebrew-date.js?v=2"></script>
 </body>
 </html>
