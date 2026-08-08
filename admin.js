@@ -65,10 +65,15 @@
     document.body.classList.toggle("admin-unlocked", value);
   }
 
+  function storageSetupMessage(bucketName = "public-ciphers") {
+    return `חסר ב-Supabase מאגר אחסון בשם ${bucketName}. צריך להריץ פעם אחת את הקובץ supabase-setup.sql בלוח הבקרה של Supabase, ואז לחזור לכאן ולרענן.`;
+  }
+
   function friendlyError(error) {
     const message = String(error?.message || error?.error_description || error || "").trim();
     if (!message) return "";
     if (/jwt|session|auth|login|not authenticated/i.test(message)) return "הכניסה למנהל פגה. יש להיכנס מחדש.";
+    if (/bucket not found|bucket.*not found|storage.*bucket/i.test(message)) return storageSetupMessage();
     if (/row-level|policy|permission|unauthorized|forbidden|403/i.test(message)) return "אין הרשאת מנהל לאחסון הצפנים. צריך לסדר את הרשאת האחסון של חשבון המנהל.";
     if (/network|fetch|failed to fetch|timeout/i.test(message)) return "הדפדפן לא הצליח להתחבר לשרת האחסון. בדוק אינטרנט או סינון.";
     return message;
@@ -100,7 +105,7 @@
     if (listError) {
       return {
         ok: false,
-        message: friendlyError(listError) || "אין כרגע הרשאת העלאה לאוצר הצפנים."
+        message: friendlyError(listError) || storageSetupMessage()
       };
     }
     return { ok: true, message: "החיבור לאוצר הצפנים פעיל." };
