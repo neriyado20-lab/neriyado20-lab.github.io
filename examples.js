@@ -3,6 +3,7 @@
   const ARCHIVED_CONTENT_KEY = "gal-einai-archived-content-v1";
   const FEEDBACK_KEY = "gal-einai-cipher-feedback-v1";
   const VIEW_DELAY_MS = 4000;
+  const SEEN_VISIBILITY_RATIO = 0.55;
   const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
   const SUPABASE_KEY = "sb_publishable_MqD3lXrftP5B36gcRjpDbw_csTVjpVK";
   const ADMIN_EMAIL = window.GAL_EINAI_ADMIN_AUTH?.supabaseAdminEmail || "admin@gal-einai.local";
@@ -218,7 +219,7 @@
     if (!id || keepNewThisSession.has(id) || isSeen(card, seen) || viewTimers.has(id)) return;
     viewTimers.set(id, window.setTimeout(() => {
       viewTimers.delete(id);
-      markSeen(card, seen);
+      if (hasMeaningfulVisibility(card)) markSeen(card, seen);
     }, VIEW_DELAY_MS));
   }
 
@@ -236,9 +237,9 @@
     const visibleWidth = Math.min(rect.right, window.innerWidth) - Math.max(rect.left, 0);
     const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
     if (visibleWidth <= 0 || visibleHeight <= 0) return false;
-    const visibleArea = visibleWidth * visibleHeight;
-    const totalArea = rect.width * rect.height;
-    return visibleArea / totalArea >= 0.25;
+    const requiredWidth = Math.min(rect.width, window.innerWidth) * SEEN_VISIBILITY_RATIO;
+    const requiredHeight = Math.min(rect.height, window.innerHeight) * SEEN_VISIBILITY_RATIO;
+    return visibleWidth >= requiredWidth && visibleHeight >= requiredHeight;
   }
 
   function scanVisibleCards(seen) {
@@ -260,7 +261,7 @@
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         const card = entry.target;
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.25 && !card.hidden) {
+        if (entry.isIntersecting && hasMeaningfulVisibility(card)) {
           scheduleSeen(card, seen);
         } else {
           cancelScheduledSeen(card);
@@ -702,9 +703,30 @@
         });
         return button;
       };
+      const remove = document.createElement("button");
+      remove.className = "button secondary danger-button";
+      remove.type = "button";
+      remove.textContent = "מחק לצמיתות";
+      remove.hidden = String(item.id || "").startsWith("static-");
+      remove.addEventListener("click", async () => {
+        if (!window.confirm(`למחוק לצמיתות את "${item.title || "צופן בארכיון"}"? פעולה זו אינה הפיכה.`)) return;
+        remove.disabled = true;
+        try {
+          await deleteContent(item.id);
+          forgetLocalArchive(item);
+          renderManagerArchive(seen);
+          applyFilter(seen);
+          updateVaultPicker();
+        } catch (error) {
+          alert(error.message || "המחיקה נכשלה.");
+        } finally {
+          remove.disabled = false;
+        }
+      });
       actions.append(
         changeStatus("פרסם מחדש", "active"),
-        changeStatus("תאריכי עבר", "past_dates")
+        changeStatus("תאריכי עבר", "past_dates"),
+        remove
       );
       row.append(text, actions);
       list.appendChild(row);
@@ -715,19 +737,30 @@
     const layout = document.querySelector(".sample-layout");
     if (!layout) return;
     try {
-      const params = new URLSearchParams({
-        select: "id,type,title,url,status,description,created_at,updated_at",
-        type: "eq.example",
-        order: "updated_at.desc"
-      });
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/admin_content?${params}`, {
-        headers: {
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`
-        }
-      });
-      if (!response.ok) return;
-      const items = await response.json();
+      let items = [];
+      if (supabaseClient) {
+        const { data, error } = await supabaseClient
+          .from("admin_content")
+          .select("id,type,title,url,status,description,created_at,updated_at")
+          .eq("type", "example")
+          .order("updated_at", { ascending: false });
+        if (error) return;
+        items = data || [];
+      } else {
+        const params = new URLSearchParams({
+          select: "id,type,title,url,status,description,created_at,updated_at",
+          type: "eq.example",
+          order: "updated_at.desc"
+        });
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/admin_content?${params}`, {
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`
+          }
+        });
+        if (!response.ok) return;
+        items = await response.json();
+      }
       if (!Array.isArray(items) || !items.length) return;
       items.forEach((item) => contentById.set(item.id, item));
       applyLocalArchivedContent(seen);
@@ -952,6 +985,10 @@
     area.append(
       action("פרסם", () => saveStatus("active")),
       action("תאריכי עבר", () => saveStatus("past_dates")),
+      action("טיוטה", async () => {
+        if (!window.confirm(`להעביר את "${titleForCard(card)}" לטיוטה ולהוציא אותו מהאוצר הפעיל?`)) return;
+        await saveStatus("draft");
+      }),
       action("ארכיון", async () => {
         if (!window.confirm(`להעביר את "${titleForCard(card)}" לארכיון ולהוציא אותו מהאוצר הפעיל?`)) return;
         await saveStatus("archive");
@@ -992,18 +1029,12 @@
   function updateManagerPreviewControls(seen) {
     const strip = document.getElementById("examplesManagerStrip");
     const button = document.getElementById("publicPreviewToggle");
-    const status = document.getElementById("managerPreviewStatus");
     if (strip) strip.hidden = !managerMode;
     document.body.classList.toggle("manager-mode", managerMode);
     document.body.classList.toggle("public-preview-mode", publicPreviewMode);
     if (button) {
-      button.textContent = publicPreviewMode ? "חזור לתצוגת מנהל" : "הצג כמו ציבור";
+      button.textContent = publicPreviewMode ? "חזרה למצב מנהל" : "תצוגה ציבורית";
       button.setAttribute("aria-pressed", String(publicPreviewMode));
-    }
-    if (status) {
-      status.textContent = publicPreviewMode
-        ? "כעת האוצר מוצג בלי כלי עריכה, כמו מבקר ציבורי."
-        : "כעת מוצגים גם כלי עריכה. אפשר לעבור לתצוגה ציבורית בלי לצאת מהחשבון.";
     }
     wireShareAndAdminTools(seen);
     renderManagerArchive(seen);
