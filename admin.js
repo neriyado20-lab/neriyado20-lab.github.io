@@ -818,6 +818,30 @@
     select.value = current;
   }
 
+  function selectedCipherItem() {
+    const id = $("adminCipherExisting")?.value || "";
+    if (!id) return null;
+    return readContentItems().find((item) => item.id === id && item.type === "example") || null;
+  }
+
+  function syncCipherFormWithSelection() {
+    const item = selectedCipherItem();
+    const file = $("adminCipherFile");
+    const submit = $("adminCipherSubmitButton");
+    if (!item) {
+      if (file) file.required = true;
+      if (submit) submit.textContent = "העלה צופן לאוצר";
+      return;
+    }
+    $("adminCipherTitle").value = item.title || "";
+    $("adminCipherTopic").value = markerValue(item.description, "topic") || "users";
+    $("adminCipherStatus").value = item.status || "active";
+    $("adminCipherExpire").value = markerValue(item.description, "expire") || "";
+    $("adminCipherDescription").value = cleanMetadataDescription(item.description);
+    if (file) file.required = false;
+    if (submit) submit.textContent = "שמור שינוי בצופן הקיים";
+  }
+
   function storagePathFromPublicUrl(url) {
     if (!url || !supabaseClient) return "";
     try {
@@ -1307,12 +1331,49 @@
   function wireCipherManager() {
     const form = $("adminCipherUploadForm");
     if (!form) return;
+    $("adminCipherExisting")?.addEventListener("change", syncCipherFormWithSelection);
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const file = $("adminCipherFile").files?.[0];
       const status = $("adminCipherStatusText");
-      if (!file) return;
       status.textContent = "בודק חיבור מנהל...";
+      const existingContentId = $("adminCipherExisting").value || "";
+      const existingItem = selectedCipherItem();
+      if (!file && existingItem) {
+        const ready = await requireAdminConnection(status);
+        if (!ready.ok) return;
+        const now = new Date().toISOString();
+        const next = {
+          ...existingItem,
+          title: $("adminCipherTitle").value.trim() || existingItem.title,
+          status: $("adminCipherStatus").value || "active",
+          description: metadataDescription(
+            $("adminCipherDescription").value.trim(),
+            $("adminCipherTopic").value || markerValue(existingItem.description, "topic") || "users",
+            $("adminCipherExpire").value || "",
+            existingItem.description || ""
+          ),
+          updatedAt: now
+        };
+        try {
+          writeContentItems([next, ...readContentItems().filter((item) => item.id !== next.id)]);
+          await upsertRemoteContent(next);
+          if (next.status === "archive" || next.status === "draft") rememberLocalArchive(next);
+          else forgetLocalArchive(next);
+          status.textContent = next.status === "archive"
+            ? "הצופן הועבר לארכיון ויצא מהאוצר הפעיל."
+            : "השינוי נשמר באתר.";
+          renderContentItems();
+          syncCipherFormWithSelection();
+        } catch (error) {
+          status.textContent = friendlyError(error) || "השמירה לא הצליחה. היכנס מחדש למנהל ונסה שוב.";
+        }
+        return;
+      }
+      if (!file) {
+        status.textContent = "בחר קובץ לצופן חדש, או בחר צופן קיים כדי לשנות אותו בלי קובץ.";
+        return;
+      }
       const ready = await requireCipherStorageReady(status);
       if (!ready.ok) {
         status.textContent = ready.message;
@@ -1326,7 +1387,7 @@
         publishStatus: $("adminCipherStatus").value || "active",
         topic: $("adminCipherTopic").value || "users",
         expireAt: $("adminCipherExpire").value || "",
-        existingContentId: $("adminCipherExisting").value || "",
+        existingContentId,
         name: file.name,
         type: file.type || "application/octet-stream",
         size: file.size,
@@ -1366,6 +1427,7 @@
         form.reset();
         $("adminCipherTopic").value = "users";
         $("adminCipherStatus").value = "active";
+        syncCipherFormWithSelection();
         status.textContent = upload.existingContentId
           ? "הצופן הקיים עודכן באוצר הצפנים."
           : "הצופן הועלה ונוסף לאוצר הצפנים.";
