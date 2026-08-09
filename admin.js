@@ -971,6 +971,7 @@
     const archiveList = $("adminCipherArchiveList");
     const archivePanel = $("adminCipherArchivePanel");
     const archiveToggle = $("adminCipherArchiveToggle");
+    const archiveSummary = $("adminCipherArchiveSummary");
     const allItems = managedCipherItems()
       .sort((a, b) => String(b.updatedAt || b.at).localeCompare(String(a.updatedAt || a.at)));
     const items = allItems.filter((item) => item.status !== "archive" && item.status !== "draft");
@@ -980,6 +981,11 @@
       const isOpen = archiveToggle.getAttribute("aria-expanded") === "true";
       archivePanel.hidden = !isOpen;
       archiveToggle.textContent = `${isOpen ? "סגור ארכיון" : "כניסה לארכיון"} (${archivedItems.length})`;
+      if (archiveSummary) {
+        archiveSummary.textContent = archivedItems.length
+          ? `בארכיון יש ${archivedItems.length} צפנים. כל פעולות הארכיון נמצאות כאן.`
+          : "אין כרגע צפנים בארכיון. כאשר תעביר צופן לארכיון הוא יופיע כאן לטיפול.";
+      }
     };
     if (archiveToggle && archivePanel && !archiveToggle.dataset.bound) {
       archiveToggle.dataset.bound = "1";
@@ -1027,7 +1033,8 @@
       const publish = document.createElement("button");
       publish.className = "button secondary";
       publish.type = "button";
-      publish.textContent = "פרסם";
+      publish.textContent = isArchiveList ? "החזר לאוצר" : "פרסם";
+      publish.title = isArchiveList ? "מחזיר את הצופן לאוצר הצפנים הפעיל" : "מפרסם את הצופן באוצר הפעיל";
       publish.addEventListener("click", () => setCipherStatus(item, "active"));
 
       const past = document.createElement("button");
