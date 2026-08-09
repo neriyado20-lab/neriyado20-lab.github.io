@@ -758,6 +758,17 @@
     }[status] || status || "פעיל";
   }
 
+  function topicLabel(topic) {
+    return {
+      users: "צפני משתמשים",
+      dates: "תאריכים",
+      geula: "גאולה ומשיח",
+      events: "אירועים ואומות",
+      healing: "רפואה וסגולות",
+      past_dates: "תאריכי עבר"
+    }[topic] || topic || "צפני משתמשים";
+  }
+
   function markerValue(text, name) {
     const match = String(text || "").match(new RegExp(`\\[${name}:([^\\]]+)\\]`));
     return match ? match[1].trim() : "";
@@ -777,6 +788,21 @@
       if (value) markers.push(`[${name}:${value}]`);
     });
     return [markers.join("\n"), clean].filter(Boolean).join("\n");
+  }
+
+  function confirmCipherDetails({ title, topic, status, expireAt = "", description = "", fileName = "", isExisting = false }) {
+    const action = isExisting ? "לשמור את השינוי בצופן הקיים" : "להעלות את הצופן לאוצר";
+    const lines = [
+      `האם כל הפרטים נכונים לפני ${action}?`,
+      "",
+      `שם: ${title || "ללא שם"}`,
+      `נושא: ${topicLabel(topic)}`,
+      `פרסום: ${statusLabel(status)}`,
+      expireAt ? `תאריך ארכוב: ${expireAt}` : "תאריך ארכוב: ללא",
+      fileName ? `קובץ: ${fileName}` : "קובץ: נשאר הקובץ הקיים",
+      description ? `תיאור: ${description}` : "תיאור: ללא"
+    ];
+    return window.confirm(lines.join("\n"));
   }
 
   function isExpiredContent(item) {
@@ -1415,14 +1441,30 @@
         const ready = await requireAdminConnection(status);
         if (!ready.ok) return;
         const now = new Date().toISOString();
+        const nextTitle = $("adminCipherTitle").value.trim() || existingItem.title;
+        const nextStatus = $("adminCipherStatus").value || "active";
+        const nextTopic = $("adminCipherTopic").value || markerValue(existingItem.description, "topic") || "users";
+        const nextExpire = $("adminCipherExpire").value || "";
+        const nextDescription = $("adminCipherDescription").value.trim();
+        if (!confirmCipherDetails({
+          title: nextTitle,
+          topic: nextTopic,
+          status: nextStatus,
+          expireAt: nextExpire,
+          description: nextDescription,
+          isExisting: true
+        })) {
+          status.textContent = "השמירה בוטלה. אפשר לתקן את הפרטים ולנסות שוב.";
+          return;
+        }
         const next = {
           ...existingItem,
-          title: $("adminCipherTitle").value.trim() || existingItem.title,
-          status: $("adminCipherStatus").value || "active",
+          title: nextTitle,
+          status: nextStatus,
           description: metadataDescription(
-            $("adminCipherDescription").value.trim(),
-            $("adminCipherTopic").value || markerValue(existingItem.description, "topic") || "users",
-            $("adminCipherExpire").value || "",
+            nextDescription,
+            nextTopic,
+            nextExpire,
             existingItem.description || ""
           ),
           updatedAt: now
@@ -1452,13 +1494,29 @@
         return;
       }
       const title = $("adminCipherTitle").value.trim() || file.name;
+      const uploadTopic = $("adminCipherTopic").value || "users";
+      const uploadStatus = $("adminCipherStatus").value || "active";
+      const uploadExpire = $("adminCipherExpire").value || "";
+      const uploadDescription = $("adminCipherDescription").value.trim();
+      if (!confirmCipherDetails({
+        title,
+        topic: uploadTopic,
+        status: uploadStatus,
+        expireAt: uploadExpire,
+        description: uploadDescription,
+        fileName: file.name,
+        isExisting: Boolean(existingContentId)
+      })) {
+        status.textContent = "ההעלאה בוטלה. אפשר לתקן את הפרטים ולנסות שוב.";
+        return;
+      }
       const upload = {
         id: `cipher-upload-${Date.now()}-${Math.random().toString(16).slice(2)}`,
         category: "examples",
         title,
-        publishStatus: $("adminCipherStatus").value || "active",
-        topic: $("adminCipherTopic").value || "users",
-        expireAt: $("adminCipherExpire").value || "",
+        publishStatus: uploadStatus,
+        topic: uploadTopic,
+        expireAt: uploadExpire,
         existingContentId,
         name: file.name,
         type: file.type || "application/octet-stream",
@@ -1486,7 +1544,7 @@
           url: sent.publicUrl,
           status: upload.publishStatus,
           description: metadataDescription(
-            $("adminCipherDescription").value.trim() || cleanMetadataDescription(existing?.description || ""),
+            uploadDescription || cleanMetadataDescription(existing?.description || ""),
             upload.topic,
             upload.expireAt,
             existing?.description || ""
