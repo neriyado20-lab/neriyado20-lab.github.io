@@ -198,6 +198,7 @@
       render();
       renderRemoteSubmissions();
       loadRemoteContent();
+      loadLicenses();
       requireAdminConnection($("adminBackendStatus"));
     }
 
@@ -207,6 +208,7 @@
         render();
         renderRemoteSubmissions();
         loadRemoteContent();
+        loadLicenses();
         requireAdminConnection($("adminBackendStatus"));
       }
     });
@@ -233,6 +235,7 @@
       render();
       renderRemoteSubmissions();
       loadRemoteContent();
+      loadLicenses();
       requireAdminConnection($("adminBackendStatus"));
     });
 
@@ -1156,6 +1159,141 @@
     renderCipherManager();
   }
 
+  function addYear(dateText) {
+    if (!dateText) return "";
+    const date = new Date(`${dateText}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return "";
+    date.setFullYear(date.getFullYear() + 1);
+    return date.toISOString().slice(0, 10);
+  }
+
+  function resetLicenseForm() {
+    $("adminLicenseId").value = "";
+    $("adminLicenseEmail").value = "";
+    $("adminLicenseName").value = "";
+    $("adminLicensePurchasedAt").value = new Date().toISOString().slice(0, 10);
+    $("adminLicenseExpiresAt").value = addYear($("adminLicensePurchasedAt").value);
+    $("adminLicenseStatus").value = "active";
+    $("adminLicenseNotes").value = "";
+  }
+
+  function fillLicenseForm(item) {
+    $("adminLicenseId").value = item.id || "";
+    $("adminLicenseEmail").value = item.email || "";
+    $("adminLicenseName").value = item.purchaser_name || "";
+    $("adminLicensePurchasedAt").value = item.purchased_at || "";
+    $("adminLicenseExpiresAt").value = item.expires_at || "";
+    $("adminLicenseStatus").value = item.status || "active";
+    $("adminLicenseNotes").value = item.notes || "";
+    $("adminLicenseEmail").focus();
+  }
+
+  async function loadLicenses() {
+    const list = $("adminLicenseList");
+    if (!list) return;
+    list.replaceChildren();
+    if (!supabaseClient) {
+      list.append(row("ניהול רישיונות דורש חיבור מנהל", "היכנס למנהל המחובר לאתר כדי להוסיף ולעדכן רוכשים."));
+      return;
+    }
+    const ready = await requireAdminConnection($("adminLicenseStatusText"));
+    if (!ready.ok) {
+      list.append(row("אין חיבור מנהל פעיל", ready.message));
+      return;
+    }
+    const { data, error } = await supabaseClient
+      .from("purchased_update_access")
+      .select("id,email,purchaser_name,purchased_at,expires_at,status,notes,updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(200);
+    if (error) {
+      list.append(row("רשימת הרישיונות עדיין לא זמינה", friendlyError(error) || "צריך להריץ פעם אחת את supabase-setup.sql המעודכן."));
+      return;
+    }
+    if (!Array.isArray(data) || !data.length) {
+      list.append(row("אין עדיין רישיונות", "הוסף רוכש בטופס שמעל הרשימה."));
+      return;
+    }
+    data.forEach((item) => {
+      const active = item.status === "active" && item.expires_at >= new Date().toISOString().slice(0, 10);
+      const line = row(item.email, `${item.purchaser_name || "ללא שם"} | ${item.purchased_at || ""} עד ${item.expires_at || ""} | ${active ? "פעיל" : "לא פעיל"}`);
+      const actions = document.createElement("div");
+      actions.className = "admin-file-actions";
+      const edit = document.createElement("button");
+      edit.className = "button secondary";
+      edit.type = "button";
+      edit.textContent = "ערוך";
+      edit.addEventListener("click", () => fillLicenseForm(item));
+      const block = document.createElement("button");
+      block.className = "button secondary";
+      block.type = "button";
+      block.textContent = item.status === "active" ? "חסום" : "הפעל";
+      block.addEventListener("click", async () => {
+        block.disabled = true;
+        const nextStatus = item.status === "active" ? "blocked" : "active";
+        const { error: updateError } = await supabaseClient
+          .from("purchased_update_access")
+          .update({ status: nextStatus, updated_at: new Date().toISOString() })
+          .eq("id", item.id);
+        $("adminLicenseStatusText").textContent = updateError
+          ? friendlyError(updateError) || "העדכון נכשל."
+          : "הרישיון עודכן.";
+        await loadLicenses();
+      });
+      actions.append(edit, block);
+      line.appendChild(actions);
+      list.appendChild(line);
+    });
+  }
+
+  function wireLicenses() {
+    const form = $("adminLicenseForm");
+    if (!form) return;
+    const purchased = $("adminLicensePurchasedAt");
+    const expires = $("adminLicenseExpiresAt");
+    purchased?.addEventListener("change", () => {
+      if (!expires.value || $("adminLicenseId").value === "") expires.value = addYear(purchased.value);
+    });
+    $("adminLicenseResetButton")?.addEventListener("click", () => {
+      resetLicenseForm();
+      $("adminLicenseStatusText").textContent = "";
+    });
+    resetLicenseForm();
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const status = $("adminLicenseStatusText");
+      if (!supabaseClient) {
+        status.textContent = "ניהול רישיונות זמין רק בחיבור מנהל לאתר.";
+        return;
+      }
+      const ready = await requireAdminConnection(status);
+      if (!ready.ok) return;
+      const id = $("adminLicenseId").value || undefined;
+      const payload = {
+        email: $("adminLicenseEmail").value.trim().toLowerCase(),
+        purchaser_name: $("adminLicenseName").value.trim(),
+        purchased_at: $("adminLicensePurchasedAt").value,
+        expires_at: $("adminLicenseExpiresAt").value,
+        status: $("adminLicenseStatus").value,
+        notes: $("adminLicenseNotes").value.trim(),
+        updated_at: new Date().toISOString()
+      };
+      if (!payload.email || !payload.purchased_at || !payload.expires_at) return;
+      status.textContent = "שומר רישיון...";
+      const query = id
+        ? supabaseClient.from("purchased_update_access").update(payload).eq("id", id)
+        : supabaseClient.from("purchased_update_access").upsert(payload, { onConflict: "email" });
+      const { error } = await query;
+      if (error) {
+        status.textContent = friendlyError(error) || "שמירת הרישיון נכשלה.";
+        return;
+      }
+      status.textContent = "הרישיון נשמר.";
+      resetLicenseForm();
+      await loadLicenses();
+    });
+  }
+
   async function loadRemoteContent() {
     if (!supabaseClient) return;
     const { data, error } = await supabaseClient
@@ -1690,10 +1828,12 @@
   wireContent();
   wireUploads();
   wireCipherManager();
+  wireLicenses();
   wireRetention();
   $("refreshAdminButton")?.addEventListener("click", () => {
     render();
     renderRemoteSubmissions();
+    loadLicenses();
   });
   $("exportAdminButton")?.addEventListener("click", exportCsv);
   if (!supabaseClient && isAuthenticated()) render();
