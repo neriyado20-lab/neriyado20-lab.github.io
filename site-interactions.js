@@ -372,6 +372,62 @@
     });
   }
 
+  function wireFullUpdateAccess(store) {
+    const form = document.getElementById("fullUpdateAccessForm");
+    const input = document.getElementById("fullUpdateEmail");
+    const status = document.getElementById("fullUpdateAccessStatus");
+    const downloadLink = document.getElementById("fullUpdateDownloadLink");
+    if (!form || !input || !status || !downloadLink) return;
+
+    function setDownloadAllowed(allowed) {
+      const url = downloadLink.dataset.downloadUrl || "";
+      downloadLink.classList.toggle("is-disabled", !allowed);
+      downloadLink.setAttribute("aria-disabled", allowed ? "false" : "true");
+      if (allowed && url) {
+        downloadLink.href = url;
+        downloadLink.setAttribute("download", "");
+      } else {
+        downloadLink.removeAttribute("href");
+        downloadLink.removeAttribute("download");
+      }
+    }
+
+    setDownloadAllowed(false);
+    const savedEmail = store.fullUpdateEmail || "";
+    if (savedEmail) input.value = savedEmail;
+
+    downloadLink.addEventListener("click", (event) => {
+      if (downloadLink.getAttribute("aria-disabled") === "true") {
+        event.preventDefault();
+        status.textContent = "יש לבדוק זכאות לפי מייל הרכישה לפני הורדת עדכון לגרסה מלאה.";
+      }
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = input.value.trim().toLowerCase().slice(0, 160);
+      if (!email) return;
+      setDownloadAllowed(false);
+      status.textContent = "בודק זכאות...";
+      const result = await window.GalEinaiBackend?.checkFullUpdateAccess?.(email);
+      if (!result?.ok) {
+        status.textContent = "לא ניתן לבדוק כרגע. ודא שהרשאת הרוכשים הוגדרה בסופבייס ונסה שוב.";
+        return;
+      }
+      store.fullUpdateEmail = email;
+      writeStore(store);
+      if (result.active) {
+        setDownloadAllowed(true);
+        const expiry = result.expiresAt ? ` בתוקף עד ${result.expiresAt}.` : "";
+        status.textContent = `זכאות נמצאה. עדכון הרוכשים פתוח להורדה${expiry}`;
+      } else if (result.expiresAt) {
+        status.textContent = `הזכאות לעדכונים הסתיימה בתאריך ${result.expiresAt}.`;
+      } else {
+        status.textContent = "לא נמצאה זכאות פעילה למייל הזה.";
+      }
+    });
+  }
+
   function ensureLegalFooter() {
     const footer = document.querySelector("footer");
     if (!footer || footer.querySelector("[data-legal-footer]")) return;
@@ -396,5 +452,6 @@
   window.GalEinaiWireSampleCards = wireSampleCards;
   wireSampleCards();
   wireNotifications(store);
+  wireFullUpdateAccess(store);
   ensureLegalFooter();
 })();
