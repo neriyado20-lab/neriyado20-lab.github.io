@@ -373,6 +373,7 @@
   }
 
   function wireFullUpdateAccess(store) {
+    const FULL_UPDATE_DOWNLOAD_URL = "downloads/gal_einai_manager_unlimited_no_AI_patch.zip";
     const form = document.getElementById("fullUpdateAccessForm");
     const input = document.getElementById("fullUpdateEmail");
     const status = document.getElementById("fullUpdateAccessStatus");
@@ -380,11 +381,10 @@
     if (!form || !input || !status || !downloadLink) return;
 
     function setDownloadAllowed(allowed) {
-      const url = downloadLink.dataset.downloadUrl || "";
       downloadLink.classList.toggle("is-disabled", !allowed);
       downloadLink.setAttribute("aria-disabled", allowed ? "false" : "true");
-      if (allowed && url) {
-        downloadLink.href = url;
+      if (allowed) {
+        downloadLink.href = FULL_UPDATE_DOWNLOAD_URL;
         downloadLink.setAttribute("download", "");
       } else {
         downloadLink.removeAttribute("href");
@@ -399,7 +399,7 @@
     downloadLink.addEventListener("click", (event) => {
       if (downloadLink.getAttribute("aria-disabled") === "true") {
         event.preventDefault();
-        status.textContent = "יש לבדוק זכאות לפי מייל הרכישה לפני הורדת עדכון לגרסה מלאה.";
+        status.textContent = "יש לבצע בדיקת זכאות לפי מייל הרישיון לפני הורדת העדכון המלא.";
       }
     });
 
@@ -411,7 +411,7 @@
       status.textContent = "בודק זכאות...";
       const result = await window.GalEinaiBackend?.checkFullUpdateAccess?.(email);
       if (!result?.ok) {
-        status.textContent = "לא ניתן לבדוק כרגע. ודא שהרשאת הרוכשים הוגדרה בסופבייס ונסה שוב.";
+        status.textContent = "בדיקת הזכאות אינה זמינה כעת. ניתן לנסות שוב מאוחר יותר.";
         return;
       }
       store.fullUpdateEmail = email;
@@ -419,11 +419,11 @@
       if (result.active) {
         setDownloadAllowed(true);
         const expiry = result.expiresAt ? ` בתוקף עד ${result.expiresAt}.` : "";
-        status.textContent = `זכאות נמצאה. עדכון הרוכשים פתוח להורדה${expiry}`;
+        status.textContent = `נמצאה זכאות פעילה. ניתן להוריד את העדכון המלא${expiry}`;
       } else if (result.expiresAt) {
-        status.textContent = `הזכאות לעדכונים הסתיימה בתאריך ${result.expiresAt}.`;
+        status.textContent = `תקופת העדכונים הרשומה הסתיימה בתאריך ${result.expiresAt}.`;
       } else {
-        status.textContent = "לא נמצאה זכאות פעילה למייל הזה.";
+        status.textContent = "לא נמצאה זכאות פעילה למייל שהוזן.";
       }
     });
   }
