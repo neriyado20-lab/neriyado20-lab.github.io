@@ -1262,8 +1262,8 @@
       const renew = document.createElement("button");
       renew.className = "button secondary";
       renew.type = "button";
-      renew.textContent = "חדש שנה";
-      renew.title = "מוסיף שנת עדכונים מתאריך הסיום הקיים או מהיום, המאוחר מביניהם";
+      renew.textContent = "הארך שנה";
+      renew.title = "מאריך את תוקף הזכאות המלאה בשנה מתאריך הסיום הקיים או מהיום, המאוחר מביניהם";
       renew.addEventListener("click", async () => {
         renew.disabled = true;
         const nextExpires = addYearFromLater(item.expires_at);
@@ -1273,7 +1273,7 @@
           .eq("id", item.id);
         $("adminLicenseStatusText").textContent = updateError
           ? friendlyError(updateError) || "חידוש הרישיון נכשל."
-          : `הרישיון חודש עד ${nextExpires}.`;
+          : `תוקף הזכאות הוארך עד ${nextExpires}.`;
         await loadLicenses();
       });
       actions.append(edit, renew, block);
