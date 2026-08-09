@@ -12,7 +12,7 @@
   <meta property="og:description" content="אוצר הצפנים שנמצאו ונשמרו בתוכנת גל עיני, כולל תמונות מסך וקבצי צופן.">
   <meta property="og:url" content="https://neriyado20-lab.github.io/examples.html">
   <meta name="twitter:card" content="summary">
-  <link rel="stylesheet" href="styles.css?v=130">
+  <link rel="stylesheet" href="styles.css?v=141">
 </head>
 <body>
   <header class="topbar">
@@ -67,10 +67,17 @@
       </div>
       <form class="notify-form" id="notifyForm">
         <label>
-          <span>הודעה על צופן חדש</span>
-          <input id="notifyInput" type="text" autocomplete="off" placeholder="מייל או טלפון">
+          <span>דרך הודעה על צופן חדש</span>
+          <select id="notifyChannel">
+            <option value="email">מייל</option>
+            <option value="netfree">דרך אחרת שמתאימה לנטפרי</option>
+          </select>
         </label>
-        <button class="button secondary" type="submit">שמור</button>
+        <label>
+          <span>פרטי הודעה</span>
+          <input id="notifyInput" type="text" autocomplete="off" placeholder="כתובת מייל או פרטי דרך מאושרת">
+        </label>
+        <button class="button secondary" type="submit">אישור</button>
         <small id="notifyStatus" aria-live="polite"></small>
       </form>
     </section>
@@ -337,7 +344,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=1"></script>
   <script src="hebrew-date.js?v=2"></script>
-  <script src="site-interactions.js?v=9"></script>
+  <script src="site-interactions.js?v=10"></script>
   <script src="examples.js?v=30"></script>
 </body>
 </html>
