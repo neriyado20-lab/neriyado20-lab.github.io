@@ -345,23 +345,30 @@
   function wireNotifications(store) {
     const form = document.getElementById("notifyForm");
     if (!form) return;
+    const channel = document.getElementById("notifyChannel");
     const input = document.getElementById("notifyInput");
     const status = document.getElementById("notifyStatus");
     const saved = store.notifyContact || "";
+    const savedChannel = store.notifyChannel || "email";
     if (input && saved) input.value = saved;
+    if (channel) channel.value = savedChannel;
     if (status && saved) status.textContent = "פרטי ההודעה שמורים במכשיר זה.";
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       const contact = input.value.trim().slice(0, 120);
       if (!contact) return;
+      const notifyChannel = channel?.value || "email";
       store.notifyContact = contact;
+      store.notifyChannel = notifyChannel;
       writeStore(store);
       if (status) {
         status.textContent = CONFIG.enabled
-          ? "נרשמת לקבלת הודעה על צופן חדש."
-          : "נשמר במכשיר זה. שליחה אמיתית תופעל לאחר חיבור שירות הודעות.";
+          ? notifyChannel === "email"
+            ? "נרשמת לקבלת הודעה במייל על צופן חדש. יש לאשר מהמייל אם תישלח בקשת אישור."
+            : "נשמרה בקשה להודעה בדרך שמתאימה לנטפרי."
+          : "נשמר במכשיר זה. שליחה אמיתית תופעל לאחר חיבור שירות הודעות שמתאים לנטפרי.";
       }
-      sendEvent("notify_signup", { contact });
+      sendEvent("notify_signup", { contact, channel: notifyChannel });
     });
   }
 
