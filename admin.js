@@ -28,6 +28,19 @@
     "leshiul-shemen-zayit-lechem-boker": "לשיעול שמן זית ולחם בקר",
     "heymanot-kesau": "הימנוט קסאו"
   };
+  const STATIC_CIPHER_TOPICS = {
+    "ketamuz-1407": "dates",
+    "ketamuz-hatashpu": "dates",
+    "rav-amos-hatashpu-milchama": "events",
+    "atom-petzatza-iran": "events",
+    "vetamuz-hatashpu-yenatzchu": "events",
+    "tamuz-hatashpu-podeh-melech-71": "geula",
+    "geula-m-hapeh-bigevura": "geula",
+    "hey-july": "dates",
+    "yom-mashiach-ba-583-ketamuz": "geula",
+    "leshiul-shemen-zayit-lechem-boker": "healing",
+    "heymanot-kesau": "events"
+  };
 
   function $(id) {
     return document.getElementById(id);
@@ -379,6 +392,39 @@
 
   function titleFor(id) {
     return CIPHER_TITLES[id] || id;
+  }
+
+  function isStaticCipherItem(itemOrId) {
+    const id = typeof itemOrId === "string" ? itemOrId : itemOrId?.id;
+    return String(id || "").startsWith("static-");
+  }
+
+  function staticCipherItems() {
+    const now = new Date().toISOString();
+    return Object.entries(CIPHER_TITLES).map(([id, title]) => ({
+      id: `static-${id}`,
+      type: "example",
+      title,
+      url: `examples/${id}.png`,
+      status: "active",
+      description: metadataDescription("", STATIC_CIPHER_TOPICS[id] || "users", "", ""),
+      at: "2026-07-01T00:00:00.000Z",
+      updatedAt: now,
+      staticCipher: true
+    }));
+  }
+
+  function managedCipherItems() {
+    const stored = readContentItems().filter((item) => item.type === "example");
+    const byId = new Map(staticCipherItems().map((item) => [item.id, item]));
+    stored.forEach((item) => {
+      byId.set(item.id, {
+        ...(byId.get(item.id) || {}),
+        ...item,
+        staticCipher: isStaticCipherItem(item) || Boolean(byId.get(item.id)?.staticCipher)
+      });
+    });
+    return Array.from(byId.values());
   }
 
   function row(title, detail) {
@@ -790,8 +836,7 @@
     blank.value = "";
     blank.textContent = "צופן חדש";
     select.appendChild(blank);
-    readContentItems()
-      .filter((item) => item.type === "example")
+    managedCipherItems()
       .sort((a, b) => String(a.title).localeCompare(String(b.title), "he"))
       .forEach((item) => {
         const option = document.createElement("option");
@@ -811,8 +856,7 @@
     blank.value = "";
     blank.textContent = "צופן חדש";
     select.appendChild(blank);
-    readContentItems()
-      .filter((item) => item.type === "example")
+    managedCipherItems()
       .sort((a, b) => String(a.title).localeCompare(String(b.title), "he"))
       .forEach((item) => {
         const option = document.createElement("option");
@@ -826,7 +870,7 @@
   function selectedCipherItem() {
     const id = $("adminCipherExisting")?.value || "";
     if (!id) return null;
-    return readContentItems().find((item) => item.id === id && item.type === "example") || null;
+    return managedCipherItems().find((item) => item.id === id && item.type === "example") || null;
   }
 
   function syncCipherFormWithSelection() {
@@ -879,6 +923,10 @@
   }
 
   async function deleteCipherItem(item) {
+    if (isStaticCipherItem(item)) {
+      await setCipherStatus(item, "archive");
+      return false;
+    }
     const removedFile = await removeCipherFileIfPossible(item.url);
     writeContentItems(readContentItems().filter((candidate) => candidate.id !== item.id));
     await deleteRemoteContent(item.id);
@@ -892,8 +940,7 @@
     const list = $("adminCipherList");
     if (!list) return;
     const archiveList = $("adminCipherArchiveList");
-    const allItems = readContentItems()
-      .filter((item) => item.type === "example")
+    const allItems = managedCipherItems()
       .sort((a, b) => String(b.updatedAt || b.at).localeCompare(String(a.updatedAt || a.at)));
     const items = allItems.filter((item) => item.status !== "archive" && item.status !== "draft");
     const archivedItems = allItems.filter((item) => item.status === "archive" || item.status === "draft");
@@ -963,13 +1010,19 @@
       const removeForever = document.createElement("button");
       removeForever.className = "button secondary danger-button";
       removeForever.type = "button";
-      removeForever.textContent = "מחק לצמיתות";
+      removeForever.textContent = isStaticCipherItem(item) ? "הסתר" : "מחק לצמיתות";
       removeForever.addEventListener("click", async () => {
-        if (!window.confirm(`למחוק לצמיתות את "${item.title}"? פעולה זו אינה הפיכה.`)) return;
+        const staticItem = isStaticCipherItem(item);
+        const prompt = staticItem
+          ? `להסתיר את "${item.title}" מהאוצר הפעיל ולהעביר לארכיון?`
+          : `למחוק לצמיתות את "${item.title}"? פעולה זו אינה הפיכה.`;
+        if (!window.confirm(prompt)) return;
         removeForever.disabled = true;
         try {
           const removedFile = await deleteCipherItem(item);
-          $("adminCipherStatusText").textContent = removedFile
+          $("adminCipherStatusText").textContent = staticItem
+            ? "הצופן הקבוע הוסתר מהאוצר הפעיל ועבר לארכיון. אפשר לפרסם אותו מחדש בכל זמן."
+            : removedFile
             ? "הצופן נמחק לצמיתות וגם קובץ האחסון נמחק."
             : "הצופן נמחק לצמיתות מהרשימה. אם הקובץ אינו באחסון הציבורי, יש למחוק אותו בנפרד לפי הצורך.";
         } catch {
