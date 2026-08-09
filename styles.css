@@ -3874,6 +3874,38 @@ footer .legal-footer a,
   color: var(--muted);
 }
 
+.source-quotes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 1120px;
+  margin: 0 auto clamp(22px, 5vw, 52px);
+  padding: 0 clamp(18px, 4vw, 28px);
+}
+
+.source-quotes figure {
+  margin: 0;
+  padding: 18px 20px;
+  border: 1px solid rgba(214, 156, 37, 0.34);
+  border-radius: 8px;
+  background: rgba(255, 253, 246, 0.86);
+}
+
+.source-quotes blockquote {
+  margin: 0 0 8px;
+  color: var(--accent-dark);
+  font-family: "Frank Ruehl Libre", "FrankRuehl", "Narkisim", "David", "Times New Roman", serif;
+  font-size: clamp(24px, 3vw, 38px);
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.source-quotes figcaption {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
 .netfree-band,
 .netfree-guide {
   max-width: 1120px;
@@ -3903,6 +3935,10 @@ footer .legal-footer a,
 
   .netfree-hero h1 {
     font-size: 58px;
+  }
+
+  .source-quotes {
+    grid-template-columns: 1fr;
   }
 
   .netfree-hero::before {
