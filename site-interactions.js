@@ -421,7 +421,7 @@
         const expiry = result.expiresAt ? ` בתוקף עד ${result.expiresAt}.` : "";
         status.textContent = `נמצאה זכאות פעילה. ניתן להוריד את העדכון המלא${expiry}`;
       } else if (result.expiresAt) {
-        status.textContent = `תקופת העדכונים הרשומה הסתיימה בתאריך ${result.expiresAt}.`;
+        status.textContent = `לא נמצאה זכאות פעילה לעדכון מלא. התוקף הרשום הסתיים בתאריך ${result.expiresAt}.`;
       } else {
         status.textContent = "לא נמצאה זכאות פעילה למייל שהוזן.";
       }
