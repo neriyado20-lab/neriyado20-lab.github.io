@@ -6,7 +6,7 @@
   <title>ניהול אתר - גל עיני</title>
   <meta name="description" content="לוח ניהול מקומי לאתר גל עיני: צפיות, שימושים, סימוני עיון, הערות ונרשמים.">
   <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="styles.css?v=128">
+  <link rel="stylesheet" href="styles.css?v=150">
 </head>
 <body class="admin-locked">
   <section class="admin-login" id="adminLoginPanel" aria-label="כניסה לניהול">
@@ -162,8 +162,11 @@
           <p class="eyebrow">ארכיון מנהל</p>
           <h3>ארכיון צפנים</h3>
         </div>
+        <button class="button secondary" id="adminCipherArchiveToggle" type="button" aria-expanded="false">כניסה לארכיון</button>
       </div>
-      <div id="adminCipherArchiveList" class="admin-list admin-cipher-list"></div>
+      <div class="admin-archive-panel" id="adminCipherArchivePanel" hidden>
+        <div id="adminCipherArchiveList" class="admin-list admin-cipher-list"></div>
+      </div>
     </section>
 
     <section class="admin-grid">
@@ -177,13 +180,15 @@
             לפרסום צופן של משתמש: העלה את קובץ הצופן או התמונה, ואז שמור כאן פריט מסוג “צופן מאוצר הצפנים / צופן משתמש לפרסום”
             עם הכותרת, הקישור והנושא המתאים.
           </p>
+          <p class="admin-help-text admin-content-clear-note">
+            אזור זה מיועד להודעות, קישורים וקבצי הורדה כלליים. העלאת צפנים מתבצעת רק באזור “העלאה, פרסום וארכיון צפנים” שמעל.
+          </p>
           <input id="adminContentId" type="hidden">
           <label>
             <span>סוג פריט</span>
             <select id="adminContentType" required>
               <option value="announcement">הודעה באתר</option>
               <option value="download">גרסה / קובץ להורדה</option>
-              <option value="example">צופן מאוצר הצפנים / צופן משתמש לפרסום</option>
               <option value="link">קישור שימושי</option>
               <option value="note">הערת מנהל</option>
             </select>
@@ -231,7 +236,6 @@
             <span>סוג קובץ</span>
             <select id="adminUploadCategory" required>
               <option value="downloads">קובץ להורדה / גרסת תוכנה</option>
-              <option value="examples">צופן מאוצר הצפנים / צופן משתמש / תמונה</option>
               <option value="assets">נכס אתר / תמונת עיצוב</option>
               <option value="documents">מסמך ניהולי</option>
             </select>
@@ -247,26 +251,6 @@
               <option value="draft">טיוטה בלבד</option>
               <option value="archive">העבר לארכיון</option>
               <option value="past_dates">מאגר תאריכי עבר</option>
-            </select>
-          </label>
-          <label>
-            <span>נושא</span>
-            <select id="adminUploadTopic">
-              <option value="users">צפני משתמשים</option>
-              <option value="dates">תאריכים</option>
-              <option value="geula">גאולה ומשיח</option>
-              <option value="events">אירועים ואומות</option>
-              <option value="healing">רפואה וסגולות</option>
-            </select>
-          </label>
-          <label>
-            <span>תאריך יעד לארכוב</span>
-            <input id="adminUploadExpire" type="date">
-          </label>
-          <label>
-            <span>עדכון צופן קיים</span>
-            <select id="adminUploadExisting">
-              <option value="">צופן חדש</option>
             </select>
           </label>
           <label>
@@ -431,7 +415,7 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=3"></script>
-  <script src="admin.js?v=30"></script>
+  <script src="admin.js?v=31"></script>
   <script src="hebrew-date.js?v=2"></script>
 </body>
 </html>
