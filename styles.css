@@ -1081,7 +1081,8 @@ h2 {
   font-weight: 800;
 }
 
-.notify-form input {
+.notify-form input,
+.notify-form select {
   height: 36px;
   border: 1px solid rgba(13, 109, 86, 0.22);
   border-radius: 8px;
@@ -1815,6 +1816,13 @@ h2 {
   color: var(--muted);
 }
 
+.download-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 0;
+}
+
 .content-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1991,9 +1999,14 @@ footer .legal-footer a,
   }
 
   .download-box,
+  .download-choice-grid,
   footer {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .download-choice-grid {
+    grid-template-columns: 1fr;
   }
 
   .feature-strip div,
