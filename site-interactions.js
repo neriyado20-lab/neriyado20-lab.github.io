@@ -399,7 +399,7 @@
     downloadLink.addEventListener("click", (event) => {
       if (downloadLink.getAttribute("aria-disabled") === "true") {
         event.preventDefault();
-        status.textContent = "הגרסה כעת מלאה וחינמית, ואין צורך בבדיקת זכאות להורדה.";
+        status.textContent = "התוכנה חינמית, ואין צורך בבדיקת זכאות להורדה.";
       }
     });
 
