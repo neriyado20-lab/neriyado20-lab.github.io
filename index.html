@@ -29,7 +29,7 @@
     }
   }
   </script>
-  <link rel="stylesheet" href="styles.css?v=142">
+  <link rel="stylesheet" href="styles.css?v=143">
 </head>
 <body>
   <header class="topbar">
@@ -138,8 +138,16 @@
           <div>
             <strong>עדכון לגרסה מלאה - רק למי שרכש</strong>
             <span>מיועד רק למי שרכש את גל עיני המלאה וכבר מותקנת אצלו הגרסה המלאה. משתמשים רק בעדכון הזה, כדי לא להחליף בטעות לגרסה הציבורית.</span>
+            <form class="purchase-access-form" id="fullUpdateAccessForm">
+              <label>
+                <span>מייל הרכישה</span>
+                <input id="fullUpdateEmail" type="email" autocomplete="email" placeholder="הכנס מייל שבו בוצעה הרכישה">
+              </label>
+              <button class="button secondary" type="submit">בדוק זכאות</button>
+              <small id="fullUpdateAccessStatus" aria-live="polite">העדכונים לגרסה המלאה זמינים לשנה מתאריך הרכישה.</small>
+            </form>
           </div>
-          <a class="button secondary" href="downloads/gal_einai_manager_unlimited_no_AI_patch.zip" download>עדכון לרוכשים</a>
+          <a class="button secondary is-disabled" id="fullUpdateDownloadLink" data-download-url="downloads/gal_einai_manager_unlimited_no_AI_patch.zip" aria-disabled="true">עדכון לרוכשים</a>
         </div>
       </div>
     </section>
@@ -175,8 +183,8 @@
     <span id="siteActivity"></span>
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
-  <script src="supabase-public.js?v=2"></script>
+  <script src="supabase-public.js?v=3"></script>
   <script src="hebrew-date.js?v=2"></script>
-  <script src="site-interactions.js?v=10"></script>
+  <script src="site-interactions.js?v=11"></script>
 </body>
 </html>
