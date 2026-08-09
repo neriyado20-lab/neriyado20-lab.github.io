@@ -969,10 +969,27 @@
     const list = $("adminCipherList");
     if (!list) return;
     const archiveList = $("adminCipherArchiveList");
+    const archivePanel = $("adminCipherArchivePanel");
+    const archiveToggle = $("adminCipherArchiveToggle");
     const allItems = managedCipherItems()
       .sort((a, b) => String(b.updatedAt || b.at).localeCompare(String(a.updatedAt || a.at)));
     const items = allItems.filter((item) => item.status !== "archive" && item.status !== "draft");
     const archivedItems = allItems.filter((item) => item.status === "archive" || item.status === "draft");
+    const syncArchiveToggle = () => {
+      if (!archiveToggle || !archivePanel) return;
+      const isOpen = archiveToggle.getAttribute("aria-expanded") === "true";
+      archivePanel.hidden = !isOpen;
+      archiveToggle.textContent = `${isOpen ? "סגור ארכיון" : "כניסה לארכיון"} (${archivedItems.length})`;
+    };
+    if (archiveToggle && archivePanel && !archiveToggle.dataset.bound) {
+      archiveToggle.dataset.bound = "1";
+      archiveToggle.addEventListener("click", () => {
+        const isOpen = archiveToggle.getAttribute("aria-expanded") === "true";
+        archiveToggle.setAttribute("aria-expanded", isOpen ? "false" : "true");
+        syncArchiveToggle();
+      });
+    }
+    syncArchiveToggle();
     list.replaceChildren();
     if (archiveList) archiveList.replaceChildren();
     populateCipherExisting();
