@@ -1232,7 +1232,7 @@
     if (!list) return;
     list.replaceChildren();
     if (!supabaseClient) {
-      list.append(row("ניהול רישיונות דורש חיבור מנהל", "היכנס למנהל המחובר לאתר כדי להוסיף ולעדכן רוכשים."));
+      list.append(row("ניהול שירותים אישיים דורש חיבור מנהל", "היכנס למנהל המחובר לאתר כדי להוסיף ולעדכן הזמנות או הטבות."));
       return;
     }
     const ready = await requireAdminConnection($("adminLicenseStatusText"));
@@ -1246,11 +1246,11 @@
       .order("updated_at", { ascending: false })
       .limit(200);
     if (error) {
-      list.append(row("רשימת הרישיונות עדיין לא זמינה", friendlyError(error) || "צריך להריץ פעם אחת את supabase-setup.sql המעודכן."));
+      list.append(row("רשימת השירותים עדיין לא זמינה", friendlyError(error) || "צריך להריץ פעם אחת את supabase-setup.sql המעודכן."));
       return;
     }
     if (!Array.isArray(data) || !data.length) {
-      list.append(row("אין עדיין רישיונות", "הוסף רוכש בטופס שמעל הרשימה."));
+      list.append(row("אין עדיין פרטי שירות", "הוסף הזמנת חיפוש אישי או הטבה בטופס שמעל הרשימה."));
       return;
     }
     data.forEach((item) => {
@@ -1280,14 +1280,14 @@
           .eq("id", item.id);
         $("adminLicenseStatusText").textContent = updateError
           ? friendlyError(updateError) || "העדכון נכשל."
-          : "הרישיון עודכן.";
+          : "פרטי השירות עודכנו.";
         await loadLicenses();
       });
       const renew = document.createElement("button");
       renew.className = "button secondary";
       renew.type = "button";
       renew.textContent = "הארך שנה";
-      renew.title = "מאריך את תוקף הזכאות המלאה בשנה מתאריך הסיום הקיים או מהיום, המאוחר מביניהם";
+      renew.title = "מאריך את תוקף השירות או ההטבה בשנה מתאריך הסיום הקיים או מהיום, המאוחר מביניהם";
       renew.addEventListener("click", async () => {
         renew.disabled = true;
         const nextExpires = addYearFromLater(item.expires_at);
@@ -1296,8 +1296,8 @@
           .update({ status: "active", expires_at: nextExpires, updated_at: new Date().toISOString() })
           .eq("id", item.id);
         $("adminLicenseStatusText").textContent = updateError
-          ? friendlyError(updateError) || "חידוש הרישיון נכשל."
-          : `תוקף הזכאות הוארך עד ${nextExpires}.`;
+          ? friendlyError(updateError) || "הארכת השירות נכשלה."
+          : `תוקף השירות או ההטבה הוארך עד ${nextExpires}.`;
         await loadLicenses();
       });
       actions.append(edit, renew, block);
