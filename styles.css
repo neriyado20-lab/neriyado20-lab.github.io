@@ -1823,6 +1823,13 @@ h2 {
   margin-top: 0;
 }
 
+.download-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .content-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
