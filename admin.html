@@ -316,6 +316,49 @@
         <div id="adminNotifyList" class="admin-list"></div>
       </article>
 
+      <article class="admin-panel admin-license-panel">
+        <div class="admin-panel-head">
+          <h2>רישיונות ועדכונים</h2>
+        </div>
+        <form class="admin-content-form" id="adminLicenseForm">
+          <input id="adminLicenseId" type="hidden">
+          <label>
+            <span>מייל רישיון</span>
+            <input id="adminLicenseEmail" type="email" maxlength="160" required>
+          </label>
+          <label>
+            <span>שם</span>
+            <input id="adminLicenseName" type="text" maxlength="120">
+          </label>
+          <label>
+            <span>תאריך רכישה</span>
+            <input id="adminLicensePurchasedAt" type="date" required>
+          </label>
+          <label>
+            <span>עדכונים עד</span>
+            <input id="adminLicenseExpiresAt" type="date" required>
+          </label>
+          <label>
+            <span>סטטוס</span>
+            <select id="adminLicenseStatus">
+              <option value="active">פעיל</option>
+              <option value="blocked">חסום</option>
+              <option value="refunded">הוחזר</option>
+            </select>
+          </label>
+          <label class="admin-content-wide">
+            <span>הערות</span>
+            <textarea id="adminLicenseNotes" rows="2" maxlength="500"></textarea>
+          </label>
+          <div class="admin-form-actions">
+            <button class="button primary" type="submit">שמור רישיון</button>
+            <button class="button secondary" id="adminLicenseResetButton" type="button">נקה</button>
+          </div>
+          <p id="adminLicenseStatusText" class="admin-status" aria-live="polite"></p>
+        </form>
+        <div id="adminLicenseList" class="admin-list"></div>
+      </article>
+
       <article class="admin-panel">
         <div class="admin-panel-head">
           <h2>בקשות חיפוש צופן</h2>
@@ -379,7 +422,7 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=3"></script>
-  <script src="admin.js?v=27"></script>
+  <script src="admin.js?v=28"></script>
   <script src="hebrew-date.js?v=2"></script>
 </body>
 </html>
