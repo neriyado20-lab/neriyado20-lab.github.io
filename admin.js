@@ -1167,13 +1167,26 @@
     return date.toISOString().slice(0, 10);
   }
 
+  function addYearFromLater(dateText) {
+    const todayText = new Date().toISOString().slice(0, 10);
+    const baseText = dateText && dateText > todayText ? dateText : todayText;
+    return addYear(baseText);
+  }
+
+  function generateLicenseCode() {
+    const randomPart = () => Math.random().toString(36).slice(2, 6).toUpperCase();
+    return `GE-${randomPart()}-${randomPart()}-${randomPart()}`;
+  }
+
   function resetLicenseForm() {
     $("adminLicenseId").value = "";
     $("adminLicenseEmail").value = "";
     $("adminLicenseName").value = "";
+    $("adminLicenseCode").value = "";
     $("adminLicensePurchasedAt").value = new Date().toISOString().slice(0, 10);
     $("adminLicenseExpiresAt").value = addYear($("adminLicensePurchasedAt").value);
     $("adminLicenseStatus").value = "active";
+    $("adminLicenseDeviceLimit").value = "2";
     $("adminLicenseNotes").value = "";
   }
 
@@ -1181,9 +1194,11 @@
     $("adminLicenseId").value = item.id || "";
     $("adminLicenseEmail").value = item.email || "";
     $("adminLicenseName").value = item.purchaser_name || "";
+    $("adminLicenseCode").value = item.license_code || "";
     $("adminLicensePurchasedAt").value = item.purchased_at || "";
     $("adminLicenseExpiresAt").value = item.expires_at || "";
     $("adminLicenseStatus").value = item.status || "active";
+    $("adminLicenseDeviceLimit").value = item.device_limit || 2;
     $("adminLicenseNotes").value = item.notes || "";
     $("adminLicenseEmail").focus();
   }
@@ -1203,7 +1218,7 @@
     }
     const { data, error } = await supabaseClient
       .from("purchased_update_access")
-      .select("id,email,purchaser_name,purchased_at,expires_at,status,notes,updated_at")
+      .select("id,email,purchaser_name,license_code,purchased_at,expires_at,status,notes,device_limit,devices,updated_at")
       .order("updated_at", { ascending: false })
       .limit(200);
     if (error) {
@@ -1216,7 +1231,11 @@
     }
     data.forEach((item) => {
       const active = item.status === "active" && item.expires_at >= new Date().toISOString().slice(0, 10);
-      const line = row(item.email, `${item.purchaser_name || "ללא שם"} | ${item.purchased_at || ""} עד ${item.expires_at || ""} | ${active ? "פעיל" : "לא פעיל"}`);
+      const deviceCount = Array.isArray(item.devices) ? item.devices.length : 0;
+      const line = row(
+        item.email,
+        `${item.purchaser_name || "ללא שם"} | ${item.purchased_at || ""} עד ${item.expires_at || ""} | ${active ? "פעיל" : "לא פעיל"} | מחשבים ${deviceCount}/${item.device_limit || 2}`
+      );
       const actions = document.createElement("div");
       actions.className = "admin-file-actions";
       const edit = document.createElement("button");
@@ -1240,7 +1259,24 @@
           : "הרישיון עודכן.";
         await loadLicenses();
       });
-      actions.append(edit, block);
+      const renew = document.createElement("button");
+      renew.className = "button secondary";
+      renew.type = "button";
+      renew.textContent = "חדש שנה";
+      renew.title = "מוסיף שנת עדכונים מתאריך הסיום הקיים או מהיום, המאוחר מביניהם";
+      renew.addEventListener("click", async () => {
+        renew.disabled = true;
+        const nextExpires = addYearFromLater(item.expires_at);
+        const { error: updateError } = await supabaseClient
+          .from("purchased_update_access")
+          .update({ status: "active", expires_at: nextExpires, updated_at: new Date().toISOString() })
+          .eq("id", item.id);
+        $("adminLicenseStatusText").textContent = updateError
+          ? friendlyError(updateError) || "חידוש הרישיון נכשל."
+          : `הרישיון חודש עד ${nextExpires}.`;
+        await loadLicenses();
+      });
+      actions.append(edit, renew, block);
       line.appendChild(actions);
       list.appendChild(line);
     });
@@ -1272,8 +1308,10 @@
       const payload = {
         email: $("adminLicenseEmail").value.trim().toLowerCase(),
         purchaser_name: $("adminLicenseName").value.trim(),
+        license_code: $("adminLicenseCode").value.trim() || generateLicenseCode(),
         purchased_at: $("adminLicensePurchasedAt").value,
         expires_at: $("adminLicenseExpiresAt").value,
+        device_limit: Math.max(1, Math.min(10, Number($("adminLicenseDeviceLimit").value || 2))),
         status: $("adminLicenseStatus").value,
         notes: $("adminLicenseNotes").value.trim(),
         updated_at: new Date().toISOString()
