@@ -3894,7 +3894,8 @@ footer .legal-footer a,
   padding: 18px 20px;
   border: 1px solid rgba(214, 156, 37, 0.34);
   border-radius: 8px;
-  background: rgba(255, 253, 246, 0.86);
+  background: rgba(255, 253, 246, 0.58);
+  backdrop-filter: blur(1px);
 }
 
 .source-quotes blockquote {
@@ -3915,6 +3916,14 @@ footer .legal-footer a,
 .source-quotes figcaption strong {
   color: #6f4711;
   font-weight: 900;
+}
+
+.source-quotes .quote-warning {
+  display: inline-block;
+  margin-top: 3px;
+  color: #5b220f;
+  font-size: 17px;
+  line-height: 1.35;
 }
 
 .netfree-band,
