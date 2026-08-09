@@ -1830,6 +1830,29 @@ h2 {
   justify-content: flex-end;
 }
 
+.download-terms-box {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 246, 0.82);
+}
+
+.download-terms-box h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.download-terms-box ul {
+  margin: 0;
+  padding-inline-start: 22px;
+  color: var(--muted);
+}
+
+.download-terms-box li + li {
+  margin-top: 6px;
+}
+
 .purchase-access-form {
   display: grid;
   gap: 8px;
@@ -2235,6 +2258,10 @@ footer .legal-footer a,
   background: rgba(238, 246, 239, 0.74);
   color: var(--accent-dark);
   font-weight: 700;
+}
+
+#adminContentForm > .admin-help-text:first-child {
+  display: none;
 }
 
 .admin-retention-panel {
@@ -2773,6 +2800,10 @@ footer .legal-footer a,
 
 .compact-head {
   margin-top: 26px;
+}
+
+.admin-archive-panel[hidden] {
+  display: none;
 }
 
 .rides-form label,
