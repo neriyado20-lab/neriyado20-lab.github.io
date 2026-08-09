@@ -2194,6 +2194,12 @@ footer .legal-footer a,
     linear-gradient(90deg, rgba(13, 109, 86, 0.08), rgba(184, 137, 38, 0.12));
 }
 
+.admin-archive-manager {
+  max-width: none;
+  margin: 0 clamp(16px, 5vw, 72px) 18px;
+  border-color: rgba(13, 109, 86, 0.24);
+}
+
 .admin-cipher-list {
   margin-top: 16px;
 }
@@ -2818,6 +2824,29 @@ footer .legal-footer a,
 
 .admin-archive-panel[hidden] {
   display: none;
+}
+
+.admin-archive-panel {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid rgba(13, 109, 86, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 253, 246, 0.78);
+}
+
+.admin-archive-inner-head {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.admin-archive-inner-head strong {
+  color: var(--accent-dark);
+}
+
+.admin-archive-inner-head span {
+  color: var(--muted);
+  font-size: 14px;
 }
 
 .rides-form label,
