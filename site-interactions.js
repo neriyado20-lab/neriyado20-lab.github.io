@@ -399,7 +399,7 @@
     downloadLink.addEventListener("click", (event) => {
       if (downloadLink.getAttribute("aria-disabled") === "true") {
         event.preventDefault();
-        status.textContent = "יש לבצע בדיקת זכאות לפי מייל הרישיון לפני הורדת העדכון המלא.";
+        status.textContent = "הגרסה כעת מלאה וחינמית, ואין צורך בבדיקת זכאות להורדה.";
       }
     });
 
@@ -408,10 +408,10 @@
       const email = input.value.trim().toLowerCase().slice(0, 160);
       if (!email) return;
       setDownloadAllowed(false);
-      status.textContent = "בודק זכאות...";
+      status.textContent = "בודק פרטים...";
       const result = await window.GalEinaiBackend?.checkFullUpdateAccess?.(email);
       if (!result?.ok) {
-        status.textContent = "בדיקת הזכאות אינה זמינה כעת. ניתן לנסות שוב מאוחר יותר.";
+        status.textContent = "בדיקת הפרטים אינה זמינה כעת. ניתן לנסות שוב מאוחר יותר.";
         return;
       }
       store.fullUpdateEmail = email;
@@ -419,11 +419,11 @@
       if (result.active) {
         setDownloadAllowed(true);
         const expiry = result.expiresAt ? ` בתוקף עד ${result.expiresAt}.` : "";
-        status.textContent = `נמצאה זכאות פעילה. ניתן להוריד את העדכון המלא${expiry}`;
+        status.textContent = `נמצאה הרשאה פנימית פעילה${expiry}`;
       } else if (result.expiresAt) {
-        status.textContent = `לא נמצאה זכאות פעילה לעדכון מלא. התוקף הרשום הסתיים בתאריך ${result.expiresAt}.`;
+        status.textContent = `לא נמצאה הרשאה פנימית פעילה. התוקף הרשום הסתיים בתאריך ${result.expiresAt}.`;
       } else {
-        status.textContent = "לא נמצאה זכאות פעילה למייל שהוזן.";
+        status.textContent = "לא נמצאה הרשאה פנימית פעילה למייל שהוזן.";
       }
     });
   }
