@@ -175,7 +175,10 @@
         <p id="adminCipherStatusText" class="admin-status" aria-live="polite"></p>
       </form>
       <div id="adminCipherList" class="admin-list admin-cipher-list"></div>
-      <div class="admin-panel-head compact-head">
+    </section>
+
+    <section class="admin-panel admin-archive-manager" aria-label="ניהול ארכיון צפנים">
+      <div class="admin-panel-head">
         <div>
           <p class="eyebrow">ארכיון מנהל</p>
           <h3>ארכיון צפנים</h3>
@@ -183,6 +186,13 @@
         <button class="button secondary" id="adminCipherArchiveToggle" type="button" aria-expanded="false">כניסה לארכיון</button>
       </div>
       <div class="admin-archive-panel" id="adminCipherArchivePanel" hidden>
+        <div class="admin-archive-inner-head">
+          <strong>טיפול בצפנים שבארכיון</strong>
+          <span id="adminCipherArchiveSummary">כאן מופיעים צפנים שהוצאו מהאוצר הפעיל או נשמרו כטיוטה.</span>
+        </div>
+        <p class="admin-help-text">
+          מתוך הארכיון אפשר לפתוח צופן לבדיקה, לערוך את פרטיו, להחזירו לאוצר הצפנים, להעבירו לתאריכי עבר או למחוק אותו לצמיתות.
+        </p>
         <div id="adminCipherArchiveList" class="admin-list admin-cipher-list"></div>
       </div>
     </section>
