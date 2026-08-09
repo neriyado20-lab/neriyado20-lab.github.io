@@ -27,6 +27,8 @@
   const WEB_DOWNLOADS_ENABLED = true;
   const DEFAULT_SKIP_FROM = 0;
   const DEFAULT_SKIP_TO = 800;
+  const MAX_AUTO_MATCHES_PER_WORD = 24;
+  const MAX_AUTO_MARKED_CELL_RATIO = 0.22;
   const pageParams = new URLSearchParams(window.location.search);
   const edition = "pro";
   const COLORS = ["#3ddc84", "#42d7f5", "#ffe15c", "#f78acb", "#b9f35d", "#ffb347", "#9db4ff"];
@@ -41,6 +43,7 @@
     stop: false,
     searching: false,
     zoom: 22,
+    resultZoom: 13,
     primaryCache: null,
     primaryResume: null,
     lineKeys: new Set(),
@@ -55,6 +58,7 @@
     pointerZone: "torah",
     displayControlsVisible: true,
     topWordsVisible: true,
+    suppressedFloodWords: new Set(),
     avotLines: [],
     avotIndex: 0,
     avotSpeed: 4,
@@ -866,7 +870,7 @@
 
   function resultWords(result) {
     const words = new Map();
-    result.matches.forEach((match) => {
+    displayMatchesForResult(result).forEach((match) => {
       if (match.kind === "primary") return;
       const key = `${match.word}|${Math.abs(match.skip || 1)}`;
       const current = words.get(key);
@@ -1070,6 +1074,38 @@
   function positionsForMatch(match) {
     if (Array.isArray(match.positions) && match.positions.length) return match.positions;
     return matchPositions(match);
+  }
+
+  function matchGroupIsFlood(matches, windowInfo) {
+    if (!Array.isArray(matches) || matches.length <= MAX_AUTO_MATCHES_PER_WORD) return false;
+    const visible = windowInfo?.set || new Set();
+    const positions = new Set();
+    matches.forEach((match) => {
+      positionsForMatch(match).forEach((position) => {
+        if (!visible.size || visible.has(position)) positions.add(position);
+      });
+    });
+    const ratio = visible.size ? positions.size / visible.size : 0;
+    return ratio >= MAX_AUTO_MARKED_CELL_RATIO || matches.length > MAX_AUTO_MATCHES_PER_WORD * 2;
+  }
+
+  function displayMatchesForResult(result) {
+    if (!result) return [];
+    if (state.hiddenDisplayResults.has(resultKey(result))) {
+      return result.matches.filter((match) => match.kind === "primary");
+    }
+    const grouped = new Map();
+    result.matches.forEach((match) => {
+      if (match.kind === "primary") return;
+      const key = matchKey(match);
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key).push(match);
+    });
+    const flooded = new Set();
+    grouped.forEach((matches, key) => {
+      if (matchGroupIsFlood(matches, result.windowInfo)) flooded.add(key);
+    });
+    return result.matches.filter((match) => match.kind === "primary" || !flooded.has(matchKey(match)));
   }
 
   async function findWord(word, skips, onProgress, resume = null) {
@@ -1368,6 +1404,7 @@
       return;
     }
     state.stop = false;
+    state.suppressedFloodWords.clear();
     setBusy(true);
     state.results = [];
     state.current = 0;
@@ -1438,6 +1475,10 @@
         const tableWords = new Set();
         for (const secondary of activeSecondaries) {
           const matches = findInWindow(secondary.word, windowInfo);
+          if (matchGroupIsFlood(matches, windowInfo)) {
+            state.suppressedFloodWords.add(secondary.word);
+            continue;
+          }
           if (matches.length) foundWords.add(secondary.word);
           if (matches.some((match) => positionsForMatch(match).every((position) => tableWindowInfo.set.has(position)))) {
             tableWords.add(secondary.word);
@@ -1466,7 +1507,10 @@
       state.results.sort((a, b) => b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
       state.resultSort = "";
       const limitNotice = state.results.length >= resultLimit ? ` | הוצגו עד ${resultLimit}` : "";
-      setStatus(`החיפוש הסתיים | ראשיות ${primaries.length} | צפנים ${state.results.length}${limitNotice}`, 100);
+      const suppressedNotice = state.suppressedFloodWords.size
+        ? ` | לא סומנו מילים שמציפות את הלוח: ${Array.from(state.suppressedFloodWords).slice(0, 4).join(", ")}`
+        : "";
+      setStatus(`החיפוש הסתיים | ראשיות ${primaries.length} | צפנים ${state.results.length}${limitNotice}${suppressedNotice}`, 100);
       renderResults();
       renderCurrent();
       saveDraft();
@@ -1956,9 +2000,7 @@
   function renderGrid(result) {
     const { grid, cols, center } = result.windowInfo;
     const markByPos = new Map();
-    const displayMatches = state.hiddenDisplayResults.has(resultKey(result))
-      ? result.matches.filter((match) => match.kind === "primary")
-      : result.matches;
+    const displayMatches = displayMatchesForResult(result);
     displayMatches.forEach((match) => {
       positionsForMatch(match).forEach((pos) => {
         const existing = markByPos.get(pos);
@@ -2060,49 +2102,62 @@
     renderCurrent();
   }
 
+  function setResultListZoom(delta) {
+    const next = Math.max(11, Math.min(19, state.resultZoom + delta));
+    if (next === state.resultZoom) return;
+    state.resultZoom = next;
+    const y = Math.max(2, Math.round((next - 8) / 2));
+    els.resultWrap.style.setProperty("--result-font-size", `${next}px`);
+    els.resultWrap.style.setProperty("--result-cell-y", `${y}px`);
+  }
+
   function bindPinchZoom() {
-    const active = new Map();
-    let lastDistance = 0;
+    const bindTarget = (target, zoomHandler) => {
+      if (!target) return;
+      const active = new Map();
+      let lastDistance = 0;
 
-    const distance = () => {
-      const points = Array.from(active.values());
-      if (points.length < 2) return 0;
-      return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
-    };
+      const distance = () => {
+        const points = Array.from(active.values());
+        if (points.length < 2) return 0;
+        return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+      };
 
-    const endPointer = (event) => {
-      active.delete(event.pointerId);
-      if (active.size < 2) lastDistance = 0;
-    };
+      const endPointer = (event) => {
+        active.delete(event.pointerId);
+        if (active.size < 2) lastDistance = 0;
+      };
 
-    els.grid.addEventListener("pointerdown", (event) => {
-      if (event.pointerType === "mouse") return;
-      active.set(event.pointerId, { x: event.clientX, y: event.clientY });
-      if (active.size === 2) {
-        lastDistance = distance();
-        els.grid.setPointerCapture?.(event.pointerId);
-      }
-    });
+      target.addEventListener("pointerdown", (event) => {
+        if (event.pointerType === "mouse") return;
+        active.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        target.setPointerCapture?.(event.pointerId);
+        if (active.size === 2) lastDistance = distance();
+      });
 
-    els.grid.addEventListener("pointermove", (event) => {
-      if (!active.has(event.pointerId)) return;
-      active.set(event.pointerId, { x: event.clientX, y: event.clientY });
-      if (active.size < 2) return;
-      event.preventDefault();
-      const currentDistance = distance();
-      if (!lastDistance) {
+      target.addEventListener("pointermove", (event) => {
+        if (!active.has(event.pointerId)) return;
+        active.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (active.size < 2) return;
+        event.preventDefault();
+        const currentDistance = distance();
+        if (!lastDistance) {
+          lastDistance = currentDistance;
+          return;
+        }
+        const diff = currentDistance - lastDistance;
+        if (Math.abs(diff) < 14) return;
+        zoomHandler(diff > 0 ? 2 : -2);
         lastDistance = currentDistance;
-        return;
-      }
-      const diff = currentDistance - lastDistance;
-      if (Math.abs(diff) < 18) return;
-      setGridZoom(diff > 0 ? 2 : -2);
-      lastDistance = currentDistance;
-    }, { passive: false });
+      }, { passive: false });
 
-    ["pointerup", "pointercancel", "lostpointercapture"].forEach((name) => {
-      els.grid.addEventListener(name, endPointer);
-    });
+      ["pointerup", "pointercancel", "lostpointercapture"].forEach((name) => {
+        target.addEventListener(name, endPointer);
+      });
+    };
+
+    bindTarget(els.grid, setGridZoom);
+    bindTarget(els.resultWrap, (delta) => setResultListZoom(delta > 0 ? 1 : -1));
   }
 
   function bindRepeatingButton(button, action) {
@@ -2406,6 +2461,10 @@
     els.resultsPanel.addEventListener("wheel", (event) => {
       if (!state.results.length) return;
       event.preventDefault();
+      if (event.ctrlKey) {
+        setResultListZoom(event.deltaY < 0 ? 1 : -1);
+        return;
+      }
       const verticalDelta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
       moveResultFromTable(verticalDelta > 0 ? 1 : -1);
     }, { passive: false });
