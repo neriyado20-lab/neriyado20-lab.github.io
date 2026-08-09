@@ -917,6 +917,20 @@
       open.rel = item.url ? "noopener" : "";
       open.textContent = "פתח";
 
+      const edit = document.createElement("button");
+      edit.className = "button secondary";
+      edit.type = "button";
+      edit.textContent = "ערוך";
+      edit.title = "טוען את נתוני הצופן לטופס כדי לתקן שם, נושא, תיאור, סטטוס או תאריך ארכוב";
+      edit.addEventListener("click", () => {
+        const select = $("adminCipherExisting");
+        if (select) select.value = item.id;
+        syncCipherFormWithSelection();
+        $("adminCipherTitle")?.focus();
+        $("adminCipherUploadForm")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        $("adminCipherStatusText").textContent = "הצופן נטען לעריכה. אפשר לתקן נתונים וללחוץ שמור שינוי בצופן הקיים.";
+      });
+
       const publish = document.createElement("button");
       publish.className = "button secondary";
       publish.type = "button";
@@ -966,9 +980,9 @@
       });
 
       if (isArchiveList) {
-        actions.append(open, publish, past, removeForever);
+        actions.append(open, edit, publish, past, removeForever);
       } else {
-        actions.append(open, publish, past, archive, removeForever);
+        actions.append(open, edit, publish, past, archive, removeForever);
       }
       line.appendChild(actions);
       targetList.appendChild(line);
