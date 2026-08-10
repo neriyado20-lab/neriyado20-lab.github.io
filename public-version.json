@@ -1,8 +1,8 @@
 {
   "version": "V483",
   "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_V483_public_auto_update_setup.exe",
-  "sha256": "F58D613E573C0FCA538F05A04780945A101630F8DB3EEFB2C9E1B51DE52948F4",
-  "size": 24405577,
+  "sha256": "681F5C3A544DAFB25EDD78959AD492872D65588A4C17A19A6F8D58E5226E0030",
+  "size": 24407555,
   "notes": "תוכנת גל עיני V483 עם מנגנון עדכון אוטומטי.",
   "mandatory": false
 }
