@@ -13,8 +13,8 @@
 - `admin.html` - לוח ניהול לפניות, תוכן, העלאות ונתוני האתר.
 - `admin-config.js` - הגדרות כניסה והעלאה לניהול.
 - `styles.css` - עיצוב האתר.
-- קישור הורדה פעיל: `https://neriyado20-lab.github.io/downloads/gal_einai_V484_public_auto_update_setup.exe` - התקנת גל עיני V484 ללא AI.
-- עדכון פעיל: `https://neriyado20-lab.github.io/downloads/gal_einai_V484_public_upgrade_setup.exe` - עדכון גל עיני V484 ללא AI.
+- קישור הורדה פעיל: `https://neriyado20-lab.github.io/downloads/gal_einai_V485_public_auto_update_setup.exe` - התקנת גל עיני V485 ללא AI.
+- עדכון פעיל: `https://neriyado20-lab.github.io/downloads/gal_einai_V485_public_upgrade_setup.exe` - עדכון גל עיני V485 ללא AI.
 - `downloads/archive/` - גרסאות ישנות יותר נשמרות לארכיון.
 - `archive/` - קבצים ישנים או לא מקושרים שנשמרו לארכיון במקום להימחק.
 
@@ -24,9 +24,9 @@
 
 ## התקנת תוכנת Windows
 
-קבצי V484 ללא AI נבנים ומפורסמים דרך תיקיית `downloads` באתר:
+קבצי V485 ללא AI נבנים ומפורסמים דרך תיקיית `downloads` באתר:
 
-- תוכנה חינמית: `APP_VERSION = "V484"`, `FREE_SKIP_LIMIT = 0`, `AI_FEATURES_ENABLED = False`.
+- תוכנה חינמית: `APP_VERSION = "V485"`, `FREE_SKIP_LIMIT = 0`, `AI_FEATURES_ENABLED = False`.
 
 לוח הניהול נמצא ב-`admin.html`. כאשר Supabase פעיל הוא מציג פניות ונתונים מכל המכשירים
 מטבלת `site_submissions`; במקביל נשמר עותק מקומי בדפדפן לגיבוי ולבדיקות.
