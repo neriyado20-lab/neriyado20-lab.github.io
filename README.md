@@ -1,4 +1,4 @@
-# אתר גל עיני - גרסה חינמית ללא AI
+# אתר גל עיני - תוכנה חינמית ללא AI
 
 תיקייה זו היא אתר סטטי שאפשר לפתוח ישירות בדפדפן או להעלות בחינם ל-GitHub Pages.
 
@@ -13,9 +13,8 @@
 - `admin.html` - לוח ניהול לפניות, תוכן, העלאות ונתוני האתר.
 - `admin-config.js` - הגדרות כניסה והעלאה לניהול.
 - `styles.css` - עיצוב האתר.
-- קישור ציבורי פעיל: `https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v471/public-no-ai.exe` - מתקין V471 ללא AI, מוגבל עד דילוג 5000.
-- עדכון ציבורי פעיל: `https://github.com/neriyado20-lab/neriyado20-lab.github.io/releases/download/v475/gal_einai_V475_public_no_AI_small_update.zip` - עדכון V475 ללא AI, מוגבל עד דילוג 5000.
-- קבצי מנהל ללא מגבלת דילוג אינם עולים ל-Release ציבורי ואינם מקושרים באתר; שולחים אותם רק באופן פרטי לבעלי הרשאה.
+- קישור הורדה פעיל: `https://neriyado20-lab.github.io/downloads/gal_einai_V483_public_auto_update_setup.exe` - התקנת גל עיני V483 ללא AI.
+- עדכון פעיל: `https://neriyado20-lab.github.io/downloads/gal_einai_V483_public_upgrade_setup.exe` - עדכון גל עיני V483 ללא AI.
 - `downloads/archive/` - גרסאות ישנות יותר נשמרות לארכיון.
 - `archive/` - קבצים ישנים או לא מקושרים שנשמרו לארכיון במקום להימחק.
 
@@ -23,12 +22,11 @@
 
 פותחים את `index.html` בדפדפן.
 
-## התקנת תוכנת Windows למכותבים
+## התקנת תוכנת Windows
 
-קבצי V475 ללא AI נבדקו מקומית כעדכוני Python קטנים לבעלי התקנה קיימת:
+קבצי V483 ללא AI נבנים ומפורסמים דרך תיקיית `downloads` באתר:
 
-- ציבורי: `APP_VERSION = "V475"`, `FREE_SKIP_LIMIT = 5000`, `AI_FEATURES_ENABLED = False`.
-- מנהל פרטי בלבד: `APP_VERSION = "V475"`, `FREE_SKIP_LIMIT = 0`, `AI_FEATURES_ENABLED = False`.
+- תוכנה חינמית: `APP_VERSION = "V483"`, `FREE_SKIP_LIMIT = 0`, `AI_FEATURES_ENABLED = False`.
 
 לוח הניהול נמצא ב-`admin.html`. כאשר Supabase פעיל הוא מציג פניות ונתונים מכל המכשירים
 מטבלת `site_submissions`; במקביל נשמר עותק מקומי בדפדפן לגיבוי ולבדיקות.
