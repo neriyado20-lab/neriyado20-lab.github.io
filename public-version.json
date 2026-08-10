@@ -1,8 +1,8 @@
 {
-  "version": "V483",
-  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_V483_public_auto_update_setup.exe",
-  "sha256": "681F5C3A544DAFB25EDD78959AD492872D65588A4C17A19A6F8D58E5226E0030",
-  "size": 24407555,
-  "notes": "תוכנת גל עיני V483 עם מנגנון עדכון אוטומטי.",
+  "version": "V484",
+  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_V484_public_auto_update_setup.exe",
+  "sha256": "90A59FC1E68D5F628CBD01B441659A17C9A1AEAF3368A42FC74D08BC86452522",
+  "size": 24407895,
+  "notes": "תוכנת גל עיני V484 עם תיקון שורשי לסריקת תאריכים בדילוגים המדויקים בלבד.",
   "mandatory": false
 }
