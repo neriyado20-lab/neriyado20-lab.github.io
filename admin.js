@@ -419,11 +419,13 @@
 
   function managedCipherItems() {
     const stored = readContentItems().filter((item) => item.type === "example");
+    const archived = readLocalArchivedContent().filter((item) => item.type === "example" || !item.type);
     const byId = new Map(staticCipherItems().map((item) => [item.id, item]));
-    stored.forEach((item) => {
+    [...stored, ...archived].forEach((item) => {
       byId.set(item.id, {
         ...(byId.get(item.id) || {}),
         ...item,
+        type: item.type || "example",
         staticCipher: isStaticCipherItem(item) || Boolean(byId.get(item.id)?.staticCipher)
       });
     });
