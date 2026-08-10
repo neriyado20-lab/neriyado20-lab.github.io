@@ -11,6 +11,7 @@
   const keepNewThisSession = new Set();
   const viewTimers = new Map();
   const contentById = new Map();
+  let remoteContentLoaded = false;
   let managerMode = false;
   let publicPreviewMode = false;
 
@@ -561,6 +562,20 @@
     updateVaultPicker();
   }
 
+  function hideUnpublishedStaticCards(activeStaticIds, seen) {
+    if (!remoteContentLoaded) return;
+    document.querySelectorAll("[data-example-id]").forEach((card) => {
+      const staticId = `static-${card.dataset.exampleId || ""}`;
+      if (!activeStaticIds.has(staticId)) {
+        card.dataset.adminHidden = "true";
+        card.hidden = true;
+        cancelScheduledSeen(card);
+      }
+    });
+    applyFilter(seen);
+    updateVaultPicker();
+  }
+
   function archivedItems() {
     return Array.from(contentById.values())
       .filter((item) => item.type === "example" && (item.status === "archive" || item.status === "draft"))
@@ -654,11 +669,17 @@
     const panel = document.getElementById("examplesManagerArchive");
     const list = document.getElementById("examplesArchiveList");
     const count = document.getElementById("examplesArchiveCount");
+    const toggle = document.getElementById("examplesArchiveToggle");
     if (!panel || !list || !count) return;
-    panel.hidden = !effectiveManagerMode();
-    if (!effectiveManagerMode()) return;
     const items = archivedItems();
+    const archiveOpen = effectiveManagerMode() && toggle?.getAttribute("aria-expanded") === "true";
+    panel.hidden = !archiveOpen;
     count.textContent = `${items.length} בארכיון`;
+    if (toggle) {
+      toggle.hidden = !effectiveManagerMode();
+      toggle.textContent = `${archiveOpen ? "סגור ארכיון" : "כניסה לארכיון"} (${items.length})`;
+    }
+    if (!effectiveManagerMode()) return;
     list.replaceChildren();
     if (!items.length) {
       const empty = document.createElement("div");
@@ -761,12 +782,21 @@
         if (!response.ok) return;
         items = await response.json();
       }
-      if (!Array.isArray(items) || !items.length) return;
+      remoteContentLoaded = true;
+      if (!Array.isArray(items) || !items.length) {
+        hideUnpublishedStaticCards(new Set(), seen);
+        return;
+      }
       items.forEach((item) => contentById.set(item.id, item));
       applyLocalArchivedContent(seen);
       await archiveExpiredContent(items);
       items.filter((item) => String(item.id || "").startsWith("static-")).forEach((item) => applyStaticOverride(item, seen));
       applyLocalArchivedContent(seen);
+      hideUnpublishedStaticCards(new Set(
+        items
+          .filter((item) => String(item.id || "").startsWith("static-") && !isExpiredContent(item) && (item.status === "active" || item.status === "past_dates"))
+          .map((item) => String(item.id))
+      ), seen);
       applyFilter(seen);
       items.forEach((item) => {
         if (String(item.id || "").startsWith("static-")) return;
@@ -1041,6 +1071,12 @@
   }
 
   function wireManagerPreviewToggle(seen) {
+    document.getElementById("examplesArchiveToggle")?.addEventListener("click", (event) => {
+      const button = event.currentTarget;
+      const isOpen = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", isOpen ? "false" : "true");
+      renderManagerArchive(seen);
+    });
     document.getElementById("publicPreviewToggle")?.addEventListener("click", () => {
       publicPreviewMode = !publicPreviewMode;
       updateManagerPreviewControls(seen);
