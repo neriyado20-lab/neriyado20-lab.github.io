@@ -14,12 +14,12 @@
       card.classList.toggle("selected", card.dataset.plan === plan);
     });
     const selected = config[plan] || {};
-    document.getElementById("selectedPlan").textContent = selected.name || "גל עיני מקצועית";
-    document.getElementById("selectedPrice").textContent = `${selected.price || 0} ₪ ${selected.period || ""}`;
+    document.getElementById("selectedPlan").textContent = selected.name || "שירות אישי בגל עיני";
+    document.getElementById("selectedPrice").textContent = selected.price ? `${selected.price} ₪ ${selected.period || ""}` : "לפי תיאום";
     const payButton = document.getElementById("payButton");
     payButton.dataset.plan = plan;
     payButton.disabled = !config.enabled || !selected.paymentUrl;
-    payButton.textContent = payButton.disabled ? "הסליקה תיפתח בקרוב" : "מעבר מאובטח לתשלום";
+    payButton.textContent = payButton.disabled ? "תיאום השירות ייפתח בקרוב" : "מעבר מאובטח לתשלום";
   }
 
   document.querySelectorAll("[data-plan]").forEach((card) => {
@@ -32,17 +32,17 @@
   });
 
   if (source === "guided_decode") {
-    if (introTitle) introTitle.textContent = "הפעלת עיון מונחה";
-    if (introText) introText.textContent = "כדי לקבל כלי עיון מורחבים לאחר סריקת הצופן, יש להפעיל מסלול תשלום/קרדיט. לאחר התשלום חוזרים לצופן וממשיכים בעבודה.";
+    if (introTitle) introTitle.textContent = "הזמנת עיון מונחה";
+    if (introText) introText.textContent = "עיון מונחה הוא שירות אישי נלווה ואינו חלק מעצם התוכנה החינמית. לאחר תיאום השירות חוזרים לצופן וממשיכים בעבודה.";
   }
 
   status.textContent = config.enabled
     ? `התשלום מתבצע בעמוד המאובטח של ${config.provider || "חברת הסליקה"}.`
     : source === "guided_decode" && reason === "quota"
-      ? "עיון מונחה דורש תשלום/קרדיט פעיל. מערכת הרכישה מוכנה, אך החיוב עדיין כבוי עד לפתיחת חשבון הסליקה."
-      : "מערכת הרכישה מוכנה באתר, אך החיוב עדיין כבוי עד לפתיחת חשבון הסליקה.";
+      ? "עיון מונחה הוא שירות אישי נלווה. התיאום עדיין כבוי עד לפתיחת אפשרות השירות באתר."
+      : "תיאום השירות עדיין כבוי עד לפתיחת אפשרות השירות באתר.";
   support.textContent = config.supportEmail
-    ? `לתמיכה ברכישה: ${config.supportEmail}`
-    : "כתובת התמיכה תוצג לפני פתיחת החיוב.";
+    ? `לתמיכה בשירות אישי: ${config.supportEmail}`
+    : "כתובת התמיכה תוצג לפני פתיחת השירות.";
   selectPlan(requestedPlan);
 })();
