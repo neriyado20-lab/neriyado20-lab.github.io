@@ -33,7 +33,7 @@
 
   if (source === "guided_decode") {
     if (introTitle) introTitle.textContent = "הזמנת עיון מונחה";
-    if (introText) introText.textContent = "עיון מונחה הוא שירות אישי נלווה ואינו חלק מעצם התוכנה החינמית. לאחר תיאום השירות חוזרים לצופן וממשיכים בעבודה.";
+    if (introText) introText.textContent = "עיון מונחה הוא שירות אישי נלווה לבחירת המשתמש. לאחר תיאום השירות חוזרים לצופן וממשיכים בעבודה.";
   }
 
   status.textContent = config.enabled
