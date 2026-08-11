@@ -1,8 +1,8 @@
 {
-    "version":  "V493",
-    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V493_public_auto_update_setup.exe",
-    "sha256":  "E891ED037D726AA6CD7F3AB57E880AA95258EFBD74FC0D3A3AEEA48410087BC7",
-    "size":  24412609,
-    "notes":  "תיקון מסגרות וכיוון גרירה: אין כפילות פעולות כאשר יש רצף בחירה, הוסף אינו מסיר, וגרירה ימינה/שמאלה יציבה.",
+    "version":  "V494",
+    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V494_public_auto_update_setup.exe",
+    "sha256":  "EADA3A50A1C202570E14D55845C9471B9991543C5F53DC594698CA2652A77897",
+    "size":  24412136,
+    "notes":  "תיקון ציור מסגרות: מסגרת שהוסרה לא מצוירת עוד כקו דק בצבע הממצא; נשאר רק צבע הרקע של הממצא.",
     "mandatory":  false
 }
