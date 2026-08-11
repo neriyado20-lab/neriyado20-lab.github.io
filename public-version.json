@@ -1,8 +1,8 @@
 {
-    "version":  "V489",
-    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V489_public_auto_update_setup.exe",
-    "sha256":  "DA2F80CEE9D57C545FFB3E2DC53979F7D49A9B85141A168277EBC70B2C68A8FB",
-    "size":  24411431,
-    "notes":  "תיקון התאמה מלאה בין כיתוב התפריט לפעולת הוספה/הסרה של מסגרת בממצא או ברצף מסומן.",
+    "version":  "V490",
+    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V490_public_auto_update_setup.exe",
+    "sha256":  "74AE40B1B282F277B860C00AD354CB61F12FE7046258690BA2F3A012FDEF93AE",
+    "size":  24410686,
+    "notes":  "תיקון שורשי למסגרות: הוסף אינו מסיר, והסר מסיר בפועל את כל המסגרות החופפות לאותיות היעד.",
     "mandatory":  false
 }
