@@ -1,8 +1,8 @@
 {
-    "version":  "V487",
-    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V487_public_auto_update_setup.exe",
-    "sha256":  "C636BCDAB7A73183E781284CE4E4E20E74501FC81DA762E826082EED265D62B1",
-    "size":  24409829,
-    "notes":  "תיקון קליק ימני על ממצא והסרת/החזרת מסגרת לאותיות הממצא המדויק.",
+    "version":  "V488",
+    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V488_public_auto_update_setup.exe",
+    "sha256":  "9F156B387E1A640C1DDF40CEDE05B3FED48AC81972F57D7A33F7284784537762",
+    "size":  24409004,
+    "notes":  "תיקון תפריט קליק ימני: ברצף עם מסגרת מוצגת הסרה, וברצף בלי מסגרת מוצגת הוספה.",
     "mandatory":  false
 }
