@@ -1,8 +1,8 @@
 {
-    "version":  "V491",
-    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V491_public_auto_update_setup.exe",
-    "sha256":  "A83801A6A4908A9A7857EF9A30920C0D092C6692B170350C0500DD01B54317AB",
-    "size":  24411339,
-    "notes":  "תיקון מסגרות: לאחר הוספה או הסרה מתנקה בחירת הרצף כדי שהשינוי ייראה מיד ולא יתערבב עם מסגרת בחירה.",
+    "version":  "V492",
+    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V492_public_auto_update_setup.exe",
+    "sha256":  "3F04D491442B44D43B7DF2D733715C5979FFFB44B2C11C609C4CC1308F1A7C95",
+    "size":  24412054,
+    "notes":  "ייצוב כיוון גרירה וגלילה אופקית: גרירה ימינה וכפתור ימינה פועלים באותו כיוון, וכן Shift/שתי אצבעות אופקיות.",
     "mandatory":  false
 }
