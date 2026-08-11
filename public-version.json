@@ -1,8 +1,8 @@
-{
-  "version": "V486",
-  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_V486_public_auto_update_setup.exe",
-  "sha256": "4A3EA52DBCCE6979804594C51C46263E330CBD1F026B609A66FCF36A517B7BC1",
-  "size": 24408870,
-  "notes": "תוכנת גל עיני V486 עם עדכון שדה דילוג חי וכותרת הטבלה לאחר חצי/שליש/רבע.",
-  "mandatory": false
+﻿{
+    "version":  "V487",
+    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V487_public_auto_update_setup.exe",
+    "sha256":  "C636BCDAB7A73183E781284CE4E4E20E74501FC81DA762E826082EED265D62B1",
+    "size":  24409829,
+    "notes":  "תיקון קליק ימני על ממצא והסרת/החזרת מסגרת לאותיות הממצא המדויק.",
+    "mandatory":  false
 }
