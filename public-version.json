@@ -1,8 +1,8 @@
 {
-    "version":  "V496",
-    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V496_public_auto_update_setup.exe",
-    "sha256":  "2FDD2C3EA087FE77234E0A92D78A9862844872AD5D957F888C22628B5BAD95A7",
-    "size":  24411357,
-    "notes":  "החזרת התנהגות המסגרות למצב התקין; תיקון ניסוח בלבד בלי שינוי פעולת המסגרת שעבדה.",
+    "version":  "V497",
+    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V497_public_auto_update_setup.exe",
+    "sha256":  "3C9B00579F40209B231EFA1B7044E1BEDAD4C9E24D46FFBCBD489A7B68C9E2E8",
+    "size":  24412358,
+    "notes":  "שינוי כיתוב בלבד בתפריט המסגרת: במקום הוסף מסגרת כתוב הסר מסגרת, בלי שינוי פעולת המסגרת.",
     "mandatory":  false
 }
