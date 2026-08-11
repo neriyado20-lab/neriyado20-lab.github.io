@@ -13,8 +13,8 @@
 - `admin.html` - ×œ×•×— × ×™×”×•×œ ×œ×¤× ×™×•×ª, ×ª×•×›×Ÿ, ×”×¢×œ××•×ª ×•× ×ª×•× ×™ ×”××ª×¨.
 - `admin-config.js` - ×”×’×“×¨×•×ª ×›× ×™×¡×” ×•×”×¢×œ××” ×œ× ×™×”×•×œ.
 - `styles.css` - ×¢×™×¦×•×‘ ×”××ª×¨.
-- ×§×™×©×•×¨ ×”×•×¨×“×” ×¤×¢×™×œ: `https://neriyado20-lab.github.io/downloads/gal_einai_V496_public_auto_update_setup.exe` - ×”×ª×§× ×ª ×’×œ ×¢×™× ×™ V496 ×œ×œ× AI.
-- ×¢×“×›×•×Ÿ ×¤×¢×™×œ: `https://neriyado20-lab.github.io/downloads/gal_einai_V496_public_upgrade_setup.exe` - ×¢×“×›×•×Ÿ ×’×œ ×¢×™× ×™ V496 ×œ×œ× AI.
+- ×§×™×©×•×¨ ×”×•×¨×“×” ×¤×¢×™×œ: `https://neriyado20-lab.github.io/downloads/gal_einai_V497_public_auto_update_setup.exe` - ×”×ª×§× ×ª ×’×œ ×¢×™× ×™ V497 ×œ×œ× AI.
+- ×¢×“×›×•×Ÿ ×¤×¢×™×œ: `https://neriyado20-lab.github.io/downloads/gal_einai_V497_public_upgrade_setup.exe` - ×¢×“×›×•×Ÿ ×’×œ ×¢×™× ×™ V497 ×œ×œ× AI.
 - `downloads/archive/` - ×’×¨×¡××•×ª ×™×©× ×•×ª ×™×•×ª×¨ × ×©×ž×¨×•×ª ×œ××¨×›×™×•×Ÿ.
 - `archive/` - ×§×‘×¦×™× ×™×©× ×™× ××• ×œ× ×ž×§×•×©×¨×™× ×©× ×©×ž×¨×• ×œ××¨×›×™×•×Ÿ ×‘×ž×§×•× ×œ×”×™×ž×—×§.
 
@@ -24,9 +24,9 @@
 
 ## ×”×ª×§× ×ª ×ª×•×›× ×ª Windows
 
-×§×‘×¦×™ V496 ×œ×œ× AI × ×‘× ×™× ×•×ž×¤×•×¨×¡×ž×™× ×“×¨×š ×ª×™×§×™×™×ª `downloads` ×‘××ª×¨:
+×§×‘×¦×™ V497 ×œ×œ× AI × ×‘× ×™× ×•×ž×¤×•×¨×¡×ž×™× ×“×¨×š ×ª×™×§×™×™×ª `downloads` ×‘××ª×¨:
 
-- ×ª×•×›× ×” ×—×™× ×ž×™×ª: `APP_VERSION = "V496"`, `FREE_SKIP_LIMIT = 0`, `AI_FEATURES_ENABLED = False`.
+- ×ª×•×›× ×” ×—×™× ×ž×™×ª: `APP_VERSION = "V497"`, `FREE_SKIP_LIMIT = 0`, `AI_FEATURES_ENABLED = False`.
 
 ×œ×•×— ×”× ×™×”×•×œ × ×ž×¦× ×‘-`admin.html`. ×›××©×¨ Supabase ×¤×¢×™×œ ×”×•× ×ž×¦×™×’ ×¤× ×™×•×ª ×•× ×ª×•× ×™× ×ž×›×œ ×”×ž×›×©×™×¨×™×
 ×ž×˜×‘×œ×ª `site_submissions`; ×‘×ž×§×‘×™×œ × ×©×ž×¨ ×¢×•×ª×§ ×ž×§×•×ž×™ ×‘×“×¤×“×¤×Ÿ ×œ×’×™×‘×•×™ ×•×œ×‘×“×™×§×•×ª.
