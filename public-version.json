@@ -1,8 +1,8 @@
 {
-    "version":  "V490",
-    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V490_public_auto_update_setup.exe",
-    "sha256":  "74AE40B1B282F277B860C00AD354CB61F12FE7046258690BA2F3A012FDEF93AE",
-    "size":  24410686,
-    "notes":  "תיקון שורשי למסגרות: הוסף אינו מסיר, והסר מסיר בפועל את כל המסגרות החופפות לאותיות היעד.",
+    "version":  "V491",
+    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V491_public_auto_update_setup.exe",
+    "sha256":  "A83801A6A4908A9A7857EF9A30920C0D092C6692B170350C0500DD01B54317AB",
+    "size":  24411339,
+    "notes":  "תיקון מסגרות: לאחר הוספה או הסרה מתנקה בחירת הרצף כדי שהשינוי ייראה מיד ולא יתערבב עם מסגרת בחירה.",
     "mandatory":  false
 }
