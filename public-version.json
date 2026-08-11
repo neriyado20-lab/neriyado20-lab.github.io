@@ -1,8 +1,8 @@
 {
-    "version":  "V494",
-    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V494_public_auto_update_setup.exe",
-    "sha256":  "EADA3A50A1C202570E14D55845C9471B9991543C5F53DC594698CA2652A77897",
-    "size":  24412136,
-    "notes":  "תיקון ציור מסגרות: מסגרת שהוסרה לא מצוירת עוד כקו דק בצבע הממצא; נשאר רק צבע הרקע של הממצא.",
+    "version":  "V495",
+    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V495_public_auto_update_setup.exe",
+    "sha256":  "9A9E563E701BEA6FA0CE10A5D3DF88085D97BA7220FAFC42C77A6E95BBF43994",
+    "size":  24412340,
+    "notes":  "תיקון פעולות מסגרת: הוסף מוסיף/מחזיר בלבד, הסר מסיר בלבד, וללא כפילות פעולות בתפריט הקליק הימני.",
     "mandatory":  false
 }
