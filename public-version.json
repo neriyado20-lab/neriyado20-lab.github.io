@@ -1,8 +1,8 @@
 {
-    "version":  "V495",
-    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V495_public_auto_update_setup.exe",
-    "sha256":  "9A9E563E701BEA6FA0CE10A5D3DF88085D97BA7220FAFC42C77A6E95BBF43994",
-    "size":  24412340,
-    "notes":  "תיקון פעולות מסגרת: הוסף מוסיף/מחזיר בלבד, הסר מסיר בלבד, וללא כפילות פעולות בתפריט הקליק הימני.",
+    "version":  "V496",
+    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V496_public_auto_update_setup.exe",
+    "sha256":  "2FDD2C3EA087FE77234E0A92D78A9862844872AD5D957F888C22628B5BAD95A7",
+    "size":  24411357,
+    "notes":  "החזרת התנהגות המסגרות למצב התקין; תיקון ניסוח בלבד בלי שינוי פעולת המסגרת שעבדה.",
     "mandatory":  false
 }
