@@ -209,24 +209,74 @@
       .replace(/[ךםןףץ]/g, (ch) => ({ "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" }[ch] || ch));
   }
 
+  function splitSearchTokens(value) {
+    const tokens = [];
+    const pattern = /[*!]*(?:\([^)]*\)|\)[^(]*\()|[^\s,;|]+/g;
+    let match;
+    while ((match = pattern.exec(String(value || "")))) {
+      const token = match[0].trim();
+      if (token) tokens.push(token);
+    }
+    return tokens;
+  }
+
+  function bracketPhraseWords(phrase) {
+    const words = String(phrase || "")
+      .trim()
+      .split(/[\s,;|]+/)
+      .map((part) => normalizeWord(part))
+      .filter((word) => word && word.length >= 2);
+    if (!words.length) return [];
+    const forms = words.map((word) => {
+      const reversed = Array.from(word).reverse().join("");
+      return reversed && reversed !== word ? [word, reversed] : [word];
+    });
+    const variants = [];
+    const build = (index, parts) => {
+      if (index >= forms.length) {
+        const joined = normalizeWord(parts.join(""));
+        if (joined) variants.push(joined);
+        return;
+      }
+      forms[index].forEach((form) => build(index + 1, [...parts, form]));
+    };
+    build(0, []);
+    return Array.from(new Set(variants));
+  }
+
+  function expandSearchToken(token) {
+    const raw = String(token || "").trim();
+    if (!raw) return [];
+    const clean = raw.replaceAll("!", "").replaceAll("*", "").trim();
+    if (clean.length >= 2 && clean.startsWith("(") && clean.endsWith(")")) {
+      return bracketPhraseWords(clean.slice(1, -1));
+    }
+    if (clean.length >= 2 && clean.startsWith(")") && clean.endsWith("(")) {
+      return bracketPhraseWords(clean.slice(1, -1));
+    }
+    const word = normalizeWord(clean);
+    return word ? [word] : [];
+  }
+
   function splitWords(value, { keepRequired = false } = {}) {
     const seen = new Set();
     const words = [];
-    String(value || "").split(/[\s,;|]+/).forEach((raw) => {
+    splitSearchTokens(value).forEach((raw) => {
       if (!raw) return;
       const required = raw.includes("!");
-      const word = normalizeWord(raw.replaceAll("!", ""));
-      if (!word) return;
-      const key = word;
-      if (seen.has(key)) {
-        if (required && keepRequired) {
-          const existing = words.find((item) => item.word === word);
-          if (existing) existing.required = true;
+      expandSearchToken(raw).forEach((word) => {
+        if (!word) return;
+        const key = word;
+        if (seen.has(key)) {
+          if (required && keepRequired) {
+            const existing = words.find((item) => item.word === word);
+            if (existing) existing.required = true;
+          }
+          return;
         }
-        return;
-      }
-      seen.add(key);
-      words.push(keepRequired ? { word, required } : word);
+        seen.add(key);
+        words.push(keepRequired ? { word, required } : word);
+      });
     });
     return words;
   }
