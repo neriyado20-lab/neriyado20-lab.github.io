@@ -3,8 +3,7 @@ Allow: /
 Disallow: /admin.html
 Disallow: /account.html
 Disallow: /manager-download.html
-Disallow: /purchase.html
-Disallow: /order.html
+Disallow: /title-font-options.html
 Disallow: /rides.html
 Disallow: /parking.html
 Disallow: /videos/
