@@ -196,16 +196,12 @@
     <section class="admin-grid">
       <article class="admin-panel admin-upload-panel">
         <div class="admin-panel-head">
-          <h2>ניהול תוכן וקישורים</h2>
+          <h2>ניהול תוכן כללי וקישורים</h2>
           <button class="button secondary" id="exportContentButton" type="button">ייצא JSON</button>
         </div>
         <form class="admin-content-form" id="adminContentForm">
-          <p class="admin-help-text">
-            לפרסום צופן של משתמש: העלה את קובץ הצופן או התמונה, ואז שמור כאן פריט מסוג “צופן מאוצר הצפנים / צופן משתמש לפרסום”
-            עם הכותרת, הקישור והנושא המתאים.
-          </p>
           <p class="admin-help-text admin-content-clear-note">
-            אזור זה מיועד להודעות, קישורים וקבצי הורדה כלליים. העלאת צפנים מתבצעת רק באזור “העלאה, פרסום וארכיון צפנים” שמעל.
+            אזור זה מיועד להודעות, קישורים וקבצי הורדה כלליים בלבד. העלאת צפנים, עריכת צפנים, פרסום צפנים וארכיון צפנים מתבצעים רק באזור “העלאה, פרסום וארכיון צפנים” שמעל.
           </p>
           <input id="adminContentId" type="hidden">
           <label>
@@ -253,8 +249,11 @@
 
       <article class="admin-panel admin-upload-panel">
         <div class="admin-panel-head">
-          <h2>העלאת קבצים</h2>
+          <h2>העלאת קבצים כלליים</h2>
         </div>
+        <p class="admin-help-text admin-content-clear-note">
+          כאן מעלים רק קבצי הורדה, נכסי אתר ומסמכים ניהוליים. קובץ צופן או תמונת צופן יש להעלות רק באזור אוצר הצפנים שמעל.
+        </p>
         <form class="admin-upload-form" id="adminUploadForm">
           <label>
             <span>סוג קובץ</span>
@@ -439,7 +438,7 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=3"></script>
-  <script src="admin.js?v=31"></script>
+  <script src="admin.js?v=32"></script>
   <script src="hebrew-date.js?v=2"></script>
 </body>
 </html>
