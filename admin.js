@@ -748,7 +748,6 @@
     return {
       announcement: "הודעה באתר",
       download: "גרסה / קובץ להורדה",
-      example: "צופן מאוצר הצפנים / צופן משתמש",
       link: "קישור שימושי",
       note: "הערת מנהל"
     }[type] || type;
@@ -1109,11 +1108,13 @@
     const list = $("adminContentList");
     const counter = $("adminContentCount");
     if (!list || !counter) return;
-    const items = readContentItems().sort((a, b) => String(b.updatedAt || b.at).localeCompare(String(a.updatedAt || a.at)));
+    const items = readContentItems()
+      .filter((item) => item.type !== "example")
+      .sort((a, b) => String(b.updatedAt || b.at).localeCompare(String(a.updatedAt || a.at)));
     counter.textContent = items.length;
     list.replaceChildren();
     if (!items.length) {
-      list.append(row("אין עדיין פריטי תוכן", "כאן יופיעו הודעות, קישורים, גרסאות, צפנים והערות מנהל."));
+      list.append(row("אין עדיין פריטי תוכן כלליים", "כאן יופיעו הודעות, קישורים, גרסאות והערות מנהל. צפנים מנוהלים באזור אוצר הצפנים בלבד."));
       return;
     }
     items.forEach((item) => {
