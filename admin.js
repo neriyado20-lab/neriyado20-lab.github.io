@@ -1014,15 +1014,30 @@
   async function deleteCipherItem(item) {
     if (isStaticCipherItem(item)) {
       await setCipherStatus(item, "archive");
-      return false;
+      return { removedRows: 0, removedFile: false, staticItem: true, storageError: "" };
     }
-    const removedFile = await removeCipherFileIfPossible(item.url);
-    writeContentItems(readContentItems().filter((candidate) => candidate.id !== item.id));
-    await deleteRemoteContent(item.id);
-    forgetLocalArchive(item);
+    const current = readContentItems();
+    const related = current.filter((candidate) => (
+      candidate.type === "example" && (candidate.id === item.id || hasSharedIdentity(candidate, item))
+    ));
+    if (!related.some((candidate) => candidate.id === item.id)) related.push(item);
+    const deletedIds = new Set();
+    await Promise.all(related.map(async (candidate) => {
+      await deleteRemoteContent(candidate.id);
+      deletedIds.add(candidate.id);
+    }));
+    writeContentItems(current.filter((candidate) => !deletedIds.has(candidate.id) && !hasSharedIdentity(candidate, item)));
+    related.forEach((candidate) => forgetLocalArchive(candidate));
+    let removedFile = false;
+    let storageError = "";
+    try {
+      removedFile = await removeCipherFileIfPossible(item.url);
+    } catch (error) {
+      storageError = friendlyError(error) || String(error?.message || error || "");
+    }
     renderContentItems();
     renderCipherManager();
-    return removedFile;
+    return { removedRows: deletedIds.size, removedFile, staticItem: false, storageError };
   }
 
   function renderCipherManager() {
@@ -1132,11 +1147,13 @@
         if (!window.confirm(prompt)) return;
         removeForever.disabled = true;
         try {
-          const removedFile = await deleteCipherItem(item);
+          const result = await deleteCipherItem(item);
           $("adminCipherStatusText").textContent = staticItem
             ? "הצופן הקבוע הוסתר מהאוצר הפעיל ועבר לארכיון. אפשר לפרסם אותו מחדש בכל זמן."
-            : removedFile
+            : result.removedFile
             ? "הצופן נמחק לצמיתות וגם קובץ האחסון נמחק."
+            : result.storageError
+            ? "הצופן נמחק לצמיתות מהרשימה. מחיקת קובץ האחסון לא הושלמה, אבל הוא לא יופיע באוצר."
             : "הצופן נמחק לצמיתות מהרשימה. אם הקובץ אינו באחסון הציבורי, יש למחוק אותו בנפרד לפי הצורך.";
         } catch {
           $("adminCipherStatusText").textContent = "המחיקה נכשלה. בדוק חיבור מנהל והרשאות אחסון.";
