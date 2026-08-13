@@ -328,15 +328,60 @@
     }
   }
 
+  function absoluteContentUrl(url) {
+    try {
+      return new URL(url, location.href).href;
+    } catch {
+      return String(url || "");
+    }
+  }
+
+  function contentIdentityKeys(item) {
+    const keys = new Set();
+    if (!item) return keys;
+    if (item.id) keys.add(`id:${String(item.id).trim().toLowerCase()}`);
+    [item.url, markerValue(item.description, "image"), markerValue(item.description, "project")]
+      .filter(Boolean)
+      .forEach((url) => {
+        keys.add(`url:${absoluteContentUrl(String(url).trim()).toLowerCase()}`);
+      });
+    return keys;
+  }
+
+  function hasSharedIdentity(a, b) {
+    const aKeys = contentIdentityKeys(a);
+    for (const key of contentIdentityKeys(b)) {
+      if (aKeys.has(key)) return true;
+    }
+    return false;
+  }
+
+  function archivedIdentityKeys(items = []) {
+    const keys = new Set();
+    [...items, ...readLocalArchivedContent()]
+      .filter((item) => item?.type === "example" || !item?.type)
+      .filter((item) => item?.status === "archive" || item?.status === "draft")
+      .forEach((item) => contentIdentityKeys(item).forEach((key) => keys.add(key)));
+    return keys;
+  }
+
+  function hasArchivedIdentity(item, items = []) {
+    const archived = archivedIdentityKeys(items);
+    for (const key of contentIdentityKeys(item)) {
+      if (archived.has(key)) return true;
+    }
+    return false;
+  }
+
   function rememberLocalArchive(item) {
     if (!item?.id) return;
-    const items = readLocalArchivedContent().filter((candidate) => candidate.id !== item.id);
+    const items = readLocalArchivedContent().filter((candidate) => candidate.id !== item.id && !hasSharedIdentity(candidate, item));
     writeLocalArchivedContent([...items, { ...item, type: item.type || "example", status: item.status || "archive" }]);
   }
 
   function forgetLocalArchive(item) {
     if (!item?.id) return;
-    writeLocalArchivedContent(readLocalArchivedContent().filter((candidate) => candidate.id !== item.id));
+    writeLocalArchivedContent(readLocalArchivedContent().filter((candidate) => candidate.id !== item.id && !hasSharedIdentity(candidate, item)));
   }
 
   function retentionValue() {
@@ -429,7 +474,12 @@
         staticCipher: isStaticCipherItem(item) || Boolean(byId.get(item.id)?.staticCipher)
       });
     });
-    return Array.from(byId.values());
+    const items = Array.from(byId.values());
+    return items.map((item) => (
+      item.status === "active" && hasArchivedIdentity(item, items)
+        ? { ...item, status: "archive" }
+        : item
+    ));
   }
 
   function row(title, detail) {
@@ -943,11 +993,20 @@
   }
 
   async function setCipherStatus(item, status) {
-    const next = { ...item, status, updatedAt: new Date().toISOString() };
-    writeContentItems([next, ...readContentItems().filter((candidate) => candidate.id !== item.id)]);
-    await upsertRemoteContent(next);
-    if (status === "archive" || status === "draft") rememberLocalArchive(next);
-    else forgetLocalArchive(next);
+    const now = new Date().toISOString();
+    const current = readContentItems();
+    const related = current.filter((candidate) => (
+      candidate.type === "example" && (candidate.id === item.id || hasSharedIdentity(candidate, item))
+    ));
+    if (!related.some((candidate) => candidate.id === item.id)) related.push(item);
+    const nextItems = related.map((candidate) => ({ ...candidate, type: "example", status, updatedAt: now }));
+    await Promise.all(nextItems.map((next) => upsertRemoteContent(next)));
+    const updatedIds = new Set(nextItems.map((next) => next.id));
+    writeContentItems([...nextItems, ...current.filter((candidate) => !updatedIds.has(candidate.id) && !hasSharedIdentity(candidate, item))]);
+    nextItems.forEach((next) => {
+      if (status === "archive" || status === "draft") rememberLocalArchive(next);
+      else forgetLocalArchive(next);
+    });
     renderContentItems();
     renderCipherManager();
   }
@@ -1380,9 +1439,17 @@
       };
       return isExpiredContent(local) ? { ...local, status: "archive", updatedAt: now } : local;
     });
-    const expired = normalized.filter((item) => item.status === "archive" && data.some((source) => source.id === item.id && source.status !== "archive"));
-    await Promise.all(expired.map((item) => upsertRemoteContent(item).catch(() => null)));
-    writeContentItems(normalized);
+    const withLocalArchive = normalized.map((item) => (
+      item.status === "active" && hasArchivedIdentity(item, normalized)
+        ? { ...item, status: "archive", updatedAt: now }
+        : item
+    ));
+    const archivedUpdates = withLocalArchive.filter((item) => (
+      item.status === "archive"
+      && data.some((source) => source.id === item.id && source.status !== "archive")
+    ));
+    await Promise.all(archivedUpdates.map((item) => upsertRemoteContent(item).catch(() => null)));
+    writeContentItems(withLocalArchive);
     renderContentItems();
   }
 
