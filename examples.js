@@ -640,6 +640,26 @@
     updateVaultPicker();
   }
 
+  function effectiveContentItem(item) {
+    if (!item?.id) return item;
+    const current = contentById.get(item.id);
+    if (!current) return item;
+    if (current.status === "archive" || current.status === "draft") {
+      return current;
+    }
+    return { ...item, ...current };
+  }
+
+  function isPublicCipherItem(item) {
+    const effective = effectiveContentItem(item);
+    return Boolean(
+      effective
+      && effective.type === "example"
+      && !isExpiredContent(effective)
+      && (effective.status === "active" || effective.status === "past_dates")
+    );
+  }
+
   function markManagerChangedCardsSeen(item, sourceCard, seen) {
     const cards = new Set();
     if (sourceCard) cards.add(sourceCard);
@@ -794,17 +814,18 @@
       applyLocalArchivedContent(seen);
       hideUnpublishedStaticCards(new Set(
         items
-          .filter((item) => String(item.id || "").startsWith("static-") && !isExpiredContent(item) && (item.status === "active" || item.status === "past_dates"))
+          .map(effectiveContentItem)
+          .filter((item) => String(item.id || "").startsWith("static-") && isPublicCipherItem(item))
           .map((item) => String(item.id))
       ), seen);
       applyFilter(seen);
       items.forEach((item) => {
-        if (String(item.id || "").startsWith("static-")) return;
-        if (isExpiredContent(item)) return;
-        if (item.status !== "active" && item.status !== "past_dates") return;
-        const id = `admin-${String(item.id || item.title).replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
+        const effective = effectiveContentItem(item);
+        if (String(effective.id || "").startsWith("static-")) return;
+        if (!isPublicCipherItem(effective)) return;
+        const id = `admin-${String(effective.id || effective.title).replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
         if (document.querySelector(`[data-example-id="${CSS.escape(id)}"]`)) return;
-        const card = cardForContent(item);
+        const card = cardForContent(effective);
         layout.prepend(card);
         setCardState(card, seen);
         addCipherFeedback(card);
