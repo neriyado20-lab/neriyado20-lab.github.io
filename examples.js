@@ -171,6 +171,36 @@
     writeLocalArchivedContent(readLocalArchivedContent().filter((candidate) => candidate.id !== item.id));
   }
 
+  function contentIdentityKeys(item) {
+    const keys = new Set();
+    if (!item) return keys;
+    if (item.id) keys.add(`id:${String(item.id).trim().toLowerCase()}`);
+    [item.url, markerValue(item.description, "image"), markerValue(item.description, "project")]
+      .filter(Boolean)
+      .forEach((url) => {
+        const absolute = absoluteUrl(String(url).trim());
+        keys.add(`url:${absolute.toLowerCase()}`);
+      });
+    return keys;
+  }
+
+  function archivedIdentityKeys() {
+    const keys = new Set();
+    [...contentById.values(), ...readLocalArchivedContent()]
+      .filter((item) => item?.type === "example" || !item?.type)
+      .filter((item) => item?.status === "archive" || item?.status === "draft")
+      .forEach((item) => contentIdentityKeys(item).forEach((key) => keys.add(key)));
+    return keys;
+  }
+
+  function hasArchivedIdentity(item) {
+    const archived = archivedIdentityKeys();
+    for (const key of contentIdentityKeys(item)) {
+      if (archived.has(key)) return true;
+    }
+    return false;
+  }
+
   function isSeen(card, seen) {
     const id = card.dataset.exampleId;
     const uploaded = card.dataset.uploaded || "";
@@ -647,6 +677,7 @@
     if (current.status === "archive" || current.status === "draft") {
       return current;
     }
+    if (hasArchivedIdentity(item)) return { ...current, status: "archive" };
     return { ...item, ...current };
   }
 
