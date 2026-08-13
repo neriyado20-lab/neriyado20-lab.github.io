@@ -1,8 +1,8 @@
 {
-    "version":  "V497",
-    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V497_public_auto_update_setup.exe",
-    "sha256":  "3C9B00579F40209B231EFA1B7044E1BEDAD4C9E24D46FFBCBD489A7B68C9E2E8",
-    "size":  24412358,
-    "notes":  "שינוי כיתוב בלבד בתפריט המסגרת: במקום הוסף מסגרת כתוב הסר מסגרת, בלי שינוי פעולת המסגרת.",
-    "mandatory":  false
+  "version": "V531",
+  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_V531_public_auto_update_setup.exe",
+  "sha256": "AABDA2D519EC22EDB3AC6D290293F6B4830610EA8D2D62576C968C183BF23D1A",
+  "size": 24086609,
+  "notes": "נוספה לקיטת צבע בקליק ימני עם בחירה מה ללקוט: רקע, גופן או מסגרת. תוקן זיהוי מסגרת כך שהסר מסגרת יוצג רק כשיש מסגרת ישירה על הממצא.",
+  "mandatory": false
 }
