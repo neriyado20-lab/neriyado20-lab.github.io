@@ -775,30 +775,9 @@
         });
         return button;
       };
-      const remove = document.createElement("button");
-      remove.className = "button secondary danger-button";
-      remove.type = "button";
-      remove.textContent = "מחק לצמיתות";
-      remove.hidden = String(item.id || "").startsWith("static-");
-      remove.addEventListener("click", async () => {
-        if (!window.confirm(`למחוק לצמיתות את "${item.title || "צופן בארכיון"}"? פעולה זו אינה הפיכה.`)) return;
-        remove.disabled = true;
-        try {
-          await deleteContent(item.id);
-          forgetLocalArchive(item);
-          renderManagerArchive(seen);
-          applyFilter(seen);
-          updateVaultPicker();
-        } catch (error) {
-          alert(error.message || "המחיקה נכשלה.");
-        } finally {
-          remove.disabled = false;
-        }
-      });
       actions.append(
         changeStatus("פרסם מחדש", "active"),
-        changeStatus("תאריכי עבר", "past_dates"),
-        remove
+        changeStatus("תאריכי עבר", "past_dates")
       );
       row.append(text, actions);
       list.appendChild(row);
@@ -1064,7 +1043,7 @@
       updateVaultPicker();
       renderManagerArchive(seen);
     };
-    area.append(
+    const actions = [
       action("פרסם", () => saveStatus("active")),
       action("תאריכי עבר", () => saveStatus("past_dates")),
       action("טיוטה", async () => {
@@ -1083,21 +1062,9 @@
         const item = payloadForCard(card, "active", { url: absoluteUrl(url), title });
         await upsertContent(item);
         alert("הקישור הוחלף. רענון הדף יציג את העדכון.");
-      }),
-      action("מחק לצמיתות", async () => {
-        if (!window.confirm(`למחוק לצמיתות את "${titleForCard(card)}"? פעולה זו אינה הפיכה.`)) return;
-        const id = itemIdForCard(card);
-        if (id.startsWith("static-")) {
-          await saveStatus("archive");
-          alert("צופן קבוע באתר הועבר לארכיון. מחיקה לצמיתות של קובץ קבוע צריכה להתבצע בקבצי האתר.");
-          return;
-        }
-        await deleteContent(id);
-        card.remove();
-        applyFilter(seen);
-        updateVaultPicker();
       })
-    );
+    ];
+    area.append(...actions);
     ensureToolArea(card).appendChild(area);
   }
 
