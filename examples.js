@@ -203,11 +203,14 @@
     const keys = new Set();
     if (!item) return keys;
     if (item.id) keys.add(`id:${String(item.id).trim().toLowerCase()}`);
+    if (item.title) keys.add(`title:${String(item.title).trim().toLowerCase()}`);
     [item.url, markerValue(item.description, "image"), markerValue(item.description, "project")]
       .filter(Boolean)
       .forEach((url) => {
         const absolute = absoluteUrl(String(url).trim());
         keys.add(`url:${absolute.toLowerCase()}`);
+        const fileName = absolute.split(/[?#]/)[0].split("/").pop();
+        if (fileName) keys.add(`file:${fileName.toLowerCase()}`);
       });
     return keys;
   }
