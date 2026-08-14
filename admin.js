@@ -3,6 +3,7 @@
   const CONTACT_STORAGE_KEY = "gal-einai-contact-v1";
   const CONTENT_STORAGE_KEY = "gal-einai-admin-content-v1";
   const ARCHIVED_CONTENT_KEY = "gal-einai-archived-content-v1";
+  const ARCHIVED_STATIC_IDS_KEY = "gal-einai-archived-static-ciphers-v1";
   const ADDITIONS_KEY = "gal-einai-my-cipher-additions-v1";
   const ARCHIVE_EVENT_KEY = "gal-einai-web-archive-events-v1";
   const RETENTION_KEY = "gal-einai-admin-retention-v1";
@@ -328,6 +329,44 @@
     }
   }
 
+  function readArchivedStaticIds() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(ARCHIVED_STATIC_IDS_KEY) || "[]");
+      return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
+    } catch {
+      return new Set();
+    }
+  }
+
+  function writeArchivedStaticIds(ids) {
+    try {
+      localStorage.setItem(ARCHIVED_STATIC_IDS_KEY, JSON.stringify(Array.from(ids)));
+    } catch {
+      // The full archive record remains as the main fallback.
+    }
+  }
+
+  function staticIdForItem(item) {
+    const id = String(item?.id || "");
+    return id.startsWith("static-") ? id : "";
+  }
+
+  function rememberArchivedStaticId(item) {
+    const id = staticIdForItem(item);
+    if (!id) return;
+    const ids = readArchivedStaticIds();
+    ids.add(id);
+    writeArchivedStaticIds(ids);
+  }
+
+  function forgetArchivedStaticId(item) {
+    const id = staticIdForItem(item);
+    if (!id) return;
+    const ids = readArchivedStaticIds();
+    ids.delete(id);
+    writeArchivedStaticIds(ids);
+  }
+
   function absoluteContentUrl(url) {
     try {
       return new URL(url, location.href).href;
@@ -366,6 +405,8 @@
   }
 
   function hasArchivedIdentity(item, items = []) {
+    const staticId = staticIdForItem(item);
+    if (staticId && readArchivedStaticIds().has(staticId)) return true;
     const archived = archivedIdentityKeys(items);
     for (const key of contentIdentityKeys(item)) {
       if (archived.has(key)) return true;
@@ -377,11 +418,13 @@
     if (!item?.id) return;
     const items = readLocalArchivedContent().filter((candidate) => candidate.id !== item.id && !hasSharedIdentity(candidate, item));
     writeLocalArchivedContent([...items, { ...item, type: item.type || "example", status: item.status || "archive" }]);
+    rememberArchivedStaticId(item);
   }
 
   function forgetLocalArchive(item) {
     if (!item?.id) return;
     writeLocalArchivedContent(readLocalArchivedContent().filter((candidate) => candidate.id !== item.id && !hasSharedIdentity(candidate, item)));
+    forgetArchivedStaticId(item);
   }
 
   function retentionValue() {
@@ -1222,6 +1265,7 @@
         const next = { ...item, status: "active", updatedAt: new Date().toISOString() };
         writeContentItems([next, ...readContentItems().filter((candidate) => candidate.id !== item.id)]);
         await upsertRemoteContent(next);
+        if (next.type === "example") forgetLocalArchive(next);
         renderContentItems();
       });
       const past = document.createElement("button");
@@ -1232,6 +1276,7 @@
         const next = { ...item, status: "past_dates", updatedAt: new Date().toISOString() };
         writeContentItems([next, ...readContentItems().filter((candidate) => candidate.id !== item.id)]);
         await upsertRemoteContent(next);
+        if (next.type === "example") forgetLocalArchive(next);
         renderContentItems();
       });
       const archive = document.createElement("button");
@@ -1242,6 +1287,7 @@
         const next = { ...item, status: "archive", updatedAt: new Date().toISOString() };
         writeContentItems([next, ...readContentItems().filter((candidate) => candidate.id !== item.id)]);
         await upsertRemoteContent(next);
+        if (next.type === "example") rememberLocalArchive(next);
         renderContentItems();
       });
       const remove = document.createElement("button");
