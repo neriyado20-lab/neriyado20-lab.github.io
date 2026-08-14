@@ -237,6 +237,21 @@
     forgetArchivedStaticId(item);
   }
 
+  function isArchivedStatus(item) {
+    return item?.status === "archive" || item?.status === "draft";
+  }
+
+  function rememberContentItem(item) {
+    if (!item?.id) return;
+    const existing = contentById.get(item.id);
+    if (isArchivedStatus(existing) && !isArchivedStatus(item)) return;
+    if (existing && isArchivedStatus(item)) {
+      contentById.set(item.id, { ...existing, ...item });
+      return;
+    }
+    contentById.set(item.id, item);
+  }
+
   function archivedIdentityKeys() {
     const keys = new Set();
     [...contentById.values(), ...readLocalArchivedContent()]
@@ -496,7 +511,7 @@
     if (!supabaseClient) throw new Error("החיבור לניהול אינו פעיל.");
     const { error } = await supabaseClient.from("admin_content").upsert(item);
     if (error) throw error;
-    contentById.set(item.id, item);
+    rememberContentItem(item);
   }
 
   async function deleteContent(id) {
@@ -722,7 +737,7 @@
         status: item.status === "draft" ? "draft" : "archive",
         type: item.type || "example"
       };
-      contentById.set(archived.id, archived);
+      rememberContentItem(archived);
       if (String(archived.id).startsWith("static-")) {
         applyStaticOverride(archived, seen);
       } else {
@@ -738,7 +753,7 @@
     if (!item?.id) return item;
     const current = contentById.get(item.id);
     if (!current) return item;
-    if (current.status === "archive" || current.status === "draft") {
+    if (isArchivedStatus(current)) {
       return current;
     }
     if (hasArchivedIdentity(item)) return { ...current, status: "archive" };
@@ -881,7 +896,7 @@
         hideUnpublishedStaticCards(new Set(), seen);
         return;
       }
-      items.forEach((item) => contentById.set(item.id, item));
+      items.forEach(rememberContentItem);
       applyLocalArchivedContent(seen);
       await archiveExpiredContent(items);
       items
