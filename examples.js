@@ -676,6 +676,19 @@
     updateVaultPicker();
   }
 
+  function hideStaticCardsUntilContentLoads(seen) {
+    document.querySelectorAll("[data-example-id]").forEach((card) => {
+      const staticId = `static-${card.dataset.exampleId || ""}`;
+      if (!staticId.startsWith("static-")) return;
+      card.dataset.adminHidden = "true";
+      card.hidden = true;
+      cancelScheduledSeen(card);
+    });
+    applyLocalArchivedContent(seen);
+    applyFilter(seen);
+    updateVaultPicker();
+  }
+
   function archivedItems() {
     return Array.from(contentById.values())
       .filter((item) => item.type === "example" && (item.status === "archive" || item.status === "draft"))
@@ -866,6 +879,7 @@
   async function loadPublishedContent(seen) {
     const layout = document.querySelector(".sample-layout");
     if (!layout) return;
+    hideStaticCardsUntilContentLoads(seen);
     try {
       let items = [];
       if (supabaseClient) {
@@ -874,7 +888,10 @@
           .select("id,type,title,url,status,description,created_at,updated_at")
           .eq("type", "example")
           .order("updated_at", { ascending: false });
-        if (error) return;
+        if (error) {
+          applyLocalArchivedContent(seen);
+          return;
+        }
         items = data || [];
       } else {
         const params = new URLSearchParams({
@@ -888,7 +905,10 @@
             Authorization: `Bearer ${SUPABASE_KEY}`
           }
         });
-        if (!response.ok) return;
+        if (!response.ok) {
+          applyLocalArchivedContent(seen);
+          return;
+        }
         items = await response.json();
       }
       remoteContentLoaded = true;
@@ -930,7 +950,7 @@
       wireSeenOnView(seen);
       applyFilter(seen);
     } catch {
-      // Static examples remain available when the live list cannot be loaded.
+      applyLocalArchivedContent(seen);
     }
   }
 
