@@ -1,9 +1,10 @@
 (() => {
   const STORAGE_KEY = "gal-einai-seen-examples-v1";
   const ARCHIVED_CONTENT_KEY = "gal-einai-archived-content-v1";
+  const ARCHIVED_STATIC_IDS_KEY = "gal-einai-archived-static-ciphers-v1";
   const FEEDBACK_KEY = "gal-einai-cipher-feedback-v1";
-  const VIEW_DELAY_MS = 4000;
-  const SEEN_VISIBILITY_RATIO = 0.55;
+  const VIEW_DELAY_MS = 1200;
+  const SEEN_VISIBILITY_RATIO = 0.35;
   const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
   const SUPABASE_KEY = "sb_publishable_MqD3lXrftP5B36gcRjpDbw_csTVjpVK";
   const ADMIN_EMAIL = window.GAL_EINAI_ADMIN_AUTH?.supabaseAdminEmail || "admin@gal-einai.local";
@@ -160,15 +161,42 @@
     }
   }
 
-  function rememberLocalArchive(item) {
-    if (!item?.id) return;
-    const items = readLocalArchivedContent().filter((candidate) => candidate.id !== item.id);
-    writeLocalArchivedContent([...items, item]);
+  function readArchivedStaticIds() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(ARCHIVED_STATIC_IDS_KEY) || "[]");
+      return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
+    } catch {
+      return new Set();
+    }
   }
 
-  function forgetLocalArchive(item) {
-    if (!item?.id) return;
-    writeLocalArchivedContent(readLocalArchivedContent().filter((candidate) => candidate.id !== item.id));
+  function writeArchivedStaticIds(ids) {
+    try {
+      localStorage.setItem(ARCHIVED_STATIC_IDS_KEY, JSON.stringify(Array.from(ids)));
+    } catch {
+      // Full archive records are still kept separately.
+    }
+  }
+
+  function staticIdForItem(item) {
+    const id = String(item?.id || "");
+    return id.startsWith("static-") ? id : "";
+  }
+
+  function rememberArchivedStaticId(item) {
+    const id = staticIdForItem(item);
+    if (!id) return;
+    const ids = readArchivedStaticIds();
+    ids.add(id);
+    writeArchivedStaticIds(ids);
+  }
+
+  function forgetArchivedStaticId(item) {
+    const id = staticIdForItem(item);
+    if (!id) return;
+    const ids = readArchivedStaticIds();
+    ids.delete(id);
+    writeArchivedStaticIds(ids);
   }
 
   function contentIdentityKeys(item) {
@@ -184,6 +212,31 @@
     return keys;
   }
 
+  function hasSharedIdentity(a, b) {
+    const aKeys = contentIdentityKeys(a);
+    for (const key of contentIdentityKeys(b)) {
+      if (aKeys.has(key)) return true;
+    }
+    return false;
+  }
+
+  function rememberLocalArchive(item) {
+    if (!item?.id) return;
+    const items = readLocalArchivedContent().filter((candidate) => (
+      candidate.id !== item.id && !hasSharedIdentity(candidate, item)
+    ));
+    writeLocalArchivedContent([...items, { ...item, type: item.type || "example" }]);
+    rememberArchivedStaticId(item);
+  }
+
+  function forgetLocalArchive(item) {
+    if (!item?.id) return;
+    writeLocalArchivedContent(readLocalArchivedContent().filter((candidate) => (
+      candidate.id !== item.id && !hasSharedIdentity(candidate, item)
+    )));
+    forgetArchivedStaticId(item);
+  }
+
   function archivedIdentityKeys() {
     const keys = new Set();
     [...contentById.values(), ...readLocalArchivedContent()]
@@ -194,6 +247,8 @@
   }
 
   function hasArchivedIdentity(item) {
+    const staticId = staticIdForItem(item);
+    if (staticId && readArchivedStaticIds().has(staticId)) return true;
     const archived = archivedIdentityKeys();
     for (const key of contentIdentityKeys(item)) {
       if (archived.has(key)) return true;
@@ -268,9 +323,9 @@
     const visibleWidth = Math.min(rect.right, window.innerWidth) - Math.max(rect.left, 0);
     const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
     if (visibleWidth <= 0 || visibleHeight <= 0) return false;
-    const requiredWidth = Math.min(rect.width, window.innerWidth) * SEEN_VISIBILITY_RATIO;
-    const requiredHeight = Math.min(rect.height, window.innerHeight) * SEEN_VISIBILITY_RATIO;
-    return visibleWidth >= requiredWidth && visibleHeight >= requiredHeight;
+    const visibleArea = visibleWidth * visibleHeight;
+    const availableArea = Math.min(rect.width, window.innerWidth) * Math.min(rect.height, window.innerHeight);
+    return visibleArea >= availableArea * SEEN_VISIBILITY_RATIO;
   }
 
   function scanVisibleCards(seen) {
@@ -547,7 +602,7 @@
     const card = document.querySelector(`[data-example-id="${CSS.escape(exampleId)}"]`);
     if (!card) return;
     card.dataset.contentId = item.id;
-    if (item.status !== "active" && item.status !== "past_dates" || isExpiredContent(item)) {
+    if (readArchivedStaticIds().has(String(item.id)) || item.status !== "active" && item.status !== "past_dates" || isExpiredContent(item)) {
       card.dataset.adminHidden = "true";
       card.hidden = true;
       cancelScheduledSeen(card);
@@ -651,6 +706,15 @@
   }
 
   function applyLocalArchivedContent(seen) {
+    readArchivedStaticIds().forEach((staticId) => {
+      const exampleId = String(staticId).slice("static-".length);
+      const card = document.querySelector(`[data-example-id="${CSS.escape(exampleId)}"]`);
+      if (!card) return;
+      card.dataset.contentId = staticId;
+      card.dataset.adminHidden = "true";
+      card.hidden = true;
+      cancelScheduledSeen(card);
+    });
     readLocalArchivedContent().forEach((item) => {
       if (!item?.id) return;
       const archived = {
@@ -820,7 +884,10 @@
       items.forEach((item) => contentById.set(item.id, item));
       applyLocalArchivedContent(seen);
       await archiveExpiredContent(items);
-      items.filter((item) => String(item.id || "").startsWith("static-")).forEach((item) => applyStaticOverride(item, seen));
+      items
+        .map(effectiveContentItem)
+        .filter((item) => String(item.id || "").startsWith("static-"))
+        .forEach((item) => applyStaticOverride(item, seen));
       applyLocalArchivedContent(seen);
       hideUnpublishedStaticCards(new Set(
         items
@@ -919,6 +986,9 @@
     applyFilter(seen);
     card.hidden = false;
     card.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(() => {
+      if (hasMeaningfulVisibility(card)) markSeen(card, seen);
+    }, VIEW_DELAY_MS);
     card.classList.add("vault-focus");
     window.setTimeout(() => card.classList.remove("vault-focus"), 1800);
   }
