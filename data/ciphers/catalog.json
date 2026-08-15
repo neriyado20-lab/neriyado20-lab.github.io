@@ -1,0 +1,115 @@
+[
+  {
+    "id": "ketamuz-1407",
+    "title": "כתמוז 1407",
+    "topic": "dates",
+    "eyebrow": "התשפו",
+    "uploaded": "2026-07-04",
+    "description": "צופן מתוך גל עיני.",
+    "image": "ciphers/ketamuz-1407.png",
+    "status": "active"
+  },
+  {
+    "id": "ketamuz-hatashpu",
+    "title": "כתמוז תשפו",
+    "topic": "dates",
+    "eyebrow": "התשפו",
+    "uploaded": "2026-07-04",
+    "description": "צופן מתוך גל עיני.",
+    "image": "ciphers/ketamuz-hatashpu.png",
+    "status": "active"
+  },
+  {
+    "id": "rav-amos-hatashpu-milchama",
+    "title": "הרב עמוס התשפו מלחמה",
+    "topic": "events",
+    "eyebrow": "התשפו",
+    "uploaded": "2026-07-03",
+    "description": "צופן מתוך גל עיני.",
+    "image": "ciphers/rav-amos-hatashpu-milchama.png",
+    "status": "active"
+  },
+  {
+    "id": "atom-petzatza-iran",
+    "title": "אטום פצצה אירן",
+    "topic": "events",
+    "eyebrow": "התשפו",
+    "uploaded": "2026-06-21",
+    "description": "צופן מתוך גל עיני.",
+    "image": "ciphers/atom-petzatza-iran.png",
+    "project": "ciphers/atom-petzatza-iran.gal_einai.json",
+    "status": "active"
+  },
+  {
+    "id": "vetamuz-hatashpu-yenatzchu",
+    "title": "ותמוז התשפו ינצחו",
+    "topic": "events",
+    "eyebrow": "התשפו",
+    "uploaded": "2026-06-21",
+    "description": "צופן מתוך גל עיני.",
+    "image": "ciphers/vetamuz-hatashpu-yenatzchu.png",
+    "project": "ciphers/vetamuz-yenatzchu-israel-iran-hatashpu.gal_einai.json",
+    "status": "active"
+  },
+  {
+    "id": "tamuz-hatashpu-podeh-melech-71",
+    "title": "תמוז התשפו פודה מלך 71",
+    "topic": "geula",
+    "eyebrow": "התשפו",
+    "uploaded": "2026-06-21",
+    "description": "צופן מתוך גל עיני.",
+    "image": "ciphers/tamuz-hatashpu-podeh-melech-71.png",
+    "project": "ciphers/tamuz3.gal_einai.json",
+    "status": "active"
+  },
+  {
+    "id": "geula-m-hapeh-bigevura",
+    "title": "גאולה מ ה-פה בגבורה",
+    "topic": "geula",
+    "eyebrow": "התשפו",
+    "uploaded": "2026-07-02",
+    "description": "צופן מתוך גל עיני.",
+    "image": "ciphers/geula-m-hapeh-bigevura.png",
+    "status": "active"
+  },
+  {
+    "id": "hey-july",
+    "title": "ה יולי",
+    "topic": "dates",
+    "eyebrow": "התשפו",
+    "uploaded": "2026-07-02",
+    "description": "צופן מתוך גל עיני.",
+    "image": "ciphers/hey-july.png",
+    "status": "active"
+  },
+  {
+    "id": "yom-mashiach-ba-583-ketamuz",
+    "title": "יום משיח בא 583 כתמוז",
+    "topic": "geula",
+    "eyebrow": "התשפו",
+    "uploaded": "2026-07-02",
+    "description": "צופן מתוך גל עיני.",
+    "image": "ciphers/yom-mashiach-ba-583-ketamuz.png",
+    "status": "active"
+  },
+  {
+    "id": "leshiul-shemen-zayit-lechem-boker",
+    "title": "לשיעול שמן זית ולחם בקר",
+    "topic": "healing",
+    "eyebrow": "התשפו",
+    "uploaded": "2026-07-02",
+    "description": "צופן מתוך גל עיני.",
+    "image": "ciphers/leshiul-shemen-zayit-lechem-boker.png",
+    "status": "active"
+  },
+  {
+    "id": "heymanot-kesau",
+    "title": "הימנוט קסאו",
+    "topic": "events",
+    "eyebrow": "התשפו",
+    "uploaded": "2026-07-02",
+    "description": "צופן מתוך גל עיני.",
+    "image": "ciphers/heymanot-kesau.png",
+    "status": "active"
+  }
+]
