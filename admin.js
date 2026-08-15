@@ -507,7 +507,7 @@
       title,
       url: STATIC_CIPHER_PROJECTS[id] || `ciphers/${id}.png`,
       status: "active",
-      description: metadataDescription("", STATIC_CIPHER_TOPICS[id] || "users", "", `[image:ciphers/${id}.png]${STATIC_CIPHER_PROJECTS[id] ? `\n[project:${STATIC_CIPHER_PROJECTS[id]}]` : ""}`),
+      description: metadataDescription("", STATIC_CIPHER_TOPICS[id] || "events", "", `[image:ciphers/${id}.png]${STATIC_CIPHER_PROJECTS[id] ? `\n[project:${STATIC_CIPHER_PROJECTS[id]}]` : ""}`),
       at: "2026-07-01T00:00:00.000Z",
       updatedAt: now,
       staticCipher: true
@@ -896,7 +896,7 @@
       events: "אירועים ואומות",
       healing: "רפואה וסגולות",
       past_dates: "תאריכי עבר"
-    }[topic] || topic || "צפני משתמשים";
+    }[topic] || topic || "אירועים ואומות";
   }
 
   function markerValue(text, name) {
@@ -1043,7 +1043,7 @@
       return;
     }
     $("adminCipherTitle").value = item.title || "";
-    $("adminCipherTopic").value = markerValue(item.description, "topic") || "users";
+    $("adminCipherTopic").value = markerValue(item.description, "topic") || "events";
     $("adminCipherStatus").value = item.status || "active";
     $("adminCipherExpire").value = markerValue(item.description, "expire") || "";
     $("adminCipherDescription").value = cleanMetadataDescription(item.description);
@@ -1159,7 +1159,7 @@
     }
     const addCipherRow = (targetList, item, isArchiveList = false) => {
       const date = item.updatedAt || item.at ? new Date(item.updatedAt || item.at).toLocaleString("he-IL") : "";
-      const detail = [statusLabel(item.status), markerValue(item.description, "topic") || "users", date, item.url].filter(Boolean).join(" | ");
+      const detail = [statusLabel(item.status), topicLabel(markerValue(item.description, "topic") || "events"), date, item.url].filter(Boolean).join(" | ");
       const line = row(item.title || "צופן ללא שם", detail);
       const actions = document.createElement("div");
       actions.className = "admin-file-actions";
@@ -1747,7 +1747,7 @@
         category: $("adminUploadCategory").value,
         title: $("adminUploadTitle").value.trim() || file.name,
         publishStatus: $("adminUploadStatus")?.value || "active",
-        topic: $("adminUploadTopic")?.value || "users",
+        topic: $("adminUploadTopic")?.value || "events",
         expireAt: $("adminUploadExpire")?.value || "",
         existingContentId: $("adminUploadExisting")?.value || "",
         name: file.name,
@@ -1814,7 +1814,7 @@
         const now = new Date().toISOString();
         const nextTitle = $("adminCipherTitle").value.trim() || existingItem.title;
         const nextStatus = $("adminCipherStatus").value || "active";
-        const nextTopic = $("adminCipherTopic").value || markerValue(existingItem.description, "topic") || "users";
+        const nextTopic = $("adminCipherTopic").value || markerValue(existingItem.description, "topic") || "events";
         const nextExpire = $("adminCipherExpire").value || "";
         const nextDescription = $("adminCipherDescription").value.trim();
         if (!confirmCipherDetails({
@@ -1865,7 +1865,7 @@
         return;
       }
       const title = $("adminCipherTitle").value.trim() || file.name;
-      const uploadTopic = $("adminCipherTopic").value || "users";
+      const uploadTopic = $("adminCipherTopic").value || "events";
       const uploadStatus = $("adminCipherStatus").value || "active";
       const uploadExpire = $("adminCipherExpire").value || "";
       const uploadDescription = $("adminCipherDescription").value.trim();
@@ -1926,7 +1926,7 @@
         writeContentItems([content, ...items.filter((item) => item.id !== id)]);
         await upsertRemoteContent(content);
         form.reset();
-        $("adminCipherTopic").value = "users";
+        $("adminCipherTopic").value = "dates";
         $("adminCipherStatus").value = "active";
         syncCipherFormWithSelection();
         status.textContent = upload.existingContentId
