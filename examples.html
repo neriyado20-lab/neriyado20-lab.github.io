@@ -70,12 +70,11 @@
           <span>דרך הודעה על צופן חדש</span>
           <select id="notifyChannel">
             <option value="email">מייל</option>
-            <option value="phone">טלפון</option>
           </select>
         </label>
         <label>
           <span>פרטי הודעה</span>
-          <input id="notifyInput" type="text" autocomplete="off" placeholder="כתובת מייל או מספר טלפון">
+          <input id="notifyInput" type="email" autocomplete="email" placeholder="כתובת מייל">
         </label>
         <button class="button secondary" type="submit">אישור</button>
         <small id="notifyStatus" aria-live="polite"></small>
@@ -130,7 +129,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=1"></script>
   <script src="hebrew-date.js?v=2"></script>
-  <script src="site-interactions.js?v=11"></script>
+  <script src="site-interactions.js?v=12"></script>
   <script src="examples.js?v=41"></script>
 </body>
 </html>
