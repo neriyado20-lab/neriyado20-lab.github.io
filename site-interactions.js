@@ -363,9 +363,7 @@
       writeStore(store);
       if (status) {
         status.textContent = CONFIG.enabled
-          ? notifyChannel === "email"
-            ? "נרשמת לקבלת הודעה במייל על צופן חדש. יש לאשר מהמייל אם תישלח בקשת אישור."
-            : "נשמרה בקשה להודעה בטלפון."
+          ? "נרשמת לקבלת הודעה במייל על צופן חדש. יש לאשר מהמייל אם תישלח בקשת אישור."
           : "נשמר במכשיר זה. שליחה אמיתית תופעל לאחר חיבור שירות הודעות.";
       }
       sendEvent("notify_signup", { contact, channel: notifyChannel });
