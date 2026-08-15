@@ -42,6 +42,11 @@
     "leshiul-shemen-zayit-lechem-boker": "healing",
     "heymanot-kesau": "events"
   };
+  const STATIC_CIPHER_PROJECTS = {
+    "atom-petzatza-iran": "ciphers/atom-petzatza-iran.gal_einai.json",
+    "vetamuz-hatashpu-yenatzchu": "ciphers/vetamuz-yenatzchu-israel-iran-hatashpu.gal_einai.json",
+    "tamuz-hatashpu-podeh-melech-71": "ciphers/tamuz3.gal_einai.json"
+  };
 
   function $(id) {
     return document.getElementById(id);
@@ -500,18 +505,37 @@
       id: `static-${id}`,
       type: "example",
       title,
-      url: `examples/${id}.png`,
+      url: STATIC_CIPHER_PROJECTS[id] || `ciphers/${id}.png`,
       status: "active",
-      description: metadataDescription("", STATIC_CIPHER_TOPICS[id] || "users", "", ""),
+      description: metadataDescription("", STATIC_CIPHER_TOPICS[id] || "users", "", `[image:ciphers/${id}.png]${STATIC_CIPHER_PROJECTS[id] ? `\n[project:${STATIC_CIPHER_PROJECTS[id]}]` : ""}`),
       at: "2026-07-01T00:00:00.000Z",
       updatedAt: now,
       staticCipher: true
     }));
   }
 
+  async function seedMissingStaticCiphers(remoteItems) {
+    if (!supabaseClient) return remoteItems;
+    const staticItems = staticCipherItems();
+    const archivedIds = new Set(
+      remoteItems
+        .filter((item) => item.type === "example" && (item.status === "archive" || item.status === "draft"))
+        .map((item) => item.id)
+    );
+    const nextStaticItems = staticItems.map((item) => (
+      archivedIds.has(item.id) ? { ...item, status: "archive" } : item
+    ));
+    await Promise.all(nextStaticItems.map((item) => upsertRemoteContent(item).catch(() => null)));
+    const staticIds = new Set(nextStaticItems.map((item) => item.id));
+    return [
+      ...nextStaticItems,
+      ...remoteItems.filter((item) => !staticIds.has(item.id))
+    ];
+  }
+
   function managedCipherItems() {
-    const stored = readContentItems().filter((item) => item.type === "example");
-    const archived = readLocalArchivedContent().filter((item) => item.type === "example" || !item.type);
+    const stored = readContentItems().filter((item) => item.type === "example" && isVaultV2Item(item));
+    const archived = readLocalArchivedContent().filter((item) => (item.type === "example" || !item.type) && isVaultV2Item(item));
     const byId = new Map(staticCipherItems().map((item) => [item.id, item]));
     [...stored, ...archived].forEach((item) => {
       byId.set(item.id, {
@@ -603,7 +627,12 @@
         notes.forEach((entry) => {
           const payload = entry.payload || {};
           const title = payload.title || payload.id || "הערת עיון";
-          const detail = [payload.text, new Date(entry.created_at).toLocaleString("he-IL")].filter(Boolean).join(" | ");
+          const detail = [
+            payload.rating ? `דירוג: ${payload.rating}/5` : "",
+            payload.text,
+            payload.cipherId ? `צופן: ${payload.cipherId}` : "",
+            new Date(entry.created_at).toLocaleString("he-IL")
+          ].filter(Boolean).join(" | ");
           notesList.append(row(String(title), detail));
         });
       }
@@ -875,13 +904,17 @@
     return match ? match[1].trim() : "";
   }
 
+  function isVaultV2Item(item) {
+    return markerValue(item?.description, "vault") === "v2";
+  }
+
   function cleanMetadataDescription(description) {
-    return String(description || "").replace(/\[(topic|expire|image|project):[^\]]+\]/g, "").trim();
+    return String(description || "").replace(/\[(topic|expire|image|project|vault):[^\]]+\]/g, "").trim();
   }
 
   function metadataDescription(description, topic, expire = "", markerSource = description) {
     const clean = cleanMetadataDescription(description);
-    const markers = [];
+    const markers = ["[vault:v2]"];
     if (topic) markers.push(`[topic:${topic}]`);
     if (expire) markers.push(`[expire:${expire}]`);
     ["image", "project"].forEach((name) => {
@@ -1493,7 +1526,8 @@
       .order("updated_at", { ascending: false });
     if (error || !Array.isArray(data)) return;
     const now = new Date().toISOString();
-    const normalized = data.map((item) => {
+    const seededData = await seedMissingStaticCiphers(data);
+    const normalized = seededData.map((item) => {
       const local = {
       id: item.id,
       type: item.type,
@@ -1513,7 +1547,7 @@
     ));
     const archivedUpdates = withLocalArchive.filter((item) => (
       item.status === "archive"
-      && data.some((source) => source.id === item.id && source.status !== "archive")
+      && seededData.some((source) => source.id === item.id && source.status !== "archive")
     ));
     await Promise.all(archivedUpdates.map((item) => upsertRemoteContent(item).catch(() => null)));
     writeContentItems(withLocalArchive);
