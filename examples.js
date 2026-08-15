@@ -453,7 +453,18 @@
 
   function topicFor(item) {
     if (item.status === "past_dates") return "past_dates";
-    return markerValue(item.description, "topic") || "users";
+    return markerValue(item.description, "topic") || "events";
+  }
+
+  function topicLabel(topic) {
+    return {
+      dates: "תאריכים",
+      geula: "גאולה ומשיח",
+      events: "אירועים ואומות",
+      healing: "רפואה וסגולות",
+      past_dates: "תאריכי עבר",
+      users: "צפני משתמשים"
+    }[topic] || "אירועים ואומות";
   }
 
   function isExpiredContent(item) {
@@ -517,7 +528,7 @@
 
   function metadataForCard(card, next = {}) {
     const description = cleanDescription(next.description ?? card.querySelector("p")?.textContent ?? "");
-    const topic = next.topic ?? card.dataset.topic ?? "users";
+    const topic = next.topic ?? card.dataset.topic ?? "events";
     const url = next.url ?? primaryUrlForCard(card);
     const absolute = absoluteUrl(url);
     const markers = ["[vault:v2]", `[topic:${topic}]`];
@@ -583,7 +594,7 @@
     article.innerHTML = `
       <div class="sample-copy">
         <div class="sample-meta">
-          <span class="eyebrow">${item.status === "past_dates" ? "מאגר תאריכי עבר" : "צפני משתמשים"}</span>
+          <span class="eyebrow">${topicLabel(topicFor(item))}</span>
           ${date ? `<span class="upload-date">הועלה: ${date}</span>` : ""}
           <span class="new-badge" hidden>חדש</span>
         </div>
@@ -737,7 +748,7 @@
     const dateValue = item.updated_at || item.updatedAt || item.created_at || item.at || "";
     const date = dateValue ? new Date(dateValue).toLocaleDateString("he-IL") : "";
     const topic = topicFor(item);
-    const label = topic === "past_dates" ? "תאריכי עבר" : topic === "users" ? "צפני משתמשים" : topic || "אוצר הצפנים";
+    const label = topicLabel(topic);
     return [label, date ? `עודכן: ${date}` : "", item.url || ""].filter(Boolean).join(" | ");
   }
 
