@@ -1,8 +1,8 @@
 {
-  "version": "V532",
-  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_V532_public_auto_update_setup.exe",
-  "sha256": "C9C79B851149CFBF69A6C755EB6B0E4CF44EDF956AB69C0E41B35F26D84D8DD4",
-  "size": 24083676,
-  "notes": "תיקון יציבות לסמן העכבר: סמן Windows נשאר גלוי תמיד, ואצבע הכסף מצוירת כתוספת בלבד. כך הסמן לא אמור להיעלם אחרי שינויי צבע או פתיחת חלונות.",
+  "version": "V533",
+  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_V533_public_auto_update_setup.exe",
+  "sha256": "3C968EEA0D428FA15713AEAD7F13AF2AF6CF94A435457F8751BDFF9E3C739929",
+  "size": 24091975,
+  "notes": "גרסה עדכנית של גל עיני V533. כל תיקון משמעותי מקבל מספר גרסה חדש כדי שמנגנון העדכון והמשתמשים יראו שיש עדכון.",
   "mandatory": false
 }
