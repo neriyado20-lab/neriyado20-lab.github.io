@@ -1,8 +1,8 @@
 {
-  "version": "V533",
-  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_V533_public_auto_update_setup.exe",
-  "sha256": "3C968EEA0D428FA15713AEAD7F13AF2AF6CF94A435457F8751BDFF9E3C739929",
-  "size": 24091975,
-  "notes": "גרסה עדכנית של גל עיני V533. כל תיקון משמעותי מקבל מספר גרסה חדש כדי שמנגנון העדכון והמשתמשים יראו שיש עדכון.",
+  "version": "V534",
+  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_V534_public_auto_update_setup.exe",
+  "sha256": "F53248DF52B58C8A5C667EBB76C257D5BF262FB1F74B65EC4249BCAAF7884A54",
+  "size": 24094779,
+  "notes": "גרסה עדכנית של גל עיני V534. חלון בחירת צבעי רקע/גופן/מסגרת אינו חוסם לקיטה, ואפשר לשפוך צבע בקליק על אות או רצף בזמן שהחלון פתוח.",
   "mandatory": false
 }
