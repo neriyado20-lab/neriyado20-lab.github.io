@@ -81,6 +81,7 @@
     minSecondary: $("minSecondaryInput"),
     search: $("searchButton"),
     secondaryScan: $("secondaryScanButton"),
+    allSkipScan: $("allSkipScanButton"),
     stop: $("stopButton"),
     clear: $("clearButton"),
     openProject: $("openProjectButton"),
@@ -1232,14 +1233,30 @@
     return { rows, cols, grid: positions, set: positionSet, center: primary.start };
   }
 
-  function findInWindow(word, windowInfo) {
-    const skips = [1, -1];
+  function limitedWindowSkips(windowInfo) {
     const primarySkip = Math.max(1, Math.abs(currentPrimarySkip(windowInfo)));
-    [primarySkip, -primarySkip, primarySkip + 1, -(primarySkip + 1), primarySkip - 1, -(primarySkip - 1)]
-      .filter((s) => s)
-      .forEach((s) => {
-        if (!skips.includes(s)) skips.push(s);
-      });
+    const absoluteSkips = Array.from(new Set([1, primarySkip, primarySkip + 1, primarySkip - 1]
+      .filter((skip) => skip > 0)));
+    return absoluteSkips.flatMap((skip) => (skip === 1 ? [1, -1] : [skip, -skip]));
+  }
+
+  function allWindowSkips(word, windowInfo) {
+    const normalized = normalizeWord(word);
+    const positions = Array.from(windowInfo.set);
+    const minPosition = Math.min(...positions);
+    const maxPosition = Math.max(...positions);
+    const maxByWindow = Math.max(1, Math.floor((maxPosition - minPosition) / Math.max(1, normalized.length - 1)));
+    const maxByInput = Math.max(1, Math.abs(Number.parseInt(els.skipTo.value || String(DEFAULT_SKIP_TO), 10) || DEFAULT_SKIP_TO));
+    const maxSkip = Math.min(maxByWindow, maxByInput, PRO_MAX_SKIP);
+    const skips = [];
+    for (let skip = 1; skip <= maxSkip; skip += 1) {
+      skips.push(skip, -skip);
+    }
+    return skips;
+  }
+
+  function findInWindow(word, windowInfo, { allSkips = false } = {}) {
+    const skips = allSkips ? allWindowSkips(word, windowInfo) : limitedWindowSkips(windowInfo);
     const found = [];
     const normalized = normalizeWord(word);
     for (const pos of windowInfo.set) {
@@ -1408,7 +1425,7 @@
     return JSON.stringify({ primaryWords, from, to });
   }
 
-  async function search(event, { cacheOnly = false } = {}) {
+  async function search(event, { cacheOnly = false, allSkips = false } = {}) {
     if (event) event.preventDefault();
     if (!state.torah) return;
     const primaryWords = splitWords(els.primary.value);
@@ -1459,7 +1476,7 @@
     state.results = [];
     state.current = 0;
     renderResults();
-    renderEmptyGrid(cacheOnly ? "סורק משניות בראשיות שנשמרו..." : "מחפש...");
+    renderEmptyGrid(cacheOnly ? (allSkips ? "סורק משניות בכל הדילוגים..." : "סורק משניות בארבעת הדילוגים...") : "מחפש...");
     try {
       const skips = [];
       for (let s = from; s <= to; s += 1) {
@@ -1470,7 +1487,7 @@
       const canResumePrimary = hasMatchingCache && state.primaryCache.complete === false && state.primaryResume?.key === cacheKey;
       if (cacheOnly && hasMatchingCache) {
         primaries = state.primaryCache.matches.slice();
-        setStatus(`סורק משניות בלבד | ראשיות ${primaries.length}`, 60);
+        setStatus(`${allSkips ? "סורק משניות בכל הדילוגים" : "סורק משניות בארבעת הדילוגים"} | ראשיות ${primaries.length}`, 60);
         await nextFrame();
       } else if (cacheIsComplete) {
         primaries = state.primaryCache.matches.slice();
@@ -1524,7 +1541,7 @@
         const foundWords = new Set();
         const tableWords = new Set();
         for (const secondary of activeSecondaries) {
-          const matches = findInWindow(secondary.word, windowInfo);
+          const matches = findInWindow(secondary.word, windowInfo, { allSkips });
           if (matchGroupIsFlood(matches, windowInfo)) {
             state.suppressedFloodWords.add(secondary.word);
             continue;
@@ -2413,6 +2430,7 @@
 
   els.form.addEventListener("submit", (event) => search(event));
   els.secondaryScan.addEventListener("click", () => search(null, { cacheOnly: true }));
+  els.allSkipScan?.addEventListener("click", () => search(null, { cacheOnly: true, allSkips: true }));
   els.resetRange.addEventListener("click", resetSkipRange);
   els.stop.addEventListener("click", () => {
     state.stop = true;
