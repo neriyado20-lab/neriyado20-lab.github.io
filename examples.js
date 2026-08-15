@@ -56,6 +56,21 @@
     }
   }
 
+  async function submitCipherFeedback(id, title, rating, comment) {
+    if (!supabaseClient || (!rating && !comment)) return;
+    await supabaseClient.from("site_submissions").insert({
+      kind: "note",
+      payload: {
+        type: "cipher_feedback",
+        cipherId: id,
+        title,
+        rating,
+        text: comment,
+        page: location.href
+      }
+    });
+  }
+
   function clampRating(value) {
     const rating = Number(value) || 0;
     return Math.max(0, Math.min(5, Math.round(rating)));
@@ -66,7 +81,7 @@
     if (!id || card.querySelector(".cipher-feedback")) return;
     const feedback = readFeedback();
     const saved = feedback[id] || {};
-    const savedRating = clampRating(saved.rating);
+    let currentRating = clampRating(saved.rating);
     const savedComment = String(saved.comment || "");
     const panel = document.createElement("section");
     panel.className = "cipher-feedback";
@@ -107,8 +122,12 @@
           updatedAt: new Date().toISOString()
         };
         writeFeedback(current);
+        currentRating = value;
         setRatingView(value);
         status.textContent = "הדירוג נשמר במכשיר זה.";
+        submitCipherFeedback(id, titleForCard(card), currentRating, comment.value.trim()).catch(() => {
+          status.textContent = "הדירוג נשמר במכשיר זה. שליחה למנהל לא הושלמה.";
+        });
       });
       stars.appendChild(button);
     }
@@ -134,8 +153,24 @@
       status.textContent = "התגובה נשמרה במכשיר זה.";
     });
 
-    setRatingView(savedRating);
-    panel.append(title, stars, comment, status);
+    const send = document.createElement("button");
+    send.className = "button secondary";
+    send.type = "button";
+    send.textContent = "שלח תגובה למנהל";
+    send.addEventListener("click", async () => {
+      send.disabled = true;
+      try {
+        await submitCipherFeedback(id, titleForCard(card), currentRating, comment.value.trim());
+        status.textContent = "התגובה נשלחה למנהל.";
+      } catch {
+        status.textContent = "התגובה נשמרה במכשיר זה. השליחה למנהל לא הושלמה.";
+      } finally {
+        send.disabled = false;
+      }
+    });
+
+    setRatingView(currentRating);
+    panel.append(title, stars, comment, send, status);
     card.querySelector(".sample-copy")?.appendChild(panel);
   }
 
@@ -413,7 +448,7 @@
   }
 
   function cleanDescription(text) {
-    return String(text || "").replace(/\[(topic|image|project|expire):[^\]]+\]/g, "").trim();
+    return String(text || "").replace(/\[(topic|image|project|expire|vault):[^\]]+\]/g, "").trim();
   }
 
   function topicFor(item) {
@@ -485,7 +520,7 @@
     const topic = next.topic ?? card.dataset.topic ?? "users";
     const url = next.url ?? primaryUrlForCard(card);
     const absolute = absoluteUrl(url);
-    const markers = [`[topic:${topic}]`];
+    const markers = ["[vault:v2]", `[topic:${topic}]`];
     if (isJsonUrl(url) || String(url).includes("web.html?project=")) {
       markers.push(`[project:${absolute}]`);
     } else {
@@ -781,6 +816,7 @@
     return Boolean(
       effective
       && effective.type === "example"
+      && markerValue(effective.description, "vault") === "v2"
       && !isExpiredContent(effective)
       && (effective.status === "active" || effective.status === "past_dates")
     );
@@ -936,7 +972,6 @@
       applyFilter(seen);
       items.forEach((item) => {
         const effective = effectiveContentItem(item);
-        if (String(effective.id || "").startsWith("static-")) return;
         if (!isPublicCipherItem(effective)) return;
         const id = `admin-${String(effective.id || effective.title).replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
         if (document.querySelector(`[data-example-id="${CSS.escape(id)}"]`)) return;
