@@ -4,6 +4,7 @@
   const supabaseClient = AUTH.supabaseUrl && AUTH.supabasePublishableKey && window.supabase
     ? window.supabase.createClient(AUTH.supabaseUrl, AUTH.supabasePublishableKey)
     : null;
+  let lastRecoveryError = "";
 
   const $ = (id) => document.getElementById(id);
 
@@ -69,11 +70,19 @@
   function isPasswordRecoveryUrl() {
     const params = new URLSearchParams(location.search);
     const hash = new URLSearchParams(String(location.hash || "").replace(/^#/, ""));
-    return params.get("type") === "recovery" || params.get("reset") === "admin" || params.has("code") || hash.get("type") === "recovery";
+    return params.get("type") === "recovery"
+      || params.get("reset") === "admin"
+      || params.has("code")
+      || params.has("token_hash")
+      || hash.get("type") === "recovery";
   }
 
   function recoveryCodeFromUrl() {
     return new URLSearchParams(location.search).get("code") || "";
+  }
+
+  function recoveryTokenHashFromUrl() {
+    return new URLSearchParams(location.search).get("token_hash") || "";
   }
 
   function recoveryTokensFromHash() {
@@ -169,7 +178,9 @@
     status.textContent = "שומר סיסמה חדשה...";
     const session = await ensureRecoverySession();
     if (!session) {
-      status.textContent = "קישור האיפוס אינו פעיל יותר. שלח קישור איפוס חדש ופתח אותו מאותו דפדפן.";
+      status.textContent = lastRecoveryError
+        ? `קישור האיפוס לא אומת: ${lastRecoveryError}`
+        : "קישור האיפוס אינו פעיל יותר. שלח קישור איפוס חדש ופתח אותו מאותו דפדפן.";
       return;
     }
     const email = session.user?.email || "";
@@ -189,17 +200,28 @@
   }
 
   async function ensureRecoverySession() {
+    lastRecoveryError = "";
     if (!supabaseClient) return null;
-    const { data: current } = await supabaseClient.auth.getSession();
-    if (current.session) return current.session;
+    try {
+      const { data: current } = await supabaseClient.auth.getSession();
+      if (current.session) return current.session;
+    } catch (error) {
+      lastRecoveryError = friendlyAuthError(error);
+    }
+    const tokenHash = recoveryTokenHashFromUrl();
+    if (tokenHash && supabaseClient.auth.verifyOtp) {
+      const { data, error } = await supabaseClient.auth.verifyOtp({
+        type: "recovery",
+        token_hash: tokenHash
+      });
+      if (!error && data.session) return data.session;
+      if (error) lastRecoveryError = friendlyAuthError(error);
+    }
     const code = recoveryCodeFromUrl();
     if (code && supabaseClient.auth.exchangeCodeForSession) {
-      const flowId = new URLSearchParams(location.search).get("sb_flow_id");
-      const { data, error } = await supabaseClient.auth.exchangeCodeForSession(
-        code,
-        flowId ? { flowId } : undefined
-      );
+      const { data, error } = await supabaseClient.auth.exchangeCodeForSession(code);
       if (!error && data.session) return data.session;
+      if (error) lastRecoveryError = friendlyAuthError(error);
     }
     const tokens = recoveryTokensFromHash();
     if (tokens.access_token && tokens.refresh_token && supabaseClient.auth.setSession) {
@@ -208,6 +230,7 @@
         refresh_token: tokens.refresh_token
       });
       if (!error && data.session) return data.session;
+      if (error) lastRecoveryError = friendlyAuthError(error);
     }
     return null;
   }
@@ -231,7 +254,9 @@
         if (!status) return;
         status.textContent = session
           ? "הכנס סיסמה חדשה לחשבון המנהל."
-          : "קישור האיפוס נפתח, אבל עדיין לא נוצרה התחברות שחזור. אם השמירה לא תצליח, שלח קישור איפוס חדש ופתח אותו מיד.";
+          : lastRecoveryError
+            ? `קישור האיפוס לא אומת: ${lastRecoveryError}`
+            : "קישור האיפוס נפתח, אבל עדיין לא נוצרה התחברות שחזור. אם השמירה לא תצליח, שלח קישור איפוס חדש ופתח אותו מיד.";
       });
     }
   }
