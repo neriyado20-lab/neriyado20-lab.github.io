@@ -69,7 +69,20 @@
   function isPasswordRecoveryUrl() {
     const params = new URLSearchParams(location.search);
     const hash = new URLSearchParams(String(location.hash || "").replace(/^#/, ""));
-    return params.get("type") === "recovery" || params.get("reset") === "admin" || hash.get("type") === "recovery";
+    return params.get("type") === "recovery" || params.get("reset") === "admin" || params.has("code") || hash.get("type") === "recovery";
+  }
+
+  function recoveryCodeFromUrl() {
+    return new URLSearchParams(location.search).get("code") || "";
+  }
+
+  function recoveryTokensFromHash() {
+    const hash = new URLSearchParams(String(location.hash || "").replace(/^#/, ""));
+    return {
+      access_token: hash.get("access_token") || "",
+      refresh_token: hash.get("refresh_token") || "",
+      type: hash.get("type") || ""
+    };
   }
 
   function clearRecoveryUrl() {
@@ -154,12 +167,12 @@
       return;
     }
     status.textContent = "שומר סיסמה חדשה...";
-    const { data } = await supabaseClient.auth.getSession();
-    if (!data.session) {
+    const session = await ensureRecoverySession();
+    if (!session) {
       status.textContent = "קישור האיפוס אינו פעיל יותר. שלח קישור איפוס חדש ופתח אותו מאותו דפדפן.";
       return;
     }
-    const email = data.session.user?.email || "";
+    const email = session.user?.email || "";
     if (String(email).trim().toLowerCase() !== String(AUTH.supabaseAdminEmail).trim().toLowerCase()) {
       status.textContent = "קישור האיפוס אינו שייך לחשבון המנהל.";
       return;
@@ -173,6 +186,30 @@
     await supabaseClient.auth.signOut();
     setAuthenticated(false);
     showLogin("הסיסמה החדשה נשמרה. כעת אפשר להיכנס עם קוד המנהל והסיסמה החדשה.");
+  }
+
+  async function ensureRecoverySession() {
+    if (!supabaseClient) return null;
+    const { data: current } = await supabaseClient.auth.getSession();
+    if (current.session) return current.session;
+    const code = recoveryCodeFromUrl();
+    if (code && supabaseClient.auth.exchangeCodeForSession) {
+      const flowId = new URLSearchParams(location.search).get("sb_flow_id");
+      const { data, error } = await supabaseClient.auth.exchangeCodeForSession(
+        code,
+        flowId ? { flowId } : undefined
+      );
+      if (!error && data.session) return data.session;
+    }
+    const tokens = recoveryTokensFromHash();
+    if (tokens.access_token && tokens.refresh_token && supabaseClient.auth.setSession) {
+      const { data, error } = await supabaseClient.auth.setSession({
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token
+      });
+      if (!error && data.session) return data.session;
+    }
+    return null;
   }
 
   function wire() {
@@ -189,6 +226,13 @@
     if (isPasswordRecoveryUrl()) {
       setAuthenticated(false);
       showPasswordReset("הכנס סיסמה חדשה לחשבון המנהל.");
+      ensureRecoverySession().then((session) => {
+        const status = $("adminPasswordResetStatus");
+        if (!status) return;
+        status.textContent = session
+          ? "הכנס סיסמה חדשה לחשבון המנהל."
+          : "קישור האיפוס נפתח, אבל עדיין לא נוצרה התחברות שחזור. אם השמירה לא תצליח, שלח קישור איפוס חדש ופתח אותו מיד.";
+      });
     }
   }
 
