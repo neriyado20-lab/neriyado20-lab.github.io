@@ -3,11 +3,12 @@
   const ARCHIVED_CONTENT_KEY = "gal-einai-archived-content-v1";
   const ARCHIVED_STATIC_IDS_KEY = "gal-einai-archived-static-ciphers-v1";
   const FEEDBACK_KEY = "gal-einai-cipher-feedback-v1";
+  const MANAGER_SESSION_KEY = "gal-einai-vault-manager-session-v1";
+  const MANAGER_PASSWORD_HASH = "b2085a238dba1a766cd2de60089abeb61631cc4ac122d0363e6d67ad56605242";
   const VIEW_DELAY_MS = 1200;
   const SEEN_VISIBILITY_RATIO = 0.35;
   const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
   const SUPABASE_KEY = "sb_publishable_MqD3lXrftP5B36gcRjpDbw_csTVjpVK";
-  const ADMIN_EMAIL = window.GAL_EINAI_ADMIN_AUTH?.supabaseAdminEmail || "";
   const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
   const keepNewThisSession = new Set();
   const viewTimers = new Map();
@@ -18,6 +19,83 @@
 
   function effectiveManagerMode() {
     return managerMode && !publicPreviewMode;
+  }
+
+  async function sha256Hex(value) {
+    const bytes = new TextEncoder().encode(String(value || ""));
+    const hash = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(hash)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+
+  function readManagerSession() {
+    try {
+      const raw = sessionStorage.getItem(MANAGER_SESSION_KEY) || localStorage.getItem(MANAGER_SESSION_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      return parsed?.ok === true && parsed?.hash === MANAGER_PASSWORD_HASH;
+    } catch {
+      return false;
+    }
+  }
+
+  function writeManagerSession() {
+    const payload = JSON.stringify({ ok: true, hash: MANAGER_PASSWORD_HASH, at: new Date().toISOString() });
+    try {
+      sessionStorage.setItem(MANAGER_SESSION_KEY, payload);
+      localStorage.setItem(MANAGER_SESSION_KEY, payload);
+    } catch {
+      // If storage is blocked, manager mode remains active only until refresh.
+    }
+  }
+
+  function clearManagerSession() {
+    try {
+      sessionStorage.removeItem(MANAGER_SESSION_KEY);
+      localStorage.removeItem(MANAGER_SESSION_KEY);
+    } catch {
+      // Nothing to clear.
+    }
+  }
+
+  function openManagerLogin(seen) {
+    if (managerMode) {
+      updateManagerPreviewControls(seen);
+      return;
+    }
+    const password = document.getElementById("vaultManagerPassword");
+    const status = document.getElementById("vaultManagerLoginStatus");
+    if (password) password.value = "";
+    if (status) status.textContent = "";
+    showDialog(document.getElementById("vaultManagerLogin"));
+    window.setTimeout(() => password?.focus(), 50);
+  }
+
+  function showDialog(dialog) {
+    if (!dialog) return;
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "open");
+  }
+
+  function closeDialog(dialog) {
+    if (!dialog) return;
+    if (typeof dialog.close === "function") dialog.close();
+    else dialog.removeAttribute("open");
+  }
+
+  function enableManagerMode(seen) {
+    managerMode = true;
+    publicPreviewMode = false;
+    updateManagerPreviewControls(seen);
+    applyFilter(seen);
+    updateVaultPicker();
+  }
+
+  function disableManagerMode(seen) {
+    managerMode = false;
+    publicPreviewMode = false;
+    clearManagerSession();
+    updateManagerPreviewControls(seen);
+    applyFilter(seen);
+    updateVaultPicker();
   }
 
   function readSeen() {
@@ -1179,47 +1257,67 @@
       });
       return button;
     };
-    const saveStatus = async (status) => {
-      const item = payloadForCard(card, status);
-      await upsertContent(item);
-      if (status === "archive" || status === "draft") {
-        rememberLocalArchive(item);
-        hideArchivedCards(item, card, seen);
-        renderManagerArchive(seen);
-        document.getElementById("examplesManagerArchive")?.scrollIntoView({ behavior: "smooth", block: "start" });
-        alert("הצופן הועבר לארכיון מנהל ויצא מהאוצר הפעיל.");
-      } else {
-        forgetLocalArchive(item);
-        updateCardAfterManagerStatus(item, seen);
-        markManagerChangedCardsSeen(item, card, seen);
-      }
-      applyFilter(seen);
-      updateVaultPicker();
-      renderManagerArchive(seen);
-    };
     const actions = [
-      action("פרסם", () => saveStatus("active")),
-      action("תאריכי עבר", () => saveStatus("past_dates")),
-      action("טיוטה", async () => {
-        if (!window.confirm(`להעביר את "${titleForCard(card)}" לטיוטה ולהוציא אותו מהאוצר הפעיל?`)) return;
-        await saveStatus("draft");
-      }),
+      action("ניהול", () => openCipherManager(card, seen)),
       action("ארכיון", async () => {
         if (!window.confirm(`להעביר את "${titleForCard(card)}" לארכיון ולהוציא אותו מהאוצר הפעיל?`)) return;
-        await saveStatus("archive");
-      }),
-      action("החלף קישור", async () => {
-        const current = primaryUrlForCard(card);
-        const url = window.prompt("הדבק קישור חדש לתמונה או לקובץ הצופן", current);
-        if (!url) return;
-        const title = window.prompt("שם הצופן", titleForCard(card)) || titleForCard(card);
-        const item = payloadForCard(card, "active", { url: absoluteUrl(url), title });
-        await upsertContent(item);
-        alert("הקישור הוחלף. רענון הדף יציג את העדכון.");
+        await saveManagedCard(card, seen, { status: "archive" });
       })
     ];
     area.append(...actions);
     ensureToolArea(card).appendChild(area);
+  }
+
+  async function saveManagedCard(card, seen, patch = {}) {
+    const status = patch.status || "active";
+    const item = payloadForCard(card, status, patch);
+    await upsertContent(item);
+    if (status === "archive" || status === "draft") {
+      rememberLocalArchive(item);
+      hideArchivedCards(item, card, seen);
+      renderManagerArchive(seen);
+      document.getElementById("examplesManagerArchive")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      forgetLocalArchive(item);
+      updateCardAfterManagerStatus(item, seen);
+      markManagerChangedCardsSeen(item, card, seen);
+    }
+    applyFilter(seen);
+    updateVaultPicker();
+    renderManagerArchive(seen);
+    return item;
+  }
+
+  async function removeManagedCard(card, seen) {
+    const id = itemIdForCard(card);
+    if (!id) return;
+    await deleteContent(id);
+    contentById.delete(id);
+    forgetLocalArchive({ id });
+    card.dataset.adminHidden = "true";
+    card.hidden = true;
+    card.remove();
+    applyFilter(seen);
+    updateVaultPicker();
+    renderManagerArchive(seen);
+  }
+
+  function openCipherManager(card, seen) {
+    const dialog = document.getElementById("cipherManagerDialog");
+    const form = document.getElementById("cipherManagerForm");
+    if (!dialog || !form) return;
+    const item = contentById.get(itemIdForCard(card)) || payloadForCard(card, card.dataset.topic === "past_dates" ? "past_dates" : "active");
+    document.getElementById("cipherManagerCardId").value = card.dataset.exampleId || "";
+    document.getElementById("cipherManagerHeading").textContent = titleForCard(card) || "עריכת צופן";
+    document.getElementById("cipherManagerTitle").value = item.title || titleForCard(card);
+    document.getElementById("cipherManagerTopic").value = topicFor(item);
+    document.getElementById("cipherManagerUrl").value = absoluteUrl(item.url || primaryUrlForCard(card));
+    document.getElementById("cipherManagerDescription").value = cleanDescription(item.description) || card.querySelector("p")?.textContent?.trim() || "";
+    document.getElementById("cipherManagerStatus").value = item.status || (card.dataset.topic === "past_dates" ? "past_dates" : "active");
+    document.getElementById("cipherManagerStatusText").textContent = "";
+    form._managedCard = card;
+    form._seenState = seen;
+    showDialog(dialog);
   }
 
   function wireShareAndAdminTools(seen) {
@@ -1244,6 +1342,28 @@
   }
 
   function wireManagerPreviewToggle(seen) {
+    wireManagerGesture(seen);
+    document.querySelector("[data-close-vault-login]")?.addEventListener("click", () => {
+      closeDialog(document.getElementById("vaultManagerLogin"));
+    });
+    document.getElementById("vaultManagerLoginForm")?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const password = document.getElementById("vaultManagerPassword");
+      const status = document.getElementById("vaultManagerLoginStatus");
+      if (status) status.textContent = "בודק סיסמה...";
+      try {
+        const ok = await sha256Hex(password?.value || "") === MANAGER_PASSWORD_HASH;
+        if (!ok) {
+          if (status) status.textContent = "סיסמה לא נכונה.";
+          return;
+        }
+        writeManagerSession();
+        enableManagerMode(seen);
+        closeDialog(document.getElementById("vaultManagerLogin"));
+      } catch {
+        if (status) status.textContent = "לא הצלחתי לבדוק את הסיסמה בדפדפן הזה.";
+      }
+    });
     document.getElementById("examplesArchiveToggle")?.addEventListener("click", (event) => {
       const button = event.currentTarget;
       const isOpen = button.getAttribute("aria-expanded") === "true";
@@ -1256,21 +1376,128 @@
       applyFilter(seen);
       updateVaultPicker();
     });
+    document.getElementById("managerLogoutButton")?.addEventListener("click", () => {
+      disableManagerMode(seen);
+    });
+    document.querySelector("[data-close-cipher-manager]")?.addEventListener("click", () => {
+      closeDialog(document.getElementById("cipherManagerDialog"));
+    });
+    document.querySelector("[data-manager-archive]")?.addEventListener("click", async () => {
+      const form = document.getElementById("cipherManagerForm");
+      const status = document.getElementById("cipherManagerStatusText");
+      const card = form?._managedCard;
+      if (!card) return;
+      if (!window.confirm(`להעביר את "${titleForCard(card)}" לארכיון ולהוציא אותו מהאוצר הפעיל?`)) return;
+      try {
+        if (status) status.textContent = "מעביר לארכיון...";
+        await saveManagedCard(card, seen, { status: "archive" });
+        closeDialog(document.getElementById("cipherManagerDialog"));
+      } catch (error) {
+        if (status) status.textContent = error.message || "המעבר לארכיון נכשל.";
+      }
+    });
+    document.querySelector("[data-manager-delete]")?.addEventListener("click", async () => {
+      const form = document.getElementById("cipherManagerForm");
+      const status = document.getElementById("cipherManagerStatusText");
+      const card = form?._managedCard;
+      if (!card) return;
+      if (!window.confirm(`למחוק לגמרי את "${titleForCard(card)}"? פעולה זו מוחקת את רשומת הצופן מהאוצר.`)) return;
+      try {
+        if (status) status.textContent = "מוחק...";
+        await removeManagedCard(card, seen);
+        closeDialog(document.getElementById("cipherManagerDialog"));
+      } catch (error) {
+        if (status) status.textContent = error.message || "המחיקה נכשלה.";
+      }
+    });
+    document.getElementById("cipherManagerForm")?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const card = form._managedCard;
+      const status = document.getElementById("cipherManagerStatusText");
+      if (!card) return;
+      const topic = document.getElementById("cipherManagerTopic")?.value || "events";
+      const nextStatus = document.getElementById("cipherManagerStatus")?.value || "active";
+      const patch = {
+        title: document.getElementById("cipherManagerTitle")?.value?.trim() || titleForCard(card),
+        topic,
+        url: absoluteUrl(document.getElementById("cipherManagerUrl")?.value?.trim() || primaryUrlForCard(card)),
+        description: metadataForCard(card, {
+          topic,
+          url: document.getElementById("cipherManagerUrl")?.value?.trim() || primaryUrlForCard(card),
+          description: document.getElementById("cipherManagerDescription")?.value?.trim() || ""
+        })
+      };
+      try {
+        if (status) status.textContent = "שומר...";
+        await saveManagedCard(card, seen, { ...patch, status: nextStatus });
+        if (status) status.textContent = "נשמר.";
+        if (nextStatus !== "archive" && nextStatus !== "draft") closeDialog(document.getElementById("cipherManagerDialog"));
+      } catch (error) {
+        if (status) status.textContent = error.message || "השמירה נכשלה.";
+      }
+    });
+  }
+
+  function wireManagerGesture(seen) {
+    const buttons = Array.from(document.querySelectorAll(".examples-topic-filter [data-topic-filter]"));
+    const first = buttons[0];
+    const last = buttons[buttons.length - 1];
+    if (!first || !last || first === last || first.dataset.managerGestureWired === "true") return;
+    first.dataset.managerGestureWired = "true";
+    last.dataset.managerGestureWired = "true";
+    first.draggable = true;
+    last.draggable = true;
+    let dragSource = null;
+    let pointerSource = null;
+    let pointerStart = null;
+    const opposite = (source, target) => (source === first && target === last) || (source === last && target === first);
+    const markSource = (button) => {
+      dragSource = button;
+      button.classList.add("manager-gesture-source");
+    };
+    const clearSource = () => {
+      first.classList.remove("manager-gesture-source");
+      last.classList.remove("manager-gesture-source");
+      dragSource = null;
+      pointerSource = null;
+      pointerStart = null;
+    };
+    [first, last].forEach((button) => {
+      button.addEventListener("dragstart", (event) => {
+        markSource(button);
+        event.dataTransfer?.setData("text/plain", button.dataset.topicFilter || "");
+        if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
+      });
+      button.addEventListener("dragend", clearSource);
+      button.addEventListener("dragover", (event) => {
+        if (dragSource && opposite(dragSource, button)) event.preventDefault();
+      });
+      button.addEventListener("drop", (event) => {
+        event.preventDefault();
+        if (dragSource && opposite(dragSource, button)) openManagerLogin(seen);
+        clearSource();
+      });
+      button.addEventListener("pointerdown", (event) => {
+        pointerSource = button;
+        pointerStart = { x: event.clientX, y: event.clientY };
+      });
+      button.addEventListener("pointerup", (event) => {
+        if (!pointerSource || !pointerStart) return;
+        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest?.(".examples-topic-filter [data-topic-filter]");
+        const distance = Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y);
+        if (distance > 80 && target && opposite(pointerSource, target)) openManagerLogin(seen);
+        clearSource();
+      });
+      button.addEventListener("pointercancel", clearSource);
+    });
   }
 
   async function detectManagerMode(seen) {
-    if (!supabaseClient) return;
-    try {
-      const { data } = await supabaseClient.auth.getSession();
-      const email = data.session?.user?.email || "";
-      managerMode = String(email).trim().toLowerCase() === String(ADMIN_EMAIL).trim().toLowerCase();
-      updateManagerPreviewControls(seen);
-    } catch {
-      managerMode = false;
-      publicPreviewMode = false;
-      updateManagerPreviewControls(seen);
-      renderManagerArchive(seen);
-    }
+    managerMode = readManagerSession();
+    publicPreviewMode = false;
+    updateManagerPreviewControls(seen);
+    renderManagerArchive(seen);
   }
 
   const seen = readSeen();
