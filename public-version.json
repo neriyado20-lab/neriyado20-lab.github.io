@@ -1,8 +1,8 @@
-{
-  "version": "V534",
-  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_V534_public_auto_update_setup.exe",
-  "sha256": "F53248DF52B58C8A5C667EBB76C257D5BF262FB1F74B65EC4249BCAAF7884A54",
-  "size": 24094779,
-  "notes": "גרסה עדכנית של גל עיני V534. חלון בחירת צבעי רקע/גופן/מסגרת אינו חוסם לקיטה, ואפשר לשפוך צבע בקליק על אות או רצף בזמן שהחלון פתוח.",
-  "mandatory": false
+﻿{
+    "version":  "V535",
+    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V535_public_auto_update_setup.exe",
+    "sha256":  "E9C418159358E4C26537298F5FFF59CB1085F4D59F0E34F3F3362B79201F81B2",
+    "size":  24095223,
+    "notes":  "גרסה עדכנית של גל עיני V535. תיקון יציבות כיוון התזוזה בתצוגת התורה: חצים, כפתורי ימינה/שמאלה וגרירה משתמשים באותו כיוון חזותי.",
+    "mandatory":  false
 }
