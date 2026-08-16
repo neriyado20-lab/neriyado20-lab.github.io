@@ -1343,6 +1343,7 @@
 
   function wireManagerPreviewToggle(seen) {
     wireManagerGesture(seen);
+    wireManagerFallbackEntrances(seen);
     document.querySelector("[data-close-vault-login]")?.addEventListener("click", () => {
       closeDialog(document.getElementById("vaultManagerLogin"));
     });
@@ -1435,6 +1436,42 @@
         if (nextStatus !== "archive" && nextStatus !== "draft") closeDialog(document.getElementById("cipherManagerDialog"));
       } catch (error) {
         if (status) status.textContent = error.message || "השמירה נכשלה.";
+      }
+    });
+  }
+
+  function wireManagerFallbackEntrances(seen) {
+    if (document.documentElement.dataset.managerFallbacksWired === "true") return;
+    document.documentElement.dataset.managerFallbacksWired = "true";
+    const title = document.getElementById("cipherVaultTitle") || document.querySelector(".examples-hero h1");
+    let holdTimer = null;
+    const clearHold = () => {
+      if (holdTimer) window.clearTimeout(holdTimer);
+      holdTimer = null;
+      title?.classList.remove("manager-gesture-source");
+    };
+    const startHold = (event) => {
+      if (!title) return;
+      event.preventDefault();
+      title.classList.add("manager-gesture-source");
+      holdTimer = window.setTimeout(() => {
+        clearHold();
+        openManagerLogin(seen);
+      }, 1800);
+    };
+    title?.addEventListener("pointerdown", startHold);
+    title?.addEventListener("pointerup", clearHold);
+    title?.addEventListener("pointerleave", clearHold);
+    title?.addEventListener("pointercancel", clearHold);
+    title?.addEventListener("dblclick", (event) => {
+      event.preventDefault();
+      openManagerLogin(seen);
+    });
+    document.addEventListener("keydown", (event) => {
+      const key = String(event.key || "").toLowerCase();
+      if (event.ctrlKey && event.altKey && (key === "m" || key === "מ")) {
+        event.preventDefault();
+        openManagerLogin(seen);
       }
     });
   }
