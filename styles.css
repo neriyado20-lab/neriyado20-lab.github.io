@@ -1317,6 +1317,16 @@ h2 {
   box-shadow: 0 12px 28px rgba(23, 33, 29, 0.10);
 }
 
+.examples-topic-filter [data-topic-filter]:first-child,
+.examples-topic-filter [data-topic-filter]:last-child {
+  user-select: none;
+}
+
+.manager-gesture-source {
+  outline: 2px solid rgba(13, 109, 86, 0.35);
+  outline-offset: 2px;
+}
+
 .examples-manager-strip[hidden] {
   display: none;
 }
@@ -1412,12 +1422,77 @@ h2 {
   font-size: 13px;
 }
 
+body:not(.manager-mode) .cipher-admin-actions {
+  display: none !important;
+}
+
 .public-preview-mode .cipher-admin-actions {
   display: none !important;
 }
 
 .public-preview-mode .examples-manager-archive {
   display: none !important;
+}
+
+.vault-manager-dialog {
+  width: min(620px, calc(100% - 28px));
+  border: 0;
+  border-radius: 8px;
+  padding: 0;
+  background: transparent;
+}
+
+.vault-manager-dialog::backdrop {
+  background: rgba(18, 25, 23, 0.46);
+}
+
+.vault-manager-box {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid rgba(13, 109, 86, 0.22);
+  border-radius: 8px;
+  background: #fffdf7;
+  box-shadow: 0 24px 64px rgba(23, 33, 29, 0.24);
+}
+
+.vault-editor-box {
+  max-height: min(82vh, 760px);
+  overflow: auto;
+}
+
+.vault-manager-box h2,
+.vault-manager-box p {
+  margin: 0;
+}
+
+.vault-manager-box label {
+  display: grid;
+  gap: 6px;
+  color: var(--accent-dark);
+  font-weight: 900;
+}
+
+.vault-manager-box input,
+.vault-manager-box select,
+.vault-manager-box textarea {
+  width: 100%;
+  border: 1px solid rgba(13, 109, 86, 0.22);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.vault-manager-box textarea {
+  resize: vertical;
+}
+
+.danger-button {
+  border-color: rgba(156, 34, 34, 0.35) !important;
+  color: #8b1f1f !important;
+  background: #fff4f1 !important;
 }
 
 .review-form,
