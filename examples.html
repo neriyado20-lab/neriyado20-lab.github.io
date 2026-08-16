@@ -128,7 +128,10 @@
       <h2>ניהול אוצר הצפנים</h2>
       <label>
         <span>סיסמת מנהל</span>
-        <input id="vaultManagerPassword" type="password" autocomplete="current-password">
+        <span class="password-field">
+          <input id="vaultManagerPassword" type="password" autocomplete="current-password">
+          <button class="password-toggle" type="button" data-password-toggle="vaultManagerPassword" aria-label="הצג סיסמה" title="הצג סיסמה">👁</button>
+        </span>
       </label>
       <div class="admin-form-actions">
         <button class="button primary" type="submit">כניסה</button>
@@ -196,6 +199,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=12"></script>
-  <script src="examples.js?v=47"></script>
+  <script src="examples.js?v=48"></script>
 </body>
 </html>
