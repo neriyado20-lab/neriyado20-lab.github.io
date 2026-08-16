@@ -77,6 +77,22 @@
     });
   }
 
+  function adminEmailLooksDeliverable() {
+    const email = String(AUTH.supabaseAdminEmail || "").trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && !/\.local$/i.test(email);
+  }
+
+  function isPasswordRecoveryUrl() {
+    const params = new URLSearchParams(location.search);
+    const hash = new URLSearchParams(String(location.hash || "").replace(/^#/, ""));
+    return params.get("type") === "recovery" || params.get("reset") === "admin" || hash.get("type") === "recovery";
+  }
+
+  function clearRecoveryUrl() {
+    if (!history.replaceState) return;
+    history.replaceState(null, document.title, `${location.origin}${location.pathname}`);
+  }
+
   function setAuthenticated(value) {
     if (value) sessionStorage.setItem(AUTH_SESSION_KEY, "yes");
     else sessionStorage.removeItem(AUTH_SESSION_KEY);
@@ -195,12 +211,35 @@
 
   async function wireSupabaseAuth() {
     const loginForm = $("adminLoginForm");
+    const resetForm = $("adminPasswordResetForm");
     const logoutButton = $("adminLogoutButton");
     const forgotButton = $("adminForgotPasswordButton");
+    const backToLoginButton = $("adminBackToLoginButton");
     const status = $("adminLoginStatus");
+    const resetStatus = $("adminPasswordResetStatus");
+
+    function showLogin(message = "") {
+      if (loginForm) loginForm.hidden = false;
+      if (resetForm) resetForm.hidden = true;
+      if (status) status.textContent = message;
+    }
+
+    function showPasswordReset(message = "") {
+      if (loginForm) loginForm.hidden = true;
+      if (resetForm) resetForm.hidden = false;
+      if (resetStatus) resetStatus.textContent = message;
+      $("adminNewPassword")?.focus();
+    }
+
     const { data } = await supabaseClient.auth.getSession();
-    setAuthenticated(Boolean(data.session));
-    if (data.session) {
+    const recoveryMode = isPasswordRecoveryUrl();
+    if (recoveryMode) {
+      showPasswordReset(data.session
+        ? "הכנס סיסמה חדשה לחשבון המנהל."
+        : "קישור האיפוס נפתח, אך לא נמצאה התחברות שחזור פעילה. נסה לפתוח את הקישור שוב מאותו דפדפן.");
+    }
+    setAuthenticated(Boolean(data.session) && !recoveryMode);
+    if (data.session && !recoveryMode) {
       render();
       renderRemoteSubmissions();
       loadRemoteContent();
@@ -208,7 +247,12 @@
       requireAdminConnection($("adminBackendStatus"));
     }
 
-    supabaseClient.auth.onAuthStateChange((_event, session) => {
+    supabaseClient.auth.onAuthStateChange((eventName, session) => {
+      if (eventName === "PASSWORD_RECOVERY") {
+        showPasswordReset("הכנס סיסמה חדשה לחשבון המנהל.");
+        setAuthenticated(false);
+        return;
+      }
       setAuthenticated(Boolean(session));
       if (session) {
         render();
@@ -246,12 +290,56 @@
     });
 
     forgotButton?.addEventListener("click", async () => {
+      if (!adminEmailLooksDeliverable()) {
+        status.textContent = "איפוס במייל אינו פעיל כי כתובת המנהל אינה כתובת מייל אמיתית. יש להגדיר בקובץ admin-config.js כתובת מנהל אמיתית ב-Supabase, או לקבוע סיסמה חדשה מתוך לוח Supabase.";
+        return;
+      }
       const { error } = await supabaseClient.auth.resetPasswordForEmail(AUTH.supabaseAdminEmail, {
-        redirectTo: `${location.origin}${location.pathname}`
+        redirectTo: `${location.origin}${location.pathname}?reset=admin`
       });
       status.textContent = error
-        ? "לא הצלחתי לשלוח איפוס. אם כתובת המנהל אינה אימייל אמיתי, יש לקבוע סיסמה חדשה ב-Supabase > Authentication > Users."
+        ? `לא הצלחתי לשלוח איפוס: ${friendlyError(error) || "צריך לבדוק את הגדרת האימייל ב-Supabase."}`
         : "נשלח קישור איפוס סיסמה לאימייל המנהל, אם מוגדרת שליחת אימייל ב-Supabase.";
+    });
+
+    resetForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const password = $("adminNewPassword")?.value || "";
+      const confirm = $("adminNewPasswordConfirm")?.value || "";
+      if (password.length < 6) {
+        resetStatus.textContent = "הסיסמה צריכה להכיל לפחות 6 תווים.";
+        return;
+      }
+      if (password !== confirm) {
+        resetStatus.textContent = "שתי הסיסמאות אינן זהות.";
+        return;
+      }
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const email = sessionData.session?.user?.email || "";
+      if (!sessionData.session) {
+        resetStatus.textContent = "קישור האיפוס אינו פעיל יותר. שלח קישור איפוס חדש ופתח אותו מאותו דפדפן.";
+        return;
+      }
+      if (String(email).trim().toLowerCase() !== String(AUTH.supabaseAdminEmail).trim().toLowerCase()) {
+        resetStatus.textContent = "קישור האיפוס אינו שייך לחשבון המנהל.";
+        return;
+      }
+      const { error } = await supabaseClient.auth.updateUser({ password });
+      if (error) {
+        resetStatus.textContent = `לא הצלחתי לשמור סיסמה חדשה: ${friendlyError(error) || "נסה שוב."}`;
+        return;
+      }
+      $("adminNewPassword").value = "";
+      $("adminNewPasswordConfirm").value = "";
+      clearRecoveryUrl();
+      await supabaseClient.auth.signOut();
+      setAuthenticated(false);
+      showLogin("הסיסמה החדשה נשמרה. כעת אפשר להיכנס עם קוד המנהל והסיסמה החדשה.");
+    });
+
+    backToLoginButton?.addEventListener("click", async () => {
+      clearRecoveryUrl();
+      showLogin("");
     });
 
     logoutButton?.addEventListener("click", async () => {
