@@ -20,6 +20,22 @@
     document.body.classList.toggle("admin-unlocked", value);
   }
 
+  function wirePasswordToggles() {
+    document.querySelectorAll("[data-password-toggle]").forEach((button) => {
+      const input = $(button.dataset.passwordToggle);
+      if (!input || button.dataset.authToggleWired === "yes") return;
+      button.dataset.authToggleWired = "yes";
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        const shouldShow = input.type === "password";
+        input.type = shouldShow ? "text" : "password";
+        button.setAttribute("aria-label", shouldShow ? "הסתר סיסמה" : "הצג סיסמה");
+        button.title = shouldShow ? "הסתר סיסמה" : "הצג סיסמה";
+        button.classList.toggle("is-active", shouldShow);
+      });
+    });
+  }
+
   function adminEmailLooksDeliverable() {
     const email = String(AUTH.supabaseAdminEmail || "").trim();
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && !/\.local$/i.test(email);
@@ -81,14 +97,12 @@
         email: AUTH.supabaseAdminEmail,
         password
       });
-      if (error) {
-        status.textContent = "קוד או סיסמה שגויים.";
+      if (!error) {
+        status.textContent = "";
+        setAuthenticated(true);
+        location.reload();
         return;
       }
-      status.textContent = "";
-      setAuthenticated(true);
-      location.reload();
-      return;
     }
     const passwordHash = await sha256(password);
     if (passwordHash !== AUTH.passwordHash) {
@@ -162,6 +176,7 @@
   }
 
   function wire() {
+    wirePasswordToggles();
     $("adminLoginForm")?.addEventListener("submit", handleLogin, true);
     $("adminForgotPasswordButton")?.addEventListener("click", handleForgot, true);
     $("adminPasswordResetForm")?.addEventListener("submit", handlePasswordReset, true);
