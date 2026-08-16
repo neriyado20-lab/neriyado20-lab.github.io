@@ -20,7 +20,7 @@
   }
 
   function isAdminEmail(email) {
-    const adminEmail = window.GAL_EINAI_ADMIN_AUTH?.supabaseAdminEmail || "admin@gal-einai.local";
+    const adminEmail = window.GAL_EINAI_ADMIN_AUTH?.supabaseAdminEmail || "";
     return String(email || "").trim().toLowerCase() === String(adminEmail).trim().toLowerCase();
   }
 
