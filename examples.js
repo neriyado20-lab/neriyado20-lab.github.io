@@ -5,6 +5,7 @@
   const FEEDBACK_KEY = "gal-einai-cipher-feedback-v1";
   const MANAGER_SESSION_KEY = "gal-einai-vault-manager-session-v1";
   const MANAGER_PASSWORD_HASH = "b2085a238dba1a766cd2de60089abeb61631cc4ac122d0363e6d67ad56605242";
+  const MANAGER_RECOVERY_MASK = "n******o20@g****.com";
   const VIEW_DELAY_MS = 1200;
   const SEEN_VISIBILITY_RATIO = 0.35;
   const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
@@ -147,6 +148,26 @@
         page: location.href
       }
     });
+  }
+
+  async function requestManagerPasswordReset() {
+    const requestId = `manager-reset-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    const payload = {
+      type: "manager_password_reset_request",
+      requestId,
+      page: location.href,
+      at: new Date().toISOString(),
+      status: "pending_admin_approval"
+    };
+    if (!supabaseClient) {
+      throw new Error("הבקשה לא נשלחה כי החיבור לאתר אינו פעיל כרגע.");
+    }
+    const { error } = await supabaseClient.from("site_submissions").insert({
+      kind: "note",
+      payload
+    });
+    if (error) throw error;
+    return requestId;
   }
 
   function clampRating(value) {
@@ -1363,6 +1384,20 @@
         closeDialog(document.getElementById("vaultManagerLogin"));
       } catch {
         if (status) status.textContent = "לא הצלחתי לבדוק את הסיסמה בדפדפן הזה.";
+      }
+    });
+    document.getElementById("vaultForgotPasswordButton")?.addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      const status = document.getElementById("vaultManagerLoginStatus");
+      button.disabled = true;
+      if (status) status.textContent = "שולח בקשת איפוס לאישור מנהל...";
+      try {
+        await requestManagerPasswordReset();
+        if (status) status.textContent = `בקשת איפוס נשלחה לאישור. הודעה תטופל דרך ${MANAGER_RECOVERY_MASK}.`;
+      } catch (error) {
+        if (status) status.textContent = error.message || "בקשת האיפוס לא נשלחה.";
+      } finally {
+        button.disabled = false;
       }
     });
     document.getElementById("examplesArchiveToggle")?.addEventListener("click", (event) => {
