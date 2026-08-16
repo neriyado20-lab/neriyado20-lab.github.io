@@ -28,6 +28,27 @@
       <button class="link-button" id="adminForgotPasswordButton" type="button">איפוס סיסמה</button>
       <p id="adminLoginStatus" class="admin-status" aria-live="polite"></p>
     </form>
+    <form class="admin-login-box" id="adminPasswordResetForm" hidden>
+      <p class="eyebrow">איפוס סיסמת מנהל</p>
+      <h1>קביעת סיסמה חדשה</h1>
+      <label>
+        <span>סיסמה חדשה</span>
+        <span class="password-field">
+          <input id="adminNewPassword" type="password" autocomplete="new-password" minlength="6">
+          <button class="password-toggle" type="button" data-password-toggle="adminNewPassword" aria-label="הצג סיסמה" title="הצג סיסמה">👁</button>
+        </span>
+      </label>
+      <label>
+        <span>אימות סיסמה חדשה</span>
+        <span class="password-field">
+          <input id="adminNewPasswordConfirm" type="password" autocomplete="new-password" minlength="6">
+          <button class="password-toggle" type="button" data-password-toggle="adminNewPasswordConfirm" aria-label="הצג סיסמה" title="הצג סיסמה">👁</button>
+        </span>
+      </label>
+      <button class="button primary" type="submit">שמור סיסמה חדשה</button>
+      <button class="link-button" id="adminBackToLoginButton" type="button">חזרה לכניסה</button>
+      <p id="adminPasswordResetStatus" class="admin-status" aria-live="polite"></p>
+    </form>
   </section>
 
   <header class="topbar">
@@ -438,7 +459,7 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin-config.js?v=3"></script>
-  <script src="admin.js?v=40"></script>
+  <script src="admin.js?v=41"></script>
   <script src="hebrew-date.js?v=2"></script>
 </body>
 </html>
