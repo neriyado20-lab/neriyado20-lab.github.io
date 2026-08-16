@@ -12,7 +12,7 @@
   <meta property="og:description" content="אוצר הצפנים שנמצאו ונשמרו בתוכנת גל עיני, כולל תמונות מסך וקבצי צופן.">
   <meta property="og:url" content="https://neriyado20-lab.github.io/examples.html">
   <meta name="twitter:card" content="summary">
-  <link rel="stylesheet" href="styles.css?v=141">
+  <link rel="stylesheet" href="styles.css?v=142">
 </head>
 <body>
   <header class="topbar">
@@ -83,10 +83,13 @@
 
     <section class="examples-manager-strip" id="examplesManagerStrip" hidden>
       <div>
-        <h2>אוצר הצפנים</h2>
+        <p class="eyebrow">ממשק פנימי</p>
+        <h2>ניהול האוצר מתוך המקום עצמו</h2>
+        <p>עריכה, פרסום, ארכיון, מחיקה ותצוגה ציבורית מרוכזים כאן.</p>
       </div>
       <button class="button secondary" id="examplesArchiveToggle" type="button" aria-expanded="false">כניסה לארכיון</button>
       <button class="button secondary" id="publicPreviewToggle" type="button">תצוגה ציבורית</button>
+      <button class="button secondary" id="managerLogoutButton" type="button">יציאה מניהול</button>
     </section>
 
     <section class="examples-manager-archive" id="examplesManagerArchive" hidden>
@@ -113,11 +116,74 @@
     <section class="examples-empty-state" id="examplesEmptyState" hidden>
       <p class="eyebrow">אין עדיין צפנים בקבוצה זו</p>
       <h2>הקטגוריה תתמלא בהמשך</h2>
-      <p>אפשר לבחור נושא אחר או להעלות צופן מתאים דרך ממשק הניהול.</p>
+      <p>אפשר לבחור נושא אחר או להוסיף צופן מתאים מתוך ממשק האוצר הפנימי.</p>
     </section>
 
     <section class="sample-layout" id="cipherVaultGrid" aria-live="polite"></section>
   </main>
+
+  <dialog class="vault-manager-dialog" id="vaultManagerLogin">
+    <form method="dialog" class="vault-manager-box" id="vaultManagerLoginForm">
+      <p class="eyebrow">כניסה פנימית</p>
+      <h2>ניהול אוצר הצפנים</h2>
+      <label>
+        <span>סיסמת מנהל</span>
+        <input id="vaultManagerPassword" type="password" autocomplete="current-password">
+      </label>
+      <div class="admin-form-actions">
+        <button class="button primary" type="submit">כניסה</button>
+        <button class="button secondary" type="button" data-close-vault-login>ביטול</button>
+      </div>
+      <small id="vaultManagerLoginStatus" aria-live="polite"></small>
+    </form>
+  </dialog>
+
+  <dialog class="vault-manager-dialog" id="cipherManagerDialog">
+    <form method="dialog" class="vault-manager-box vault-editor-box" id="cipherManagerForm">
+      <p class="eyebrow">ניהול צופן</p>
+      <h2 id="cipherManagerHeading">עריכת צופן</h2>
+      <input type="hidden" id="cipherManagerCardId">
+      <label>
+        <span>שם הצופן</span>
+        <input id="cipherManagerTitle" type="text" maxlength="120">
+      </label>
+      <label>
+        <span>נושא</span>
+        <select id="cipherManagerTopic">
+          <option value="dates">תאריכים</option>
+          <option value="geula">גאולה ומשיח</option>
+          <option value="events">אירועים ואומות</option>
+          <option value="healing">רפואה וסגולות</option>
+          <option value="past_dates">תאריכי עבר</option>
+          <option value="users">צפני משתמשים</option>
+        </select>
+      </label>
+      <label>
+        <span>קישור לקובץ / תמונה / פרויקט</span>
+        <input id="cipherManagerUrl" type="url">
+      </label>
+      <label>
+        <span>מלל ותיאור</span>
+        <textarea id="cipherManagerDescription" rows="5" maxlength="1200"></textarea>
+      </label>
+      <label>
+        <span>מצב</span>
+        <select id="cipherManagerStatus">
+          <option value="active">מפורסם באוצר</option>
+          <option value="past_dates">תאריכי עבר</option>
+          <option value="draft">טיוטה נסתרת</option>
+          <option value="archive">ארכיון מנהל</option>
+        </select>
+      </label>
+      <div class="admin-form-actions">
+        <button class="button primary" type="submit">שמור</button>
+        <button class="button secondary" type="button" data-manager-archive>העבר לארכיון</button>
+        <button class="button secondary danger-button" type="button" data-manager-delete>מחק לגמרי</button>
+        <button class="button secondary" type="button" data-close-cipher-manager>סגור</button>
+      </div>
+      <small id="cipherManagerStatusText" aria-live="polite"></small>
+    </form>
+  </dialog>
 
   <footer>
     <span>גל עיני - אוצר הצפנים</span>
@@ -127,9 +193,8 @@
   <script src="site-interactions-config.js?v=1"></script>
   <script src="supabase-public.js?v=2"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="admin-config.js?v=4"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=12"></script>
-  <script src="examples.js?v=42"></script>
+  <script src="examples.js?v=43"></script>
 </body>
 </html>
