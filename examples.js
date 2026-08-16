@@ -1511,6 +1511,22 @@
     });
   }
 
+  function wirePasswordToggles() {
+    document.querySelectorAll("[data-password-toggle]").forEach((button) => {
+      if (button.dataset.passwordToggleWired === "true") return;
+      const input = document.getElementById(button.dataset.passwordToggle || "");
+      if (!input) return;
+      button.dataset.passwordToggleWired = "true";
+      button.addEventListener("click", () => {
+        const shouldShow = input.type === "password";
+        input.type = shouldShow ? "text" : "password";
+        button.setAttribute("aria-label", shouldShow ? "הסתר סיסמה" : "הצג סיסמה");
+        button.title = shouldShow ? "הסתר סיסמה" : "הצג סיסמה";
+        button.classList.toggle("is-active", shouldShow);
+      });
+    });
+  }
+
   function wireManagerGesture(seen) {
     const buttons = Array.from(document.querySelectorAll(".examples-topic-filter [data-topic-filter]"));
     const first = buttons[0];
@@ -1624,6 +1640,7 @@
   applyFilter(seen);
   updateVaultPicker();
   wireCipherFeedback();
+  wirePasswordToggles();
   wireShareAndAdminTools(seen);
   wireManagerPreviewToggle(seen);
   detectManagerMode(seen);
