@@ -7,7 +7,7 @@
   const SEEN_VISIBILITY_RATIO = 0.35;
   const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
   const SUPABASE_KEY = "sb_publishable_MqD3lXrftP5B36gcRjpDbw_csTVjpVK";
-  const ADMIN_EMAIL = window.GAL_EINAI_ADMIN_AUTH?.supabaseAdminEmail || "admin@gal-einai.local";
+  const ADMIN_EMAIL = window.GAL_EINAI_ADMIN_AUTH?.supabaseAdminEmail || "";
   const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
   const keepNewThisSession = new Set();
   const viewTimers = new Map();
