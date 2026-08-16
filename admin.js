@@ -125,7 +125,6 @@
       setAuthenticated(false);
       const message = "הכניסה למנהל פגה. הכנס קוד וסיסמה ואז נסה שוב.";
       if (statusElement) statusElement.textContent = message;
-      $("adminLoginCode")?.focus();
       return { ok: false, message };
     }
     if (String(email).trim().toLowerCase() !== String(AUTH.supabaseAdminEmail).trim().toLowerCase()) {
