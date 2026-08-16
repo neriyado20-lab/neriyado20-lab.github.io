@@ -1473,6 +1473,12 @@ body:not(.manager-mode) .cipher-admin-actions {
   font-weight: 900;
 }
 
+.vault-manager-box .admin-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .vault-manager-box input,
 .vault-manager-box select,
 .vault-manager-box textarea {
