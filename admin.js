@@ -231,22 +231,6 @@
       $("adminNewPassword")?.focus();
     }
 
-    const { data } = await supabaseClient.auth.getSession();
-    const recoveryMode = isPasswordRecoveryUrl();
-    if (recoveryMode) {
-      showPasswordReset(data.session
-        ? "הכנס סיסמה חדשה לחשבון המנהל."
-        : "קישור האיפוס נפתח, אך לא נמצאה התחברות שחזור פעילה. נסה לפתוח את הקישור שוב מאותו דפדפן.");
-    }
-    setAuthenticated(Boolean(data.session) && !recoveryMode);
-    if (data.session && !recoveryMode) {
-      render();
-      renderRemoteSubmissions();
-      loadRemoteContent();
-      loadLicenses();
-      requireAdminConnection($("adminBackendStatus"));
-    }
-
     supabaseClient.auth.onAuthStateChange((eventName, session) => {
       if (eventName === "PASSWORD_RECOVERY") {
         showPasswordReset("הכנס סיסמה חדשה לחשבון המנהל.");
@@ -348,6 +332,27 @@
       $("adminLoginPassword").value = "";
       $("adminLoginCode").focus();
     });
+
+    try {
+      const { data } = await supabaseClient.auth.getSession();
+      const recoveryMode = isPasswordRecoveryUrl();
+      if (recoveryMode) {
+        showPasswordReset(data.session
+          ? "הכנס סיסמה חדשה לחשבון המנהל."
+          : "קישור האיפוס נפתח, אך לא נמצאה התחברות שחזור פעילה. נסה לפתוח את הקישור שוב מאותו דפדפן.");
+      }
+      setAuthenticated(Boolean(data.session) && !recoveryMode);
+      if (data.session && !recoveryMode) {
+        render();
+        renderRemoteSubmissions();
+        loadRemoteContent();
+        loadLicenses();
+        requireAdminConnection($("adminBackendStatus"));
+      }
+    } catch (error) {
+      setAuthenticated(false);
+      showLogin(friendlyError(error) || "לא הצלחתי לבדוק חיבור מנהל. אפשר לנסות להיכנס שוב.");
+    }
   }
 
   function readStore() {
