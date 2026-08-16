@@ -1448,55 +1448,59 @@
     last.dataset.managerGestureWired = "true";
     first.draggable = true;
     last.draggable = true;
-    let dragSource = null;
     let pointerSource = null;
     let pointerStart = null;
     let pointerArmed = false;
+    let edgeTapTrail = [];
     const opposite = (source, target) => (source === first && target === last) || (source === last && target === first);
     const markSource = (button) => {
-      dragSource = button;
       button.classList.add("manager-gesture-source");
     };
     const clearSource = () => {
       first.classList.remove("manager-gesture-source");
       last.classList.remove("manager-gesture-source");
-      dragSource = null;
       pointerSource = null;
       pointerStart = null;
       pointerArmed = false;
     };
-    const finishPointerGesture = (event) => {
+    const checkPointerGesture = (event, shouldClear = false) => {
       if (!pointerSource || !pointerStart) return;
       const target = document.elementFromPoint(event.clientX, event.clientY)?.closest?.(".examples-topic-filter [data-topic-filter]");
       const distance = Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y);
       if (pointerArmed && distance > 40 && target && opposite(pointerSource, target)) {
         event.preventDefault();
         openManagerLogin(seen);
+        clearSource();
+        return;
       }
-      clearSource();
+      if (shouldClear) clearSource();
     };
-    document.addEventListener("pointerup", finishPointerGesture, true);
+    document.addEventListener("pointermove", (event) => checkPointerGesture(event, false), true);
+    document.addEventListener("pointerup", (event) => checkPointerGesture(event, true), true);
     document.addEventListener("pointercancel", clearSource, true);
     [first, last].forEach((button) => {
-      button.addEventListener("dragstart", (event) => {
-        markSource(button);
-        event.dataTransfer?.setData("text/plain", button.dataset.topicFilter || "");
-        if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
-      });
-      button.addEventListener("dragend", clearSource);
-      button.addEventListener("dragover", (event) => {
-        if (dragSource && opposite(dragSource, button)) event.preventDefault();
-      });
-      button.addEventListener("drop", (event) => {
-        event.preventDefault();
-        if (dragSource && opposite(dragSource, button)) openManagerLogin(seen);
-        clearSource();
-      });
+      button.draggable = false;
+      button.addEventListener("dragstart", (event) => event.preventDefault());
       button.addEventListener("pointerdown", (event) => {
         pointerSource = button;
         pointerStart = { x: event.clientX, y: event.clientY };
         pointerArmed = true;
         markSource(button);
+        try {
+          button.setPointerCapture(event.pointerId);
+        } catch {
+          // Pointer capture is a convenience only; document-level tracking still handles the gesture.
+        }
+      });
+      button.addEventListener("click", () => {
+        const now = Date.now();
+        edgeTapTrail = edgeTapTrail.filter((item) => now - item.at < 2500);
+        edgeTapTrail.push({ side: button === first ? "first" : "last", at: now });
+        const trail = edgeTapTrail.map((item) => item.side).join(",");
+        if (trail.endsWith("first,last,first,last") || trail.endsWith("last,first,last,first")) {
+          edgeTapTrail = [];
+          openManagerLogin(seen);
+        }
       });
     });
   }
