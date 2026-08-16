@@ -1451,6 +1451,7 @@
     let dragSource = null;
     let pointerSource = null;
     let pointerStart = null;
+    let pointerArmed = false;
     const opposite = (source, target) => (source === first && target === last) || (source === last && target === first);
     const markSource = (button) => {
       dragSource = button;
@@ -1462,7 +1463,20 @@
       dragSource = null;
       pointerSource = null;
       pointerStart = null;
+      pointerArmed = false;
     };
+    const finishPointerGesture = (event) => {
+      if (!pointerSource || !pointerStart) return;
+      const target = document.elementFromPoint(event.clientX, event.clientY)?.closest?.(".examples-topic-filter [data-topic-filter]");
+      const distance = Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y);
+      if (pointerArmed && distance > 40 && target && opposite(pointerSource, target)) {
+        event.preventDefault();
+        openManagerLogin(seen);
+      }
+      clearSource();
+    };
+    document.addEventListener("pointerup", finishPointerGesture, true);
+    document.addEventListener("pointercancel", clearSource, true);
     [first, last].forEach((button) => {
       button.addEventListener("dragstart", (event) => {
         markSource(button);
@@ -1481,15 +1495,9 @@
       button.addEventListener("pointerdown", (event) => {
         pointerSource = button;
         pointerStart = { x: event.clientX, y: event.clientY };
+        pointerArmed = true;
+        markSource(button);
       });
-      button.addEventListener("pointerup", (event) => {
-        if (!pointerSource || !pointerStart) return;
-        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest?.(".examples-topic-filter [data-topic-filter]");
-        const distance = Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y);
-        if (distance > 80 && target && opposite(pointerSource, target)) openManagerLogin(seen);
-        clearSource();
-      });
-      button.addEventListener("pointercancel", clearSource);
     });
   }
 
