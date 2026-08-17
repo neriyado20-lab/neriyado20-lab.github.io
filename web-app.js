@@ -2196,6 +2196,44 @@
     requestAnimationFrame(drawConnections);
   }
 
+  function bindGridDragPan() {
+    let dragging = false;
+    let pointerId = 0;
+    let lastX = 0;
+    let lastY = 0;
+
+    const stop = () => {
+      dragging = false;
+      pointerId = 0;
+      els.grid.classList.remove("is-panning");
+    };
+
+    els.grid.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || event.target.closest(".word-menu, button, input, select, textarea")) return;
+      dragging = true;
+      pointerId = event.pointerId;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      els.grid.classList.add("is-panning");
+      els.grid.setPointerCapture?.(event.pointerId);
+    });
+
+    els.grid.addEventListener("pointermove", (event) => {
+      if (!dragging || event.pointerId !== pointerId) return;
+      event.preventDefault();
+      const dx = event.clientX - lastX;
+      const dy = event.clientY - lastY;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      els.grid.scrollBy({ left: -dx, top: -dy, behavior: "auto" });
+      requestAnimationFrame(drawConnections);
+    }, { passive: false });
+
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach((name) => {
+      els.grid.addEventListener(name, stop);
+    });
+  }
+
   function setGridZoom(delta) {
     const next = Math.max(16, Math.min(34, state.zoom + delta));
     if (next === state.zoom) return;
@@ -2555,6 +2593,7 @@
     state.zoom = 24;
     renderCurrent();
   });
+  bindGridDragPan();
   bindPinchZoom();
   els.grid.addEventListener("scroll", () => requestAnimationFrame(drawConnections), { passive: true });
   if (els.resultsPanel) {
