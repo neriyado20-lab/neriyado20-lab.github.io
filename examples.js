@@ -14,6 +14,9 @@
   const keepNewThisSession = new Set();
   const viewTimers = new Map();
   const contentById = new Map();
+  let contactMessagesLoaded = false;
+  let contactMessagesLoading = false;
+  let contactMessages = [];
   let remoteContentLoaded = false;
   let managerMode = false;
   let publicPreviewMode = false;
@@ -1062,6 +1065,104 @@
     });
   }
 
+  function contactPayloadValue(payload, key, fallback = "") {
+    return String(payload?.[key] ?? fallback ?? "").trim();
+  }
+
+  function renderManagerContactMessages(message = "") {
+    const panel = document.getElementById("managerContactMessages");
+    const list = document.getElementById("managerContactMessagesList");
+    const count = document.getElementById("managerContactMessagesCount");
+    const toggle = document.getElementById("contactMessagesToggle");
+    const contactOpen = effectiveManagerMode() && toggle?.getAttribute("aria-expanded") === "true";
+    if (panel) panel.hidden = !contactOpen;
+    if (toggle) toggle.textContent = `${contactOpen ? "סגור הודעות" : "הודעות צור קשר"} (${contactMessages.length})`;
+    if (count) count.textContent = `${contactMessages.length} הודעות`;
+    if (!list || !contactOpen) return;
+    list.replaceChildren();
+    if (message) {
+      const row = document.createElement("article");
+      row.className = "archive-item";
+      row.innerHTML = `<div><strong></strong><small></small></div>`;
+      row.querySelector("strong").textContent = message;
+      row.querySelector("small").textContent = "ההודעות נשמרות בטבלת הפניות של האתר.";
+      list.appendChild(row);
+      return;
+    }
+    if (!contactMessages.length) {
+      const row = document.createElement("article");
+      row.className = "archive-item";
+      row.innerHTML = "<div><strong>אין כרגע הודעות להצגה</strong><small>פניות חדשות מ'צור קשר' יופיעו כאן לאחר טעינה.</small></div>";
+      list.appendChild(row);
+      return;
+    }
+    contactMessages.forEach((row) => {
+      const payload = row.payload || {};
+      const item = document.createElement("article");
+      item.className = "archive-item manager-message-item";
+      const text = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = `${contactPayloadValue(payload, "topic", "פנייה")} - ${contactPayloadValue(payload, "name", "ללא שם")}`;
+      const meta = document.createElement("small");
+      const date = row.created_at || payload.at ? new Date(row.created_at || payload.at).toLocaleString("he-IL") : "";
+      meta.textContent = [contactPayloadValue(payload, "returnTo", "ללא פרטי חזרה"), date].filter(Boolean).join(" | ");
+      const body = document.createElement("p");
+      body.textContent = contactPayloadValue(payload, "message", "");
+      text.append(title, meta, body);
+      const actions = document.createElement("div");
+      actions.className = "archive-actions";
+      const copy = document.createElement("button");
+      copy.className = "button secondary";
+      copy.type = "button";
+      copy.textContent = "העתק";
+      copy.addEventListener("click", async () => {
+        const summary = [
+          title.textContent,
+          meta.textContent,
+          "",
+          body.textContent
+        ].join("\n");
+        try {
+          await navigator.clipboard.writeText(summary);
+          copy.textContent = "הועתק";
+          window.setTimeout(() => { copy.textContent = "העתק"; }, 1400);
+        } catch {
+          alert(summary);
+        }
+      });
+      actions.appendChild(copy);
+      item.append(text, actions);
+      list.appendChild(item);
+    });
+  }
+
+  async function loadManagerContactMessages() {
+    if (contactMessagesLoading) return;
+    contactMessagesLoading = true;
+    renderManagerContactMessages("טוען הודעות...");
+    try {
+      if (!supabaseClient) throw new Error("החיבור לפניות אינו פעיל.");
+      const { data, error } = await supabaseClient
+        .from("site_submissions")
+        .select("id,kind,payload,created_at")
+        .eq("kind", "contact")
+        .order("created_at", { ascending: false })
+        .limit(80);
+      if (error) throw error;
+      contactMessages = Array.isArray(data) ? data : [];
+      contactMessagesLoaded = true;
+      renderManagerContactMessages();
+    } catch (error) {
+      const raw = String(error?.message || "");
+      const message = /permission|policy|row-level|denied|403|unauthorized/i.test(raw)
+        ? "אין הרשאה לקריאת הודעות. צריך לחבר הרשאת מנהל בצד השרת."
+        : raw || "טעינת ההודעות נכשלה.";
+      renderManagerContactMessages(message);
+    } finally {
+      contactMessagesLoading = false;
+    }
+  }
+
   async function loadPublishedContent(seen) {
     const layout = document.querySelector(".sample-layout");
     if (!layout) return;
@@ -1442,6 +1543,7 @@
     }
     wireShareAndAdminTools(seen);
     renderManagerArchive(seen);
+    renderManagerContactMessages();
   }
 
   function wireManagerPreviewToggle(seen) {
@@ -1487,6 +1589,14 @@
       const isOpen = button.getAttribute("aria-expanded") === "true";
       button.setAttribute("aria-expanded", isOpen ? "false" : "true");
       renderManagerArchive(seen);
+    });
+    document.getElementById("contactMessagesToggle")?.addEventListener("click", (event) => {
+      const button = event.currentTarget;
+      const isOpen = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", isOpen ? "false" : "true");
+      renderManagerContactMessages();
+      if (!isOpen && !contactMessagesLoaded) loadManagerContactMessages();
+      if (!isOpen) document.getElementById("managerContactMessages")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
     document.getElementById("publicPreviewToggle")?.addEventListener("click", () => {
       publicPreviewMode = !publicPreviewMode;
