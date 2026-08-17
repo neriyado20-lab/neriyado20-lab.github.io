@@ -188,7 +188,7 @@
   height: 100%;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(282px, 326px) minmax(0, 1fr);
+  grid-template-columns: minmax(246px, 292px) minmax(0, 1fr);
   grid-template-rows: auto auto minmax(0, 1fr);
   gap: 2px;
   direction: rtl;
@@ -221,7 +221,7 @@
 
 .app-command-bar {
   display: grid;
-  grid-template-columns: auto auto minmax(120px, 1fr) auto minmax(220px, 360px);
+  grid-template-columns: auto auto minmax(100px, 1fr) auto minmax(190px, 330px);
   gap: 3px;
   align-items: center;
   min-height: 23px;
@@ -297,7 +297,7 @@ body[data-downloads="disabled"] #backupLibraryButton {
   border-radius: 6px;
   background: rgba(255, 253, 246, 0.95);
   box-shadow: 0 8px 24px rgba(44, 31, 12, 0.08);
-  padding: 4px;
+  padding: 3px;
 }
 
 .edition-limit-note {
@@ -320,7 +320,7 @@ body[data-edition="free"] .edition-limit-note {
 .search-panel {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 4px;
+  gap: 3px;
   align-items: end;
 }
 
@@ -345,8 +345,8 @@ body[data-edition="free"] .edition-limit-note {
 .search-panel input,
 .search-panel textarea {
   width: 100%;
-  min-height: 28px;
-  padding: 3px 6px;
+  min-height: 25px;
+  padding: 2px 5px;
   border: 1px solid #b7c5bd;
   border-radius: 4px;
   background: #fffef9;
@@ -356,14 +356,14 @@ body[data-edition="free"] .edition-limit-note {
 
 .search-panel textarea {
   resize: vertical;
-  min-height: 28px;
-  max-height: 60px;
+  min-height: 25px;
+  max-height: 44px;
 }
 
 .search-actions {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 3px;
+  gap: 2px;
 }
 
 body[data-edition="free"] .search-actions {
@@ -381,6 +381,12 @@ body[data-edition="free"] .search-actions {
   background: #fff3ce;
   border-color: #caa34a;
   color: #5d430b;
+}
+
+.search-actions .save-current-project {
+  background: #eaf7ef;
+  border-color: #7dbb94;
+  color: #1f5b35;
 }
 
 .search-actions .library-button {
@@ -754,6 +760,7 @@ body[data-edition="free"] .search-actions {
 .result-table-wrap {
   overflow: auto;
   outline: none;
+  touch-action: none;
 }
 
 .result-table-wrap:focus-visible {
@@ -763,13 +770,13 @@ body[data-edition="free"] .search-actions {
 .result-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--result-font-size, 13px);
   white-space: nowrap;
 }
 
 .result-table th,
 .result-table td {
-  padding: 3px 4px;
+  padding: var(--result-cell-y, 3px) 4px;
   border-bottom: 1px solid #ede7d3;
   text-align: right;
 }
@@ -934,10 +941,12 @@ body[data-edition="free"] .search-actions {
 .torah-grid {
   min-height: 0;
   overflow: auto;
-  padding: 0 0 38px;
+  padding: 0 0 31px;
   direction: rtl;
   scroll-behavior: auto;
   background: #f7ecd6;
+  touch-action: none;
+  overscroll-behavior: contain;
 }
 
 .grid-inner {
