@@ -46,6 +46,16 @@ on public.site_submissions for insert
 to anon, authenticated
 with check (true);
 
+drop policy if exists "public can read public cipher feedback" on public.site_submissions;
+create policy "public can read public cipher feedback"
+on public.site_submissions for select
+to anon, authenticated
+using (
+  kind = 'note'
+  and payload ->> 'type' = 'cipher_feedback'
+  and payload ->> 'visibility' = 'public'
+);
+
 drop policy if exists "authenticated admins manage submissions" on public.site_submissions;
 create policy "authenticated admins manage submissions"
 on public.site_submissions for all
