@@ -655,6 +655,43 @@
     };
   }
 
+  function slugifyId(text) {
+    const ascii = String(text || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    return ascii || `cipher-${Date.now().toString(36)}`;
+  }
+
+  function metadataForNewCipher(topic, url, description) {
+    const absolute = absoluteUrl(url);
+    const markers = ["[vault:v2]", `[topic:${topic || "events"}]`];
+    if (isJsonUrl(url) || String(url).includes("web.html?project=")) {
+      markers.push(`[project:${absolute}]`);
+    } else {
+      markers.push(`[image:${absolute}]`);
+    }
+    return [markers.join("\n"), String(description || "").trim()].filter(Boolean).join("\n");
+  }
+
+  function payloadForNewCipher(status, patch = {}) {
+    const now = new Date().toISOString();
+    const title = String(patch.title || "").trim() || "צופן חדש";
+    const topic = patch.topic || "events";
+    const url = absoluteUrl(patch.url || "");
+    return {
+      id: `cipher-${Date.now().toString(36)}-${slugifyId(title)}`,
+      type: "example",
+      title,
+      url,
+      status,
+      description: patch.description ?? metadataForNewCipher(topic, url, ""),
+      created_at: now,
+      updated_at: now
+    };
+  }
+
   async function upsertContent(item) {
     if (!supabaseClient) throw new Error("החיבור לניהול אינו פעיל.");
     const { error } = await supabaseClient.from("admin_content").upsert(item);
@@ -1309,6 +1346,31 @@
     return item;
   }
 
+  async function saveNewManagedCipher(seen, patch = {}) {
+    const status = patch.status || "active";
+    const item = payloadForNewCipher(status, patch);
+    await upsertContent(item);
+    if (status === "archive" || status === "draft") {
+      rememberLocalArchive(item);
+      renderManagerArchive(seen);
+    } else {
+      const layout = document.querySelector(".sample-layout");
+      const card = cardForContent(item);
+      layout?.prepend(card);
+      setCardState(card, seen);
+      addCipherFeedback(card);
+      card.querySelector(".mark-unseen")?.addEventListener("click", () => markUnseen(card, seen));
+      addShareButton(card);
+      addAdminActions(card, seen);
+      markManagerChangedCardsSeen(item, card, seen);
+      window.GalEinaiWireSampleCards?.();
+    }
+    applyFilter(seen);
+    updateVaultPicker();
+    renderManagerArchive(seen);
+    return item;
+  }
+
   async function removeManagedCard(card, seen) {
     const id = itemIdForCard(card);
     if (!id) return;
@@ -1337,8 +1399,28 @@
     document.getElementById("cipherManagerStatus").value = item.status || (card.dataset.topic === "past_dates" ? "past_dates" : "active");
     document.getElementById("cipherManagerStatusText").textContent = "";
     form._managedCard = card;
+    form._isNewCipher = false;
     form._seenState = seen;
     showDialog(dialog);
+  }
+
+  function openNewCipherManager(seen) {
+    const dialog = document.getElementById("cipherManagerDialog");
+    const form = document.getElementById("cipherManagerForm");
+    if (!dialog || !form) return;
+    document.getElementById("cipherManagerCardId").value = "";
+    document.getElementById("cipherManagerHeading").textContent = "הוסף צופן חדש";
+    document.getElementById("cipherManagerTitle").value = "";
+    document.getElementById("cipherManagerTopic").value = "events";
+    document.getElementById("cipherManagerUrl").value = "";
+    document.getElementById("cipherManagerDescription").value = "";
+    document.getElementById("cipherManagerStatus").value = "active";
+    document.getElementById("cipherManagerStatusText").textContent = "";
+    form._managedCard = null;
+    form._isNewCipher = true;
+    form._seenState = seen;
+    showDialog(dialog);
+    window.setTimeout(() => document.getElementById("cipherManagerTitle")?.focus(), 50);
   }
 
   function wireShareAndAdminTools(seen) {
@@ -1415,6 +1497,9 @@
     document.getElementById("managerLogoutButton")?.addEventListener("click", () => {
       disableManagerMode(seen);
     });
+    document.getElementById("addCipherButton")?.addEventListener("click", () => {
+      openNewCipherManager(seen);
+    });
     document.querySelector("[data-close-cipher-manager]")?.addEventListener("click", () => {
       closeDialog(document.getElementById("cipherManagerDialog"));
     });
@@ -1422,11 +1507,26 @@
       const form = document.getElementById("cipherManagerForm");
       const status = document.getElementById("cipherManagerStatusText");
       const card = form?._managedCard;
-      if (!card) return;
-      if (!window.confirm(`להעביר את "${titleForCard(card)}" לארכיון ולהוציא אותו מהאוצר הפעיל?`)) return;
+      const title = card ? titleForCard(card) : document.getElementById("cipherManagerTitle")?.value?.trim() || "צופן חדש";
+      if (!card && !form?._isNewCipher) return;
+      if (!window.confirm(`להעביר את "${title}" לארכיון ולהוציא אותו מהאוצר הפעיל?`)) return;
       try {
         if (status) status.textContent = "מעביר לארכיון...";
-        await saveManagedCard(card, seen, { status: "archive" });
+        if (card) {
+          await saveManagedCard(card, seen, { status: "archive" });
+        } else {
+          await saveNewManagedCipher(seen, {
+            title,
+            topic: document.getElementById("cipherManagerTopic")?.value || "events",
+            url: absoluteUrl(document.getElementById("cipherManagerUrl")?.value?.trim() || ""),
+            description: metadataForNewCipher(
+              document.getElementById("cipherManagerTopic")?.value || "events",
+              document.getElementById("cipherManagerUrl")?.value?.trim() || "",
+              document.getElementById("cipherManagerDescription")?.value?.trim() || ""
+            ),
+            status: "archive"
+          });
+        }
         closeDialog(document.getElementById("cipherManagerDialog"));
       } catch (error) {
         if (status) status.textContent = error.message || "המעבר לארכיון נכשל.";
@@ -1451,22 +1551,39 @@
       const form = event.currentTarget;
       const card = form._managedCard;
       const status = document.getElementById("cipherManagerStatusText");
-      if (!card) return;
       const topic = document.getElementById("cipherManagerTopic")?.value || "events";
       const nextStatus = document.getElementById("cipherManagerStatus")?.value || "active";
+      const urlValue = document.getElementById("cipherManagerUrl")?.value?.trim() || (card ? primaryUrlForCard(card) : "");
+      const titleValue = document.getElementById("cipherManagerTitle")?.value?.trim() || (card ? titleForCard(card) : "");
+      if (!titleValue) {
+        if (status) status.textContent = "יש להזין שם צופן.";
+        return;
+      }
+      if (!urlValue) {
+        if (status) status.textContent = "יש להזין קישור לקובץ, תמונה או פרויקט.";
+        return;
+      }
       const patch = {
-        title: document.getElementById("cipherManagerTitle")?.value?.trim() || titleForCard(card),
+        title: titleValue,
         topic,
-        url: absoluteUrl(document.getElementById("cipherManagerUrl")?.value?.trim() || primaryUrlForCard(card)),
-        description: metadataForCard(card, {
-          topic,
-          url: document.getElementById("cipherManagerUrl")?.value?.trim() || primaryUrlForCard(card),
-          description: document.getElementById("cipherManagerDescription")?.value?.trim() || ""
-        })
+        url: absoluteUrl(urlValue),
+        description: card
+          ? metadataForCard(card, {
+            topic,
+            url: urlValue,
+            description: document.getElementById("cipherManagerDescription")?.value?.trim() || ""
+          })
+          : metadataForNewCipher(topic, urlValue, document.getElementById("cipherManagerDescription")?.value?.trim() || "")
       };
       try {
         if (status) status.textContent = "שומר...";
-        await saveManagedCard(card, seen, { ...patch, status: nextStatus });
+        if (card) {
+          await saveManagedCard(card, seen, { ...patch, status: nextStatus });
+        } else if (form._isNewCipher) {
+          await saveNewManagedCipher(seen, { ...patch, status: nextStatus });
+        } else {
+          return;
+        }
         if (status) status.textContent = "נשמר.";
         if (nextStatus !== "archive" && nextStatus !== "draft") closeDialog(document.getElementById("cipherManagerDialog"));
       } catch (error) {
