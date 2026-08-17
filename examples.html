@@ -90,8 +90,11 @@
       <button class="button primary" id="addCipherButton" type="button">הוסף צופן</button>
       <button class="button secondary" id="examplesArchiveToggle" type="button" aria-expanded="false">כניסה לארכיון</button>
       <button class="button secondary" id="contactMessagesToggle" type="button" aria-expanded="false">הודעות צור קשר</button>
+      <button class="button secondary" id="resetRequestsToggle" type="button" aria-expanded="false">בקשות איפוס</button>
+      <button class="button secondary" id="managerConnectionCheckButton" type="button">בדוק חיבור</button>
       <button class="button secondary" id="publicPreviewToggle" type="button">תצוגה ציבורית</button>
       <button class="button secondary" id="managerLogoutButton" type="button">יציאה מניהול</button>
+      <small class="manager-inline-status" id="managerConnectionStatus" aria-live="polite"></small>
     </section>
 
     <section class="examples-manager-archive" id="examplesManagerArchive" hidden>
@@ -112,6 +115,16 @@
         <span id="managerContactMessagesCount">0 הודעות</span>
       </div>
       <div class="archive-list" id="managerContactMessagesList"></div>
+    </section>
+
+    <section class="examples-manager-archive manager-reset-requests" id="managerResetRequests" hidden>
+      <div class="archive-heading">
+        <div>
+          <h2>בקשות איפוס סיסמה</h2>
+        </div>
+        <span id="managerResetRequestsCount">0 בקשות</span>
+      </div>
+      <div class="archive-list" id="managerResetRequestsList"></div>
     </section>
 
     <section class="user-ciphers-band" id="user-ciphers" data-user-ciphers-empty hidden>
@@ -179,6 +192,10 @@
         <input id="cipherManagerUrl" type="url">
       </label>
       <label>
+        <span>או העלאת קובץ מהמחשב</span>
+        <input id="cipherManagerFile" type="file" accept=".png,.jpg,.jpeg,.webp,.gif,.json,.gal_einai.json,application/json,image/*">
+      </label>
+      <label>
         <span>מלל ותיאור</span>
         <textarea id="cipherManagerDescription" rows="5" maxlength="1200"></textarea>
       </label>
@@ -211,6 +228,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=12"></script>
-  <script src="examples.js?v=51"></script>
+  <script src="examples.js?v=52"></script>
 </body>
 </html>
