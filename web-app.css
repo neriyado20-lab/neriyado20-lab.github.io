@@ -942,11 +942,16 @@ body[data-edition="free"] .search-actions {
   min-height: 0;
   overflow: auto;
   padding: 0 0 31px;
-  direction: rtl;
+  direction: ltr;
   scroll-behavior: auto;
   background: #f7ecd6;
   touch-action: none;
   overscroll-behavior: contain;
+  cursor: grab;
+}
+
+.torah-grid.is-panning {
+  cursor: grabbing;
 }
 
 .grid-inner {
