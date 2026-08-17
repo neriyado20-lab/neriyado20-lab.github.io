@@ -90,6 +90,7 @@
       <button class="button primary" id="addCipherButton" type="button">הוסף צופן</button>
       <button class="button secondary" id="examplesArchiveToggle" type="button" aria-expanded="false">כניסה לארכיון</button>
       <button class="button secondary" id="contactMessagesToggle" type="button" aria-expanded="false">הודעות צור קשר</button>
+      <button class="button secondary" id="feedbackMessagesToggle" type="button" aria-expanded="false">דירוגים ותגובות</button>
       <button class="button secondary" id="resetRequestsToggle" type="button" aria-expanded="false">בקשות איפוס</button>
       <button class="button secondary" id="managerConnectionCheckButton" type="button">בדוק חיבור</button>
       <button class="button secondary" id="publicPreviewToggle" type="button">תצוגה ציבורית</button>
@@ -125,6 +126,16 @@
         <span id="managerResetRequestsCount">0 בקשות</span>
       </div>
       <div class="archive-list" id="managerResetRequestsList"></div>
+    </section>
+
+    <section class="examples-manager-archive manager-feedback-messages" id="managerFeedbackMessages" hidden>
+      <div class="archive-heading">
+        <div>
+          <h2>דירוגים ותגובות משתמשים</h2>
+        </div>
+        <span id="managerFeedbackMessagesCount">0 תגובות</span>
+      </div>
+      <div class="archive-list" id="managerFeedbackMessagesList"></div>
     </section>
 
     <section class="user-ciphers-band" id="user-ciphers" data-user-ciphers-empty hidden>
@@ -218,6 +229,17 @@
     </form>
   </dialog>
 
+  <dialog class="vault-manager-dialog" id="cipherCommentsDialog">
+    <section class="vault-manager-box vault-editor-box">
+      <p class="eyebrow">תגובות משתמשים</p>
+      <h2 id="cipherCommentsHeading">תגובות לצופן</h2>
+      <div class="archive-list" id="cipherCommentsList"></div>
+      <div class="admin-form-actions">
+        <button class="button secondary" type="button" data-close-cipher-comments>סגור</button>
+      </div>
+    </section>
+  </dialog>
+
   <footer>
     <span>גל עיני - אוצר הצפנים</span>
     <span><a href="index.html">חזרה לעמוד הראשי</a></span>
@@ -228,6 +250,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=12"></script>
-  <script src="examples.js?v=52"></script>
+  <script src="examples.js?v=54"></script>
 </body>
 </html>
