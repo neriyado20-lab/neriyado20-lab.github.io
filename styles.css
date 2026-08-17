@@ -1395,6 +1395,16 @@ h2 {
   color: var(--muted);
 }
 
+.manager-message-item {
+  align-items: flex-start;
+}
+
+.manager-message-item p {
+  margin: 8px 0 0;
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+
 .archive-actions {
   display: flex;
   flex-wrap: wrap;
