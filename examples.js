@@ -17,6 +17,9 @@
   let contactMessagesLoaded = false;
   let contactMessagesLoading = false;
   let contactMessages = [];
+  let resetRequestsLoaded = false;
+  let resetRequestsLoading = false;
+  let resetRequests = [];
   let remoteContentLoaded = false;
   let managerMode = false;
   let publicPreviewMode = false;
@@ -667,6 +670,28 @@
     return ascii || `cipher-${Date.now().toString(36)}`;
   }
 
+  function fileExtension(name) {
+    const match = String(name || "").toLowerCase().match(/(\.[a-z0-9]+)$/);
+    return match ? match[1] : "";
+  }
+
+  async function uploadCipherManagerFile(title) {
+    const input = document.getElementById("cipherManagerFile");
+    const file = input?.files?.[0];
+    if (!file) return "";
+    if (!supabaseClient) throw new Error("העלאת קובץ דורשת חיבור לאחסון האתר.");
+    const ext = fileExtension(file.name) || (file.type.startsWith("image/") ? ".png" : ".bin");
+    const path = `ciphers/${slugifyId(title)}-${Date.now().toString(36)}${ext}`;
+    const { error } = await supabaseClient.storage.from("public-ciphers").upload(path, file, {
+      cacheControl: "3600",
+      contentType: file.type || "application/octet-stream",
+      upsert: false
+    });
+    if (error) throw error;
+    const { data } = supabaseClient.storage.from("public-ciphers").getPublicUrl(path);
+    return data?.publicUrl || path;
+  }
+
   function metadataForNewCipher(topic, url, description) {
     const absolute = absoluteUrl(url);
     const markers = ["[vault:v2]", `[topic:${topic || "events"}]`];
@@ -1163,6 +1188,104 @@
     }
   }
 
+  function renderManagerResetRequests(message = "") {
+    const panel = document.getElementById("managerResetRequests");
+    const list = document.getElementById("managerResetRequestsList");
+    const count = document.getElementById("managerResetRequestsCount");
+    const toggle = document.getElementById("resetRequestsToggle");
+    const resetOpen = effectiveManagerMode() && toggle?.getAttribute("aria-expanded") === "true";
+    if (panel) panel.hidden = !resetOpen;
+    if (toggle) toggle.textContent = `${resetOpen ? "סגור איפוס" : "בקשות איפוס"} (${resetRequests.length})`;
+    if (count) count.textContent = `${resetRequests.length} בקשות`;
+    if (!list || !resetOpen) return;
+    list.replaceChildren();
+    if (message) {
+      const row = document.createElement("article");
+      row.className = "archive-item";
+      row.innerHTML = `<div><strong></strong><small></small></div>`;
+      row.querySelector("strong").textContent = message;
+      row.querySelector("small").textContent = "בקשות האיפוס נשמרות בטבלת הפניות של האתר.";
+      list.appendChild(row);
+      return;
+    }
+    if (!resetRequests.length) {
+      const row = document.createElement("article");
+      row.className = "archive-item";
+      row.innerHTML = "<div><strong>אין כרגע בקשות איפוס</strong><small>בקשות חדשות מכפתור 'שכחתי סיסמה' יופיעו כאן.</small></div>";
+      list.appendChild(row);
+      return;
+    }
+    resetRequests.forEach((row) => {
+      const payload = row.payload || {};
+      const item = document.createElement("article");
+      item.className = "archive-item manager-message-item";
+      const text = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = `בקשת איפוס ${contactPayloadValue(payload, "requestId", "")}`;
+      const meta = document.createElement("small");
+      const date = row.created_at || payload.at ? new Date(row.created_at || payload.at).toLocaleString("he-IL") : "";
+      meta.textContent = [contactPayloadValue(payload, "status", "ממתין לאישור"), date].filter(Boolean).join(" | ");
+      const body = document.createElement("p");
+      body.textContent = contactPayloadValue(payload, "page", location.href);
+      text.append(title, meta, body);
+      item.appendChild(text);
+      list.appendChild(item);
+    });
+  }
+
+  async function loadManagerResetRequests() {
+    if (resetRequestsLoading) return;
+    resetRequestsLoading = true;
+    renderManagerResetRequests("טוען בקשות איפוס...");
+    try {
+      if (!supabaseClient) throw new Error("החיבור לפניות אינו פעיל.");
+      const { data, error } = await supabaseClient
+        .from("site_submissions")
+        .select("id,kind,payload,created_at")
+        .eq("kind", "note")
+        .order("created_at", { ascending: false })
+        .limit(120);
+      if (error) throw error;
+      resetRequests = (Array.isArray(data) ? data : []).filter((row) => row?.payload?.type === "manager_password_reset_request");
+      resetRequestsLoaded = true;
+      renderManagerResetRequests();
+    } catch (error) {
+      const raw = String(error?.message || "");
+      const message = /permission|policy|row-level|denied|403|unauthorized/i.test(raw)
+        ? "אין הרשאה לקריאת בקשות איפוס. צריך לחבר הרשאת מנהל בצד השרת."
+        : raw || "טעינת בקשות האיפוס נכשלה.";
+      renderManagerResetRequests(message);
+    } finally {
+      resetRequestsLoading = false;
+    }
+  }
+
+  async function checkManagerConnection() {
+    const status = document.getElementById("managerConnectionStatus");
+    if (status) status.textContent = "בודק חיבור...";
+    try {
+      if (!supabaseClient) throw new Error("Supabase אינו נטען.");
+      const probe = {
+        id: `manager-check-${Date.now().toString(36)}`,
+        type: "example",
+        title: "בדיקת חיבור ניהול",
+        url: location.href,
+        status: "draft",
+        description: "[vault:v2]\n[topic:events]\nבדיקת חיבור זמנית.",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      await upsertContent(probe);
+      await deleteContent(probe.id);
+      if (status) status.textContent = "חיבור ניהול תקין.";
+    } catch (error) {
+      const raw = String(error?.message || "");
+      if (status) status.textContent = /permission|policy|row-level|denied|403|unauthorized/i.test(raw)
+        ? "אין הרשאת כתיבה/מחיקה בשרת."
+        : raw || "בדיקת החיבור נכשלה.";
+    }
+  }
+
   async function loadPublishedContent(seen) {
     const layout = document.querySelector(".sample-layout");
     if (!layout) return;
@@ -1496,6 +1619,8 @@
     document.getElementById("cipherManagerTitle").value = item.title || titleForCard(card);
     document.getElementById("cipherManagerTopic").value = topicFor(item);
     document.getElementById("cipherManagerUrl").value = absoluteUrl(item.url || primaryUrlForCard(card));
+    const fileInput = document.getElementById("cipherManagerFile");
+    if (fileInput) fileInput.value = "";
     document.getElementById("cipherManagerDescription").value = cleanDescription(item.description) || card.querySelector("p")?.textContent?.trim() || "";
     document.getElementById("cipherManagerStatus").value = item.status || (card.dataset.topic === "past_dates" ? "past_dates" : "active");
     document.getElementById("cipherManagerStatusText").textContent = "";
@@ -1514,6 +1639,8 @@
     document.getElementById("cipherManagerTitle").value = "";
     document.getElementById("cipherManagerTopic").value = "events";
     document.getElementById("cipherManagerUrl").value = "";
+    const fileInput = document.getElementById("cipherManagerFile");
+    if (fileInput) fileInput.value = "";
     document.getElementById("cipherManagerDescription").value = "";
     document.getElementById("cipherManagerStatus").value = "active";
     document.getElementById("cipherManagerStatusText").textContent = "";
@@ -1544,6 +1671,7 @@
     wireShareAndAdminTools(seen);
     renderManagerArchive(seen);
     renderManagerContactMessages();
+    renderManagerResetRequests();
   }
 
   function wireManagerPreviewToggle(seen) {
@@ -1598,6 +1726,15 @@
       if (!isOpen && !contactMessagesLoaded) loadManagerContactMessages();
       if (!isOpen) document.getElementById("managerContactMessages")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
+    document.getElementById("resetRequestsToggle")?.addEventListener("click", (event) => {
+      const button = event.currentTarget;
+      const isOpen = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", isOpen ? "false" : "true");
+      renderManagerResetRequests();
+      if (!isOpen && !resetRequestsLoaded) loadManagerResetRequests();
+      if (!isOpen) document.getElementById("managerResetRequests")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    document.getElementById("managerConnectionCheckButton")?.addEventListener("click", checkManagerConnection);
     document.getElementById("publicPreviewToggle")?.addEventListener("click", () => {
       publicPreviewMode = !publicPreviewMode;
       updateManagerPreviewControls(seen);
@@ -1663,30 +1800,36 @@
       const status = document.getElementById("cipherManagerStatusText");
       const topic = document.getElementById("cipherManagerTopic")?.value || "events";
       const nextStatus = document.getElementById("cipherManagerStatus")?.value || "active";
-      const urlValue = document.getElementById("cipherManagerUrl")?.value?.trim() || (card ? primaryUrlForCard(card) : "");
       const titleValue = document.getElementById("cipherManagerTitle")?.value?.trim() || (card ? titleForCard(card) : "");
+      let urlValue = document.getElementById("cipherManagerUrl")?.value?.trim() || (card ? primaryUrlForCard(card) : "");
       if (!titleValue) {
         if (status) status.textContent = "יש להזין שם צופן.";
         return;
       }
-      if (!urlValue) {
-        if (status) status.textContent = "יש להזין קישור לקובץ, תמונה או פרויקט.";
-        return;
-      }
-      const patch = {
-        title: titleValue,
-        topic,
-        url: absoluteUrl(urlValue),
-        description: card
-          ? metadataForCard(card, {
-            topic,
-            url: urlValue,
-            description: document.getElementById("cipherManagerDescription")?.value?.trim() || ""
-          })
-          : metadataForNewCipher(topic, urlValue, document.getElementById("cipherManagerDescription")?.value?.trim() || "")
-      };
       try {
         if (status) status.textContent = "שומר...";
+        const uploadedUrl = await uploadCipherManagerFile(titleValue);
+        if (uploadedUrl) {
+          urlValue = uploadedUrl;
+          const urlInput = document.getElementById("cipherManagerUrl");
+          if (urlInput) urlInput.value = uploadedUrl;
+        }
+        if (!urlValue) {
+          if (status) status.textContent = "יש להזין קישור או לבחור קובץ להעלאה.";
+          return;
+        }
+        const patch = {
+          title: titleValue,
+          topic,
+          url: absoluteUrl(urlValue),
+          description: card
+            ? metadataForCard(card, {
+              topic,
+              url: urlValue,
+              description: document.getElementById("cipherManagerDescription")?.value?.trim() || ""
+            })
+            : metadataForNewCipher(topic, urlValue, document.getElementById("cipherManagerDescription")?.value?.trim() || "")
+        };
         if (card) {
           await saveManagedCard(card, seen, { ...patch, status: nextStatus });
         } else if (form._isNewCipher) {
