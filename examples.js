@@ -17,6 +17,9 @@
   let contactMessagesLoaded = false;
   let contactMessagesLoading = false;
   let contactMessages = [];
+  let feedbackMessagesLoaded = false;
+  let feedbackMessagesLoading = false;
+  let feedbackMessages = [];
   let resetRequestsLoaded = false;
   let resetRequestsLoading = false;
   let resetRequests = [];
@@ -151,6 +154,8 @@
         title,
         rating,
         text: comment,
+        visibility: "public",
+        at: new Date().toISOString(),
         page: location.href
       }
     });
@@ -240,7 +245,7 @@
     const comment = document.createElement("textarea");
     comment.rows = 2;
     comment.maxLength = 500;
-    comment.placeholder = "תגובה אישית על הצופן";
+    comment.placeholder = "תגובה ציבורית על הצופן";
     comment.value = savedComment;
     comment.addEventListener("input", () => {
       const current = readFeedback();
@@ -261,12 +266,12 @@
     const send = document.createElement("button");
     send.className = "button secondary";
     send.type = "button";
-    send.textContent = "שלח תגובה למנהל";
+    send.textContent = "פרסם תגובה";
     send.addEventListener("click", async () => {
       send.disabled = true;
       try {
         await submitCipherFeedback(id, titleForCard(card), currentRating, comment.value.trim());
-        status.textContent = "התגובה נשלחה למנהל.";
+        status.textContent = "התגובה פורסמה ונשלחה למנהל.";
       } catch {
         status.textContent = "התגובה נשמרה במכשיר זה. השליחה למנהל לא הושלמה.";
       } finally {
@@ -1188,6 +1193,96 @@
     }
   }
 
+  function renderManagerFeedbackMessages(message = "") {
+    const panel = document.getElementById("managerFeedbackMessages");
+    const list = document.getElementById("managerFeedbackMessagesList");
+    const count = document.getElementById("managerFeedbackMessagesCount");
+    const toggle = document.getElementById("feedbackMessagesToggle");
+    const feedbackOpen = effectiveManagerMode() && toggle?.getAttribute("aria-expanded") === "true";
+    if (panel) panel.hidden = !feedbackOpen;
+    if (toggle) toggle.textContent = `${feedbackOpen ? "סגור דירוגים" : "דירוגים ותגובות"} (${feedbackMessages.length})`;
+    if (count) count.textContent = `${feedbackMessages.length} תגובות`;
+    if (!list || !feedbackOpen) return;
+    list.replaceChildren();
+    if (message) {
+      const row = document.createElement("article");
+      row.className = "archive-item";
+      row.innerHTML = `<div><strong></strong><small></small></div>`;
+      row.querySelector("strong").textContent = message;
+      row.querySelector("small").textContent = "דירוגים ותגובות נשמרים בטבלת הפניות של האתר.";
+      list.appendChild(row);
+      return;
+    }
+    if (!feedbackMessages.length) {
+      const row = document.createElement("article");
+      row.className = "archive-item";
+      row.innerHTML = "<div><strong>אין כרגע דירוגים או תגובות</strong><small>תגובות חדשות מאוצר הצפנים יופיעו כאן לאחר טעינה.</small></div>";
+      list.appendChild(row);
+      return;
+    }
+    feedbackMessages.forEach((row) => {
+      const payload = row.payload || {};
+      const item = document.createElement("article");
+      item.className = "archive-item manager-message-item";
+      const text = document.createElement("div");
+      const title = document.createElement("strong");
+      const rating = Number(payload.rating || 0);
+      title.textContent = `${contactPayloadValue(payload, "title", "צופן")} - דירוג ${rating || "ללא"} מתוך 5`;
+      const meta = document.createElement("small");
+      const date = row.created_at ? new Date(row.created_at).toLocaleString("he-IL") : "";
+      meta.textContent = [contactPayloadValue(payload, "cipherId", ""), date].filter(Boolean).join(" | ");
+      const body = document.createElement("p");
+      body.textContent = contactPayloadValue(payload, "text", "אין תגובה כתובה.");
+      text.append(title, meta, body);
+      const actions = document.createElement("div");
+      actions.className = "archive-actions";
+      const copy = document.createElement("button");
+      copy.className = "button secondary";
+      copy.type = "button";
+      copy.textContent = "העתק";
+      copy.addEventListener("click", async () => {
+        const summary = [title.textContent, meta.textContent, "", body.textContent].join("\n");
+        try {
+          await navigator.clipboard.writeText(summary);
+          copy.textContent = "הועתק";
+          window.setTimeout(() => { copy.textContent = "העתק"; }, 1400);
+        } catch {
+          alert(summary);
+        }
+      });
+      actions.appendChild(copy);
+      item.append(text, actions);
+      list.appendChild(item);
+    });
+  }
+
+  async function loadManagerFeedbackMessages() {
+    if (feedbackMessagesLoading) return;
+    feedbackMessagesLoading = true;
+    renderManagerFeedbackMessages("טוען דירוגים ותגובות...");
+    try {
+      if (!supabaseClient) throw new Error("החיבור לפניות אינו פעיל.");
+      const { data, error } = await supabaseClient
+        .from("site_submissions")
+        .select("id,kind,payload,created_at")
+        .eq("kind", "note")
+        .order("created_at", { ascending: false })
+        .limit(160);
+      if (error) throw error;
+      feedbackMessages = (Array.isArray(data) ? data : []).filter((row) => row?.payload?.type === "cipher_feedback");
+      feedbackMessagesLoaded = true;
+      renderManagerFeedbackMessages();
+    } catch (error) {
+      const raw = String(error?.message || "");
+      const message = /permission|policy|row-level|denied|403|unauthorized/i.test(raw)
+        ? "אין הרשאה לקריאת דירוגים. צריך לחבר הרשאת מנהל בצד השרת."
+        : raw || "טעינת הדירוגים נכשלה.";
+      renderManagerFeedbackMessages(message);
+    } finally {
+      feedbackMessagesLoading = false;
+    }
+  }
+
   function renderManagerResetRequests(message = "") {
     const panel = document.getElementById("managerResetRequests");
     const list = document.getElementById("managerResetRequestsList");
@@ -1518,6 +1613,90 @@
     area.prepend(share);
   }
 
+  async function loadPublicCipherComments(cipherId) {
+    if (!supabaseClient) throw new Error("טעינת תגובות דורשת חיבור לאתר.");
+    const { data, error } = await supabaseClient
+      .from("site_submissions")
+      .select("id,payload,created_at")
+      .eq("kind", "note")
+      .filter("payload->>type", "eq", "cipher_feedback")
+      .filter("payload->>visibility", "eq", "public")
+      .filter("payload->>cipherId", "eq", cipherId)
+      .order("created_at", { ascending: false })
+      .limit(80);
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  }
+
+  function renderPublicCipherComments(list, comments, message = "") {
+    list.replaceChildren();
+    if (message) {
+      const row = document.createElement("article");
+      row.className = "archive-item";
+      row.innerHTML = `<div><strong></strong><small></small></div>`;
+      row.querySelector("strong").textContent = message;
+      row.querySelector("small").textContent = "מוצגות רק תגובות שסומנו כציבוריות.";
+      list.appendChild(row);
+      return;
+    }
+    if (!comments.length) {
+      const row = document.createElement("article");
+      row.className = "archive-item";
+      row.innerHTML = "<div><strong>אין עדיין תגובות ציבוריות</strong><small>אפשר להיות הראשון שמפרסם תגובה לצופן הזה.</small></div>";
+      list.appendChild(row);
+      return;
+    }
+    comments.forEach((row) => {
+      const payload = row.payload || {};
+      const item = document.createElement("article");
+      item.className = "archive-item manager-message-item";
+      const text = document.createElement("div");
+      const title = document.createElement("strong");
+      const rating = Number(payload.rating || 0);
+      title.textContent = rating ? `דירוג ${rating} מתוך 5` : "תגובה";
+      const meta = document.createElement("small");
+      meta.textContent = row.created_at ? new Date(row.created_at).toLocaleString("he-IL") : "";
+      const body = document.createElement("p");
+      body.textContent = contactPayloadValue(payload, "text", "אין תגובה כתובה.");
+      text.append(title, meta, body);
+      item.appendChild(text);
+      list.appendChild(item);
+    });
+  }
+
+  async function openPublicCipherComments(card) {
+    const dialog = document.getElementById("cipherCommentsDialog");
+    const heading = document.getElementById("cipherCommentsHeading");
+    const list = document.getElementById("cipherCommentsList");
+    if (!dialog || !list) return;
+    const cipherId = card.dataset.exampleId || "";
+    if (heading) heading.textContent = `תגובות ל${titleForCard(card)}`;
+    showDialog(dialog);
+    renderPublicCipherComments(list, [], "טוען תגובות...");
+    try {
+      const comments = await loadPublicCipherComments(cipherId);
+      renderPublicCipherComments(list, comments);
+    } catch (error) {
+      const raw = String(error?.message || "");
+      const message = /permission|policy|row-level|denied|403|unauthorized/i.test(raw)
+        ? "אין עדיין הרשאת קריאה ציבורית לתגובות. צריך להפעיל מדיניות קריאה בשרת."
+        : raw || "טעינת התגובות נכשלה.";
+      renderPublicCipherComments(list, [], message);
+    }
+  }
+
+  function addPublicCommentsButton(card) {
+    const area = ensureToolArea(card);
+    if (area.querySelector("[data-public-comments]")) return;
+    const comments = document.createElement("button");
+    comments.className = "button secondary";
+    comments.type = "button";
+    comments.dataset.publicComments = "true";
+    comments.textContent = "כל התגובות";
+    comments.addEventListener("click", () => openPublicCipherComments(card));
+    area.appendChild(comments);
+  }
+
   function addAdminActions(card, seen) {
     if (!effectiveManagerMode() || card.querySelector(".cipher-admin-actions")) return;
     const area = document.createElement("div");
@@ -1654,6 +1833,7 @@
   function wireShareAndAdminTools(seen) {
     document.querySelectorAll("[data-example-id]").forEach((card) => {
       addShareButton(card);
+      addPublicCommentsButton(card);
       addAdminActions(card, seen);
     });
   }
@@ -1671,6 +1851,7 @@
     wireShareAndAdminTools(seen);
     renderManagerArchive(seen);
     renderManagerContactMessages();
+    renderManagerFeedbackMessages();
     renderManagerResetRequests();
   }
 
@@ -1726,6 +1907,14 @@
       if (!isOpen && !contactMessagesLoaded) loadManagerContactMessages();
       if (!isOpen) document.getElementById("managerContactMessages")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
+    document.getElementById("feedbackMessagesToggle")?.addEventListener("click", (event) => {
+      const button = event.currentTarget;
+      const isOpen = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", isOpen ? "false" : "true");
+      renderManagerFeedbackMessages();
+      if (!isOpen && !feedbackMessagesLoaded) loadManagerFeedbackMessages();
+      if (!isOpen) document.getElementById("managerFeedbackMessages")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
     document.getElementById("resetRequestsToggle")?.addEventListener("click", (event) => {
       const button = event.currentTarget;
       const isOpen = button.getAttribute("aria-expanded") === "true";
@@ -1749,6 +1938,9 @@
     });
     document.querySelector("[data-close-cipher-manager]")?.addEventListener("click", () => {
       closeDialog(document.getElementById("cipherManagerDialog"));
+    });
+    document.querySelector("[data-close-cipher-comments]")?.addEventListener("click", () => {
+      closeDialog(document.getElementById("cipherCommentsDialog"));
     });
     document.querySelector("[data-manager-archive]")?.addEventListener("click", async () => {
       const form = document.getElementById("cipherManagerForm");
