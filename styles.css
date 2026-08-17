@@ -1336,6 +1336,12 @@ h2 {
   margin: 0;
 }
 
+.manager-inline-status {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-weight: 800;
+}
+
 .examples-manager-archive {
   width: min(1180px, calc(100% - 28px));
   margin: 0 auto 18px;
