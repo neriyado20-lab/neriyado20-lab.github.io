@@ -86,6 +86,7 @@
     clear: $("clearButton"),
     openProject: $("openProjectButton"),
     saveProject: $("saveProjectButton"),
+    saveCurrentProject: $("saveCurrentProjectButton"),
     library: $("libraryButton"),
     history: $("historyButton"),
     export: $("exportButton"),
@@ -298,6 +299,7 @@
     els.search.disabled = value;
     els.secondaryScan.disabled = value;
     els.saveProject.disabled = value;
+    if (els.saveCurrentProject) els.saveCurrentProject.disabled = value;
     els.export.disabled = value;
     els.stop.disabled = !value;
   }
@@ -474,23 +476,39 @@
     };
   }
 
-  function projectData() {
+  function keysForSavedResults(results) {
+    const keys = new Set();
+    results.forEach((result) => {
+      if (result?.primary) keys.add(matchKey(result.primary));
+      (result?.matches || []).forEach((match) => keys.add(matchKey(match)));
+    });
+    return keys;
+  }
+
+  function projectData(options = {}) {
+    const selectedResults = Array.isArray(options.results) ? options.results : state.results;
+    const currentIndex = Number.isInteger(options.current) ? options.current : state.current;
+    const savedKeys = selectedResults === state.results ? null : keysForSavedResults(selectedResults);
+    const savedResultKeys = new Set(selectedResults.map(resultKey));
+    const includeWordKey = (key) => !savedKeys || savedKeys.has(key);
+    const includeResultKey = (key) => !savedKeys || savedResultKeys.has(key);
     return {
       format: "gal_einai_web",
       version: "W052",
       saved_at: new Date().toISOString(),
+      save_scope: options.scope || "full_search",
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
       skip_from: Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM,
       skip_to: Number.parseInt(els.skipTo.value || String(DEFAULT_SKIP_TO), 10) || DEFAULT_SKIP_TO,
       min_secondary: Number.parseInt(els.minSecondary.value || "0", 10) || 0,
-      current: state.current,
-      manual_color_overrides: state.colorOverrides,
-      manual_removed_words: Array.from(state.removedWordKeys),
-      manual_frame_words: Array.from(state.frameKeys),
-      manual_hidden_display_results: Array.from(state.hiddenDisplayResults),
-      manual_hidden_marks_table_results: Array.from(state.hiddenMarksTableResults),
-      saved: state.results.map((result) => ({
+      current: Math.max(0, Math.min(currentIndex, Math.max(0, selectedResults.length - 1))),
+      manual_color_overrides: Object.fromEntries(Object.entries(state.colorOverrides).filter(([key]) => includeWordKey(key))),
+      manual_removed_words: Array.from(state.removedWordKeys).filter(includeWordKey),
+      manual_frame_words: Array.from(state.frameKeys).filter(includeWordKey),
+      manual_hidden_display_results: Array.from(state.hiddenDisplayResults).filter(includeResultKey),
+      manual_hidden_marks_table_results: Array.from(state.hiddenMarksTableResults).filter(includeResultKey),
+      saved: selectedResults.map((result) => ({
         primary: serializableMatch(result.primary),
         matches: result.matches.map(serializableMatch),
       })),
@@ -547,10 +565,26 @@
       setStatus("אין ממצאים לשמירה. יש לבצע חיפוש או לפתוח צופן.", 0);
       return;
     }
-    const data = projectData();
-    downloadProject(data);
+    const data = projectData({ scope: "full_search" });
+    downloadProject(data, `${data.primary || "צופן"} - פרויקט מלא`);
     saveDraft();
-    setStatus(`הצופן נשמר | ממצאים ${state.results.length}`, 100);
+    setStatus(`הפרויקט המלא נשמר | ממצאים ${state.results.length}`, 100);
+  }
+
+  function saveCurrentProjectFile() {
+    const current = state.results[state.current];
+    if (!current) {
+      setStatus("אין צופן נוכחי לשמירה. יש לבחור ממצא מטבלת הממצאים.", 0);
+      return;
+    }
+    const data = projectData({
+      scope: "current_cipher",
+      results: [current],
+      current: 0
+    });
+    downloadProject(data, `${current.primary.word || data.primary || "צופן"} - צופן נוכחי`);
+    saveDraft();
+    setStatus(`הצופן הנוכחי נשמר | ממצא ${state.current + 1}/${state.results.length}`, 100);
   }
 
   function readLibrary() {
@@ -2441,6 +2475,7 @@
     els.projectFile.click();
   });
   els.saveProject.addEventListener("click", saveProjectFile);
+  els.saveCurrentProject?.addEventListener("click", saveCurrentProjectFile);
   els.library.addEventListener("click", openLibrary);
   els.history.addEventListener("click", openHistory);
   els.export.addEventListener("click", openExport);
