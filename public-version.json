@@ -1,8 +1,8 @@
 {
-    "version":  "V535",
-    "installer_url":  "https://neriyado20-lab.github.io/downloads/gal_einai_V535_public_auto_update_setup.exe",
-    "sha256":  "E9C418159358E4C26537298F5FFF59CB1085F4D59F0E34F3F3362B79201F81B2",
-    "size":  24095223,
-    "notes":  "גרסה עדכנית של גל עיני V535. תיקון יציבות כיוון התזוזה בתצוגת התורה: חצים, כפתורי ימינה/שמאלה וגרירה משתמשים באותו כיוון חזותי.",
-    "mandatory":  false
+  "version": "V541",
+  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_latest_public.exe",
+  "sha256": "E83E2831710FBA2861A5BDF234D2AB2CF6E123B1248A6D2A5A926C85092B59B2",
+  "size": 16943380,
+  "notes": "גרסה עדכנית של גל עיני V541. תיקון יסודי ליציבות תזוזת התצוגה: חיצים, גלילה וטעינת פרויקט משתמשים במנגנון אופקי אחד. נוספו גם עדכוני סריקת משניות ונוסח דף הבית.",
+  "mandatory": false
 }
