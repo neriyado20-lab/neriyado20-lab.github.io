@@ -1,0 +1,233 @@
+/* restored styles.css from commit 687cd798d8c39ed3f1401e633dabaad0be873061 */
+:root {
+  color-scheme: light;
+  --ink: #17211d;
+  --muted: #52645c;
+  --line: #d7dfd2;
+  --paper: #fffdf6;
+  --panel: #ffffff;
+  --accent: #0d6d56;
+  --accent-dark: #084838;
+  --gold: #d69c25;
+  --wine: #9c3f47;
+  --sky: #3f7fb4;
+  --soft: #eef6ef;
+  --deep: #102a24;
+  --amber-soft: #fff1c8;
+  --shadow: rgba(23, 33, 29, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, "Noto Sans Hebrew", sans-serif;
+  background:
+    linear-gradient(90deg, rgba(214, 156, 37, 0.12) 1px, transparent 1px),
+    linear-gradient(rgba(13, 109, 86, 0.07) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(16, 42, 36, 0.10) 0%, transparent 32%),
+    linear-gradient(145deg, #fffdf6 0%, #f1f7ef 43%, #fff1d6 100%);
+  background-size: 46px 46px, 46px 46px, auto, auto;
+  color: var(--ink);
+  line-height: 1.65;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.24;
+  background-image:
+    linear-gradient(120deg, rgba(16, 42, 36, 0.22), transparent 34%),
+    url("assets/hero-curtain-torah-covered-v1.png?v=2");
+  background-position: center top;
+  background-size: cover;
+  mix-blend-mode: multiply;
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 58%);
+}
+
+a {
+  color: inherit;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 7px clamp(16px, 4vw, 56px) 6px;
+  background: rgba(255, 253, 246, 0.94);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 28px rgba(23, 33, 29, 0.08);
+}
+
+.brand-area {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  flex-shrink: 0;
+  padding: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand > div {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.brand:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.topbar-rides-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  margin-top: 5px;
+  padding: 3px 11px;
+  border: 1px solid rgba(13, 109, 86, 0.22);
+  border-radius: 999px;
+  background: rgba(238, 246, 239, 0.82);
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.topbar-rides-link:hover {
+  border-color: rgba(214, 156, 37, 0.62);
+  background: rgba(255, 241, 200, 0.72);
+}
+
+.rides-standalone {
+  background:
+    linear-gradient(180deg, rgba(247, 250, 246, 0.96), rgba(255, 252, 244, 0.96)),
+    #f7faf6;
+  overflow-x: hidden;
+}
+
+.rides-standalone::before {
+  display: none;
+}
+
+.rides-topbar {
+  border-bottom-color: rgba(11, 75, 69, 0.16);
+  background: rgba(255, 255, 251, 0.94);
+}
+
+.rides-topbar nav {
+  flex-wrap: wrap;
+}
+
+.rides-brand .brand-mark {
+  background: linear-gradient(135deg, #e8f4ef, #fff1c8 58%, #ffffff);
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(13, 109, 86, 0.25);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fff1c8, #d7eadf 52%, #ffffff);
+  color: var(--accent-dark);
+  font-weight: 800;
+  box-shadow: 0 8px 22px rgba(13, 109, 86, 0.12);
+}
+
+.brand strong,
+.brand span {
+  display: block;
+  line-height: 1.28;
+  white-space: nowrap;
+}
+
+.brand strong {
+  font-size: 18px;
+}
+
+.brand span,
+.topbar nav a {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.brand > div > span {
+  margin-top: 4px;
+  line-height: 1.25;
+}
+
+.topbar nav {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 5px;
+}
+
+.topbar nav a {
+  padding: 4px 2px;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+
+.topbar nav a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--gold);
+}
+
+.hebrew-date {
+  align-self: center;
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px solid rgba(13, 109, 86, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.home-hero .home-hero-date {
+  position: absolute;
+  left: clamp(18px, 3vw, 56px);
+  top: clamp(22px, 4vh, 42px);
+  z-index: 4;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #fff6d6;
+  font-size: clamp(13px, 1vw, 16px);
+  text-shadow:
+    0 2px 8px rgba(35, 4, 8, 0.78),
+    0 0 14px rgba(255, 224, 151, 0.3);
+}
+
+/* (file truncated here for brevity in commit message) */
