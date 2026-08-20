@@ -2653,7 +2653,7 @@
     }
     if (event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
       const horizontalDelta = event.deltaX || event.deltaY;
-      scrollDisplay(horizontalDelta > 0 ? 1 : -1, 0);
+      scrollDisplay(horizontalDelta > 0 ? -1 : 1, 0);
     } else {
       scrollDisplay(0, event.deltaY > 0 ? 1 : -1);
     }
