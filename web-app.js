@@ -1,0 +1,2773 @@
+﻿(() => {
+  "use strict";
+
+  const TARGET_COUNT = 304805;
+  const FREE_MAX_RESULTS = 30;
+  const PRO_MAX_RESULTS = Number.MAX_SAFE_INTEGER;
+  const DEFAULT_ROWS = 45;
+  const DEFAULT_EXTRA_COLS = 10;
+  const SEARCH_EXTRA_ROWS = 8;
+  const SEARCH_EXTRA_COLS = 16;
+  const DRAFT_KEY = "gal-einai-web-draft-v1";
+  const LIBRARY_KEY = "gal-einai-web-library-v1";
+  const LIBRARY_LIMIT = 20;
+  const ARCHIVE_EVENT_KEY = "gal-einai-web-archive-events-v1";
+  const HISTORY_KEY = "gal-einai-web-history-v1";
+  const DISPLAY_CONTROLS_KEY = "gal-einai-web-display-controls-v1";
+  const TOP_WORDS_KEY = "gal-einai-web-top-words-v1";
+  const AVOT_SETTINGS_KEY = "gal-einai-web-avot-v1";
+  const AVOT_DATA_VERSION = "v392";
+  const HISTORY_LIMIT = 20;
+  const FREE_MAX_SKIP = 400;
+  const PRO_MAX_SKIP = TARGET_COUNT;
+  const FREE_MAX_SECONDARIES = 5;
+  const PRO_MAX_SECONDARIES = Number.MAX_SAFE_INTEGER;
+  const FREE_MAX_PRIMARIES = 1;
+  const PRO_MAX_PRIMARIES = Number.MAX_SAFE_INTEGER;
+  const WEB_DOWNLOADS_ENABLED = true;
+  const DEFAULT_SKIP_FROM = 0;
+  const DEFAULT_SKIP_TO = 800;
+  const MAX_AUTO_MATCHES_PER_WORD = 24;
+  const MAX_AUTO_MARKED_CELL_RATIO = 0.22;
+  const pageParams = new URLSearchParams(window.location.search);
+  const edition = "pro";
+  const COLORS = ["#3ddc84", "#42d7f5", "#ffe15c", "#f78acb", "#b9f35d", "#ffb347", "#9db4ff"];
+
+  const state = {
+    torah: "",
+    verses: [],
+    index: new Map(),
+    results: [],
+    current: 0,
+    resultSort: "",
+    stop: false,
+    searching: false,
+    zoom: 22,
+    resultZoom: 13,
+    primaryCache: null,
+    primaryResume: null,
+    lineKeys: new Set(),
+    frameKeys: new Set(),
+    activeWordKey: null,
+    pendingColorKey: null,
+    colorOverrides: {},
+    removedWordKeys: new Set(),
+    hiddenDisplayResults: new Set(),
+    hiddenMarksTableResults: new Set(),
+    draggedWordKey: null,
+    pointerZone: "torah",
+    displayControlsVisible: true,
+    topWordsVisible: true,
+    suppressedFloodWords: new Set(),
+    avotLines: [],
+    avotIndex: 0,
+    avotSpeed: 4,
+    avotVisible: true,
+    avotOrder: "ordered",
+    avotPaused: false,
+    avotX: 0,
+    avotLastFrame: 0,
+    avotGroups: [],
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    form: $("searchForm"),
+    primary: $("primaryInput"),
+    secondary: $("secondaryInput"),
+    skipFrom: $("skipFromInput"),
+    skipTo: $("skipToInput"),
+    resetRange: $("resetRangeButton"),
+    minSecondary: $("minSecondaryInput"),
+    search: $("searchButton"),
+    secondaryScan: $("secondaryScanButton"),
+    allSkipScan: $("allSkipScanButton"),
+    stop: $("stopButton"),
+    clear: $("clearButton"),
+    openProject: $("openProjectButton"),
+    saveProject: $("saveProjectButton"),
+    saveCurrentProject: $("saveCurrentProjectButton"),
+    library: $("libraryButton"),
+    history: $("historyButton"),
+    export: $("exportButton"),
+    saveImage: $("saveImageButton"),
+    print: $("printButton"),
+    projectFile: $("projectFileInput"),
+    progress: $("searchProgress"),
+    status: $("statusText"),
+    count: $("resultCount"),
+    summary: $("resultSummary"),
+    resultsPanel: $("resultsPanel"),
+    resultWrap: $("resultTableWrap"),
+    head: $("resultsHead"),
+    body: $("resultsBody"),
+    grid: $("torahGrid"),
+    title: $("displayTitle"),
+    topWords: $("topWords"),
+    toggleTopWords: $("toggleTopWordsButton"),
+    showTopWords: $("showTopWordsInput"),
+    displayControls: document.querySelector(".display-controls"),
+    toggleDisplayControls: $("toggleDisplayControlsButton"),
+    toggleDisplayControlsText: $("toggleDisplayControlsText"),
+    prev: $("prevResultButton"),
+    next: $("nextResultButton"),
+    zoomIn: $("zoomInButton"),
+    zoomOut: $("zoomOutButton"),
+    zoomReset: $("zoomResetButton"),
+    scrollRight: $("scrollRightButton"),
+    scrollLeft: $("scrollLeftButton"),
+    scrollUp: $("scrollUpButton"),
+    scrollDown: $("scrollDownButton"),
+    editionBadge: $("editionBadge"),
+    editionSwitch: $("editionSwitch"),
+    editionLimitNote: $("editionLimitNote"),
+    libraryDialog: $("libraryDialog"),
+    libraryClose: $("closeLibraryButton"),
+    libraryForm: $("librarySaveForm"),
+    libraryName: $("libraryNameInput"),
+    librarySearch: $("librarySearchInput"),
+    libraryList: $("libraryList"),
+    libraryCount: $("libraryCount"),
+    libraryBackup: $("backupLibraryButton"),
+    libraryRestore: $("restoreLibraryButton"),
+    libraryBackupInput: $("libraryBackupInput"),
+    historyDialog: $("historyDialog"),
+    historyClose: $("closeHistoryButton"),
+    historyClear: $("clearHistoryButton"),
+    historyList: $("historyList"),
+    historyCount: $("historyCount"),
+    exportDialog: $("exportDialog"),
+    exportClose: $("closeExportButton"),
+    exportCount: $("exportCount"),
+    exportSummary: $("exportSummaryText"),
+    copySummary: $("copySummaryButton"),
+    downloadCsv: $("downloadCsvButton"),
+    connectionOverlay: $("connectionOverlay"),
+    wordMenu: $("wordMenu"),
+    changeWordColor: $("changeWordColorButton"),
+    toggleWordLine: $("toggleWordLineButton"),
+    toggleWordFrame: $("toggleWordFrameButton"),
+    keepOnlyWord: $("keepOnlyWordButton"),
+    removeVisibleWord: $("removeVisibleWordButton"),
+    removeWord: $("removeWordButton"),
+    removeAllWord: $("removeAllWordButton"),
+    wordColor: $("wordColorInput"),
+    help: $("helpButton"),
+    helpDialog: $("helpDialog"),
+    helpClose: $("closeHelpButton"),
+    helpEdition: $("helpEditionText"),
+    tools: $("toolsButton"),
+    toolsDialog: $("toolsDialog"),
+    toolsClose: $("closeToolsButton"),
+    avotTicker: $("avotTicker"),
+    avotTrack: $("avotTrack"),
+    avotPrev: $("avotPrevButton"),
+    avotNext: $("avotNextButton"),
+    avotVisible: $("showAvotTickerInput"),
+    clearDisplayMarks: $("clearDisplayMarksButton"),
+    clearMarksTable: $("clearMarksTableButton"),
+    removeDateMarks: $("removeDateMarksButton"),
+    avotSpeed: $("avotSpeedInput"),
+    avotSpeedValue: $("avotSpeedValue"),
+    avotOrdered: $("avotOrderedInput"),
+    avotRandom: $("avotRandomInput"),
+  };
+
+  function applyEdition() {
+    document.body.dataset.edition = edition;
+    document.body.dataset.downloads = WEB_DOWNLOADS_ENABLED ? "enabled" : "disabled";
+    const nextParams = new URLSearchParams(window.location.search);
+    nextParams.delete("edition");
+    els.editionBadge.textContent = "שימוש מלא באתר | הורדות פתוחות";
+    els.editionSwitch.textContent = "הורדת תוכנת גל עיני ל-Windows";
+    els.editionSwitch.href = "index.html#download";
+    const maxSkip = PRO_MAX_SKIP;
+    const maxSecondaries = PRO_MAX_SECONDARIES;
+    els.skipFrom.max = String(maxSkip);
+    els.skipTo.max = String(maxSkip);
+    els.minSecondary.max = String(maxSecondaries);
+    els.editionLimitNote.textContent = "שימוש מלא באתר: אין הגבלת מסלול על מספר מילים או דילוגים; אפשר לשמור, לגבות, לייצא ולהוריד קבצים.";
+    els.helpEdition.textContent = "הוראות לשימוש מלא באתר, כולל שמירה, גיבוי, ייצוא והורדת קבצים.";
+  }
+
+  function applyQueryInputs() {
+    const params = new URLSearchParams(window.location.search);
+    const fields = [
+      ["primary", els.primary],
+      ["secondary", els.secondary],
+      ["skipFrom", els.skipFrom],
+      ["skipTo", els.skipTo],
+      ["minSecondary", els.minSecondary],
+    ];
+    fields.forEach(([key, input]) => {
+      const value = params.get(key);
+      if (value !== null && input) input.value = value;
+    });
+  }
+
+  function normalizeWord(value) {
+    return String(value || "")
+      .replace(/[^\u05d0-\u05ea?]/g, "")
+      .replace(/[ךםןףץ]/g, (ch) => ({ "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" }[ch] || ch));
+  }
+
+  function splitSearchTokens(value) {
+    const tokens = [];
+    const pattern = /[*!]*(?:\([^)]*\)|\)[^(]*\()|[^\s,;|]+/g;
+    let match;
+    while ((match = pattern.exec(String(value || "")))) {
+      const token = match[0].trim();
+      if (token) tokens.push(token);
+    }
+    return tokens;
+  }
+
+  function bracketPhraseWords(phrase) {
+    const words = String(phrase || "")
+      .trim()
+      .split(/[\s,;|]+/)
+      .map((part) => normalizeWord(part))
+      .filter((word) => word && word.length >= 2);
+    if (!words.length) return [];
+    const forms = words.map((word) => {
+      const reversed = Array.from(word).reverse().join("");
+      return reversed && reversed !== word ? [word, reversed] : [word];
+    });
+    const variants = [];
+    const build = (index, parts) => {
+      if (index >= forms.length) {
+        const joined = normalizeWord(parts.join(""));
+        if (joined) variants.push(joined);
+        return;
+      }
+      forms[index].forEach((form) => build(index + 1, [...parts, form]));
+    };
+    build(0, []);
+    return Array.from(new Set(variants));
+  }
+
+  function expandSearchToken(token) {
+    const raw = String(token || "").trim();
+    if (!raw) return [];
+    const clean = raw.replaceAll("!", "").replaceAll("*", "").trim();
+    if (clean.length >= 2 && clean.startsWith("(") && clean.endsWith(")")) {
+      return bracketPhraseWords(clean.slice(1, -1));
+    }
+    if (clean.length >= 2 && clean.startsWith(")") && clean.endsWith("(")) {
+      return bracketPhraseWords(clean.slice(1, -1));
+    }
+    const word = normalizeWord(clean);
+    return word ? [word] : [];
+  }
+
+  function splitWords(value, { keepRequired = false } = {}) {
+    const seen = new Set();
+    const words = [];
+    splitSearchTokens(value).forEach((raw) => {
+      if (!raw) return;
+      const required = raw.includes("!");
+      expandSearchToken(raw).forEach((word) => {
+        if (!word) return;
+        const key = word;
+        if (seen.has(key)) {
+          if (required && keepRequired) {
+            const existing = words.find((item) => item.word === word);
+            if (existing) existing.required = true;
+          }
+          return;
+        }
+        seen.add(key);
+        words.push(keepRequired ? { word, required } : word);
+      });
+    });
+    return words;
+  }
+
+  function stableColor(word) {
+    let h = 0;
+    for (const ch of word) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    return COLORS[h % COLORS.length];
+  }
+
+  function setStatus(text, percent = null) {
+    els.status.textContent = text;
+    if (percent !== null) els.progress.value = Math.max(0, Math.min(100, percent));
+  }
+
+  function setBusy(value) {
+    state.searching = value;
+    els.search.disabled = value;
+    els.secondaryScan.disabled = value;
+    els.saveProject.disabled = value;
+    if (els.saveCurrentProject) els.saveCurrentProject.disabled = value;
+    els.export.disabled = value;
+    els.stop.disabled = !value;
+  }
+
+  function downloadsPaused() {
+    setStatus("הורדות קבצים חסומות זמנית באתר עד הסדרת הצד החשבונאי. אפשר לעבוד באתר, לפתוח צפנים ולשמור בספרייה המקומית.", 0);
+  }
+
+  function applyDisplayControlsVisibility() {
+    els.displayControls.hidden = !state.displayControlsVisible;
+    els.toggleDisplayControlsText.textContent = state.displayControlsVisible ? "הסתר כלים" : "הצג כלים";
+    els.toggleDisplayControls.setAttribute("aria-expanded", String(state.displayControlsVisible));
+    try {
+      localStorage.setItem(DISPLAY_CONTROLS_KEY, state.displayControlsVisible ? "visible" : "hidden");
+    } catch {
+      // The current session still keeps the selected layout.
+    }
+  }
+
+  function toggleDisplayControls() {
+    state.displayControlsVisible = !state.displayControlsVisible;
+    applyDisplayControlsVisibility();
+  }
+
+  function applyTopWordsVisibility() {
+    els.topWords.hidden = !state.topWordsVisible;
+    els.showTopWords.checked = state.topWordsVisible;
+    els.toggleTopWords.setAttribute("aria-pressed", String(!state.topWordsVisible));
+    els.toggleTopWords.title = state.topWordsVisible
+      ? "הסתר את מילות הצופן העליונות"
+      : "הצג את מילות הצופן העליונות";
+    try {
+      localStorage.setItem(TOP_WORDS_KEY, state.topWordsVisible ? "visible" : "hidden");
+    } catch {
+      // The current session still keeps the selected layout.
+    }
+    if (state.topWordsVisible) {
+      const current = state.results[state.current];
+      if (current) renderTopWords(current);
+    }
+    requestAnimationFrame(drawConnections);
+  }
+
+  function toggleTopWords() {
+    state.topWordsVisible = !state.topWordsVisible;
+    applyTopWordsVisibility();
+  }
+
+  function saveAvotSettings() {
+    try {
+      localStorage.setItem(AVOT_SETTINGS_KEY, JSON.stringify({
+        visible: state.avotVisible,
+        speed: state.avotSpeed,
+        order: state.avotOrder,
+      }));
+    } catch {
+      // The selected settings remain active for the current session.
+    }
+  }
+
+  function applyAvotSettings() {
+    state.avotSpeed = Math.max(1, Math.min(10, Number(state.avotSpeed) || 4));
+    state.avotOrder = state.avotOrder === "random" ? "random" : "ordered";
+    els.avotTicker.hidden = !state.avotVisible;
+    els.avotVisible.checked = state.avotVisible;
+    els.avotSpeed.value = String(state.avotSpeed);
+    els.avotSpeedValue.textContent = String(state.avotSpeed);
+    els.avotOrdered.checked = state.avotOrder === "ordered";
+    els.avotRandom.checked = state.avotOrder === "random";
+    saveAvotSettings();
+  }
+
+  function createAvotGroup(index) {
+    const caption = document.createElement("span");
+    caption.className = "avot-caption";
+    caption.textContent = String(state.avotLines[index] || "").replace(/\s+/g, " ").trim();
+    els.avotTrack.appendChild(caption);
+    const group = {
+      element: caption,
+      index,
+      x: 0,
+      spawnedNext: false,
+    };
+    state.avotGroups.push(group);
+    requestAnimationFrame(() => {
+      group.x = -Math.max(1, caption.offsetWidth);
+      caption.style.transform = `translateX(${group.x}px)`;
+    });
+    return group;
+  }
+
+  function showAvotLine() {
+    if (!state.avotLines.length) return;
+    els.avotTrack.replaceChildren();
+    state.avotGroups = [];
+    state.avotX = 0;
+    state.avotLastFrame = 0;
+    createAvotGroup(state.avotIndex % state.avotLines.length);
+  }
+
+  function stepAvot(direction) {
+    if (!state.avotLines.length) return;
+    state.avotPaused = true;
+    state.avotIndex = (state.avotIndex + direction + state.avotLines.length) % state.avotLines.length;
+    showAvotLine();
+    window.setTimeout(() => {
+      state.avotPaused = false;
+    }, 1200);
+  }
+
+  function nextAutomaticAvotIndex(currentIndex = state.avotIndex) {
+    const count = state.avotLines.length;
+    if (count <= 1) return 0;
+    if (state.avotOrder === "random") {
+      const offset = 1 + Math.floor(Math.random() * (count - 1));
+      return (currentIndex + offset) % count;
+    }
+    return (currentIndex + 1) % count;
+  }
+
+  function avotGapWidth() {
+    const probe = document.createElement("canvas");
+    const context = probe.getContext("2d");
+    const style = getComputedStyle(els.avotTrack);
+    context.font = `13px ${style.fontFamily || "Arial"}`;
+    return Math.max(90, context.measureText("א".repeat(15)).width);
+  }
+
+  function animateAvot(timestamp) {
+    if (!state.avotLastFrame) state.avotLastFrame = timestamp;
+    const elapsed = Math.min(80, timestamp - state.avotLastFrame);
+    state.avotLastFrame = timestamp;
+    if (state.avotVisible && !state.avotPaused && state.avotLines.length) {
+      const pixelsPerSecond = 10 + state.avotSpeed * 4;
+      const delta = (pixelsPerSecond * elapsed) / 1000;
+      const gapWidth = avotGapWidth();
+      state.avotGroups.slice().forEach((group) => {
+        group.x += delta;
+        group.element.style.transform = `translateX(${group.x}px)`;
+        if (!group.spawnedNext && group.x >= gapWidth) {
+          group.spawnedNext = true;
+          state.avotIndex = nextAutomaticAvotIndex(group.index);
+          createAvotGroup(state.avotIndex);
+        }
+        if (group.x > els.avotTrack.clientWidth) {
+          group.element.remove();
+          state.avotGroups = state.avotGroups.filter((item) => item !== group);
+        }
+      });
+    }
+    requestAnimationFrame(animateAvot);
+  }
+
+  async function loadAvot() {
+    try {
+      const response = await fetch(`assets/pirkei_avot_mishnayot.json?${AVOT_DATA_VERSION}`, { cache: "no-store" });
+      if (!response.ok) return;
+      const data = await response.json();
+      state.avotLines = Array.isArray(data) ? data.filter((line) => String(line || "").trim()) : [];
+      if (state.avotLines.length) showAvotLine();
+    } catch {
+      els.avotTicker.hidden = true;
+    }
+  }
+
+  function serializableMatch(match) {
+    return {
+      word: match.word,
+      start: match.start,
+      skip: match.skip,
+      kind: match.kind,
+      color: match.color || stableColor(match.word),
+      positions: Array.isArray(match.positions) ? match.positions : positionsForMatch(match),
+    };
+  }
+
+  function keysForSavedResults(results) {
+    const keys = new Set();
+    results.forEach((result) => {
+      if (result?.primary) keys.add(matchKey(result.primary));
+      (result?.matches || []).forEach((match) => keys.add(matchKey(match)));
+    });
+    return keys;
+  }
+
+  function projectData(options = {}) {
+    const selectedResults = Array.isArray(options.results) ? options.results : state.results;
+    const currentIndex = Number.isInteger(options.current) ? options.current : state.current;
+    const savedKeys = selectedResults === state.results ? null : keysForSavedResults(selectedResults);
+    const savedResultKeys = new Set(selectedResults.map(resultKey));
+    const includeWordKey = (key) => !savedKeys || savedKeys.has(key);
+    const includeResultKey = (key) => !savedKeys || savedResultKeys.has(key);
+    return {
+      format: "gal_einai_web",
+      version: "W052",
+      saved_at: new Date().toISOString(),
+      save_scope: options.scope || "full_search",
+      primary: els.primary.value.trim(),
+      secondary: els.secondary.value.trim(),
+      skip_from: Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM,
+      skip_to: Number.parseInt(els.skipTo.value || String(DEFAULT_SKIP_TO), 10) || DEFAULT_SKIP_TO,
+      min_secondary: Number.parseInt(els.minSecondary.value || "0", 10) || 0,
+      current: Math.max(0, Math.min(currentIndex, Math.max(0, selectedResults.length - 1))),
+      manual_color_overrides: Object.fromEntries(Object.entries(state.colorOverrides).filter(([key]) => includeWordKey(key))),
+      manual_removed_words: Array.from(state.removedWordKeys).filter(includeWordKey),
+      manual_frame_words: Array.from(state.frameKeys).filter(includeWordKey),
+      manual_hidden_display_results: Array.from(state.hiddenDisplayResults).filter(includeResultKey),
+      manual_hidden_marks_table_results: Array.from(state.hiddenMarksTableResults).filter(includeResultKey),
+      saved: selectedResults.map((result) => ({
+        primary: serializableMatch(result.primary),
+        matches: result.matches.map(serializableMatch),
+      })),
+    };
+  }
+
+  function saveDraft() {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(projectData()));
+    } catch {
+      // Browser storage may be blocked; downloads are intentionally paused at this stage.
+    }
+  }
+
+  function restoreDraft() {
+    if (pageParams.has("project")) return false;
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return false;
+      loadProjectData(JSON.parse(raw), "העבודה האחרונה בדפדפן");
+      return true;
+    } catch {
+      localStorage.removeItem(DRAFT_KEY);
+      return false;
+    }
+  }
+
+  function safeFileName(value) {
+    const name = String(value || "צופן")
+      .replace(/[<>:"/\\|?*\u0000-\u001f]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    return name || "צופן";
+  }
+
+  function downloadProject(data, name = data.primary) {
+    if (!WEB_DOWNLOADS_ENABLED) {
+      downloadsPaused();
+      return;
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${safeFileName(name)}.gal_einai.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function saveProjectFile() {
+    if (!state.results.length) {
+      setStatus("אין ממצאים לשמירה. יש לבצע חיפוש או לפתוח צופן.", 0);
+      return;
+    }
+    const data = projectData({ scope: "full_search" });
+    downloadProject(data, `${data.primary || "צופן"} - פרויקט מלא`);
+    saveDraft();
+    setStatus(`הפרויקט המלא נשמר | ממצאים ${state.results.length}`, 100);
+  }
+
+  function saveCurrentProjectFile() {
+    const current = state.results[state.current];
+    if (!current) {
+      setStatus("אין צופן נוכחי לשמירה. יש לבחור ממצא מטבלת הממצאים.", 0);
+      return;
+    }
+    const data = projectData({
+      scope: "current_cipher",
+      results: [current],
+      current: 0
+    });
+    downloadProject(data, `${current.primary.word || data.primary || "צופן"} - צופן נוכחי`);
+    saveDraft();
+    setStatus(`הצופן הנוכחי נשמר | ממצא ${state.current + 1}/${state.results.length}`, 100);
+  }
+
+  function readLibrary() {
+    try {
+      const items = JSON.parse(localStorage.getItem(LIBRARY_KEY) || "[]");
+      return Array.isArray(items) ? items.filter((item) => item && item.id && item.data).slice(0, LIBRARY_LIMIT) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function writeLibrary(items) {
+    localStorage.setItem(LIBRARY_KEY, JSON.stringify(items.slice(0, LIBRARY_LIMIT)));
+  }
+
+  function readArchiveEvents() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(ARCHIVE_EVENT_KEY) || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function rememberArchiveEvent(event) {
+    try {
+      localStorage.setItem(ARCHIVE_EVENT_KEY, JSON.stringify([event, ...readArchiveEvents()].slice(0, 50)));
+    } catch {
+      // The project is still saved to the visible library when possible.
+    }
+  }
+
+  function validLibraryItem(item) {
+    return Boolean(
+      item
+      && typeof item === "object"
+      && typeof item.name === "string"
+      && item.name.trim()
+      && item.data
+      && typeof item.data === "object"
+      && Array.isArray(item.data.saved)
+    );
+  }
+
+  async function sendArchiveEvent(event) {
+    if (!window.GalEinaiBackend?.submit) return false;
+    return window.GalEinaiBackend.submit("note", {
+      type: "project_archive",
+      title: event.name,
+      primary: event.data.primary,
+      secondary: event.data.secondary,
+      resultCount: Array.isArray(event.data.saved) ? event.data.saved.length : 0,
+      projectData: event.data,
+      at: event.at,
+      page: location.pathname
+    });
+  }
+
+  async function archiveCurrentProject(reason = "manual") {
+    if (!state.results.length) return false;
+    const data = projectData();
+    const name = safeFileName(data.primary || state.results[state.current]?.primary?.word || "צופן");
+    const event = {
+      id: `archive-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      name,
+      reason,
+      at: new Date().toISOString(),
+      data
+    };
+    try {
+      const items = readLibrary();
+      const nextItem = { id: event.id, name, at: event.at, data };
+      writeLibrary([nextItem, ...items.filter((item) => item.name !== name)]);
+      renderLibrary();
+    } catch {
+      // Library storage may be full; backend submission is still attempted.
+    }
+    rememberArchiveEvent(event);
+    await sendArchiveEvent(event);
+    return true;
+  }
+
+  function formatSavedDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return new Intl.DateTimeFormat("he-IL", {
+      dateStyle: "short",
+      timeStyle: "short",
+    }).format(date);
+  }
+
+  function renderLibrary() {
+    const items = readLibrary();
+    const query = normalizeWord(els.librarySearch.value);
+    const visibleItems = query
+      ? items.filter((item) => normalizeWord(`${item.name} ${item.data.primary || ""} ${item.data.secondary || ""}`).includes(query))
+      : items;
+    els.libraryCount.textContent = query
+      ? `${visibleItems.length} תוצאות | ${items.length} מתוך ${LIBRARY_LIMIT}`
+      : `${items.length} מתוך ${LIBRARY_LIMIT} צפנים`;
+    els.libraryList.replaceChildren();
+    if (!visibleItems.length) {
+      const empty = document.createElement("div");
+      empty.className = "library-empty";
+      empty.textContent = items.length ? "לא נמצאו צפנים מתאימים לחיפוש." : "עדיין לא נשמרו צפנים בספרייה.";
+      els.libraryList.appendChild(empty);
+      return;
+    }
+    visibleItems.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "library-item";
+      const info = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = item.name;
+      const meta = document.createElement("span");
+      const resultCount = Array.isArray(item.data.saved) ? item.data.saved.length : 0;
+      meta.textContent = `${formatSavedDate(item.savedAt)} | ${resultCount} ממצאים`;
+      info.append(title, meta);
+
+      const actions = document.createElement("div");
+      actions.className = "library-actions";
+      const openButton = document.createElement("button");
+      openButton.type = "button";
+      openButton.textContent = "פתח";
+      openButton.addEventListener("click", () => {
+        loadProjectData(item.data, `הספרייה: ${item.name}`);
+        els.libraryDialog.close();
+      });
+      const downloadButton = document.createElement("button");
+      downloadButton.type = "button";
+      downloadButton.textContent = "הורד";
+      downloadButton.disabled = !WEB_DOWNLOADS_ENABLED;
+      downloadButton.title = WEB_DOWNLOADS_ENABLED ? "הורד את הצופן לקובץ" : "הורדות חסומות זמנית באתר";
+      downloadButton.addEventListener("click", () => downloadProject(item.data, item.name));
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "delete-library-item";
+      deleteButton.textContent = "מחק";
+      deleteButton.addEventListener("click", () => {
+        if (!window.confirm(`למחוק את הצופן "${item.name}" מהספרייה?`)) return;
+        writeLibrary(readLibrary().filter((saved) => saved.id !== item.id));
+        renderLibrary();
+        setStatus(`הצופן "${item.name}" נמחק מהספרייה`, 0);
+      });
+      actions.append(openButton, downloadButton, deleteButton);
+      row.append(info, actions);
+      els.libraryList.appendChild(row);
+    });
+  }
+
+  function openLibrary() {
+    els.libraryName.value = els.primary.value.trim() || "צופן חדש";
+    els.librarySearch.value = "";
+    renderLibrary();
+    els.libraryDialog.showModal();
+    els.libraryName.focus();
+    els.libraryName.select();
+  }
+
+  function saveToLibrary(event) {
+    event.preventDefault();
+    if (!state.results.length) {
+      setStatus("אין ממצאים לשמירה בספרייה.", 0);
+      els.libraryDialog.close();
+      return;
+    }
+    const name = els.libraryName.value.trim() || els.primary.value.trim() || "צופן";
+    const items = readLibrary();
+    const normalizedName = name.toLocaleLowerCase("he-IL");
+    const existingIndex = items.findIndex((item) => item.name.toLocaleLowerCase("he-IL") === normalizedName);
+    const savedItem = {
+      id: existingIndex >= 0 ? items[existingIndex].id : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name,
+      savedAt: new Date().toISOString(),
+      data: projectData(),
+    };
+    if (existingIndex >= 0) {
+      items.splice(existingIndex, 1);
+    } else if (items.length >= LIBRARY_LIMIT) {
+      setStatus(`הספרייה מלאה. ניתן לשמור עד ${LIBRARY_LIMIT} צפנים.`, 0);
+      return;
+    }
+    items.unshift(savedItem);
+    try {
+      writeLibrary(items);
+      saveDraft();
+      renderLibrary();
+      setStatus(`הצופן "${name}" נשמר בספרייה`, 100);
+    } catch {
+      setStatus("אין די מקום בדפדפן לשמירת הצופן. הורדת קבצים חסומה זמנית באתר.", 0);
+    }
+  }
+
+  function backupLibrary() {
+    if (!WEB_DOWNLOADS_ENABLED) {
+      downloadsPaused();
+      return;
+    }
+    const items = readLibrary();
+    if (!items.length) {
+      setStatus("הספרייה ריקה ואין מה לגבות.", 0);
+      return;
+    }
+    const backup = {
+      format: "gal_einai_library",
+      version: "W052",
+      exported_at: new Date().toISOString(),
+      items,
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `גל עיני - גיבוי ספרייה ${new Date().toISOString().slice(0, 10)}.gal_einai_library.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setStatus(`גובו ${items.length} צפנים לקובץ`, 100);
+  }
+
+  function mergeLibraryBackup(data) {
+    if (!data || data.format !== "gal_einai_library" || !Array.isArray(data.items)) {
+      throw new Error("קובץ הגיבוי אינו קובץ ספרייה תקין של גל עיני");
+    }
+    const imported = data.items.filter(validLibraryItem);
+    if (!imported.length) throw new Error("לא נמצאו צפנים תקינים בקובץ הגיבוי");
+    const merged = readLibrary();
+    let added = 0;
+    let updated = 0;
+    imported.forEach((rawItem) => {
+      const item = {
+        id: rawItem.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name: rawItem.name.trim().slice(0, 80),
+        savedAt: rawItem.savedAt || new Date().toISOString(),
+        data: rawItem.data,
+      };
+      const normalizedName = item.name.toLocaleLowerCase("he-IL");
+      const existingIndex = merged.findIndex((saved) => saved.name.toLocaleLowerCase("he-IL") === normalizedName);
+      if (existingIndex >= 0) {
+        merged.splice(existingIndex, 1);
+        updated += 1;
+      } else if (merged.length >= LIBRARY_LIMIT) {
+        return;
+      } else {
+        added += 1;
+      }
+      merged.unshift(item);
+    });
+    writeLibrary(merged);
+    renderLibrary();
+    setStatus(`שחזור הושלם | נוספו ${added} | עודכנו ${updated} | בספרייה ${readLibrary().length}`, 100);
+  }
+
+  function readHistory() {
+    try {
+      const items = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+      return Array.isArray(items) ? items.filter((item) => item && item.id && item.primary).slice(0, HISTORY_LIMIT) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function writeHistory(items) {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
+  }
+
+  function historyKey(item) {
+    return JSON.stringify({
+      primary: String(item.primary || "").trim(),
+      secondary: String(item.secondary || "").trim(),
+      skipFrom: Number(item.skipFrom) || DEFAULT_SKIP_FROM,
+      skipTo: Number(item.skipTo) || DEFAULT_SKIP_TO,
+      minSecondary: Number(item.minSecondary) || 0,
+    });
+  }
+
+  function rememberSearch() {
+    if (!state.results.length) return;
+    const item = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      searchedAt: new Date().toISOString(),
+      primary: els.primary.value.trim(),
+      secondary: els.secondary.value.trim(),
+      skipFrom: Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM,
+      skipTo: Number.parseInt(els.skipTo.value || String(DEFAULT_SKIP_TO), 10) || DEFAULT_SKIP_TO,
+      minSecondary: Number.parseInt(els.minSecondary.value || "0", 10) || 0,
+      resultCount: state.results.length,
+    };
+    const key = historyKey(item);
+    const items = readHistory().filter((saved) => historyKey(saved) !== key);
+    items.unshift(item);
+    try {
+      writeHistory(items);
+    } catch {
+      // Search completion is not interrupted when browser storage is full.
+    }
+  }
+
+  function loadHistoryFields(item) {
+    els.primary.value = item.primary || "";
+    els.secondary.value = item.secondary || "";
+    els.skipFrom.value = String(item.skipFrom ?? DEFAULT_SKIP_FROM);
+    els.skipTo.value = String(item.skipTo ?? DEFAULT_SKIP_TO);
+    els.minSecondary.value = String(item.minSecondary || 0);
+  }
+
+  function renderHistory() {
+    const items = readHistory();
+    els.historyCount.textContent = `${items.length} מתוך ${HISTORY_LIMIT} חיפושים`;
+    els.historyList.replaceChildren();
+    if (!items.length) {
+      const empty = document.createElement("div");
+      empty.className = "library-empty";
+      empty.textContent = "עדיין לא נשמרו חיפושים מוצלחים.";
+      els.historyList.appendChild(empty);
+      return;
+    }
+    items.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "library-item history-item";
+      const info = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = item.primary;
+      const terms = document.createElement("span");
+      terms.className = "history-terms";
+      terms.textContent = item.secondary || "ללא משניות";
+      const meta = document.createElement("span");
+      meta.textContent = `${formatSavedDate(item.searchedAt)} | דילוג ${item.skipFrom}-${item.skipTo} | ${item.resultCount} צפנים`;
+      info.append(title, terms, meta);
+
+      const actions = document.createElement("div");
+      actions.className = "library-actions";
+      const loadButton = document.createElement("button");
+      loadButton.type = "button";
+      loadButton.textContent = "טען";
+      loadButton.addEventListener("click", () => {
+        loadHistoryFields(item);
+        els.historyDialog.close();
+        setStatus("תנאי החיפוש נטענו מההיסטוריה", 0);
+      });
+      const rerunButton = document.createElement("button");
+      rerunButton.type = "button";
+      rerunButton.textContent = "חפש שוב";
+      rerunButton.addEventListener("click", () => {
+        loadHistoryFields(item);
+        els.historyDialog.close();
+        search(null);
+      });
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "delete-library-item";
+      deleteButton.textContent = "מחק";
+      deleteButton.addEventListener("click", () => {
+        writeHistory(readHistory().filter((saved) => saved.id !== item.id));
+        renderHistory();
+      });
+      actions.append(loadButton, rerunButton, deleteButton);
+      row.append(info, actions);
+      els.historyList.appendChild(row);
+    });
+  }
+
+  function openHistory() {
+    renderHistory();
+    els.historyDialog.showModal();
+  }
+
+  function resultWords(result) {
+    const words = new Map();
+    displayMatchesForResult(result).forEach((match) => {
+      if (match.kind === "primary") return;
+      const key = `${match.word}|${Math.abs(match.skip || 1)}`;
+      const current = words.get(key);
+      words.set(key, {
+        word: match.word,
+        skip: Math.abs(match.skip || 1),
+        count: (current?.count || 0) + 1,
+      });
+    });
+    return Array.from(words.values());
+  }
+
+  function exportSummaryText() {
+    const lines = [
+      "גל עיני - דוח ממצאים",
+      `ראשיות: ${els.primary.value.trim() || "-"}`,
+      `משניות: ${els.secondary.value.trim() || "-"}`,
+      `טווח דילוגים: ${els.skipFrom.value}-${els.skipTo.value}`,
+      `מינימום משניות: ${els.minSecondary.value}`,
+      `מספר צפנים: ${state.results.length}`,
+      "",
+    ];
+    state.results.forEach((result, index) => {
+      const words = resultWords(result)
+        .map((item) => `${item.word} (${item.skip}${item.count > 1 ? ` ×${item.count}` : ""})`)
+        .join(", ");
+      lines.push(
+        `${index + 1}. ראשית: ${result.primary.word} | דילוג: ${Math.abs(result.primary.skip)} | משניות: ${result.secondaryCount} | מיקום: ${result.primary.start + 1}`,
+        `   ${words || "ללא משניות"}`,
+      );
+    });
+    return lines.join("\n");
+  }
+
+  function csvValue(value) {
+    return `"${String(value ?? "").replaceAll("\"", "\"\"")}"`;
+  }
+
+  function exportCsvText() {
+    const rows = [
+      ["מספר", "ראשית", "דילוג ראשית", "מספר משניות", "מיקום", "מילים שנמצאו"],
+    ];
+    state.results.forEach((result, index) => {
+      const words = resultWords(result)
+        .map((item) => `${item.word} | דילוג ${item.skip}${item.count > 1 ? ` ×${item.count}` : ""}`)
+        .join("; ");
+      rows.push([
+        index + 1,
+        result.primary.word,
+        Math.abs(result.primary.skip),
+        result.secondaryCount,
+        result.primary.start + 1,
+        words,
+      ]);
+    });
+    return rows.map((row) => row.map(csvValue).join(",")).join("\r\n");
+  }
+
+  function openExport() {
+    if (!state.results.length) {
+      setStatus("אין ממצאים לייצוא.", 0);
+      return;
+    }
+    els.exportCount.textContent = `${state.results.length} ממצאים`;
+    els.exportSummary.value = exportSummaryText();
+    els.exportDialog.showModal();
+  }
+
+  async function copyExportSummary() {
+    const text = els.exportSummary.value;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      els.exportSummary.focus();
+      els.exportSummary.select();
+      document.execCommand("copy");
+    }
+    setStatus("סיכום הממצאים הועתק", 100);
+  }
+
+  function downloadResultsCsv() {
+    if (!WEB_DOWNLOADS_ENABLED) {
+      downloadsPaused();
+      return;
+    }
+    if (!state.results.length) return;
+    const blob = new Blob(["\ufeff", exportCsvText()], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${safeFileName(els.primary.value || "ממצאים")} - דוח ממצאים.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setStatus(`יוצאו ${state.results.length} ממצאים ל-CSV`, 100);
+  }
+
+  async function loadTorah() {
+    const [response, displayResponse] = await Promise.all([
+      fetch("assets/torah_clean.txt", { cache: "force-cache" }),
+      fetch("assets/torah_display.txt", { cache: "force-cache" }),
+    ]);
+    if (!response.ok) throw new Error("לא הצלחתי לטעון את טקסט התורה");
+    const raw = await response.text();
+    state.torah = raw.replace(/[^\u05d0-\u05ea]/g, "");
+    if (displayResponse.ok) {
+      buildVerseMap(await displayResponse.text());
+    }
+    buildIndex();
+    const ok = state.torah.length === TARGET_COUNT;
+    if (ok) {
+      setStatus("", 0);
+    } else {
+      setStatus(`טקסט התורה נטען, אך האורך אינו צפוי: ${state.torah.length.toLocaleString("he-IL")}`, 0);
+    }
+  }
+
+  function buildIndex() {
+    state.index.clear();
+    for (let i = 0; i < state.torah.length; i += 1) {
+      const ch = normalizeWord(state.torah[i]);
+      if (!state.index.has(ch)) state.index.set(ch, []);
+      state.index.get(ch).push(i);
+    }
+  }
+
+  function checkWordAt(word, start, skip) {
+    const n = state.torah.length;
+    for (let i = 0; i < word.length; i += 1) {
+      const pos = start + i * skip;
+      if (pos < 0 || pos >= n) return false;
+      const expected = word[i];
+      if (expected !== "?" && normalizeWord(state.torah[pos]) !== expected) return false;
+    }
+    return true;
+  }
+
+  function matchPositions(match) {
+    const out = [];
+    for (let i = 0; i < match.word.length; i += 1) out.push(match.start + i * match.skip);
+    return out;
+  }
+
+  function buildVerseMap(raw) {
+    const verses = [];
+    const built = [];
+    let book = "";
+    let chapter = "";
+    let position = 0;
+    String(raw || "").split(/\r?\n/).forEach((rawLine) => {
+      const line = rawLine.trim();
+      const chapterMatch = line.match(/^([א-ת]+)\s+פרק-([א-ת]+)$/);
+      if (chapterMatch) {
+        [book, chapter] = chapterMatch.slice(1);
+        return;
+      }
+      const parts = line.split(/(\{[א-ת]+\})/);
+      let verse = "";
+      let buffer = "";
+      const flush = () => {
+        const letters = buffer.replace(/[\u0591-\u05c7]/g, "").replace(/[^\u05d0-\u05ea]/g, "");
+        if (!verse || !letters) return;
+        const start = position;
+        position += letters.length;
+        built.push(letters);
+        verses.push({ book, chapter, verse, start, end: position - 1 });
+      };
+      parts.forEach((part) => {
+        const marker = part.trim().match(/^\{([א-ת]+)\}$/);
+        if (marker) {
+          flush();
+          verse = marker[1];
+          buffer = "";
+        } else {
+          buffer += ` ${part}`;
+        }
+      });
+      flush();
+    });
+    state.verses = built.join("") === state.torah ? verses : [];
+  }
+
+  function sppAt(position) {
+    let low = 0;
+    let high = state.verses.length - 1;
+    while (low <= high) {
+      const middle = Math.floor((low + high) / 2);
+      const verse = state.verses[middle];
+      if (position < verse.start) {
+        high = middle - 1;
+      } else if (position > verse.end) {
+        low = middle + 1;
+      } else {
+        return `${verse.book} ${verse.chapter}:${verse.verse}`;
+      }
+    }
+    return "";
+  }
+
+  function positionsForMatch(match) {
+    if (Array.isArray(match.positions) && match.positions.length) return match.positions;
+    return matchPositions(match);
+  }
+
+  function matchGroupIsFlood(matches, windowInfo) {
+    if (!Array.isArray(matches) || matches.length <= MAX_AUTO_MATCHES_PER_WORD) return false;
+    const visible = windowInfo?.set || new Set();
+    const positions = new Set();
+    matches.forEach((match) => {
+      positionsForMatch(match).forEach((position) => {
+        if (!visible.size || visible.has(position)) positions.add(position);
+      });
+    });
+    const ratio = visible.size ? positions.size / visible.size : 0;
+    return ratio >= MAX_AUTO_MARKED_CELL_RATIO || matches.length > MAX_AUTO_MATCHES_PER_WORD * 2;
+  }
+
+  function displayMatchesForResult(result) {
+    if (!result) return [];
+    if (state.hiddenDisplayResults.has(resultKey(result))) {
+      return result.matches.filter((match) => match.kind === "primary");
+    }
+    const grouped = new Map();
+    result.matches.forEach((match) => {
+      if (match.kind === "primary") return;
+      const key = matchKey(match);
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key).push(match);
+    });
+    const flooded = new Set();
+    grouped.forEach((matches, key) => {
+      if (matchGroupIsFlood(matches, result.windowInfo)) flooded.add(key);
+    });
+    return result.matches.filter((match) => match.kind === "primary" || !flooded.has(matchKey(match)));
+  }
+
+  async function findWord(word, skips, onProgress, resume = null) {
+    const normalized = normalizeWord(word);
+    if (!normalized) return [];
+    let anchorIndex = 0;
+    let anchorPositions = null;
+    let bestSize = Infinity;
+    for (let i = 0; i < normalized.length; i += 1) {
+      if (normalized[i] === "?") continue;
+      const positions = state.index.get(normalized[i]) || [];
+      if (positions.length < bestSize) {
+        bestSize = positions.length;
+        anchorIndex = i;
+        anchorPositions = positions;
+      }
+    }
+    if (!anchorPositions) anchorPositions = Array.from({ length: state.torah.length }, (_v, i) => i);
+    const total = Math.max(1, skips.length * anchorPositions.length);
+    const results = [];
+    const startSkipIndex = Math.max(0, Number.parseInt(resume?.skipIndex || "0", 10) || 0);
+    const startAnchorIndex = Math.max(0, Number.parseInt(resume?.anchorIndex || "0", 10) || 0);
+    let done = Math.min(total, startSkipIndex * anchorPositions.length + startAnchorIndex);
+    for (let skipIndex = startSkipIndex; skipIndex < skips.length; skipIndex += 1) {
+      const skip = skips[skipIndex];
+      const anchorStart = skipIndex === startSkipIndex ? startAnchorIndex : 0;
+      for (let anchorPosIndex = anchorStart; anchorPosIndex < anchorPositions.length; anchorPosIndex += 1) {
+        const anchorPos = anchorPositions[anchorPosIndex];
+        if (state.stop) {
+          state.primaryResumePosition = {
+            word: normalized,
+            skipIndex,
+            anchorIndex: anchorPosIndex,
+            skip,
+          };
+          return results;
+        }
+        done += 1;
+        const start = anchorPos - anchorIndex * skip;
+        const end = start + (normalized.length - 1) * skip;
+        if (start >= 0 && start < state.torah.length && end >= 0 && end < state.torah.length && checkWordAt(normalized, start, skip)) {
+          results.push({ word: normalized, start, skip, kind: "primary" });
+          if (onProgress) onProgress(done, total, results.length, Math.abs(skip));
+        } else if (onProgress && done % 3000 === 0) {
+          onProgress(done, total, results.length, Math.abs(skip));
+        }
+      }
+      await nextFrame();
+    }
+    if (onProgress) onProgress(total, total, results.length, Math.abs(skips[skips.length - 1] || 1));
+    return results;
+  }
+
+  function positionsForPrimary(primary, options = {}) {
+    const skipAbs = Math.max(1, Math.abs(primary.skip || 1));
+    const extraRows = Number.parseInt(options.extraRows || "0", 10) || 0;
+    const extraCols = Number.parseInt(options.extraCols || "0", 10) || 0;
+    const cols = Math.min(220, Math.max(80, skipAbs + DEFAULT_EXTRA_COLS + extraCols));
+    const rows = DEFAULT_ROWS + extraRows;
+    const centerCol = Math.floor(cols / 2);
+    const centerRow = Math.floor(rows / 2);
+    const base = primary.start - centerRow * skipAbs - centerCol;
+    const positions = [];
+    const positionSet = new Set();
+    for (let r = 0; r < rows; r += 1) {
+      const row = [];
+      for (let c = 0; c < cols; c += 1) {
+        const p = base + r * skipAbs + c;
+        row.push(p >= 0 && p < state.torah.length ? p : null);
+        if (p >= 0 && p < state.torah.length) positionSet.add(p);
+      }
+      positions.push(row);
+    }
+    return { rows, cols, grid: positions, set: positionSet, center: primary.start };
+  }
+
+  function limitedWindowSkips(windowInfo) {
+    const primarySkip = Math.max(1, Math.abs(currentPrimarySkip(windowInfo)));
+    const absoluteSkips = Array.from(new Set([1, primarySkip, primarySkip + 1, primarySkip - 1]
+      .filter((skip) => skip > 0)));
+    return absoluteSkips.flatMap((skip) => (skip === 1 ? [1, -1] : [skip, -skip]));
+  }
+
+  function allWindowSkips(word, windowInfo) {
+    const normalized = normalizeWord(word);
+    const positions = Array.from(windowInfo.set);
+    const minPosition = Math.min(...positions);
+    const maxPosition = Math.max(...positions);
+    const maxByWindow = Math.max(1, Math.floor((maxPosition - minPosition) / Math.max(1, normalized.length - 1)));
+    const maxByInput = Math.max(1, Math.abs(Number.parseInt(els.skipTo.value || String(DEFAULT_SKIP_TO), 10) || DEFAULT_SKIP_TO));
+    const maxSkip = Math.min(maxByWindow, maxByInput, PRO_MAX_SKIP);
+    const skips = [];
+    for (let skip = 1; skip <= maxSkip; skip += 1) {
+      skips.push(skip, -skip);
+    }
+    return skips;
+  }
+
+  function findInWindow(word, windowInfo, { allSkips = false } = {}) {
+    const skips = allSkips ? allWindowSkips(word, windowInfo) : limitedWindowSkips(windowInfo);
+    const found = [];
+    const normalized = normalizeWord(word);
+    for (const pos of windowInfo.set) {
+      for (const skip of skips) {
+        if (!checkWordAt(normalized, pos, skip)) continue;
+        const match = { word: normalized, start: pos, skip, kind: "secondary" };
+        const allInside = positionsForMatch(match).every((p) => windowInfo.set.has(p));
+        if (allInside) found.push(match);
+      }
+    }
+    return dedupeMatches(found);
+  }
+
+  function currentPrimarySkip(windowInfo) {
+    return windowInfo.primarySkip || 1;
+  }
+
+  function dedupeMatches(matches) {
+    const seen = new Set();
+    const out = [];
+    for (const match of matches) {
+      const key = `${match.word}|${match.start}|${match.skip}|${match.kind}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(match);
+    }
+    return out;
+  }
+
+  function cleanMatch(raw, fallbackKind = "secondary") {
+    if (!raw || typeof raw !== "object") return null;
+    const word = normalizeWord(raw.word || "");
+    const start = Number.parseInt(raw.start, 10);
+    const skip = Number.parseInt(raw.skip, 10) || 1;
+    if (!word || !Number.isFinite(start)) return null;
+    return {
+      word,
+      start,
+      skip,
+      kind: raw.kind || fallbackKind,
+      source: raw.source || raw.category || "",
+      color: raw.color || stableColor(word),
+      positions: Array.isArray(raw.positions) ? raw.positions.filter((p) => Number.isFinite(Number(p))).map(Number) : null,
+    };
+  }
+
+  function isDateMatch(match) {
+    const kind = String(match?.kind || "").toLowerCase();
+    const source = String(match?.source || "").toLowerCase();
+    return kind === "date" || kind === "dates" || source === "date" || source === "dates";
+  }
+
+  function allowedDateSkips(result) {
+    const n = Math.max(1, Math.abs(result?.primary?.skip || 1));
+    return new Set([1, n, Math.max(1, n - 1), n + 1]);
+  }
+
+  function filterDateMatchesByAllowedSkips(result) {
+    if (!result) return result;
+    const allowed = allowedDateSkips(result);
+    result.matches = result.matches.filter((match) => !isDateMatch(match) || allowed.has(Math.abs(match.skip || 1)));
+    return result;
+  }
+
+  function countSecondaryWords(matches) {
+    const words = new Set();
+    matches.forEach((match) => {
+      if (match.kind !== "primary") words.add(match.word);
+    });
+    return words.size;
+  }
+
+  function countSecondaryWordsInWindow(matches, windowInfo) {
+    const words = new Set();
+    const visible = windowInfo?.set || new Set();
+    matches.forEach((match) => {
+      if (match.kind === "primary") return;
+      if (positionsForMatch(match).every((position) => visible.has(position))) words.add(match.word);
+    });
+    return words.size;
+  }
+
+  function secondaryCountForResult(result) {
+    const matches = Array.isArray(result?.matches) ? result.matches : [];
+    const count = result?.tableWindowInfo
+      ? countSecondaryWordsInWindow(matches, result.tableWindowInfo)
+      : countSecondaryWords(matches);
+    if (result) {
+      result.tableSecondaryCount = count;
+      result.secondaryCount = count;
+    }
+    return count;
+  }
+
+  function resultFromSavedItem(item) {
+    const primary = cleanMatch(item?.primary, "primary");
+    if (!primary) return null;
+    primary.kind = "primary";
+    const matches = dedupeMatches([primary, ...(Array.isArray(item.matches) ? item.matches.map((m) => cleanMatch(m)).filter(Boolean) : [])]);
+    const tableWindowInfo = positionsForPrimary(primary);
+    const windowInfo = positionsForPrimary(primary, { extraRows: SEARCH_EXTRA_ROWS, extraCols: SEARCH_EXTRA_COLS });
+    windowInfo.primarySkip = primary.skip;
+    tableWindowInfo.primarySkip = primary.skip;
+    const result = {
+      primary,
+      matches,
+      secondaryCount: countSecondaryWordsInWindow(matches, tableWindowInfo),
+      tableSecondaryCount: countSecondaryWordsInWindow(matches, tableWindowInfo),
+      windowInfo,
+      tableWindowInfo,
+    };
+    return applyManualOverridesToResult(result);
+  }
+
+  function loadProjectData(data, sourceName = "קובץ צופן") {
+    if (!data || typeof data !== "object") throw new Error("קובץ הצופן אינו תקין");
+    els.primary.value = data.primary || "";
+    els.secondary.value = data.secondary || "";
+    els.skipFrom.value = data.skip_from ?? DEFAULT_SKIP_FROM;
+    els.skipTo.value = data.skip_to ?? DEFAULT_SKIP_TO;
+    els.minSecondary.value = data.min_secondary ?? els.minSecondary.value;
+    state.colorOverrides = data.manual_color_overrides && typeof data.manual_color_overrides === "object" && !Array.isArray(data.manual_color_overrides)
+      ? { ...data.manual_color_overrides }
+      : {};
+    state.removedWordKeys = new Set(Array.isArray(data.manual_removed_words) ? data.manual_removed_words.map(String) : []);
+    state.frameKeys = new Set(Array.isArray(data.manual_frame_words) ? data.manual_frame_words.map(String) : []);
+    state.hiddenDisplayResults = new Set(Array.isArray(data.manual_hidden_display_results) ? data.manual_hidden_display_results.map(String) : []);
+    state.hiddenMarksTableResults = new Set(Array.isArray(data.manual_hidden_marks_table_results) ? data.manual_hidden_marks_table_results.map(String) : []);
+    const saved = Array.isArray(data.saved) ? data.saved : [];
+    state.results = saved.map(resultFromSavedItem).filter(Boolean).slice(0, PRO_MAX_RESULTS);
+    state.current = Math.max(0, Math.min(Number.parseInt(data.current, 10) || 0, Math.max(0, state.results.length - 1)));
+    const loadedPrimaryWords = splitWords(els.primary.value);
+    const loadedFrom = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM));
+    const loadedTo = Math.max(loadedFrom, Math.abs(Number.parseInt(els.skipTo.value || String(loadedFrom), 10) || loadedFrom));
+    state.primaryCache = state.results.length
+      ? { key: primaryCacheKey(loadedPrimaryWords, loadedFrom, loadedTo), matches: state.results.map((result) => result.primary), complete: true }
+      : null;
+    state.primaryResume = null;
+    renderResults();
+    renderCurrent();
+    saveDraft();
+    setStatus(`צופן נטען: ${sourceName} | ממצאים ${state.results.length}`, 100);
+  }
+
+  async function loadProjectFromUrl(url) {
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) throw new Error("לא הצלחתי לטעון את קובץ הצופן");
+    const data = await response.json();
+    loadProjectData(data, url.split("/").pop() || "צופן מהאתר");
+  }
+
+  async function loadProjectFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const project = params.get("project");
+    if (!project) return;
+    await loadProjectFromUrl(project);
+  }
+
+  function requiredCount(secondaries) {
+    const total = secondaries.length;
+    const required = Math.max(0, Number.parseInt(els.minSecondary.value || "0", 10) || 0);
+    return Math.min(total, required);
+  }
+
+  function primaryCacheKey(primaryWords, from, to) {
+    return JSON.stringify({ primaryWords, from, to });
+  }
+
+  async function search(event, { cacheOnly = false, allSkips = false } = {}) {
+    if (event) event.preventDefault();
+    if (!state.torah) return;
+    const primaryWords = splitWords(els.primary.value);
+    const secondaries = splitWords(els.secondary.value, { keepRequired: true });
+    if (!primaryWords.length) {
+      setStatus("יש להקליד ראשית לחיפוש", 0);
+      return;
+    }
+    const editionMaxPrimaries = PRO_MAX_PRIMARIES;
+    if (primaryWords.length > editionMaxPrimaries) {
+      setStatus(
+        `ניתן לחפש עד ${PRO_MAX_PRIMARIES} ראשיות במקביל באתר.`,
+        0
+      );
+      els.primary.focus();
+      return;
+    }
+    const editionMaxSecondaries = PRO_MAX_SECONDARIES;
+    if (secondaries.length > editionMaxSecondaries) {
+      setStatus(
+        `ניתן לחפש עד ${PRO_MAX_SECONDARIES} משניות בכל חיפוש באתר.`,
+        0
+      );
+      els.secondary.focus();
+      return;
+    }
+    const from = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM));
+    const to = Math.max(from, Math.abs(Number.parseInt(els.skipTo.value || String(from), 10) || from));
+    const editionMaxSkip = PRO_MAX_SKIP;
+    if (from > editionMaxSkip || to > editionMaxSkip) {
+      setStatus(
+        `טווח החיפוש המרבי באתר הוא ${PRO_MAX_SKIP}.`,
+        0
+      );
+      els.skipTo.focus();
+      return;
+    }
+    const cacheKey = primaryCacheKey(primaryWords, from, to);
+    const resultLimit = PRO_MAX_RESULTS;
+    const hasMatchingCache = state.primaryCache && state.primaryCache.key === cacheKey;
+    if (cacheOnly && !hasMatchingCache) {
+      setStatus("אין ראשיות מתאימות בזיכרון. יש לבצע תחילה חיפוש ראשיות או לפתוח צופן.", 0);
+      return;
+    }
+    state.stop = false;
+    state.suppressedFloodWords.clear();
+    setBusy(true);
+    state.results = [];
+    state.current = 0;
+    renderResults();
+    renderEmptyGrid(cacheOnly ? (allSkips ? "סורק משניות בכל הדילוגים..." : "סורק משניות בארבעת הדילוגים...") : "מחפש...");
+    try {
+      const skips = [];
+      for (let s = from; s <= to; s += 1) {
+        skips.push(s, -s);
+      }
+      let primaries = [];
+      const cacheIsComplete = hasMatchingCache && state.primaryCache.complete !== false;
+      const canResumePrimary = hasMatchingCache && state.primaryCache.complete === false && state.primaryResume?.key === cacheKey;
+      if (cacheOnly && hasMatchingCache) {
+        primaries = state.primaryCache.matches.slice();
+        setStatus(`${allSkips ? "סורק משניות בכל הדילוגים" : "סורק משניות בארבעת הדילוגים"} | ראשיות ${primaries.length}`, 60);
+        await nextFrame();
+      } else if (cacheIsComplete) {
+        primaries = state.primaryCache.matches.slice();
+        setStatus(`משתמש בראשיות מהזיכרון | ראשיות ${primaries.length}`, 60);
+        await nextFrame();
+      } else {
+        primaries = canResumePrimary ? state.primaryCache.matches.slice() : [];
+        const resumeIndex = canResumePrimary ? Math.max(0, Number.parseInt(state.primaryResume.primaryIndex || "0", 10) || 0) : 0;
+        setStatus(canResumePrimary ? "ממשיך חיפוש ראשיות מהמקום שנעצר..." : "מחפש ראשיות...", 0);
+        await nextFrame();
+        state.primaryResumePosition = null;
+        for (let p = resumeIndex; p < primaryWords.length; p += 1) {
+          const primaryWord = primaryWords[p];
+          const resumeForWord = canResumePrimary && p === resumeIndex ? state.primaryResume.position : null;
+          const foundForPrimary = await findWord(primaryWord, skips, (done, total, foundCount, skip) => {
+            const primaryBase = p / Math.max(1, primaryWords.length);
+            const primaryShare = done / Math.max(1, total) / Math.max(1, primaryWords.length);
+            const percent = Math.floor((primaryBase + primaryShare) * 60);
+            setStatus(`מחפש ראשיות ${p + 1}/${primaryWords.length} | נמצאו ${primaries.length + foundCount} | דילוג ${skip}`, percent);
+          }, resumeForWord);
+          primaries.push(...foundForPrimary);
+          state.primaryCache = { key: cacheKey, matches: primaries.slice(), complete: false };
+          if (state.stop && state.primaryResumePosition) {
+            state.primaryResume = { key: cacheKey, primaryIndex: p, position: state.primaryResumePosition };
+            break;
+          }
+        }
+        if (!state.stop) {
+          state.primaryCache = { key: cacheKey, matches: primaries.slice(), complete: true };
+          state.primaryResume = null;
+        }
+      }
+      if (state.stop) {
+        setStatus(`החיפוש נעצר | נשמר המשך מהמקום האחרון | ראשיות ${primaries.length}`, 60);
+        renderResults();
+        saveDraft();
+        return;
+      }
+      const total = Math.max(1, primaries.length);
+      for (let i = 0; i < primaries.length; i += 1) {
+        if (state.stop) break;
+        const primaryMatch = primaries[i];
+        const activeSecondaries = secondaries.filter((item) => item.word !== primaryMatch.word);
+        const minRequired = requiredCount(activeSecondaries);
+        const requiredWords = activeSecondaries.filter((item) => item.required).map((item) => item.word);
+        const tableWindowInfo = positionsForPrimary(primaryMatch);
+        const windowInfo = positionsForPrimary(primaryMatch, { extraRows: SEARCH_EXTRA_ROWS, extraCols: SEARCH_EXTRA_COLS });
+        tableWindowInfo.primarySkip = primaryMatch.skip;
+        windowInfo.primarySkip = primaryMatch.skip;
+        const local = [primaryMatch];
+        const foundWords = new Set();
+        const tableWords = new Set();
+        for (const secondary of activeSecondaries) {
+          const matches = findInWindow(secondary.word, windowInfo, { allSkips });
+          if (matchGroupIsFlood(matches, windowInfo)) {
+            state.suppressedFloodWords.add(secondary.word);
+            continue;
+          }
+          if (matches.length) foundWords.add(secondary.word);
+          if (matches.some((match) => positionsForMatch(match).every((position) => tableWindowInfo.set.has(position)))) {
+            tableWords.add(secondary.word);
+          }
+          local.push(...matches);
+        }
+        const hasRequired = requiredWords.every((word) => foundWords.has(word));
+        if (foundWords.size >= minRequired && hasRequired) {
+          const result = applyManualOverridesToResult({
+            primary: primaryMatch,
+            matches: dedupeMatches(local),
+            secondaryCount: tableWords.size,
+            tableSecondaryCount: tableWords.size,
+            searchSecondaryCount: foundWords.size,
+            windowInfo,
+            tableWindowInfo,
+          });
+          if ((result.searchSecondaryCount || result.secondaryCount) >= minRequired) state.results.push(result);
+        }
+        if (i % 5 === 0) {
+          setStatus(`בודק משניות ${i + 1}/${primaries.length} | נשמרו ${state.results.length}`, 60 + Math.floor(((i + 1) / total) * 40));
+          await nextFrame();
+        }
+        if (state.results.length >= resultLimit) break;
+      }
+      state.results.sort((a, b) => b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
+      state.resultSort = "";
+      const limitNotice = state.results.length >= resultLimit ? ` | הוצגו עד ${resultLimit}` : "";
+      const suppressedNotice = state.suppressedFloodWords.size
+        ? ` | לא סומנו מילים שמציפות את הלוח: ${Array.from(state.suppressedFloodWords).slice(0, 4).join(", ")}`
+        : "";
+      setStatus(`החיפוש הסתיים | ראשיות ${primaries.length} | צפנים ${state.results.length}${limitNotice}${suppressedNotice}`, 100);
+      renderResults();
+      renderCurrent();
+      saveDraft();
+      rememberSearch();
+    } catch (error) {
+      setStatus(`שגיאה: ${error.message}`, 0);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function nextFrame() {
+    return new Promise((resolve) => requestAnimationFrame(resolve));
+  }
+
+  function renderResults() {
+    els.count.textContent = String(state.results.length);
+    els.head.innerHTML = "";
+    els.body.innerHTML = "";
+    if (!state.results.length) {
+      els.summary.textContent = "אין ממצאים להצגה.";
+      els.body.appendChild(document.importNode($("emptyResultsTemplate").content, true));
+      return;
+    }
+    const primaryNames = new Set(state.results.map((item) => item.primary.word));
+    const skipValues = new Set(state.results.map((item) => Math.abs(item.primary.skip)));
+    const showPrimary = primaryNames.size > 1;
+    const showSkip = skipValues.size > 1;
+    els.summary.textContent = [
+      !showPrimary ? `ראשית: ${Array.from(primaryNames)[0]}` : "",
+      !showSkip ? `דילוג משותף: ${Array.from(skipValues)[0]}` : "",
+    ].filter(Boolean).join(" | ");
+    const columns = ["מס'"];
+    if (showPrimary) columns.push("ראשית");
+    if (showSkip) columns.push("דילוג");
+    columns.push("משניות", "איכות", "מיקום");
+    const headRow = document.createElement("tr");
+    columns.forEach((name) => {
+      const th = document.createElement("th");
+      th.textContent = name;
+      const sortKey = resultSortKeyForColumn(name);
+      if (sortKey) {
+        th.dataset.sortKey = sortKey;
+        th.title = name === "משניות"
+          ? "לחיצה מסדרת מהצופן עם הכי הרבה משניות ועד הכי מעט"
+          : `לחיצה למיון לפי ${name}`;
+        th.addEventListener("click", () => sortResultsBy(sortKey));
+      }
+      headRow.appendChild(th);
+    });
+    els.head.appendChild(headRow);
+    state.results.forEach((result, index) => {
+      const tr = document.createElement("tr");
+      tr.className = index === state.current ? "active" : "";
+      tr.dataset.resultIndex = String(index);
+      tr.tabIndex = 0;
+      tr.addEventListener("click", () => {
+        state.current = index;
+        renderResults();
+        renderCurrent();
+      });
+      const values = [String(index + 1)];
+      if (showPrimary) values.push(result.primary.word);
+      if (showSkip) values.push(String(Math.abs(result.primary.skip)));
+      values.push(String(result.secondaryCount), `${qualityScore(result)}/100`, (result.primary.start + 1).toLocaleString("he-IL"));
+      values.forEach((value) => {
+        const td = document.createElement("td");
+        td.textContent = value;
+        tr.appendChild(td);
+      });
+      els.body.appendChild(tr);
+    });
+    const activeRow = els.body.querySelector("tr.active");
+    if (activeRow) activeRow.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+
+  function qualityScore(result) {
+    const skip = Math.max(1, Math.abs(result.primary.skip || 1));
+    const secondaryScore = Math.min(70, (result.secondaryCount || 0) * 12);
+    const skipScore = Math.max(0, 30 - Math.floor(Math.log10(skip) * 8));
+    return Math.max(0, Math.min(100, secondaryScore + skipScore));
+  }
+
+  function resultSortKeyForColumn(name) {
+    if (name === "משניות") return "secondary";
+    if (name === "דילוג") return "skip";
+    if (name === "איכות") return "quality";
+    return "";
+  }
+
+  function sortResultsBy(sortKey) {
+    const currentPrimary = state.results[state.current]?.primary;
+    if (sortKey === "secondary") {
+      state.results.sort((a, b) => (
+        secondaryCountForResult(b) - secondaryCountForResult(a)
+        || Math.abs(a.primary.skip) - Math.abs(b.primary.skip)
+        || (a.primary.start || 0) - (b.primary.start || 0)
+      ));
+      state.current = 0;
+    } else if (sortKey === "skip") {
+      state.results.sort((a, b) => Math.abs(a.primary.skip) - Math.abs(b.primary.skip) || secondaryCountForResult(b) - secondaryCountForResult(a));
+    } else if (sortKey === "quality") {
+      state.results.sort((a, b) => qualityScore(b) - qualityScore(a) || secondaryCountForResult(b) - secondaryCountForResult(a) || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
+    } else {
+      return;
+    }
+    if (currentPrimary && sortKey !== "secondary") {
+      const nextIndex = state.results.findIndex((item) => item.primary.start === currentPrimary.start && item.primary.skip === currentPrimary.skip && item.primary.word === currentPrimary.word);
+      state.current = nextIndex >= 0 ? nextIndex : 0;
+    }
+    state.resultSort = sortKey;
+    renderResults();
+    if (sortKey === "secondary") {
+      els.resultWrap.scrollTop = 0;
+      renderCurrent();
+    }
+    setStatus(`טבלת הממצאים מוינה לפי ${sortKey === "secondary" ? "משניות" : sortKey === "skip" ? "דילוג" : "איכות"}`, els.progress.value);
+  }
+
+  function renderCurrent() {
+    const current = state.results[state.current];
+    if (!current) {
+      renderEmptyGrid("אין ממצא להצגה.");
+      return;
+    }
+    const spp = sppAt(current.primary.start);
+    els.title.textContent = `טבלה בדילוג ${Math.abs(current.primary.skip)}${spp ? ` | ${spp}` : ""} | ממצא ${state.current + 1}/${state.results.length}`;
+    renderTopWords(current);
+    renderGrid(current);
+  }
+
+  function matchKey(match) {
+    return match.word;
+  }
+
+  function resultKey(result) {
+    const primary = result?.primary;
+    if (!primary) return "";
+    return `${primary.word}|${primary.start}|${primary.skip}`;
+  }
+
+  function resetSkipRange() {
+    els.skipFrom.value = String(DEFAULT_SKIP_FROM);
+    els.skipTo.value = String(DEFAULT_SKIP_TO);
+    setStatus(`טווח הדילוגים אופס ל־${DEFAULT_SKIP_FROM}-${DEFAULT_SKIP_TO}`, 100);
+    saveDraft();
+  }
+
+  function applyManualOverridesToResult(result) {
+    if (!result) return result;
+    filterDateMatchesByAllowedSkips(result);
+    result.matches = result.matches.filter((match) => match.kind === "primary" || !state.removedWordKeys.has(matchKey(match)));
+    result.matches.forEach((match) => {
+      const color = state.colorOverrides[matchKey(match)];
+      if (color && match.kind !== "primary") match.color = color;
+    });
+    secondaryCountForResult(result);
+    return result;
+  }
+
+  function readableTextColor(color) {
+    const hex = String(color || "").replace("#", "");
+    if (!/^[0-9a-f]{6}$/i.test(hex)) return "#111111";
+    const r = Number.parseInt(hex.slice(0, 2), 16);
+    const g = Number.parseInt(hex.slice(2, 4), 16);
+    const b = Number.parseInt(hex.slice(4, 6), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 > 150 ? "#111111" : "#ffffff";
+  }
+
+  function colorForKey(result, key) {
+    const match = result.matches.find((item) => matchKey(item) === key);
+    if (!match) return "#ffe15c";
+    return match.kind === "primary" ? "#ff3c2f" : (match.color || stableColor(match.word));
+  }
+
+  function setWordColor(key, color) {
+    state.colorOverrides[key] = color;
+    state.results.forEach((result) => {
+      result.matches.forEach((match) => {
+        if (matchKey(match) === key && match.kind !== "primary") match.color = color;
+      });
+    });
+    renderResults();
+    renderCurrent();
+    saveDraft();
+  }
+
+  function removeWordFromCurrent(key) {
+    const current = state.results[state.current];
+    if (!current) return;
+    const target = current.matches.find((match) => matchKey(match) === key);
+    if (!target || target.kind === "primary") {
+      setStatus("לא ניתן להסיר את הראשית מהצופן.", 0);
+      return;
+    }
+    state.removedWordKeys.add(key);
+    current.matches = current.matches.filter((match) => matchKey(match) !== key);
+    secondaryCountForResult(current);
+    state.lineKeys.delete(key);
+    state.frameKeys.delete(key);
+    renderResults();
+    renderCurrent();
+    saveDraft();
+    setStatus(`המילה "${target.word}" הוסרה מהצופן הנוכחי`, 0);
+  }
+
+  function visiblePositionSet(result) {
+    const positions = new Set();
+    (result?.windowInfo?.grid || []).forEach((row) => {
+      (row || []).forEach((position) => {
+        if (Number.isInteger(position)) positions.add(position);
+      });
+    });
+    return positions;
+  }
+
+  function matchTouchesPositions(match, positions) {
+    if (!positions.size) return true;
+    return positionsForMatch(match).some((position) => positions.has(position));
+  }
+
+  function removeWordFromVisibleWindow(key) {
+    const current = state.results[state.current];
+    if (!current) return;
+    const target = current.matches.find((match) => matchKey(match) === key);
+    if (!target || target.kind === "primary") {
+      setStatus("לא ניתן להסיר את הראשית מהמסך.", 0);
+      return;
+    }
+    const visible = visiblePositionSet(current);
+    let removed = 0;
+    current.matches = current.matches.filter((match) => {
+      if (match.kind === "primary" || matchKey(match) !== key) return true;
+      if (!matchTouchesPositions(match, visible)) return true;
+      removed += 1;
+      return false;
+    });
+    secondaryCountForResult(current);
+    if (!current.matches.some((match) => matchKey(match) === key)) {
+      state.lineKeys.delete(key);
+      state.frameKeys.delete(key);
+    }
+    renderResults();
+    renderCurrent();
+    saveDraft();
+    setStatus(removed ? `הוסרו ${removed} סימוני ממצאי המילה "${target.word}" מהמסך` : `לא נמצאו סימוני "${target.word}" במסך הנוכחי`, 0);
+  }
+
+  function removeWordFromAllResults(key) {
+    const current = state.results[state.current];
+    const target = current?.matches.find((match) => matchKey(match) === key);
+    if (!target || target.kind === "primary") {
+      setStatus("לא ניתן להסיר את הראשית מתוצאות החיפוש.", 0);
+      return;
+    }
+    state.removedWordKeys.add(key);
+    state.results.forEach((result) => {
+      result.matches = result.matches.filter((match) => matchKey(match) !== key);
+      secondaryCountForResult(result);
+    });
+    state.lineKeys.delete(key);
+    state.frameKeys.delete(key);
+    renderResults();
+    renderCurrent();
+    saveDraft();
+    setStatus(`המילה "${target.word}" הוסרה מכל תוצאות החיפוש`, 0);
+  }
+
+  function removeDateMarksFromCurrent() {
+    const current = state.results[state.current];
+    if (!current) return;
+    const before = current.matches.length;
+    current.matches = current.matches.filter((match) => !isDateMatch(match));
+    secondaryCountForResult(current);
+    const removed = before - current.matches.length;
+    renderResults();
+    renderCurrent();
+    saveDraft();
+    setStatus(removed ? `הוסרו ${removed} סימוני תאריכים מהצופן הנוכחי` : "אין סימוני תאריכים בצופן הנוכחי", 0);
+  }
+
+  function clearDisplayMarksFromCurrent() {
+    const current = state.results[state.current];
+    if (!current) return;
+    const secondaryCount = current.matches.filter((match) => match.kind !== "primary").length;
+    if (!secondaryCount) {
+      setStatus("אין סימוני תצוגה לניקוי בצופן הנוכחי", 0);
+      return;
+    }
+    state.hiddenDisplayResults.add(resultKey(current));
+    state.lineKeys.clear();
+    renderCurrent();
+    saveDraft();
+    setStatus("סימוני התצוגה נוקו. טבלת הממצאים וטבלת הסימונים נשארו כפי שהיו.", 0);
+  }
+
+  function clearMarksTableFromCurrent() {
+    const current = state.results[state.current];
+    if (!current) return;
+    const secondaryCount = current.matches.filter((match) => match.kind !== "primary").length;
+    if (!secondaryCount) {
+      setStatus("אין טבלת סימונים לניקוי בצופן הנוכחי", 0);
+      return;
+    }
+    state.hiddenMarksTableResults.add(resultKey(current));
+    state.lineKeys.clear();
+    renderCurrent();
+    saveDraft();
+    setStatus("טבלת הסימונים העליונה נוקתה. סימוני האותיות בתצוגה נשארו כפי שהיו.", 0);
+  }
+
+  function toggleWordFrame(key) {
+    const current = state.results[state.current];
+    const target = current?.matches.find((match) => matchKey(match) === key);
+    if (!target) return;
+    if (state.frameKeys.has(key)) {
+      state.frameKeys.delete(key);
+      setStatus(`המסגרת הוסרה מהמילה "${target.word}"`, 0);
+    } else {
+      state.frameKeys.add(key);
+      setStatus(`נוספה מסגרת למילה "${target.word}"`, 0);
+    }
+    renderCurrent();
+    saveDraft();
+  }
+
+  function keepOnlyWordInCurrent(key) {
+    const current = state.results[state.current];
+    if (!current) return;
+    const target = current.matches.find((match) => matchKey(match) === key);
+    if (!target || target.kind === "primary") {
+      setStatus("לא ניתן להשאיר מופע יחיד של הראשית.", 0);
+      return;
+    }
+    let kept = false;
+    let removed = 0;
+    current.matches = current.matches.filter((match) => {
+      if (match.kind === "primary" || matchKey(match) !== key) return true;
+      if (!kept) {
+        kept = true;
+        return true;
+      }
+      removed += 1;
+      return false;
+    });
+    secondaryCountForResult(current);
+    renderResults();
+    renderCurrent();
+    saveDraft();
+    setStatus(removed ? `נשאר מופע אחד של "${target.word}" והוסרו ${removed}` : `כבר יש מופע אחד של "${target.word}"`, 0);
+  }
+
+  function openWordMenu(event, key) {
+    event.preventDefault();
+    state.activeWordKey = key;
+    const current = state.results[state.current];
+    const target = current?.matches.find((match) => matchKey(match) === key);
+    els.toggleWordLine.hidden = false;
+    els.toggleWordFrame.hidden = false;
+    els.keepOnlyWord.hidden = false;
+    els.removeVisibleWord.hidden = false;
+    els.removeWord.hidden = false;
+    els.removeAllWord.hidden = false;
+    els.removeVisibleWord.disabled = !target || target.kind === "primary";
+    els.removeWord.disabled = !target || target.kind === "primary";
+    els.removeAllWord.disabled = !target || target.kind === "primary";
+    els.toggleWordFrame.disabled = !target;
+    els.keepOnlyWord.disabled = !target || target.kind === "primary";
+    els.toggleWordLine.textContent = state.lineKeys.has(key) ? "הסר קו למילה" : "הצג קו למילה";
+    els.toggleWordFrame.textContent = state.frameKeys.has(key) ? "הסר מסגרת מאותיות הממצא" : "הוסף מסגרת לאותיות הממצא";
+    els.wordMenu.hidden = false;
+    const menuWidth = 190;
+    const menuHeight = 260;
+    els.wordMenu.style.left = `${Math.max(6, Math.min(event.clientX, window.innerWidth - menuWidth - 6))}px`;
+    els.wordMenu.style.top = `${Math.max(6, Math.min(event.clientY, window.innerHeight - menuHeight - 6))}px`;
+  }
+
+  function hideWordMenu() {
+    els.wordMenu.hidden = true;
+    state.activeWordKey = null;
+  }
+
+  function renderTopWords(result) {
+    els.topWords.innerHTML = "";
+    if (state.hiddenMarksTableResults.has(resultKey(result))) {
+      requestAnimationFrame(drawConnections);
+      return;
+    }
+    const chips = [];
+    const grouped = new Map();
+    result.matches.forEach((match) => {
+      const key = matchKey(match);
+      const existing = grouped.get(key);
+      const skip = Math.abs(match.skip || 1);
+      if (existing) {
+        existing.count += 1;
+        existing.skips.set(skip, (existing.skips.get(skip) || 0) + 1);
+        if (match.kind === "primary") existing.kind = "primary";
+      } else {
+        grouped.set(key, {
+          key,
+          word: match.word,
+          count: 1,
+          skips: new Map([[skip, 1]]),
+          kind: match.kind,
+          color: match.kind === "primary" ? "#ff3c2f" : (match.color || stableColor(match.word)),
+        });
+      }
+    });
+    grouped.forEach((item) => {
+      const chip = document.createElement("span");
+      chip.className = "word-chip";
+      chip.dataset.wordKey = item.key;
+      chip.style.setProperty("--word-color", item.color);
+      chip.style.setProperty("--word-text", readableTextColor(item.color));
+      chip.style.borderColor = item.color;
+      const skipText = Array.from(item.skips.entries())
+        .sort((a, b) => a[0] - b[0])
+        .map(([skip, count]) => `${skip}${count > 1 ? ` ×${count}` : ""}`)
+        .join(", ");
+      chip.textContent = `${item.word} | ${skipText}${item.count > 1 ? ` | סה"כ ×${item.count}` : ""}`;
+      chip.title = item.kind === "primary"
+        ? "קליק ימני לפעולות"
+        : "קליק ימני לפעולות; גרור למילה אחרת כדי להעתיק את הצבע";
+      chip.draggable = item.kind !== "primary";
+      chip.addEventListener("contextmenu", (event) => openWordMenu(event, item.key));
+      chip.addEventListener("dragstart", (event) => {
+        state.draggedWordKey = item.key;
+        event.dataTransfer.effectAllowed = "copy";
+        event.dataTransfer.setData("text/plain", item.key);
+      });
+      chip.addEventListener("dragover", (event) => {
+        if (!state.draggedWordKey || state.draggedWordKey === item.key) return;
+        event.preventDefault();
+        chip.classList.add("drag-target");
+      });
+      chip.addEventListener("dragleave", () => chip.classList.remove("drag-target"));
+      chip.addEventListener("drop", (event) => {
+        event.preventDefault();
+        chip.classList.remove("drag-target");
+        const sourceKey = state.draggedWordKey || event.dataTransfer.getData("text/plain");
+        if (!sourceKey || sourceKey === item.key || item.kind === "primary") return;
+        const color = colorForKey(result, sourceKey);
+        setWordColor(item.key, color);
+        setStatus(`הצבע הועתק אל "${item.word}"`, 100);
+      });
+      chip.addEventListener("dragend", () => {
+        state.draggedWordKey = null;
+        document.querySelectorAll(".word-chip.drag-target").forEach((itemNode) => itemNode.classList.remove("drag-target"));
+      });
+      chips.push(chip);
+    });
+    const measureRow = document.createElement("div");
+    measureRow.className = "top-words-row";
+    measureRow.style.position = "absolute";
+    measureRow.style.visibility = "hidden";
+    measureRow.style.width = "max-content";
+    chips.forEach((chip) => measureRow.appendChild(chip));
+    els.topWords.appendChild(measureRow);
+    const widths = chips.map((chip) => chip.getBoundingClientRect().width + 5);
+    const available = Math.max(1, els.topWords.clientWidth - 18);
+    let split = chips.length;
+    if (widths.reduce((sum, width) => sum + width, 0) > available && chips.length > 1) {
+      let bestWidth = Infinity;
+      for (let index = 1; index < chips.length; index += 1) {
+        const widest = Math.max(
+          widths.slice(0, index).reduce((sum, width) => sum + width, 0),
+          widths.slice(index).reduce((sum, width) => sum + width, 0),
+        );
+        if (widest < bestWidth) {
+          bestWidth = widest;
+          split = index;
+        }
+      }
+    }
+    measureRow.remove();
+    const groups = split < chips.length ? [chips.slice(0, split), chips.slice(split)] : [chips];
+    groups.forEach((group) => {
+      const row = document.createElement("div");
+      row.className = "top-words-row";
+      group.forEach((chip) => row.appendChild(chip));
+      els.topWords.appendChild(row);
+    });
+    requestAnimationFrame(drawConnections);
+  }
+
+  function renderGrid(result) {
+    const { grid, cols, center } = result.windowInfo;
+    const markByPos = new Map();
+    const displayMatches = displayMatchesForResult(result);
+    displayMatches.forEach((match) => {
+      positionsForMatch(match).forEach((pos) => {
+        const existing = markByPos.get(pos);
+        if (!existing || existing.kind !== "primary" && (isDateMatch(existing) || !isDateMatch(match))) {
+          markByPos.set(pos, match);
+        }
+      });
+    });
+    els.grid.style.setProperty("--cell-width", `${state.zoom}px`);
+    els.grid.style.setProperty("--cell-height", `${Math.round(state.zoom * 28 / 22)}px`);
+    els.grid.style.setProperty("--letter-size", `${Math.max(16, state.zoom + 1)}px`);
+    const inner = document.createElement("div");
+    inner.className = "grid-inner";
+    inner.style.gridTemplateColumns = `repeat(${cols}, var(--cell-width, 22px))`;
+    grid.forEach((row) => {
+      row.forEach((pos) => {
+        const cell = document.createElement("span");
+        cell.className = "letter-cell";
+        if (pos !== null) {
+          cell.textContent = state.torah[pos] || "";
+          const match = markByPos.get(pos);
+            if (match) {
+              cell.classList.add(match.kind === "primary" ? "mark-primary" : "mark-secondary");
+              if (match.kind !== "primary") cell.style.setProperty("--mark-color", match.color || stableColor(match.word));
+              cell.dataset.wordKey = matchKey(match);
+              if (state.frameKeys.has(matchKey(match))) cell.classList.add("word-frame");
+              cell.title = `${match.word} | דילוג ${Math.abs(match.skip || 1)} | מיקום ${(match.start + 1).toLocaleString("he-IL")}`;
+            cell.addEventListener("contextmenu", (event) => openWordMenu(event, matchKey(match)));
+          }
+          if (pos === center) cell.classList.add("center");
+        }
+        inner.appendChild(cell);
+      });
+    });
+    els.grid.replaceChildren(inner);
+    requestAnimationFrame(() => {
+      const centerCell = inner.querySelector(".letter-cell.center");
+      if (centerCell) centerCell.scrollIntoView({ block: "center", inline: "center" });
+      drawConnections();
+    });
+  }
+
+  function drawConnections() {
+    const current = state.results[state.current];
+    els.connectionOverlay.replaceChildren();
+    els.grid.querySelectorAll(".letter-cell.line-target").forEach((cell) => {
+      cell.classList.remove("line-target");
+      cell.style.removeProperty("--line-target-color");
+      cell.style.removeProperty("--line-target-text");
+    });
+    if (!current || !state.lineKeys.size || state.hiddenDisplayResults.has(resultKey(current)) || state.hiddenMarksTableResults.has(resultKey(current))) return;
+    const panel = els.connectionOverlay.parentElement;
+    const panelRect = panel.getBoundingClientRect();
+    els.connectionOverlay.setAttribute("viewBox", `0 0 ${panelRect.width} ${panelRect.height}`);
+    state.lineKeys.forEach((key) => {
+      const chip = Array.from(els.topWords.querySelectorAll("[data-word-key]"))
+        .find((item) => item.dataset.wordKey === key);
+      const gridRect = els.grid.getBoundingClientRect();
+      const matchingCells = Array.from(els.grid.querySelectorAll("[data-word-key]"))
+        .filter((item) => item.dataset.wordKey === key);
+      const cell = matchingCells.find((item) => {
+        const rect = item.getBoundingClientRect();
+        return rect.right > gridRect.left
+          && rect.left < gridRect.right
+          && rect.bottom > gridRect.top
+          && rect.top < gridRect.bottom;
+      }) || matchingCells[0];
+      if (!chip || !cell) return;
+      const chipRect = chip.getBoundingClientRect();
+      const cellRect = cell.getBoundingClientRect();
+      const color = colorForKey(current, key);
+      cell.classList.add("line-target");
+      cell.style.setProperty("--line-target-color", color);
+      cell.style.setProperty("--line-target-text", readableTextColor(color));
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", String(chipRect.left + chipRect.width / 2 - panelRect.left));
+      line.setAttribute("y1", String(chipRect.bottom - panelRect.top));
+      line.setAttribute("x2", String(cellRect.left + cellRect.width / 2 - panelRect.left));
+      line.setAttribute("y2", String(cellRect.top + cellRect.height / 2 - panelRect.top));
+      line.setAttribute("stroke", color);
+      els.connectionOverlay.appendChild(line);
+    });
+  }
+
+  function scrollDisplay(horizontalCells, verticalRows) {
+    const step = state.zoom + 2;
+    els.grid.scrollBy({
+      left: horizontalCells * step,
+      top: verticalRows * step,
+      behavior: "auto",
+    });
+    requestAnimationFrame(drawConnections);
+  }
+
+  function bindGridDragPan() {
+    let dragging = false;
+    let pointerId = 0;
+    let lastX = 0;
+    let lastY = 0;
+
+    const stop = () => {
+      dragging = false;
+      pointerId = 0;
+      els.grid.classList.remove("is-panning");
+    };
+
+    els.grid.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || event.target.closest(".word-menu, button, input, select, textarea")) return;
+      dragging = true;
+      pointerId = event.pointerId;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      els.grid.classList.add("is-panning");
+      els.grid.setPointerCapture?.(event.pointerId);
+    });
+
+    els.grid.addEventListener("pointermove", (event) => {
+      if (!dragging || event.pointerId !== pointerId) return;
+      event.preventDefault();
+      const dx = event.clientX - lastX;
+      const dy = event.clientY - lastY;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      els.grid.scrollBy({ left: -dx, top: -dy, behavior: "auto" });
+      requestAnimationFrame(drawConnections);
+    }, { passive: false });
+
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach((name) => {
+      els.grid.addEventListener(name, stop);
+    });
+  }
+
+  function setGridZoom(delta) {
+    const next = Math.max(16, Math.min(34, state.zoom + delta));
+    if (next === state.zoom) return;
+    state.zoom = next;
+    renderCurrent();
+  }
+
+  function setResultListZoom(delta) {
+    const next = Math.max(11, Math.min(19, state.resultZoom + delta));
+    if (next === state.resultZoom) return;
+    state.resultZoom = next;
+    const y = Math.max(2, Math.round((next - 8) / 2));
+    els.resultWrap.style.setProperty("--result-font-size", `${next}px`);
+    els.resultWrap.style.setProperty("--result-cell-y", `${y}px`);
+  }
+
+  function bindPinchZoom() {
+    const bindTarget = (target, zoomHandler) => {
+      if (!target) return;
+      const active = new Map();
+      let lastDistance = 0;
+
+      const distance = () => {
+        const points = Array.from(active.values());
+        if (points.length < 2) return 0;
+        return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+      };
+
+      const endPointer = (event) => {
+        active.delete(event.pointerId);
+        if (active.size < 2) lastDistance = 0;
+      };
+
+      target.addEventListener("pointerdown", (event) => {
+        if (event.pointerType === "mouse") return;
+        active.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        target.setPointerCapture?.(event.pointerId);
+        if (active.size === 2) lastDistance = distance();
+      });
+
+      target.addEventListener("pointermove", (event) => {
+        if (!active.has(event.pointerId)) return;
+        active.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (active.size < 2) return;
+        event.preventDefault();
+        const currentDistance = distance();
+        if (!lastDistance) {
+          lastDistance = currentDistance;
+          return;
+        }
+        const diff = currentDistance - lastDistance;
+        if (Math.abs(diff) < 14) return;
+        zoomHandler(diff > 0 ? 2 : -2);
+        lastDistance = currentDistance;
+      }, { passive: false });
+
+      ["pointerup", "pointercancel", "lostpointercapture"].forEach((name) => {
+        target.addEventListener(name, endPointer);
+      });
+    };
+
+    bindTarget(els.grid, setGridZoom);
+    bindTarget(els.resultWrap, (delta) => setResultListZoom(delta > 0 ? 1 : -1));
+  }
+
+  function bindRepeatingButton(button, action) {
+    let delayTimer = 0;
+    let repeatTimer = 0;
+    let pressed = false;
+
+    const stop = () => {
+      pressed = false;
+      window.clearTimeout(delayTimer);
+      window.clearInterval(repeatTimer);
+      delayTimer = 0;
+      repeatTimer = 0;
+    };
+    button.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      pressed = true;
+      button.setPointerCapture?.(event.pointerId);
+      action();
+      delayTimer = window.setTimeout(() => {
+        if (!pressed) return;
+        repeatTimer = window.setInterval(action, 65);
+      }, 180);
+    });
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach((name) => {
+      button.addEventListener(name, stop);
+    });
+    button.addEventListener("click", (event) => {
+      if (event.detail === 0) action();
+    });
+  }
+
+  function renderEmptyGrid(text) {
+    els.title.textContent = "תצוגת התורה";
+    els.topWords.innerHTML = "";
+    const box = document.createElement("div");
+    box.className = "result-summary";
+    box.textContent = text;
+    els.grid.replaceChildren(box);
+  }
+
+  function clearAll() {
+    els.primary.value = "";
+    els.secondary.value = "";
+    state.results = [];
+    state.current = 0;
+    state.primaryCache = null;
+    state.primaryResume = null;
+    state.colorOverrides = {};
+    state.removedWordKeys = new Set();
+    state.hiddenDisplayResults.clear();
+    state.hiddenMarksTableResults.clear();
+    state.lineKeys.clear();
+    state.frameKeys.clear();
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      // Clearing the visible work still succeeds when browser storage is blocked.
+    }
+    renderResults();
+    renderEmptyGrid("לא בוצע חיפוש.");
+    setStatus("השדות נוקו.", 0);
+  }
+
+  function moveResult(delta) {
+    if (!state.results.length) return;
+    state.current = (state.current + delta + state.results.length) % state.results.length;
+    state.lineKeys.clear();
+    renderResults();
+    renderCurrent();
+  }
+
+  function pointerIsOverResults() {
+    const hovered = document.querySelector(":hover");
+    return Boolean(hovered && els.resultsPanel && els.resultsPanel.contains(hovered));
+  }
+
+  function focusResultsTable() {
+    state.pointerZone = "results";
+    if (els.resultWrap) els.resultWrap.focus({ preventScroll: true });
+  }
+
+  function focusTorahGrid() {
+    state.pointerZone = "torah";
+    if (els.grid) els.grid.focus({ preventScroll: true });
+  }
+
+  function moveResultFromTable(delta) {
+    if (!state.results.length) return;
+    moveResult(delta);
+    setStatus(`צופן ${state.current + 1}/${state.results.length}`, els.progress.value);
+  }
+
+  function printCurrent() {
+    if (!state.results.length) {
+      setStatus("אין צופן להצגה בהדפסה", 0);
+      return;
+    }
+    renderCurrent();
+    setStatus("פותח תצוגת הדפסה...", els.progress.value);
+    window.print();
+  }
+
+  function exportStyleText() {
+    const parts = [];
+    Array.from(document.styleSheets).forEach((sheet) => {
+      try {
+        Array.from(sheet.cssRules || []).forEach((rule) => parts.push(rule.cssText));
+      } catch {
+        // Only same-origin styles are needed for this page.
+      }
+    });
+    return parts.join("\n");
+  }
+
+  async function saveCurrentImage() {
+    if (!state.results.length) {
+      setStatus("אין צופן לשמירה כתמונה", 0);
+      return;
+    }
+    renderCurrent();
+    const source = document.querySelector(".torah-panel");
+    const clone = source.cloneNode(true);
+    clone.querySelector(".display-controls")?.remove();
+    clone.querySelectorAll(".no-export-control").forEach((node) => node.remove());
+    clone.style.cssText = [
+      "display:block",
+      "position:static",
+      "width:max-content",
+      "min-width:1100px",
+      "height:auto",
+      "max-height:none",
+      "overflow:visible",
+      "border:8px solid #000",
+      "border-radius:0",
+      "box-shadow:none",
+      "background:#fff",
+      "direction:rtl",
+    ].join(";");
+    const clonedGrid = clone.querySelector(".torah-grid");
+    if (clonedGrid) {
+      clonedGrid.style.cssText += ";height:auto;max-height:none;overflow:hidden;background:#fff;scrollbar-width:none";
+    }
+    clone.querySelectorAll(".torah-grid, .result-table-wrap").forEach((node) => {
+      node.style.scrollbarWidth = "none";
+    });
+    const watermark = clone.querySelector(".cipher-watermark");
+    if (watermark) {
+      watermark.style.cssText += ";display:block;position:absolute;left:10px;top:10px;z-index:20";
+    }
+    const host = document.createElement("div");
+    host.style.cssText = "position:fixed;left:-100000px;top:0;background:#fff";
+    host.appendChild(clone);
+    document.body.appendChild(host);
+    const width = Math.ceil(Math.max(clone.scrollWidth, clone.getBoundingClientRect().width));
+    const height = Math.ceil(Math.max(clone.scrollHeight, clone.getBoundingClientRect().height));
+    const markup = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+        <foreignObject width="100%" height="100%">
+          <div xmlns="http://www.w3.org/1999/xhtml">
+            <style>${exportStyleText()}</style>
+            ${clone.outerHTML}
+          </div>
+        </foreignObject>
+      </svg>`;
+    host.remove();
+    const blob = new Blob([markup], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    try {
+      const image = new Image();
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = reject;
+        image.src = url;
+      });
+      const scale = Math.min(2, Math.max(1, 1800 / width));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.ceil(width * scale);
+      canvas.height = Math.ceil(height * scale);
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      if (!WEB_DOWNLOADS_ENABLED) {
+        downloadsPaused();
+        return;
+      }
+      const link = document.createElement("a");
+      link.download = `${safeFileName(state.results[state.current].primary.word || "gal-einai")}.png`;
+      link.href = canvas.toDataURL("image/png");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      await archiveCurrentProject("image_save");
+      setStatus("תמונת הצופן נשמרה, והפרויקט נשמר גם בארכיון הצפנים", 100);
+    } catch {
+      setStatus("הדפדפן לא הצליח להכין את התמונה. אפשר להשתמש בהדפסה ל-PDF.", 0);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  els.form.addEventListener("submit", (event) => search(event));
+  els.secondaryScan.addEventListener("click", () => search(null, { cacheOnly: true }));
+  els.allSkipScan?.addEventListener("click", () => search(null, { cacheOnly: true, allSkips: true }));
+  els.resetRange.addEventListener("click", resetSkipRange);
+  els.stop.addEventListener("click", () => {
+    state.stop = true;
+    setStatus("בקשת עצירה התקבלה...", els.progress.value);
+  });
+  els.clear.addEventListener("click", clearAll);
+  els.openProject.addEventListener("click", () => {
+    els.projectFile.click();
+  });
+  els.saveProject.addEventListener("click", saveProjectFile);
+  els.saveCurrentProject?.addEventListener("click", saveCurrentProjectFile);
+  els.library.addEventListener("click", openLibrary);
+  els.history.addEventListener("click", openHistory);
+  els.export.addEventListener("click", openExport);
+  els.libraryClose.addEventListener("click", () => els.libraryDialog.close());
+  els.libraryForm.addEventListener("submit", saveToLibrary);
+  els.librarySearch.addEventListener("input", renderLibrary);
+  els.libraryBackup.addEventListener("click", backupLibrary);
+  els.libraryRestore.addEventListener("click", () => els.libraryBackupInput.click());
+  els.libraryBackupInput.addEventListener("change", async () => {
+    const file = els.libraryBackupInput.files && els.libraryBackupInput.files[0];
+    if (!file) return;
+    try {
+      mergeLibraryBackup(JSON.parse(await file.text()));
+    } catch (error) {
+      setStatus(`שגיאה בשחזור הספרייה: ${error.message}`, 0);
+    } finally {
+      els.libraryBackupInput.value = "";
+    }
+  });
+  els.libraryDialog.addEventListener("click", (event) => {
+    if (event.target === els.libraryDialog) els.libraryDialog.close();
+  });
+  els.historyClose.addEventListener("click", () => els.historyDialog.close());
+  els.historyClear.addEventListener("click", () => {
+    if (!readHistory().length) return;
+    if (!window.confirm("למחוק את כל היסטוריית החיפושים?")) return;
+    try {
+      localStorage.removeItem(HISTORY_KEY);
+    } catch {
+      // The dialog remains usable even if storage access is blocked.
+    }
+    renderHistory();
+    setStatus("היסטוריית החיפושים נוקתה", 0);
+  });
+  els.historyDialog.addEventListener("click", (event) => {
+    if (event.target === els.historyDialog) els.historyDialog.close();
+  });
+  els.exportClose.addEventListener("click", () => els.exportDialog.close());
+  els.copySummary.addEventListener("click", copyExportSummary);
+  els.downloadCsv.addEventListener("click", downloadResultsCsv);
+  els.exportDialog.addEventListener("click", (event) => {
+    if (event.target === els.exportDialog) els.exportDialog.close();
+  });
+  els.projectFile.addEventListener("change", async () => {
+    const file = els.projectFile.files && els.projectFile.files[0];
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      loadProjectData(data, file.name);
+    } catch (error) {
+      setStatus(`שגיאה בפתיחת צופן: ${error.message}`, 0);
+    } finally {
+      els.projectFile.value = "";
+    }
+  });
+  els.print.addEventListener("click", printCurrent);
+  els.saveImage.addEventListener("click", saveCurrentImage);
+  els.toggleDisplayControls.addEventListener("click", toggleDisplayControls);
+  els.toggleTopWords.addEventListener("click", toggleTopWords);
+  els.showTopWords.addEventListener("change", () => {
+    state.topWordsVisible = els.showTopWords.checked;
+    applyTopWordsVisibility();
+  });
+  bindRepeatingButton(els.prev, () => moveResult(-1));
+  bindRepeatingButton(els.next, () => moveResult(1));
+  bindRepeatingButton(els.scrollRight, () => scrollDisplay(-1, 0));
+  bindRepeatingButton(els.scrollLeft, () => scrollDisplay(1, 0));
+  bindRepeatingButton(els.scrollUp, () => scrollDisplay(0, -1));
+  bindRepeatingButton(els.scrollDown, () => scrollDisplay(0, 1));
+  els.zoomIn.addEventListener("click", () => {
+    setGridZoom(2);
+  });
+  els.zoomOut.addEventListener("click", () => {
+    setGridZoom(-2);
+  });
+  els.zoomReset.addEventListener("click", () => {
+    state.zoom = 24;
+    renderCurrent();
+  });
+  bindGridDragPan();
+  bindPinchZoom();
+  els.grid.addEventListener("scroll", () => requestAnimationFrame(drawConnections), { passive: true });
+  if (els.resultsPanel) {
+    els.resultsPanel.addEventListener("mouseenter", focusResultsTable);
+    els.resultsPanel.addEventListener("mousemove", () => { state.pointerZone = "results"; });
+    els.resultsPanel.addEventListener("mouseleave", () => { state.pointerZone = ""; });
+    els.resultsPanel.addEventListener("wheel", (event) => {
+      if (!state.results.length) return;
+      event.preventDefault();
+      if (event.ctrlKey) {
+        setResultListZoom(event.deltaY < 0 ? 1 : -1);
+        return;
+      }
+      const verticalDelta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      moveResultFromTable(verticalDelta > 0 ? 1 : -1);
+    }, { passive: false });
+  }
+  els.grid.addEventListener("mouseenter", focusTorahGrid);
+  els.grid.addEventListener("mousemove", () => { state.pointerZone = "torah"; });
+  els.grid.addEventListener("wheel", (event) => {
+    if (pointerIsOverResults()) return;
+    event.preventDefault();
+    if (event.ctrlKey) {
+      setGridZoom(event.deltaY < 0 ? 2 : -2);
+      return;
+    }
+    if (event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+      const horizontalDelta = event.deltaX || event.deltaY;
+      scrollDisplay(horizontalDelta > 0 ? 1 : -1, 0);
+    } else {
+      scrollDisplay(0, event.deltaY > 0 ? 1 : -1);
+    }
+  }, { passive: false });
+  els.grid.addEventListener("keydown", (event) => {
+    const moves = {
+      ArrowRight: [-1, 0],
+      ArrowLeft: [1, 0],
+      ArrowUp: [0, -1],
+      ArrowDown: [0, 1],
+    };
+    const move = moves[event.key];
+    if (!move) return;
+    event.preventDefault();
+    scrollDisplay(move[0], move[1]);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (!pointerIsOverResults() && state.pointerZone !== "results") return;
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    event.preventDefault();
+    moveResultFromTable(event.key === "ArrowDown" ? 1 : -1);
+  });
+  els.changeWordColor.addEventListener("click", () => {
+    if (!state.activeWordKey) return;
+    const current = state.results[state.current];
+    state.pendingColorKey = state.activeWordKey;
+    els.wordColor.value = colorForKey(current, state.activeWordKey);
+    els.wordColor.click();
+  });
+  els.wordColor.addEventListener("input", () => {
+    const key = state.pendingColorKey || state.activeWordKey;
+    if (!key) return;
+    setWordColor(key, els.wordColor.value);
+  });
+  els.wordColor.addEventListener("change", () => {
+    const key = state.pendingColorKey || state.activeWordKey;
+    if (!key) return;
+    setWordColor(key, els.wordColor.value);
+    state.pendingColorKey = null;
+    hideWordMenu();
+  });
+  els.toggleWordLine.addEventListener("click", () => {
+    const key = state.activeWordKey;
+    if (!key) return;
+    if (state.lineKeys.has(key)) state.lineKeys.delete(key);
+    else state.lineKeys.add(key);
+    hideWordMenu();
+    drawConnections();
+  });
+  els.toggleWordFrame.addEventListener("click", () => {
+    const key = state.activeWordKey;
+    hideWordMenu();
+    if (key) toggleWordFrame(key);
+  });
+  els.keepOnlyWord.addEventListener("click", () => {
+    const key = state.activeWordKey;
+    hideWordMenu();
+    if (key) keepOnlyWordInCurrent(key);
+  });
+  els.removeVisibleWord.addEventListener("click", () => {
+    const key = state.activeWordKey;
+    hideWordMenu();
+    if (key) removeWordFromVisibleWindow(key);
+  });
+  els.removeWord.addEventListener("click", () => {
+    const key = state.activeWordKey;
+    hideWordMenu();
+    if (key) removeWordFromCurrent(key);
+  });
+  els.removeAllWord.addEventListener("click", () => {
+    const key = state.activeWordKey;
+    hideWordMenu();
+    if (key) removeWordFromAllResults(key);
+  });
+  els.help.addEventListener("click", () => els.helpDialog.showModal());
+  els.helpClose.addEventListener("click", () => els.helpDialog.close());
+  els.helpDialog.addEventListener("click", (event) => {
+    if (event.target === els.helpDialog) els.helpDialog.close();
+  });
+  els.tools.addEventListener("click", () => els.toolsDialog.showModal());
+  els.toolsClose.addEventListener("click", () => els.toolsDialog.close());
+  els.toolsDialog.addEventListener("click", (event) => {
+    if (event.target === els.toolsDialog) els.toolsDialog.close();
+  });
+  els.avotPrev.addEventListener("click", () => stepAvot(-1));
+  els.avotNext.addEventListener("click", () => stepAvot(1));
+  els.avotTicker.addEventListener("mouseenter", () => { state.avotPaused = true; });
+  els.avotTicker.addEventListener("mouseleave", () => { state.avotPaused = false; });
+  els.avotVisible.addEventListener("change", () => {
+    state.avotVisible = els.avotVisible.checked;
+    applyAvotSettings();
+  });
+  els.clearDisplayMarks.addEventListener("click", clearDisplayMarksFromCurrent);
+  els.clearMarksTable.addEventListener("click", clearMarksTableFromCurrent);
+  els.removeDateMarks.addEventListener("click", removeDateMarksFromCurrent);
+  els.avotSpeed.addEventListener("input", () => {
+    state.avotSpeed = Number(els.avotSpeed.value) || 4;
+    applyAvotSettings();
+  });
+  [els.avotOrdered, els.avotRandom].forEach((input) => {
+    input.addEventListener("change", () => {
+      if (!input.checked) return;
+      state.avotOrder = input.value;
+      applyAvotSettings();
+    });
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (event.target === els.wordColor) return;
+    if (!els.wordMenu.hidden && !els.wordMenu.contains(event.target)) hideWordMenu();
+  });
+  window.addEventListener("resize", () => {
+    const current = state.results[state.current];
+    if (current) renderTopWords(current);
+    requestAnimationFrame(drawConnections);
+  });
+
+  loadTorah()
+    .then(async () => {
+      if (pageParams.has("project")) {
+        await loadProjectFromQuery().catch((error) => setStatus(`שגיאה בטעינת צופן: ${error.message}`, 0));
+      } else {
+        restoreDraft();
+        applyQueryInputs();
+      }
+    })
+    .catch((error) => setStatus(`שגיאה בטעינת התורה: ${error.message}`, 0));
+
+  try {
+    state.displayControlsVisible = localStorage.getItem(DISPLAY_CONTROLS_KEY) !== "hidden";
+    state.topWordsVisible = localStorage.getItem(TOP_WORDS_KEY) !== "hidden";
+    const avotSettings = JSON.parse(localStorage.getItem(AVOT_SETTINGS_KEY) || "{}");
+    state.avotVisible = avotSettings.visible !== false;
+    state.avotSpeed = Number(avotSettings.speed) || 4;
+    state.avotOrder = avotSettings.order === "random" ? "random" : "ordered";
+  } catch {
+    state.displayControlsVisible = true;
+    state.topWordsVisible = true;
+    state.avotVisible = true;
+    state.avotSpeed = 4;
+    state.avotOrder = "ordered";
+  }
+  applyEdition();
+  applyDisplayControlsVisibility();
+  applyTopWordsVisibility();
+  applyAvotSettings();
+  loadAvot();
+  requestAnimationFrame(animateAvot);
+})();

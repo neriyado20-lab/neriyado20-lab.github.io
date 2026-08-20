@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 112" role="img" aria-label="הורדת תוכנה">
+  <rect width="160" height="112" rx="18" fill="#eef6ff"/>
+  <rect x="26" y="24" width="108" height="64" rx="9" fill="#ffffff" stroke="#2f5f8f" stroke-width="4"/>
+  <path d="M80 34v30M66 52l14 14 14-14" fill="none" stroke="#0d6d56" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M56 78h48" stroke="#d6a441" stroke-width="7" stroke-linecap="round"/>
+  <path d="M39 38h82" stroke="#dbe8f4" stroke-width="4"/>
+</svg>

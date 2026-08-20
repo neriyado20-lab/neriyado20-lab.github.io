@@ -1,0 +1,26 @@
+{
+    "updated_at":  "2026-08-05T12:36:31+03:00",
+    "source":  "data.gov.il population_authority/citiesandsettelments resource 4dbfc145-189f-483e-b109-331b6b89029e",
+    "files":  {
+                  "place_types":  "places-data/place_types.txt",
+                  "all_settlements":  "places-data/settlements/all_settlements.txt",
+                  "settlements":  "places-data/by_type/settlements.txt",
+                  "cities":  "places-data/by_type/cities.txt",
+                  "villages":  "places-data/by_type/villages.txt",
+                  "kibbutzim":  "places-data/by_type/kibbutzim.txt",
+                  "moshavim":  "places-data/by_type/moshavim.txt",
+                  "rivers":  "places-data/by_type/rivers.txt",
+                  "deserts":  "places-data/by_type/deserts.txt",
+                  "mountains":  "places-data/by_type/mountains.txt",
+                  "valleys":  "places-data/by_type/valleys.txt",
+                  "streets_by_settlement":  "places-data/streets/by_settlement/streets_{settlement}.txt"
+              },
+    "counts":  {
+                   "place_types":  53,
+                   "all_settlements":  1272
+               },
+    "notes":  [
+                  "סיווג לפי סוג יישוב ימולא בהמשך ממקור סיווג אמין; בשלב ראשון כל שמות היישובים הרשמית זמינים לסריקה.",
+                  "קבצי רחובות לפי יישוב ייטענו בהמשך ממאגר הרחובות הרשמי."
+              ]
+}

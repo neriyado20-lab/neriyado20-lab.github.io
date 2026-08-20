@@ -345,23 +345,84 @@
   function wireNotifications(store) {
     const form = document.getElementById("notifyForm");
     if (!form) return;
+    const channel = document.getElementById("notifyChannel");
     const input = document.getElementById("notifyInput");
     const status = document.getElementById("notifyStatus");
     const saved = store.notifyContact || "";
+    const savedChannel = store.notifyChannel || "email";
     if (input && saved) input.value = saved;
+    if (channel) channel.value = savedChannel;
     if (status && saved) status.textContent = "פרטי ההודעה שמורים במכשיר זה.";
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       const contact = input.value.trim().slice(0, 120);
       if (!contact) return;
+      const notifyChannel = channel?.value || "email";
       store.notifyContact = contact;
+      store.notifyChannel = notifyChannel;
       writeStore(store);
       if (status) {
         status.textContent = CONFIG.enabled
-          ? "נרשמת לקבלת הודעה על צופן חדש."
+          ? "נרשמת לקבלת הודעה במייל על צופן חדש. יש לאשר מהמייל אם תישלח בקשת אישור."
           : "נשמר במכשיר זה. שליחה אמיתית תופעל לאחר חיבור שירות הודעות.";
       }
-      sendEvent("notify_signup", { contact });
+      sendEvent("notify_signup", { contact, channel: notifyChannel });
+    });
+  }
+
+  function wireFullUpdateAccess(store) {
+    const FULL_UPDATE_DOWNLOAD_URL = "downloads/gal_einai_manager_unlimited_no_AI_patch.zip";
+    const form = document.getElementById("fullUpdateAccessForm");
+    const input = document.getElementById("fullUpdateEmail");
+    const status = document.getElementById("fullUpdateAccessStatus");
+    const downloadLink = document.getElementById("fullUpdateDownloadLink");
+    if (!form || !input || !status || !downloadLink) return;
+
+    function setDownloadAllowed(allowed) {
+      downloadLink.classList.toggle("is-disabled", !allowed);
+      downloadLink.setAttribute("aria-disabled", allowed ? "false" : "true");
+      if (allowed) {
+        downloadLink.href = FULL_UPDATE_DOWNLOAD_URL;
+        downloadLink.setAttribute("download", "");
+      } else {
+        downloadLink.removeAttribute("href");
+        downloadLink.removeAttribute("download");
+      }
+    }
+
+    setDownloadAllowed(false);
+    const savedEmail = store.fullUpdateEmail || "";
+    if (savedEmail) input.value = savedEmail;
+
+    downloadLink.addEventListener("click", (event) => {
+      if (downloadLink.getAttribute("aria-disabled") === "true") {
+        event.preventDefault();
+        status.textContent = "התוכנה חינמית, ואין צורך בבדיקת זכאות להורדה.";
+      }
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = input.value.trim().toLowerCase().slice(0, 160);
+      if (!email) return;
+      setDownloadAllowed(false);
+      status.textContent = "בודק פרטים...";
+      const result = await window.GalEinaiBackend?.checkFullUpdateAccess?.(email);
+      if (!result?.ok) {
+        status.textContent = "בדיקת הפרטים אינה זמינה כעת. ניתן לנסות שוב מאוחר יותר.";
+        return;
+      }
+      store.fullUpdateEmail = email;
+      writeStore(store);
+      if (result.active) {
+        setDownloadAllowed(true);
+        const expiry = result.expiresAt ? ` בתוקף עד ${result.expiresAt}.` : "";
+        status.textContent = `נמצאה הרשאה פנימית פעילה${expiry}`;
+      } else if (result.expiresAt) {
+        status.textContent = `לא נמצאה הרשאה פנימית פעילה. התוקף הרשום הסתיים בתאריך ${result.expiresAt}.`;
+      } else {
+        status.textContent = "לא נמצאה הרשאה פנימית פעילה למייל שהוזן.";
+      }
     });
   }
 
@@ -389,5 +450,6 @@
   window.GalEinaiWireSampleCards = wireSampleCards;
   wireSampleCards();
   wireNotifications(store);
+  wireFullUpdateAccess(store);
   ensureLegalFooter();
 })();

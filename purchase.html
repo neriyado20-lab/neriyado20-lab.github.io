@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>הזמנת חיפוש אישי - גל עיני</title>
+  <meta name="description" content="הזמנת חיפוש אישי או שירות אישי נלווה בגל עיני. התוכנה עצמה חינמית.">
+  <link rel="canonical" href="https://neriyado20-lab.github.io/purchase.html">
+  <meta property="og:site_name" content="גל עיני">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="הזמנת חיפוש אישי - גל עיני">
+  <meta property="og:description" content="הזמנת חיפוש אישי או שירות אישי נלווה בגל עיני. התוכנה עצמה חינמית.">
+  <meta property="og:url" content="https://neriyado20-lab.github.io/purchase.html">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="styles.css?v=128">
+</head>
+<body class="purchase-page">
+  <header class="topbar">
+    <div class="brand-area">
+      <a class="brand" href="index.html" aria-label="חזרה לשער">
+        <span class="brand-mark" aria-hidden="true">גע</span>
+        <div><strong>גל עיני</strong><span>הזמנת חיפוש אישי</span></div>
+      </a>
+      <a class="topbar-rides-link" href="rides.html">גמ"ח טרמפים</a>
+    </div>
+    <span class="hebrew-date" data-hebrew-date aria-label="תאריך עברי"></span>
+    <nav aria-label="ניווט">
+      <a href="index.html">ראשי</a>
+      <a href="index.html#download">הורדת התוכנה</a>
+      <a href="order.html">חיפוש לפי הזמנה</a>
+    </nav>
+  </header>
+
+  <main class="purchase-shell">
+    <section class="purchase-intro">
+      <p class="eyebrow">שירות אישי</p>
+      <h1>הזמנת חיפוש אישי</h1>
+      <p>גל עיני ל-Windows היא תוכנה חינמית. תשלום שייך רק להזמנת חיפוש אישי, בדיקה, עריכה או הכנת תוצר לפי בקשה.</p>
+    </section>
+
+    <section class="purchase-plans" aria-label="בחירת מסלול">
+      <button class="purchase-plan" type="button" data-plan="monthly">
+        <span>חיפוש אישי</span><strong>לפי תיאום</strong><small>בדיקה והכנת ממצאים לפי בקשה</small>
+      </button>
+      <button class="purchase-plan" type="button" data-plan="annual">
+        <span>ליווי מורחב</span><strong>לפי תיאום</strong><small>חיפוש, עריכה והכנת תוצר מסודר</small>
+      </button>
+    </section>
+
+    <section class="checkout-summary">
+      <div><span id="selectedPlan">שירות אישי בגל עיני</span><strong id="selectedPrice"></strong></div>
+      <button id="payButton" class="button primary" type="button" disabled>תיאום השירות ייפתח בקרוב</button>
+      <p id="paymentStatus" class="payment-status" aria-live="polite"></p>
+      <p id="paymentSupport" class="payment-support"></p>
+      <p class="small-note">השימוש בתוכנה עצמה חינמי. השירות האישי ניתן רק למי שמזמין אותו במפורש.</p>
+      <small>לא נשמרים באתר פרטי כרטיס אשראי. אם תיפתח סליקה, התשלום יתבצע אצל ספק סליקה מאובטח.</small>
+    </section>
+  </main>
+
+  <footer>
+    <span>© 2026 גל עיני. כל הזכויות שמורות.</span>
+    <a href="terms.html">תנאי שימוש וזכויות יוצרים</a>
+  </footer>
+
+  <script src="payments-config.js?v=28"></script>
+  <script src="purchase.js?v=30"></script>
+  <script src="hebrew-date.js?v=2"></script>
+</body>
+</html>

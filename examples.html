@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>אוצר הצפנים - גל עיני</title>
+  <meta name="description" content="אוצר הצפנים שנמצאו ונשמרו בתוכנת גל עיני, כולל תמונות מסך וקבצי צופן.">
+  <link rel="canonical" href="https://neriyado20-lab.github.io/examples.html">
+  <meta property="og:site_name" content="גל עיני">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="אוצר הצפנים - גל עיני">
+  <meta property="og:description" content="אוצר הצפנים שנמצאו ונשמרו בתוכנת גל עיני, כולל תמונות מסך וקבצי צופן.">
+  <meta property="og:url" content="https://neriyado20-lab.github.io/examples.html">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="styles.css?v=145">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-area">
+      <a class="brand" href="index.html" aria-label="חזרה לשער">
+        <span class="brand-mark" aria-hidden="true">גע</span>
+        <div>
+          <strong>גל עיני</strong>
+          <span>אוצר הצפנים</span>
+        </div>
+      </a>
+    </div>
+    <span class="hebrew-date" data-hebrew-date aria-label="תאריך עברי"></span>
+    <nav aria-label="ניווט">
+      <a href="index.html">ראשי</a>
+      <a href="web.html">עבודה באתר</a>
+      <a href="index.html#download">הורדה</a>
+      <a href="contact.html">צור קשר</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-hero examples-hero">
+      <p class="eyebrow">ממצאים מתוך התוכנה</p>
+      <h1 id="cipherVaultTitle">אוצר הצפנים</h1>
+      <p class="lead">
+        צפנים אמיתיים מתוך גל עיני, עם אפשרות לבחור צופן, לפתוח אותו ולעקוב מה כבר נצפה.
+      </p>
+    </section>
+
+    <section class="expectation-note" aria-label="הבהרה על צפנים ותאריכים">
+      <strong>הבהרה חשובה:</strong>
+      <span>
+        אין הכרח שהתאריכים המופיעים בצפנים הם קביעה מחייבת. מטרת האוצר היא צפייה לישועה וראיית נפלאות התורה.
+        וגם לאחר שעובר תאריך ולא קרה דבר, אנו ממשיכים לצפות לגאולה, כעיקר מי"ג עיקרים:
+        "ואף על פי שיתמהמה, עם כל זה אחכה לו בכל יום שיבוא".
+      </span>
+    </section>
+
+    <section class="examples-toolbar" aria-label="סינון אוצר הצפנים">
+      <div class="examples-count" id="examplesCount">טוען צפנים...</div>
+      <label class="cipher-vault-picker">
+        <span>בחר צופן מהאוצר</span>
+        <select id="cipherVaultSelect">
+          <option value="">בחר צופן...</option>
+        </select>
+      </label>
+      <div class="examples-filter" role="group" aria-label="סינון לפי צפייה">
+        <button class="button secondary is-active" type="button" data-example-filter="all">הכל</button>
+        <button class="button secondary" type="button" data-example-filter="new">חדשים</button>
+        <button class="button secondary" type="button" data-example-filter="seen">כבר ראיתי</button>
+      </div>
+      <div class="examples-topic-filter" role="group" aria-label="סינון לפי נושא">
+        <button class="button secondary is-active" type="button" data-topic-filter="all">כל הנושאים</button>
+        <button class="button secondary" type="button" data-topic-filter="dates">תאריכים</button>
+        <button class="button secondary" type="button" data-topic-filter="geula">גאולה ומשיח</button>
+        <button class="button secondary" type="button" data-topic-filter="events">אירועים ואומות</button>
+        <button class="button secondary" type="button" data-topic-filter="healing">רפואה וסגולות</button>
+        <button class="button secondary" type="button" data-topic-filter="past_dates">תאריכי עבר</button>
+        <button class="button secondary" type="button" data-topic-filter="users">צפני משתמשים</button>
+      </div>
+      <form class="notify-form" id="notifyForm">
+        <label>
+          <span>דרך הודעה על צופן חדש</span>
+          <select id="notifyChannel">
+            <option value="email">מייל</option>
+          </select>
+        </label>
+        <label>
+          <span>פרטי הודעה</span>
+          <input id="notifyInput" type="email" autocomplete="email" placeholder="כתובת מייל">
+        </label>
+        <button class="button secondary" type="submit">אישור</button>
+        <small id="notifyStatus" aria-live="polite"></small>
+      </form>
+    </section>
+
+    <section class="examples-manager-strip" id="examplesManagerStrip" hidden>
+      <div>
+        <p class="eyebrow">ממשק פנימי</p>
+        <h2>ניהול האוצר מתוך המקום עצמו</h2>
+        <p>עריכה, פרסום, ארכיון, מחיקה ותצוגה ציבורית מרוכזים כאן.</p>
+      </div>
+      <button class="button primary" id="addCipherButton" type="button">הוסף צופן</button>
+      <button class="button secondary" id="examplesArchiveToggle" type="button" aria-expanded="false">כניסה לארכיון</button>
+      <button class="button secondary" id="contactMessagesToggle" type="button" aria-expanded="false">הודעות צור קשר</button>
+      <button class="button secondary" id="feedbackMessagesToggle" type="button" aria-expanded="false">דירוגים ותגובות</button>
+      <button class="button secondary" id="resetRequestsToggle" type="button" aria-expanded="false">בקשות איפוס</button>
+      <button class="button secondary" id="managerConnectionCheckButton" type="button">בדוק חיבור</button>
+      <button class="button secondary" id="publicPreviewToggle" type="button">תצוגה ציבורית</button>
+      <button class="button secondary" id="managerLogoutButton" type="button">יציאה מניהול</button>
+      <small class="manager-inline-status" id="managerConnectionStatus" aria-live="polite"></small>
+    </section>
+
+    <section class="examples-manager-archive" id="examplesManagerArchive" hidden>
+      <div class="archive-heading">
+        <div>
+          <h2>ארכיון הצפנים</h2>
+        </div>
+        <span id="examplesArchiveCount">0 בארכיון</span>
+      </div>
+      <div class="archive-list" id="examplesArchiveList"></div>
+    </section>
+
+    <section class="examples-manager-archive manager-contact-messages" id="managerContactMessages" hidden>
+      <div class="archive-heading">
+        <div>
+          <h2>הודעות צור קשר</h2>
+        </div>
+        <span id="managerContactMessagesCount">0 הודעות</span>
+      </div>
+      <div class="archive-list" id="managerContactMessagesList"></div>
+    </section>
+
+    <section class="examples-manager-archive manager-reset-requests" id="managerResetRequests" hidden>
+      <div class="archive-heading">
+        <div>
+          <h2>בקשות איפוס סיסמה</h2>
+        </div>
+        <span id="managerResetRequestsCount">0 בקשות</span>
+      </div>
+      <div class="archive-list" id="managerResetRequestsList"></div>
+    </section>
+
+    <section class="examples-manager-archive manager-feedback-messages" id="managerFeedbackMessages" hidden>
+      <div class="archive-heading">
+        <div>
+          <h2>דירוגים ותגובות משתמשים</h2>
+        </div>
+        <span id="managerFeedbackMessagesCount">0 תגובות</span>
+      </div>
+      <div class="archive-list" id="managerFeedbackMessagesList"></div>
+    </section>
+
+    <section class="user-ciphers-band" id="user-ciphers" data-user-ciphers-empty hidden>
+      <div>
+        <p class="eyebrow">צפני משתמשים</p>
+        <h2>צפנים שנשלחו לפרסום</h2>
+        <p>
+          כאן יופיעו בהמשך צפנים שנשלחו לפרסום ציבורי. כרגע אין עדיין צופן משתמש פתוח לציבור.
+        </p>
+      </div>
+      <a class="button secondary" href="contact.html">שליחת צופן לפרסום</a>
+    </section>
+
+    <section class="examples-empty-state" id="examplesEmptyState" hidden>
+      <p class="eyebrow">אין עדיין צפנים בקבוצה זו</p>
+      <h2>הקטגוריה תתמלא בהמשך</h2>
+      <p>אפשר לבחור נושא אחר או להוסיף צופן מתאים מתוך ממשק האוצר הפנימי.</p>
+    </section>
+
+    <section class="sample-layout" id="cipherVaultGrid" aria-live="polite"></section>
+  </main>
+
+  <dialog class="vault-manager-dialog" id="vaultManagerLogin">
+    <form method="dialog" class="vault-manager-box" id="vaultManagerLoginForm">
+      <p class="eyebrow">כניסה פנימית</p>
+      <h2>ניהול אוצר הצפנים</h2>
+      <label>
+        <span>סיסמת מנהל</span>
+        <span class="password-field">
+          <input id="vaultManagerPassword" type="password" autocomplete="current-password">
+          <button class="password-toggle" type="button" data-password-toggle="vaultManagerPassword" aria-label="הצג סיסמה" title="הצג סיסמה">👁</button>
+        </span>
+      </label>
+      <div class="admin-form-actions">
+        <button class="button primary" type="submit">כניסה</button>
+        <button class="button secondary" type="button" id="vaultForgotPasswordButton">שכחתי סיסמה</button>
+        <button class="button secondary" type="button" data-close-vault-login>ביטול</button>
+      </div>
+      <small id="vaultManagerLoginStatus" aria-live="polite"></small>
+    </form>
+  </dialog>
+
+  <dialog class="vault-manager-dialog" id="cipherManagerDialog">
+    <form method="dialog" class="vault-manager-box vault-editor-box" id="cipherManagerForm">
+      <p class="eyebrow">ניהול צופן</p>
+      <h2 id="cipherManagerHeading">עריכת צופן</h2>
+      <input type="hidden" id="cipherManagerCardId">
+      <label>
+        <span>שם הצופן</span>
+        <input id="cipherManagerTitle" type="text" maxlength="120">
+      </label>
+      <label>
+        <span>נושא</span>
+        <select id="cipherManagerTopic">
+          <option value="dates">תאריכים</option>
+          <option value="geula">גאולה ומשיח</option>
+          <option value="events">אירועים ואומות</option>
+          <option value="healing">רפואה וסגולות</option>
+          <option value="past_dates">תאריכי עבר</option>
+          <option value="users">צפני משתמשים</option>
+        </select>
+      </label>
+      <label>
+        <span>קישור לקובץ / תמונה / פרויקט</span>
+        <input id="cipherManagerUrl" type="url">
+      </label>
+      <label>
+        <span>או העלאת קובץ מהמחשב</span>
+        <input id="cipherManagerFile" type="file" accept=".png,.jpg,.jpeg,.webp,.gif,.json,.gal_einai.json,application/json,image/*">
+      </label>
+      <label>
+        <span>מלל ותיאור</span>
+        <textarea id="cipherManagerDescription" rows="5" maxlength="1200"></textarea>
+      </label>
+      <label>
+        <span>מצב</span>
+        <select id="cipherManagerStatus">
+          <option value="active">מפורסם באוצר</option>
+          <option value="past_dates">תאריכי עבר</option>
+          <option value="draft">טיוטה נסתרת</option>
+          <option value="archive">ארכיון מנהל</option>
+        </select>
+      </label>
+      <div class="admin-form-actions">
+        <button class="button primary" type="submit">שמור</button>
+        <button class="button secondary" type="button" data-manager-archive>העבר לארכיון</button>
+        <button class="button secondary danger-button" type="button" data-manager-delete>מחק לגמרי</button>
+        <button class="button secondary" type="button" data-close-cipher-manager>סגור</button>
+      </div>
+      <small id="cipherManagerStatusText" aria-live="polite"></small>
+    </form>
+  </dialog>
+
+  <dialog class="vault-manager-dialog" id="cipherCommentsDialog">
+    <section class="vault-manager-box vault-editor-box">
+      <p class="eyebrow">תגובות משתמשים</p>
+      <h2 id="cipherCommentsHeading">תגובות לצופן</h2>
+      <div class="archive-list" id="cipherCommentsList"></div>
+      <div class="admin-form-actions">
+        <button class="button secondary" type="button" data-close-cipher-comments>סגור</button>
+      </div>
+    </section>
+  </dialog>
+
+  <footer>
+    <span>גל עיני - אוצר הצפנים</span>
+    <span><a href="index.html">חזרה לעמוד הראשי</a></span>
+    <span id="siteActivity"></span>
+  </footer>
+  <script src="site-interactions-config.js?v=1"></script>
+  <script src="supabase-public.js?v=2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="hebrew-date.js?v=2"></script>
+  <script src="site-interactions.js?v=12"></script>
+  <script src="examples.js?v=54"></script>
+</body>
+</html>

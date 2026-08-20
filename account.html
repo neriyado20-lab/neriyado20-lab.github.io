@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>אזור אישי - גל עיני</title>
+  <meta name="description" content="אזור אישי בגל עיני: כניסה לפי בחירה לצפייה בדברים אישיים, הזמנות, קבצים וצפנים שמורים.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="styles.css?v=142">
+</head>
+<body class="account-page">
+  <header class="topbar">
+    <div class="brand-area">
+      <a class="brand" href="index.html" aria-label="חזרה לשער">
+        <span class="brand-mark" aria-hidden="true">גע</span>
+        <div>
+          <strong>גל עיני</strong>
+          <span>אזור אישי</span>
+        </div>
+      </a>
+      <a class="topbar-rides-link" href="rides.html">גמ"ח טרמפים</a>
+    </div>
+    <span class="hebrew-date" data-hebrew-date aria-label="תאריך עברי"></span>
+    <nav aria-label="ניווט">
+      <a href="index.html">ראשי</a>
+      <a href="web.html">עבודה באתר</a>
+      <a href="examples.html">אוצר הצפנים</a>
+      <a href="order.html">חיפוש לפי הזמנה</a>
+      <a href="account.html">אזור אישי</a>
+      <a href="contact.html">צור קשר</a>
+    </nav>
+  </header>
+
+  <main class="account-shell">
+    <section class="page-hero account-hero">
+      <p class="eyebrow">בחירה למשתמשים</p>
+      <h1>אזור אישי</h1>
+      <p class="lead">
+        האזור האישי אינו חובה. הוא נועד רק למי שרוצה לצפות בדברים ששייכים לו:
+        צפנים שמורים, הזמנות, קבצים אישיים והעדפות שיתווספו בהמשך.
+      </p>
+    </section>
+
+    <section class="account-grid">
+      <form class="account-panel account-auth-panel" id="accountForm">
+        <div>
+          <p class="eyebrow">למי שרוצה לשמור דברים</p>
+          <h2>כניסה לפי בחירה</h2>
+        </div>
+        <label>
+          <span>אימייל</span>
+          <input id="accountEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+        </label>
+        <label>
+          <span>סיסמה</span>
+          <span class="password-field">
+            <input id="accountPassword" type="password" autocomplete="current-password" minlength="6" required>
+            <button class="password-toggle" type="button" data-password-toggle="accountPassword" aria-label="הצג סיסמה" title="הצג סיסמה">👁</button>
+          </span>
+        </label>
+        <div class="account-actions">
+          <button class="button primary" id="accountSignInButton" type="submit">כניסה</button>
+          <button class="button secondary" id="accountSignUpButton" type="button">הרשמה</button>
+          <button class="link-button" id="accountForgotButton" type="button">איפוס סיסמה</button>
+        </div>
+        <p id="accountStatus" class="admin-status" aria-live="polite"></p>
+      </form>
+
+      <article class="account-panel account-state-panel">
+        <p class="eyebrow">פעולות מהירות</p>
+        <h2 id="accountStateTitle">אפשר לעבוד גם בלי חשבון</h2>
+        <p id="accountStateText">
+          כלי החיפוש נשאר פתוח בלי כניסה. משתמש נכנס רק כשהוא רוצה לראות דברים פרטיים שלו.
+        </p>
+        <div class="account-action-list">
+          <a class="button primary" href="web.html">פתח עבודה באתר</a>
+          <a class="button secondary" href="order.html">הזמנת חיפוש</a>
+          <a class="button secondary" href="contact.html">צור קשר</a>
+          <button class="button secondary" id="accountSignOutButton" type="button" hidden>יציאה</button>
+        </div>
+      </article>
+
+      <article class="account-panel account-items-panel">
+        <p class="eyebrow">תוספות לצפנים</p>
+        <h2>בקשות ששלחתי</h2>
+        <div id="accountAdditionsList" class="account-items-list" aria-live="polite"></div>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <span>גל עיני - אזור אישי</span>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="account.js?v=9"></script>
+  <script src="hebrew-date.js?v=2"></script>
+</body>
+</html>

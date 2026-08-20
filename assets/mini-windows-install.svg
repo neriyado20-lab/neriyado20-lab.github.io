@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 112" role="img" aria-label="התקנה ב-Windows">
+  <rect width="160" height="112" rx="18" fill="#fff6ef"/>
+  <rect x="35" y="22" width="90" height="58" rx="7" fill="#ffffff" stroke="#0d6d56" stroke-width="4"/>
+  <path d="M80 36v26M68 51l12 12 12-12" fill="none" stroke="#963f47" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="58" y="86" width="44" height="8" rx="4" fill="#d6a441"/>
+  <path d="M60 22v58M35 51h90" stroke="#e4eee9" stroke-width="4"/>
+</svg>
