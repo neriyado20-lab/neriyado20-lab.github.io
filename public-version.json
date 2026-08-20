@@ -1,8 +1,9 @@
 {
   "version": "V541",
-  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_latest_public.exe",
-  "sha256": "E83E2831710FBA2861A5BDF234D2AB2CF6E123B1248A6D2A5A926C85092B59B2",
-  "size": 16943380,
-  "notes": "גרסה עדכנית של גל עיני V541. תיקון יסודי ליציבות תזוזת התצוגה: חיצים, גלילה וטעינת פרויקט משתמשים במנגנון אופקי אחד. נוספו גם עדכוני סריקת משניות ונוסח דף הבית.",
+  "downloads_paused": true,
+  "installer_url": "",
+  "sha256": "",
+  "size": 0,
+  "notes": "ההורדה והעדכון האוטומטי הושבתו זמנית בעקבות התרעת אבטחה. אין להפעיל את V541. תפורסם גרסה חדשה רק לאחר בנייה נקייה ובדיקה.",
   "mandatory": false
 }
