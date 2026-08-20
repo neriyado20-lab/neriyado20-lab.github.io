@@ -49,6 +49,7 @@
     lineKeys: new Set(),
     frameKeys: new Set(),
     activeWordKey: null,
+    activeMatch: null,
     pendingColorKey: null,
     colorOverrides: {},
     removedWordKeys: new Set(),
@@ -148,6 +149,7 @@
     toggleWordLine: $("toggleWordLineButton"),
     toggleWordFrame: $("toggleWordFrameButton"),
     keepOnlyWord: $("keepOnlyWordButton"),
+    removeSingleMark: $("removeSingleMarkButton"),
     removeVisibleWord: $("removeVisibleWordButton"),
     removeWord: $("removeWordButton"),
     removeAllWord: $("removeAllWordButton"),
@@ -1799,6 +1801,31 @@
     saveDraft();
   }
 
+  function removeSingleMarkFromCurrent(target) {
+    const current = state.results[state.current];
+    if (!current || !target) return;
+    if (target.kind === "primary") {
+      setStatus("לא ניתן להסיר את סימון הראשית.", 0);
+      return;
+    }
+    const index = current.matches.indexOf(target);
+    if (index < 0) {
+      setStatus("הסימון המבוקש אינו קיים עוד בצופן.", 0);
+      return;
+    }
+    current.matches.splice(index, 1);
+    const key = matchKey(target);
+    secondaryCountForResult(current);
+    if (!current.matches.some((match) => matchKey(match) === key)) {
+      state.lineKeys.delete(key);
+      state.frameKeys.delete(key);
+    }
+    renderResults();
+    renderCurrent();
+    saveDraft();
+    setStatus(`הוסר הסימון של "${target.word}" שנבחר`, 0);
+  }
+
   function removeWordFromCurrent(key) {
     const current = state.results[state.current];
     if (!current) return;
@@ -1964,17 +1991,20 @@
     setStatus(removed ? `נשאר מופע אחד של "${target.word}" והוסרו ${removed}` : `כבר יש מופע אחד של "${target.word}"`, 0);
   }
 
-  function openWordMenu(event, key) {
+  function openWordMenu(event, key, match = null) {
     event.preventDefault();
     state.activeWordKey = key;
+    state.activeMatch = match;
     const current = state.results[state.current];
     const target = current?.matches.find((match) => matchKey(match) === key);
     els.toggleWordLine.hidden = false;
     els.toggleWordFrame.hidden = false;
     els.keepOnlyWord.hidden = false;
+    els.removeSingleMark.hidden = !match;
     els.removeVisibleWord.hidden = false;
     els.removeWord.hidden = false;
     els.removeAllWord.hidden = false;
+    els.removeSingleMark.disabled = !match || match.kind === "primary";
     els.removeVisibleWord.disabled = !target || target.kind === "primary";
     els.removeWord.disabled = !target || target.kind === "primary";
     els.removeAllWord.disabled = !target || target.kind === "primary";
@@ -1992,6 +2022,7 @@
   function hideWordMenu() {
     els.wordMenu.hidden = true;
     state.activeWordKey = null;
+    state.activeMatch = null;
   }
 
   function renderTopWords(result) {
@@ -2129,7 +2160,7 @@
               cell.dataset.wordKey = matchKey(match);
               if (state.frameKeys.has(matchKey(match))) cell.classList.add("word-frame");
               cell.title = `${match.word} | דילוג ${Math.abs(match.skip || 1)} | מיקום ${(match.start + 1).toLocaleString("he-IL")}`;
-            cell.addEventListener("contextmenu", (event) => openWordMenu(event, matchKey(match)));
+            cell.addEventListener("contextmenu", (event) => openWordMenu(event, matchKey(match), match));
           }
           if (pos === center) cell.classList.add("center");
         }
@@ -2681,6 +2712,11 @@
     const key = state.activeWordKey;
     hideWordMenu();
     if (key) keepOnlyWordInCurrent(key);
+  });
+  els.removeSingleMark.addEventListener("click", () => {
+    const match = state.activeMatch;
+    hideWordMenu();
+    if (match) removeSingleMarkFromCurrent(match);
   });
   els.removeVisibleWord.addEventListener("click", () => {
     const key = state.activeWordKey;
