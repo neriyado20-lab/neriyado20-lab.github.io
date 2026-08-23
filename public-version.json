@@ -1,9 +1,8 @@
 {
-  "version": "V541",
-  "downloads_paused": true,
-  "installer_url": "",
-  "sha256": "",
-  "size": 0,
-  "notes": "ההורדה והעדכון האוטומטי הושבתו. Microsoft Defender זיהה בקובץ V541 איום חמור בשם Trojan:Win32/Wacatac.C!ml. אין להפעיל או לשחזר את הקובץ. גרסה חדשה תפורסם רק לאחר בנייה נקייה ובדיקת אבטחה.",
+  "version": "V551",
+  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_latest_public.exe",
+  "sha256": "AFB159F7A3118EE9A4A7BA168CA477AC08B3B4D55CA239384CA53D1214EF2A80",
+  "size": 24101025,
+  "notes": "גרסה עדכנית של גל עיני V551. תנועה וגרירה מדויקות יותר, יציבות תצוגה משופרת, וקובץ התקנה שנבנה ונבדק לפני פרסום.",
   "mandatory": false
 }
