@@ -343,30 +343,50 @@
   }
 
   function wireNotifications(store) {
-    const form = document.getElementById("notifyForm");
-    if (!form) return;
-    const channel = document.getElementById("notifyChannel");
-    const input = document.getElementById("notifyInput");
-    const status = document.getElementById("notifyStatus");
-    const saved = store.notifyContact || "";
-    const savedChannel = store.notifyChannel || "email";
-    if (input && saved) input.value = saved;
-    if (channel) channel.value = savedChannel;
-    if (status && saved) status.textContent = "פרטי ההודעה שמורים במכשיר זה.";
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const contact = input.value.trim().slice(0, 120);
-      if (!contact) return;
-      const notifyChannel = channel?.value || "email";
-      store.notifyContact = contact;
-      store.notifyChannel = notifyChannel;
-      writeStore(store);
-      if (status) {
-        status.textContent = CONFIG.enabled
-          ? "נרשמת לקבלת הודעה במייל על צופן חדש. יש לאשר מהמייל אם תישלח בקשת אישור."
-          : "נשמר במכשיר זה. שליחה אמיתית תופעל לאחר חיבור שירות הודעות.";
-      }
-      sendEvent("notify_signup", { contact, channel: notifyChannel });
+    const forms = Array.from(document.querySelectorAll(".notify-form"));
+    if (!forms.length) return;
+    forms.forEach((form, index) => {
+      const channel = form.querySelector("select") || document.getElementById("notifyChannel");
+      const input = form.querySelector("input[name='notifyContact'], input[type='email'], input[type='text']") || document.getElementById("notifyInput");
+      const status = form.querySelector("[aria-live='polite']") || document.getElementById("notifyStatus");
+      if (!input) return;
+      const notifyKind = form.dataset.notifyKind || "cipher_vault";
+      const label = form.dataset.notifyLabel || "עדכון";
+      const contactKey = `notifyContact:${notifyKind}`;
+      const channelKey = `notifyChannel:${notifyKind}`;
+      const legacyContact = index === 0 ? store.notifyContact || "" : "";
+      const legacyChannel = index === 0 ? store.notifyChannel || "email" : "email";
+      const saved = store[contactKey] || legacyContact;
+      const savedChannel = store[channelKey] || legacyChannel;
+      if (saved) input.value = saved;
+      if (channel) channel.value = savedChannel;
+      if (status && saved) status.textContent = "הפרטים שמורים במכשיר זה ובמערכת האתר.";
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const contact = input.value.trim().slice(0, 160);
+        if (!contact) return;
+        const notifyChannel = channel?.value || (contact.includes("@") ? "email" : "phone");
+        store[contactKey] = contact;
+        store[channelKey] = notifyChannel;
+        if (index === 0) {
+          store.notifyContact = contact;
+          store.notifyChannel = notifyChannel;
+        }
+        writeStore(store);
+        if (status) status.textContent = "שומר הרשמה...";
+        const savedRemote = await sendEvent("notify_signup", {
+          contact,
+          channel: notifyChannel,
+          topic: notifyKind,
+          label,
+          source: form.id || notifyKind
+        });
+        if (status) {
+          status.textContent = savedRemote
+            ? `נרשמת לקבלת ${label}.`
+            : "הפרטים נשמרו במכשיר זה. אם החיבור לאתר לא זמין, אפשר לנסות שוב בהמשך.";
+        }
+      });
     });
   }
 
