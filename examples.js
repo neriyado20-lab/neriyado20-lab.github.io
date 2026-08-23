@@ -6,6 +6,7 @@
   const MANAGER_SESSION_KEY = "gal-einai-vault-manager-session-v1";
   const MANAGER_PASSWORD_HASH = "b2085a238dba1a766cd2de60089abeb61631cc4ac122d0363e6d67ad56605242";
   const MANAGER_RECOVERY_MASK = "n******o20@g****.com";
+  const ADMIN_EMAIL = "admin@gal-einai.local";
   const VIEW_DELAY_MS = 1200;
   const SEEN_VISIBILITY_RATIO = 0.35;
   const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
@@ -75,8 +76,12 @@
       return;
     }
     const password = document.getElementById("vaultManagerPassword");
+    const email = document.getElementById("vaultManagerEmail");
+    const supabasePassword = document.getElementById("vaultManagerSupabasePassword");
     const status = document.getElementById("vaultManagerLoginStatus");
     if (password) password.value = "";
+    if (email && !email.value) email.value = ADMIN_EMAIL;
+    if (supabasePassword) supabasePassword.value = "";
     if (status) status.textContent = "";
     showDialog(document.getElementById("vaultManagerLogin"));
     window.setTimeout(() => password?.focus(), 50);
@@ -102,6 +107,33 @@
     updateVaultPicker();
   }
 
+  async function currentSupabaseAdminEmail() {
+    if (!supabaseClient?.auth) return "";
+    try {
+      const { data } = await supabaseClient.auth.getSession();
+      return String(data.session?.user?.email || "").trim().toLowerCase();
+    } catch {
+      return "";
+    }
+  }
+
+  async function ensureSupabaseAdminSession(email, password) {
+    if (!supabaseClient?.auth) throw new Error("החיבור ל-Supabase אינו פעיל בדף הזה.");
+    const cleanEmail = String(email || "").trim().toLowerCase();
+    const cleanPassword = String(password || "");
+    if (cleanEmail !== ADMIN_EMAIL) throw new Error(`יש להתחבר עם ${ADMIN_EMAIL}.`);
+    let activeEmail = await currentSupabaseAdminEmail();
+    if (activeEmail === ADMIN_EMAIL) return true;
+    if (!cleanPassword) throw new Error("יש להזין גם את סיסמת Supabase של המנהל.");
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email: cleanEmail,
+      password: cleanPassword,
+    });
+    if (error) throw error;
+    activeEmail = String(data.session?.user?.email || "").trim().toLowerCase();
+    if (activeEmail !== ADMIN_EMAIL) throw new Error("התחברות Supabase הצליחה, אבל המשתמש אינו מנהל האתר.");
+    return true;
+  }
   function disableManagerMode(seen) {
     managerMode = false;
     publicPreviewMode = false;
@@ -1572,6 +1604,11 @@
 
   async function checkManagerConnection() {
     const status = document.getElementById("managerConnectionStatus");
+    const activeEmail = await currentSupabaseAdminEmail();
+    if (activeEmail !== ADMIN_EMAIL) {
+      if (status) status.textContent = `לא מחובר למנהל Supabase (${ADMIN_EMAIL}).`; 
+      return;
+    }
     if (status) status.textContent = "בודק חיבור...";
     try {
       if (!supabaseClient) throw new Error("Supabase אינו נטען.");
@@ -2087,11 +2124,19 @@
           if (status) status.textContent = "סיסמה לא נכונה.";
           return;
         }
+        if (status) status.textContent = "מתחבר להרשאת מנהל...";
+        await ensureSupabaseAdminSession(
+          document.getElementById("vaultManagerEmail")?.value || ADMIN_EMAIL,
+          document.getElementById("vaultManagerSupabasePassword")?.value || ""
+        );
         writeManagerSession();
         enableManagerMode(seen);
         closeDialog(document.getElementById("vaultManagerLogin"));
-      } catch {
-        if (status) status.textContent = "לא הצלחתי לבדוק את הסיסמה בדפדפן הזה.";
+      } catch (error) {
+        const raw = String(error?.message || "");
+        if (status) status.textContent = /invalid login|invalid credentials|email not confirmed|not found/i.test(raw)
+          ? "התחברות Supabase נכשלה. צריך ליצור משתמש מנהל או לבדוק סיסמה."
+          : raw || "לא הצלחתי להשלים כניסה לניהול.";
       }
     });
     document.getElementById("vaultForgotPasswordButton")?.addEventListener("click", async (event) => {
@@ -2157,7 +2202,8 @@
       applyFilter(seen);
       updateVaultPicker();
     });
-    document.getElementById("managerLogoutButton")?.addEventListener("click", () => {
+    document.getElementById("managerLogoutButton")?.addEventListener("click", async () => {
+      try { await supabaseClient?.auth?.signOut(); } catch {}
       disableManagerMode(seen);
     });
     document.getElementById("addCipherButton")?.addEventListener("click", () => {
