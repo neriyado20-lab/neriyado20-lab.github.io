@@ -1195,6 +1195,129 @@
       contactMessagesLoading = false;
     }
   }
+  function notificationTopicLabel(topic) {
+    if (topic === "software_updates") return "עדכוני תוכנה";
+    if (topic === "cipher_vault") return "צופן חדש באוצר";
+    return "כל הנרשמים";
+  }
+
+  function selectedNotificationTopic() {
+    return document.getElementById("notificationTopicFilter")?.value || "all";
+  }
+
+  function notificationRowsForTopic(topic = selectedNotificationTopic()) {
+    const seen = new Set();
+    return notificationMessages.filter((row) => {
+      const payload = row.payload || {};
+      const contact = contactPayloadValue(payload, "contact", "");
+      const rowTopic = contactPayloadValue(payload, "topic", "");
+      if (!contact) return false;
+      if (topic !== "all" && rowTopic !== topic) return false;
+      const key = `${rowTopic}|${contact.toLowerCase()}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function notificationContactsForTopic(topic = selectedNotificationTopic()) {
+    return notificationRowsForTopic(topic).map((row) => contactPayloadValue(row.payload || {}, "contact", ""));
+  }
+
+  function notificationCsvText(topic = selectedNotificationTopic()) {
+    const escape = (value) => `"${String(value || "").replace(/"/g, '""')}"`;
+    const rows = [["contact", "channel", "topic", "label", "created_at"]];
+    notificationRowsForTopic(topic).forEach((row) => {
+      const payload = row.payload || {};
+      rows.push([
+        contactPayloadValue(payload, "contact", ""),
+        contactPayloadValue(payload, "channel", ""),
+        contactPayloadValue(payload, "topic", ""),
+        contactPayloadValue(payload, "label", ""),
+        row.created_at || "",
+      ]);
+    });
+    return rows.map((line) => line.map(escape).join(",")).join("\n");
+  }
+
+  function downloadTextFile(filename, text, type = "text/plain;charset=utf-8") {
+    const blob = new Blob(["\ufeff", text], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1200);
+  }
+
+  async function copyNotificationContacts() {
+    const contacts = notificationContactsForTopic();
+    const text = contacts.join("\n");
+    if (!text) {
+      alert("אין כתובות ברשימה שנבחרה.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      alert(`הועתקו ${contacts.length} פרטי קשר.`);
+    } catch {
+      alert(text);
+    }
+  }
+
+  function exportNotificationContacts() {
+    const topic = selectedNotificationTopic();
+    downloadTextFile(`gal-einai-${topic}-contacts.csv`, notificationCsvText(topic), "text/csv;charset=utf-8");
+  }
+
+  function updateDraftBox(subject, body, contacts) {
+    const box = document.getElementById("managerUpdateDraft");
+    if (!box) return;
+    box.replaceChildren();
+    const title = document.createElement("strong");
+    title.textContent = subject;
+    const note = document.createElement("small");
+    note.textContent = `${contacts.length} נמענים ברשימה שנבחרה. מומלץ לשלוח בעותק מוסתר.`;
+    const text = document.createElement("textarea");
+    text.readOnly = true;
+    text.rows = 7;
+    text.value = body;
+    box.append(title, note, text);
+  }
+
+  function openNotificationMail(topic, subject, body) {
+    const contacts = notificationContactsForTopic(topic);
+    if (!contacts.length) {
+      alert("אין נמענים ברשימה הזו כרגע.");
+      return;
+    }
+    updateDraftBox(subject, body, contacts);
+    const mailto = `mailto:?bcc=${encodeURIComponent(contacts.join(","))}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    if (mailto.length < 1900) {
+      location.href = mailto;
+    } else {
+      copyNotificationContacts();
+      alert("יש הרבה נמענים, לכן הכתובות הועתקו. פתח מייל חדש והדבק אותן בשדה עותק מוסתר.");
+    }
+  }
+
+  function openSoftwareUpdateMail() {
+    openNotificationMail(
+      "software_updates",
+      "גל עיני V552 זמינה להורדה",
+      "שלום וברכה,\n\nגרסת גל עיני V552 זמינה להורדה באתר.\nהעדכון מוסיף אפשרות עדכון מתוך התוכנה לאחר הרשמה, לצד שיפורי תנועה וגרירה.\n\nלהורדה:\nhttps://neriyado20-lab.github.io/#download\n\nבברכה,\nגל עיני"
+    );
+  }
+
+  function openCipherUpdateMail() {
+    openNotificationMail(
+      "cipher_vault",
+      "צופן חדש באוצר גל עיני",
+      "שלום וברכה,\n\nנוסף צופן חדש לאוצר גל עיני.\nאפשר לצפות באוצר הצפנים כאן:\nhttps://neriyado20-lab.github.io/examples.html\n\nבברכה,\nגל עיני"
+    );
+  }
   function renderManagerNotificationMessages(message = "") {
     const panel = document.getElementById("managerNotificationMessages");
     const list = document.getElementById("managerNotificationMessagesList");
@@ -1203,7 +1326,8 @@
     const open = effectiveManagerMode() && toggle?.getAttribute("aria-expanded") === "true";
     if (panel) panel.hidden = !open;
     if (toggle) toggle.textContent = `${open ? "סגור רשימות" : "רשימות עדכון"} (${notificationMessages.length})`;
-    if (count) count.textContent = `${notificationMessages.length} נרשמים`;
+    const filteredRows = notificationRowsForTopic();
+    if (count) count.textContent = `${filteredRows.length} מתוך ${notificationMessages.length} נרשמים`;
     if (!list || !open) return;
     list.replaceChildren();
     if (message) {
@@ -1215,14 +1339,14 @@
       list.appendChild(row);
       return;
     }
-    if (!notificationMessages.length) {
+    if (!filteredRows.length) {
       const row = document.createElement("article");
       row.className = "archive-item";
-      row.innerHTML = "<div><strong>אין כרגע נרשמים להצגה</strong><small>הרשמות לעדכוני תוכנה וצפנים יופיעו כאן.</small></div>";
+      row.innerHTML = `<div><strong>אין כרגע נרשמים להצגה</strong><small>הרשמות ל${notificationTopicLabel(selectedNotificationTopic())} יופיעו כאן.</small></div>`;
       list.appendChild(row);
       return;
     }
-    notificationMessages.forEach((row) => {
+    filteredRows.forEach((row) => {
       const payload = row.payload || {};
       const item = document.createElement("article");
       item.className = "archive-item manager-message-item";
@@ -1998,6 +2122,11 @@
       if (!isOpen && !contactMessagesLoaded) loadManagerContactMessages();
       if (!isOpen) document.getElementById("managerContactMessages")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
+    document.getElementById("notificationTopicFilter")?.addEventListener("change", () => renderManagerNotificationMessages());
+    document.getElementById("copyNotificationContactsButton")?.addEventListener("click", copyNotificationContacts);
+    document.getElementById("exportNotificationContactsButton")?.addEventListener("click", exportNotificationContacts);
+    document.getElementById("openSoftwareUpdateMailButton")?.addEventListener("click", openSoftwareUpdateMail);
+    document.getElementById("openCipherUpdateMailButton")?.addEventListener("click", openCipherUpdateMail);
     document.getElementById("notificationMessagesToggle")?.addEventListener("click", (event) => {
       const button = event.currentTarget;
       const isOpen = button.getAttribute("aria-expanded") === "true";
