@@ -18,7 +18,7 @@
     "@type": "SoftwareApplication",
     "name": "גל עיני",
     "applicationCategory": "EducationalApplication",
-    "operatingSystem": "Web, Windows",
+    "operatingSystem": "Web, Windows, Linux",
     "url": "https://neriyado20-lab.github.io/",
     "description": "כלי לחיפוש צפנים ודילוגים בתורה.",
     "inLanguage": "he",
@@ -29,7 +29,7 @@
     }
   }
   </script>
-  <link rel="stylesheet" href="styles.css?v=150">
+  <link rel="stylesheet" href="styles.css?v=151">
 </head>
 <body>
   <header class="topbar">
@@ -62,7 +62,7 @@
         <p class="lead">חיפוש צפנים ודילוגים בתורה, עם תצוגת טבלה, סימון ממצאים ושמירת קבצי צופן.</p>
         <div class="hero-actions">
           <a class="button primary" href="web.html">פתח עבודה באתר</a>
-          <a class="button secondary" href="#download">גל עיני ל-Windows</a>
+          <a class="button secondary" href="#download">הורדת גל עיני</a>
         </div>
       </div>
       <section class="source-quotes" aria-label="מקורות">
@@ -184,6 +184,40 @@
       </div>
     </section>
 
+    <section class="band netfree-band" id="updates">
+      <div class="section-head">
+        <p class="eyebrow">עדכונים</p>
+        <h2>הרשמה לעדכוני גל עיני</h2>
+        <p>אפשר להשאיר פרטים לעדכוני גרסה ולעדכון כשמתפרסם צופן חדש באוצר.</p>
+      </div>
+      <div class="download-choice-grid updates-choice-grid" aria-label="הרשמה לעדכונים">
+        <form class="download-box notify-form update-subscription-form" data-notify-kind="software_updates" data-notify-label="עדכוני תוכנה">
+          <div>
+            <strong>עדכוני תוכנה</strong>
+            <span>התוכנה בודקת גרסה עדכנית דרך האתר. כאן אפשר להצטרף לרשימת עדכוני גרסה.</span>
+          </div>
+          <label>
+            <span>מייל או טלפון</span>
+            <input name="notifyContact" type="text" inputmode="email" autocomplete="email tel" placeholder="פרטים לקבלת עדכון" required>
+          </label>
+          <button class="button secondary" type="submit">הרשם</button>
+          <small aria-live="polite"></small>
+        </form>
+        <form class="download-box notify-form update-subscription-form" data-notify-kind="cipher_vault" data-notify-label="צופן חדש באוצר">
+          <div>
+            <strong>צופן חדש באוצר</strong>
+            <span>אפשר להצטרף לרשימה לקבלת הודעה כשמתפרסם צופן חדש.</span>
+          </div>
+          <label>
+            <span>מייל או טלפון</span>
+            <input name="notifyContact" type="text" inputmode="email" autocomplete="email tel" placeholder="פרטים לקבלת הודעה" required>
+          </label>
+          <button class="button secondary" type="submit">הרשם</button>
+          <small aria-live="polite"></small>
+        </form>
+      </div>
+    </section>
+
     <section class="content-grid netfree-guide" id="guide">
       <article>
         <h2>איך מתחילים באתר</h2>
@@ -211,13 +245,13 @@
 
   <footer>
     <span>גל עיני - כלי לחיפוש צפנים ודילוגים בתורה</span>
-    <span>עבודה באתר | אוצר צפנים | גל עיני ל-Windows</span>
+    <span>עבודה באתר | אוצר צפנים | הורדת גל עיני</span>
     <span id="siteActivity"></span>
   </footer>
   <script src="site-interactions-config.js?v=1"></script>
   <script src="supabase-public.js?v=3"></script>
   <script src="hebrew-date.js?v=2"></script>
-  <script src="site-interactions.js?v=13"></script>
+  <script src="site-interactions.js?v=15"></script>
 </body>
 </html>
 
