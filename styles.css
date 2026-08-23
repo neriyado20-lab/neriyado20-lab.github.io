@@ -4239,3 +4239,35 @@ footer .legal-footer a,
   font: inherit;
   line-height: 1.7;
 }
+.manager-login-help {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(13, 109, 86, 0.18);
+  border-radius: 8px;
+  background: rgba(240, 248, 244, 0.78);
+  color: var(--ink);
+}
+
+.manager-login-help strong,
+.manager-login-help span {
+  display: block;
+}
+
+.manager-login-help span {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.manager-login-help code {
+  direction: ltr;
+  unicode-bidi: embed;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(13, 109, 86, 0.14);
+  border-radius: 6px;
+  padding: 1px 5px;
+}
+
+.manager-login-help .button {
+  justify-self: start;
+}
