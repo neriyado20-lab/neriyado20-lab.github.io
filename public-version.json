@@ -1,8 +1,8 @@
 {
-  "version": "V551",
+  "version": "V552",
   "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_latest_public.exe",
-  "sha256": "AFB159F7A3118EE9A4A7BA168CA477AC08B3B4D55CA239384CA53D1214EF2A80",
-  "size": 24101025,
-  "notes": "גרסה עדכנית של גל עיני V551. תנועה וגרירה מדויקות יותר ויציבות תצוגה משופרת.",
+  "sha256": "69A16A13C7F907AE9080AE1B430829B3561FB9A19520145E47D6FB76A5EB6352",
+  "size": 13460693,
+  "notes": "גרסה עדכנית של גל עיני V552. עדכון מתוך התוכנה פעיל לאחר הרשמה לעדכוני תוכנה, לצד שיפורי תנועה וגרירה.",
   "mandatory": false
 }
