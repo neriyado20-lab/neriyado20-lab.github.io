@@ -132,9 +132,25 @@
       <div class="archive-heading">
         <div>
           <h2>רשימות עדכון</h2>
+          <p>כלים להפעלת שירות העדכונים מתוך הנרשמים שנאספו באתר ובתוכנה.</p>
         </div>
         <span id="managerNotificationMessagesCount">0 נרשמים</span>
       </div>
+      <div class="manager-notification-tools" aria-label="כלי שירות עדכונים">
+        <label>
+          <span>רשימה</span>
+          <select id="notificationTopicFilter">
+            <option value="all">כל הנרשמים</option>
+            <option value="software_updates">עדכוני תוכנה</option>
+            <option value="cipher_vault">צופן חדש באוצר</option>
+          </select>
+        </label>
+        <button class="button secondary" id="copyNotificationContactsButton" type="button">העתק כתובות</button>
+        <button class="button secondary" id="exportNotificationContactsButton" type="button">ייצוא CSV</button>
+        <button class="button secondary" id="openSoftwareUpdateMailButton" type="button">מייל עדכון V552</button>
+        <button class="button secondary" id="openCipherUpdateMailButton" type="button">מייל צופן חדש</button>
+      </div>
+      <div class="manager-update-draft" id="managerUpdateDraft" aria-live="polite"></div>
       <div class="archive-list" id="managerNotificationMessagesList"></div>
     </section>
 
@@ -270,6 +286,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=15"></script>
-  <script src="examples.js?v=55"></script>
+  <script src="examples.js?v=56"></script>
 </body>
 </html>
