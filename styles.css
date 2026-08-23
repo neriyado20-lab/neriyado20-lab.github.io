@@ -4192,3 +4192,50 @@ footer .legal-footer a,
 .update-subscription-form .button {
   white-space: nowrap;
 }
+.manager-notification-tools {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 0 2px;
+}
+
+.manager-notification-tools label {
+  display: grid;
+  gap: 4px;
+  min-width: 180px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.manager-notification-tools select {
+  border: 1px solid rgba(13, 109, 86, 0.22);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: #fffdf6;
+  color: var(--ink);
+  font: inherit;
+}
+
+.manager-update-draft {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.manager-update-draft:empty {
+  display: none;
+}
+
+.manager-update-draft textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid rgba(122, 48, 38, 0.18);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--ink);
+  font: inherit;
+  line-height: 1.7;
+}
