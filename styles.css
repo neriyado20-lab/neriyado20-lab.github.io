@@ -4176,3 +4176,19 @@ footer .legal-footer a,
     grid-template-columns: 1fr;
   }
 }
+
+.updates-choice-grid {
+  align-items: stretch;
+}
+
+.update-subscription-form {
+  margin-top: 0;
+}
+
+.update-subscription-form label {
+  min-width: min(230px, 68vw);
+}
+
+.update-subscription-form .button {
+  white-space: nowrap;
+}
