@@ -74,7 +74,7 @@
         <button class="button secondary" type="button" data-topic-filter="past_dates">תאריכי עבר</button>
         <button class="button secondary" type="button" data-topic-filter="users">צפני משתמשים</button>
       </div>
-      <form class="notify-form" id="notifyForm">
+      <form class="notify-form" id="notifyForm" data-notify-kind="cipher_vault" data-notify-label="צופן חדש באוצר">
         <label>
           <span>דרך הודעה על צופן חדש</span>
           <select id="notifyChannel">
@@ -99,6 +99,7 @@
       <button class="button primary" id="addCipherButton" type="button">הוסף צופן</button>
       <button class="button secondary" id="examplesArchiveToggle" type="button" aria-expanded="false">כניסה לארכיון</button>
       <button class="button secondary" id="contactMessagesToggle" type="button" aria-expanded="false">הודעות צור קשר</button>
+      <button class="button secondary" id="notificationMessagesToggle" type="button" aria-expanded="false">רשימות עדכון</button>
       <button class="button secondary" id="feedbackMessagesToggle" type="button" aria-expanded="false">דירוגים ותגובות</button>
       <button class="button secondary" id="resetRequestsToggle" type="button" aria-expanded="false">בקשות איפוס</button>
       <button class="button secondary" id="managerConnectionCheckButton" type="button">בדוק חיבור</button>
@@ -125,6 +126,16 @@
         <span id="managerContactMessagesCount">0 הודעות</span>
       </div>
       <div class="archive-list" id="managerContactMessagesList"></div>
+    </section>
+
+    <section class="examples-manager-archive manager-notification-messages" id="managerNotificationMessages" hidden>
+      <div class="archive-heading">
+        <div>
+          <h2>רשימות עדכון</h2>
+        </div>
+        <span id="managerNotificationMessagesCount">0 נרשמים</span>
+      </div>
+      <div class="archive-list" id="managerNotificationMessagesList"></div>
     </section>
 
     <section class="examples-manager-archive manager-reset-requests" id="managerResetRequests" hidden>
@@ -258,7 +269,7 @@
   <script src="supabase-public.js?v=2"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="hebrew-date.js?v=2"></script>
-  <script src="site-interactions.js?v=12"></script>
-  <script src="examples.js?v=54"></script>
+  <script src="site-interactions.js?v=15"></script>
+  <script src="examples.js?v=55"></script>
 </body>
 </html>
