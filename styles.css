@@ -4271,11 +4271,6 @@ footer .legal-footer a,
 .manager-login-help .button {
   justify-self: start;
 }
-.manager-entry-box {
-  border-color: rgba(13, 109, 86, 0.28);
-  background: rgba(240, 248, 244, 0.86);
-}
-
 .manager-direct-entry {
   display: flex;
   align-items: center;
