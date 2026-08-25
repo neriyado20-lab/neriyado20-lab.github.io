@@ -2167,13 +2167,6 @@
       if (!isOpen && !contactMessagesLoaded) loadManagerContactMessages();
       if (!isOpen) document.getElementById("managerContactMessages")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-    const managerParams = new URLSearchParams(window.location.search);
-    const managerDirectEntry = document.getElementById("managerDirectEntry");
-    if (managerDirectEntry && managerParams.get("manager") === "1") {
-      managerDirectEntry.hidden = false;
-      managerDirectEntry.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-    document.getElementById("managerDirectLoginButton")?.addEventListener("click", () => openManagerLogin(seen));
     document.getElementById("notificationTopicFilter")?.addEventListener("change", () => renderManagerNotificationMessages());
     document.getElementById("copyNotificationContactsButton")?.addEventListener("click", copyNotificationContacts);
     document.getElementById("exportNotificationContactsButton")?.addEventListener("click", exportNotificationContacts);
