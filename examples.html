@@ -150,8 +150,11 @@
         <button class="button secondary" id="exportNotificationContactsButton" type="button">ייצוא CSV</button>
         <button class="button secondary" id="openSoftwareUpdateMailButton" type="button">מייל עדכון V552</button>
         <button class="button secondary" id="openCipherUpdateMailButton" type="button">מייל צופן חדש</button>
+        <button class="button primary" id="sendSoftwareUpdateEmailButton" type="button">שלח עדכון אוטומטי</button>
+        <button class="button primary" id="sendCipherUpdateEmailButton" type="button">שלח צופן אוטומטי</button>
       </div>
       <div class="manager-update-draft" id="managerUpdateDraft" aria-live="polite"></div>
+      <small class="manager-inline-status" id="managerNotificationSendStatus" aria-live="polite"></small>
       <div class="archive-list" id="managerNotificationMessagesList"></div>
     </section>
 
@@ -303,6 +306,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=15"></script>
-  <script src="examples.js?v=60"></script>
+  <script src="examples.js?v=61"></script>
 </body>
 </html>
