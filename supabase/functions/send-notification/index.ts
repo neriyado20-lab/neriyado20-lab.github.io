@@ -143,7 +143,34 @@ Deno.serve(async (request) => {
 
   const resendKey = envValue("RESEND_API_KEY");
   const from = envValue("MAIL_FROM") || "Gal Einai <onboarding@resend.dev>";
-  const reportTo = cleanEmail(envValue("MAIL_REPORT_TO")) || cleanEmail(String(from.match(/<([^>]+)>/)?.[1] || from));
+  const rawReportTo = envValue("MAIL_REPORT_TO");
+  const reportTo = cleanEmail(rawReportTo);
+  if (!reportTo) {
+    return jsonResponse({
+      ok: false,
+      code: "missing_report_to",
+      error: "MAIL_REPORT_TO must be your real Resend account email",
+      topic,
+      subject,
+      recipients: emailContacts.length,
+    }, 503);
+  }
+  const fromEmail = cleanEmail(String(from.match(/<([^>]+)>/)?.[1] || from));
+  if (fromEmail === "onboarding@resend.dev") {
+    const blocked = emailContacts.filter((email) => email !== reportTo);
+    if (blocked.length) {
+      return jsonResponse({
+        ok: false,
+        code: "resend_onboarding_limit",
+        error: "Resend onboarding@resend.dev can only send to the Resend account email. Verify a domain or test only with MAIL_REPORT_TO.",
+        topic,
+        subject,
+        recipients: emailContacts.length,
+        allowedRecipient: reportTo,
+        blockedRecipients: blocked.length,
+      }, 503);
+    }
+  }
   if (!resendKey) {
     return jsonResponse({
       ok: false,
