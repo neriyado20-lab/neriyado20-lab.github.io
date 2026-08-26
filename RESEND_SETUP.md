@@ -1,6 +1,6 @@
 # הפעלת מיילים אוטומטיים לגל עיני
 
-המנגנון באתר כבר מוכן לשימוש עם Supabase Edge Function בשם `send-notification` ועם Resend לשליחת מיילים.
+המנגנון באתר כבר מוכן לשימוש עם Supabase Edge Function בשם `bright-worker` ועם Resend לשליחת מיילים.
 
 ## מה צריך לעשות פעם אחת
 
@@ -29,19 +29,19 @@ MAIL_FROM=Gal Einai <updates@your-domain.example>
 צריך לפרסם ל-Supabase את הקובץ:
 
 ```text
-supabase/functions/send-notification/index.ts
+supabase/functions/send-notification/index.ts (הקוד המקומי; בסופאבייס הפונקציה פורסמה בשם bright-worker)
 ```
 
 אפשר לעשות זאת דרך Supabase Dashboard > Edge Functions > Create/Deploy Function בשם:
 
 ```text
-send-notification
+bright-worker
 ```
 
 או דרך Supabase CLI אם הוא מותקן ומחובר:
 
 ```powershell
-supabase functions deploy send-notification --project-ref sxbfjouuguniegwbevwy
+supabase functions deploy bright-worker --project-ref sxbfjouuguniegwbevwy
 ```
 
 ## שימוש באתר
@@ -55,3 +55,9 @@ supabase functions deploy send-notification --project-ref sxbfjouuguniegwbevwy
    - או `שלח צופן אוטומטי`
 
 אם חסר מפתח Resend או שהפונקציה לא פורסמה, האתר יציג הודעה מתאימה.
+## מגבלות שליחה
+
+בתוכנית החינמית של Resend יש מגבלה של 100 מיילים ביום ו-3,000 מיילים בחודש. כל נמען בשדה To/CC/BCC נספר בנפרד. לכן כדאי לשלוח לרשימות רק כשיש עדכון אמיתי, ובבדיקות להשתמש במעט כתובות.
+
+
+
