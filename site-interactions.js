@@ -383,7 +383,7 @@
         });
         if (status) {
           status.textContent = savedRemote
-            ? `נרשמת לקבלת ${label}.`
+            ? `נרשמת לקבלת ${label}. אם ההודעה לא מופיעה, כדאי לבדוק גם בדואר זבל/ספאם.`
             : "הפרטים נשמרו במכשיר זה. אם החיבור לאתר לא זמין, אפשר לנסות שוב בהמשך.";
         }
       });
@@ -473,3 +473,4 @@
   wireFullUpdateAccess(store);
   ensureLegalFooter();
 })();
+
