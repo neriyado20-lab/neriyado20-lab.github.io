@@ -1388,7 +1388,15 @@
         if (status) status.textContent = "חסר RESEND_API_KEY ב-Supabase. צריך להוסיף מפתח Resend בסודות הפונקציות.";
         return;
       }
-      if (data?.ok === false) throw new Error(data.error || "השליחה נכשלה.");
+      if (data?.code === "missing_report_to") {
+        if (status) status.textContent = "חסר MAIL_REPORT_TO תקין. צריך לשים שם את המייל האמיתי של חשבון Resend.";
+        return;
+      }
+      if (data?.code === "resend_onboarding_limit") {
+        if (status) status.textContent = "Resend במצב בדיקה שולח רק למייל של חשבון Resend. כדי לשלוח לכל הנרשמים צריך לאמת דומיין ב-Resend.";
+        return;
+      }
+      if (data?.ok === false) throw new Error(data.error || data?.failures?.[0]?.result?.message || "השליחה נכשלה.");
       if (status) status.textContent = `נשלחו ${data?.sent ?? 0} מתוך ${data?.recipients ?? recipients.length} מיילים.`;
     } catch (error) {
       const raw = String(error?.message || "");
