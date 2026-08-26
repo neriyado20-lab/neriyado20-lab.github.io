@@ -1376,7 +1376,7 @@
     if (!confirm(confirmText)) return;
     if (status) status.textContent = "שולח דרך Resend...";
     try {
-      const { data, error } = await supabaseClient.functions.invoke("send-notification", {
+      const { data, error } = await supabaseClient.functions.invoke("bright-worker", {
         body: {
           topic: message.topic,
           subject: message.subject,
@@ -1393,7 +1393,7 @@
     } catch (error) {
       const raw = String(error?.message || "");
       if (status) status.textContent = /not found|404/i.test(raw)
-        ? "פונקציית send-notification עדיין לא פורסמה ב-Supabase."
+        ? "פונקציית bright-worker עדיין לא פורסמה ב-Supabase."
         : /401|unauthorized|authorization|jwt/i.test(raw)
           ? "צריך להיכנס לניהול עם משתמש Supabase מנהל לפני שליחה."
           : raw || "לא הצלחתי לשלוח כרגע.";
