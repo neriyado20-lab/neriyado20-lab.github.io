@@ -1319,6 +1319,16 @@
     box.append(title, note, text);
   }
 
+  function notificationBlessingLine() {
+    const input = document.getElementById("notificationBlessingInput");
+    return String(input?.value || "").trim();
+  }
+
+  function withNotificationBlessing(body) {
+    const blessing = notificationBlessingLine();
+    if (!blessing) return body;
+    return body.replace("\n\nבברכה,", `\n\n${blessing}\n\nבברכה,`);
+  }
   function openNotificationMail(topic, subject, body) {
     const contacts = notificationContactsForTopic(topic);
     if (!contacts.length) {
@@ -1339,7 +1349,7 @@
     return {
       topic: "software_updates",
       subject: "גל עיני V552 זמינה להורדה",
-      body: "שלום וברכה,\n\nגרסת גל עיני V552 זמינה להורדה באתר.\nהעדכון מוסיף אפשרות עדכון מתוך התוכנה לאחר הרשמה, לצד שיפורי תנועה וגרירה.\n\nלהורדה:\nhttps://neriyado20-lab.github.io/#download\n\nבברכה,\nגל עיני",
+      body: withNotificationBlessing("שלום וברכה,\n\nגרסת גל עיני V552 זמינה להורדה באתר.\nהעדכון מוסיף אפשרות עדכון מתוך התוכנה לאחר הרשמה, לצד שיפורי תנועה וגרירה.\n\nלהורדה:\nhttps://neriyado20-lab.github.io/#download\n\nבברכה,\nגל עיני"),
     };
   }
 
@@ -1347,7 +1357,7 @@
     return {
       topic: "cipher_vault",
       subject: "צופן חדש באוצר גל עיני",
-      body: "שלום וברכה,\n\nנוסף צופן חדש לאוצר גל עיני.\nאפשר לצפות באוצר הצפנים כאן:\nhttps://neriyado20-lab.github.io/examples.html\n\nבברכה,\nגל עיני",
+      body: withNotificationBlessing("שלום וברכה,\n\nנוסף צופן חדש לאוצר גל עיני.\nאפשר לצפות באוצר הצפנים כאן:\nhttps://neriyado20-lab.github.io/examples.html\n\nבברכה,\nגל עיני"),
     };
   }
 
@@ -2227,6 +2237,14 @@
     document.getElementById("notificationTopicFilter")?.addEventListener("change", () => renderManagerNotificationMessages());
     document.getElementById("copyNotificationContactsButton")?.addEventListener("click", copyNotificationContacts);
     document.getElementById("exportNotificationContactsButton")?.addEventListener("click", exportNotificationContacts);
+    const notificationBlessingInput = document.getElementById("notificationBlessingInput");
+    if (notificationBlessingInput) {
+      const savedBlessing = localStorage.getItem("galEinaiNotificationBlessing");
+      if (savedBlessing !== null) notificationBlessingInput.value = savedBlessing;
+      notificationBlessingInput.addEventListener("input", () => {
+        localStorage.setItem("galEinaiNotificationBlessing", notificationBlessingInput.value);
+      });
+    }
     document.getElementById("openSoftwareUpdateMailButton")?.addEventListener("click", openSoftwareUpdateMail);
     document.getElementById("openCipherUpdateMailButton")?.addEventListener("click", openCipherUpdateMail);
     document.getElementById("sendSoftwareUpdateEmailButton")?.addEventListener("click", () => sendAutomaticNotification(softwareUpdateMessage()));
@@ -2541,5 +2559,6 @@
   wireSeenOnView(seen);
   loadPublishedContent(seen);
 })();
+
 
 
