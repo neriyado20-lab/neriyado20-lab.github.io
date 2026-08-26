@@ -223,3 +223,4 @@ Deno.serve(async (request) => {
     failures: failures.slice(0, 3),
   }, failures.length ? 502 : 200);
 });
+
