@@ -1,8 +1,8 @@
 {
-  "size": 5842677,
-  "notes": "עדכון גל עיני V553 כקובץ ZIP.",
-  "sha256": "CC8E3E2BAEF32342D6357C20DB46BA9BE46A44D1A50590B18546B614D227B683",
-  "version": "V553",
+  "version": "V554",
+  "notes": "עדכון גל עיני V554 כקובץ ZIP, כולל קיצור דרך עם אייקון גל עיני.",
   "mandatory": false,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V553_portable.zip"
+  "size": 5844588,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V554_portable.zip",
+  "sha256": "AF18FC34B2E711E21315E5CF14E91CF726B221E34223D7E98796DA17A67BBF48"
 }
