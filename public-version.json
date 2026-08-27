@@ -1,8 +1,8 @@
 {
-  "installer_url": "https://neriyado20-lab.github.io/downloads/gal_einai_V551_public.exe",
-  "sha256": "AFB159F7A3118EE9A4A7BA168CA477AC08B3B4D55CA239384CA53D1214EF2A80",
-  "notes": "גרסה מלאה של גל עיני V551, כולל קבצי התורה הדרושים להפעלה.",
-  "size": 24101025,
+  "size": 0,
   "mandatory": false,
-  "version": "V551"
+  "installer_url": "",
+  "version": "V0",
+  "sha256": "",
+  "notes": "עדכון Windows מושהה זמנית עד פרסום חבילת התקנה חדשה."
 }
