@@ -1,8 +1,8 @@
 {
-  "size": 0,
-  "mandatory": false,
   "installer_url": "",
   "version": "V0",
   "sha256": "",
-  "notes": "עדכון Windows מושהה זמנית עד פרסום חבילת התקנה חדשה."
+  "size": 0,
+  "notes": "לא פעיל זמנית.",
+  "mandatory": false
 }
