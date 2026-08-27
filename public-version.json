@@ -1,8 +1,8 @@
 {
-  "installer_url": "",
-  "version": "V0",
-  "sha256": "",
-  "size": 0,
-  "notes": "לא פעיל זמנית.",
-  "mandatory": false
+  "size": 5842677,
+  "notes": "עדכון גל עיני V553 כקובץ ZIP.",
+  "sha256": "CC8E3E2BAEF32342D6357C20DB46BA9BE46A44D1A50590B18546B614D227B683",
+  "version": "V553",
+  "mandatory": false,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V553_portable.zip"
 }
