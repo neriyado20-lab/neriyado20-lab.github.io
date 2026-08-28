@@ -1,8 +1,8 @@
 {
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V557_portable.zip",
-  "sha256": "D745EB483B21DAD6DA515D4DD3F638EAE527E0AE7D4C696966709ACCAAB1A7D4",
-  "notes": "עדכון גל עיני V557: נוסף GalEinai.exe עם אייקון גל עיני להפעלה ולקיצורי דרך, לצד תיקוני חש״ר ודילוג חי.",
-  "version": "V557",
+  "notes": "עדכון גל עיני V558: חש״ר רגיל מחפש N, N-1, N+1, 1; נוסף כפתור הרחבה כללי עם בחירה מתגלגלת 1-5, שמחפש משניות בטבלה הנוכחית באלכסונים N±1 עד N±הערך וגם בדילוג ישר 1 עד הערך.",
   "mandatory": false,
-  "size": 6078754
+  "version": "V558",
+  "sha256": "74A0E3659BFCB9C2713524F45BDCFA76D7006C5A732AE003A6CCBB655F5C0ABC",
+  "size": 6079962,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V558_portable.zip"
 }
