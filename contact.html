@@ -39,10 +39,10 @@
       <p class="eyebrow">פנייה מסודרת</p>
       <h1>צור קשר</h1>
       <p>
-        אפשר לשלוח פנייה בענייני אתר הצפנים, עזרה, דיווח תקלה או הצעת שיפור.
+        אפשר לשלוח עזרה, תקלה או הצעה.
       </p>
       <p class="order-note">
-        הפנייה נשמרת במערכת ונשלחת גם למייל האחראי. אין לשלוח פרטים רגישים שלא לצורך.
+        אין לשלוח פרטים רגישים שלא לצורך.
       </p>
     </section>
 
@@ -67,11 +67,11 @@
         </label>
         <label>
           <span>תוכן הפנייה</span>
-          <textarea id="contactMessage" rows="6" required placeholder="כתוב כאן את הפנייה בצורה קצרה וברורה"></textarea>
+          <textarea id="contactMessage" rows="6" required placeholder="כתוב בקצרה"></textarea>
         </label>
         <label class="contact-consent">
           <input id="contactConsent" type="checkbox" required>
-          <span>אני מבין שהפנייה תישלח לטיפול מסודר, ועותק מקומי עשוי להישמר במכשיר זה לגיבוי.</span>
+          <span>אני מאשר שליחה ושמירת גיבוי מקומי.</span>
         </label>
         <div class="order-actions">
           <button class="button primary" type="submit">שלח פנייה</button>
@@ -81,13 +81,13 @@
       </form>
 
       <div class="contact-panel">
-        <h2>נוסח מוכן לשליחה</h2>
+        <h2>נוסח לשליחה</h2>
         <textarea id="contactSummary" class="order-summary" rows="12" readonly></textarea>
       </div>
     </section>
 
     <section class="contact-panel">
-      <h2>עותק פניות מקומי</h2>
+      <h2>פניות מקומיות</h2>
       <div id="contactList" class="rides-list"></div>
     </section>
   </main>
@@ -103,3 +103,4 @@
   <script src="contact.js?v=5"></script>
 </body>
 </html>
+
