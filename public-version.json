@@ -1,8 +1,8 @@
 {
-  "version": "V555",
-  "notes": "עדכון גל עיני V555: חבילת הורדה מלאה ללא AI, כל כפתורי המחקר פעילים ותיקון אייקון להצמדה.",
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V557_portable.zip",
+  "sha256": "D745EB483B21DAD6DA515D4DD3F638EAE527E0AE7D4C696966709ACCAAB1A7D4",
+  "notes": "עדכון גל עיני V557: נוסף GalEinai.exe עם אייקון גל עיני להפעלה ולקיצורי דרך, לצד תיקוני חש״ר ודילוג חי.",
+  "version": "V557",
   "mandatory": false,
-  "size": 5844734,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V555_portable.zip",
-  "sha256": "D060EA41D01988CC97B9E74CD70844A7A353E317BD60A4A1D18F12F9BD56C3A0"
+  "size": 6078754
 }
