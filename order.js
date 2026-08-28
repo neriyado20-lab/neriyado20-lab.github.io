@@ -1,9 +1,9 @@
 (() => {
   const STORAGE_KEY = "gal-einai-site-interactions-v1";
   const PLANS = {
-    basic: { name: "חיפוש בסיסי", price: 89, minWords: 10 },
-    expanded: { name: "חיפוש מורחב", price: 180, minWords: 10 },
-    print: { name: "צופן להדפסה", price: 360, minWords: 10 },
+    basic: { name: "חיפוש בסיסי", minWords: 10 },
+    expanded: { name: "חיפוש מורחב", minWords: 10 },
+    print: { name: "צופן להדפסה", minWords: 10 },
   };
   let selectedPlan = "basic";
 
@@ -39,10 +39,10 @@
   function buildSummary(data) {
     const plan = PLANS[selectedPlan];
     return [
-      "הזמנת חיפוש צופן - גל עיני",
+      "פנייה לחיפוש צופן - גל עיני",
       "",
-      `סוג בקשה: ${data.kind === "existing-review" ? "עיון בצופן קיים" : "חיפוש צופן חדש לפי הזמנה"}`,
-      `מסלול: ${plan.name} (${plan.price} ₪)`,
+      `סוג בקשה: ${data.kind === "existing-review" ? "עיון בצופן קיים" : "פנייה לחיפוש צופן חדש"}`,
+      `מסלול מבוקש: ${plan.name}`,
       `נושא: ${data.topic}`,
       "",
       "מילים / ביטויים:",
@@ -52,6 +52,7 @@
       `פרטי קשר: ${data.contact}`,
       data.dedication ? `הקדשה: ${data.dedication}` : "",
       "",
+      "תיאום ציפיות: הפנייה אינה תשלום ואינה התחייבות. סיכום היקף, זמן ועלות אם תהיה נעשה במענה אישי בצור קשר.",
       "הערה: החיפוש הוא עבודת חיפוש ועיון בלבד, ואין לראות בו הכרעה הלכתית או הוראה מעשית.",
     ].filter(Boolean).join("\n");
   }
@@ -97,7 +98,7 @@
     if (window.GalEinaiBackend) {
       await window.GalEinaiBackend.submit("order", { ...data, summary });
     }
-    $("orderStatus").textContent = "הזמנת החיפוש הוכנה. אפשר להעתיק ולשלוח, ובהמשך נחבר שליחה ותשלום ישירים.";
+    $("orderStatus").textContent = "נוסח הפנייה הוכן. אפשר להעתיק ולשלוח דרך צור קשר; אין סליקה באתר בשלב זה.";
   });
 
   $("copyOrderButton").addEventListener("click", async () => {
@@ -105,7 +106,7 @@
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
-      $("orderStatus").textContent = "הבקשה הועתקה.";
+      $("orderStatus").textContent = "הפנייה הועתקה. עכשיו אפשר לשלוח אותה בצור קשר.";
     } catch {
       $("orderSummary").focus();
       $("orderSummary").select();

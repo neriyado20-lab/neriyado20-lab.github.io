@@ -1243,11 +1243,25 @@ h2 {
   font-size: 15px;
 }
 
+.cipher-rating-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .cipher-rating {
   display: inline-flex;
   gap: 2px;
   direction: ltr;
   justify-content: flex-end;
+}
+
+.cipher-rating-hint {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .cipher-rating button {
@@ -4301,3 +4315,31 @@ footer .legal-footer a,
 }
 
 
+
+.cipher-comment-item {
+  margin-inline-start: calc(var(--reply-depth, 0) * 18px);
+}
+
+.cipher-comment-item.is-reply {
+  border-inline-start: 3px solid rgba(13, 109, 86, 0.18);
+}
+
+.cipher-reply-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.cipher-reply-form textarea {
+  width: 100%;
+  min-height: 58px;
+  resize: vertical;
+  padding: 9px 10px;
+  border: 1px solid rgba(13, 109, 86, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--ink);
+  font: inherit;
+  line-height: 1.45;
+}

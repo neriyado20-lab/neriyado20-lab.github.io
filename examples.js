@@ -196,6 +196,25 @@
     });
   }
 
+  async function submitCipherReply(cipherId, parentId, title, comment) {
+    const text = String(comment || "").trim();
+    if (!supabaseClient || !cipherId || !parentId || !text) return;
+    await supabaseClient.from("site_submissions").insert({
+      kind: "note",
+      payload: {
+        type: "cipher_feedback",
+        cipherId,
+        parentId,
+        title,
+        rating: 0,
+        text,
+        visibility: "public",
+        at: new Date().toISOString(),
+        page: location.href
+      }
+    });
+  }
+
   async function requestManagerPasswordReset() {
     const requestId = `manager-reset-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
     const payload = {
@@ -235,10 +254,18 @@
     const title = document.createElement("strong");
     title.textContent = "דירוג ותגובה";
 
+    const ratingWrap = document.createElement("div");
+    ratingWrap.className = "cipher-rating-wrap";
+
     const stars = document.createElement("div");
     stars.className = "cipher-rating";
     stars.setAttribute("role", "radiogroup");
-    stars.setAttribute("aria-label", "דירוג הצופן");
+    stars.setAttribute("aria-label", "דירוג הצופן: 1 נמוך, 5 גבוה");
+
+    const ratingHint = document.createElement("small");
+    ratingHint.className = "cipher-rating-hint";
+    ratingHint.textContent = "1 נמוך · 5 גבוה";
+    ratingWrap.append(stars, ratingHint);
 
     const status = document.createElement("small");
     status.className = "cipher-feedback-status";
@@ -260,19 +287,9 @@
       button.setAttribute("aria-label", `דירוג ${value} מתוך 5`);
       button.textContent = "★";
       button.addEventListener("click", () => {
-        const current = readFeedback();
-        current[id] = {
-          ...(current[id] || {}),
-          rating: value,
-          updatedAt: new Date().toISOString()
-        };
-        writeFeedback(current);
         currentRating = value;
         setRatingView(value);
-        status.textContent = "הדירוג נשמר במכשיר זה.";
-        submitCipherFeedback(id, titleForCard(card), currentRating, comment.value.trim()).catch(() => {
-          status.textContent = "הדירוג נשמר במכשיר זה. שליחה למנהל לא הושלמה.";
-        });
+        status.textContent = `נבחר דירוג ${value} מתוך 5. לשמירה לחץ על הכפתור.`;
       });
       stars.appendChild(button);
     }
@@ -283,11 +300,20 @@
     comment.placeholder = "תגובה ציבורית על הצופן";
     comment.value = savedComment;
     comment.addEventListener("input", () => {
-      const current = readFeedback();
+      status.textContent = "התגובה טרם נשמרה. לחץ על הכפתור לשמירה.";
+    });
+
+    const send = document.createElement("button");
+    send.className = "button secondary";
+    send.type = "button";
+    send.textContent = "שמור דירוג ותגובה";
+    send.addEventListener("click", async () => {
       const text = comment.value.trim();
-      if (text || current[id]?.rating) {
+      const current = readFeedback();
+      if (text || currentRating) {
         current[id] = {
           ...(current[id] || {}),
+          rating: currentRating,
           comment: text,
           updatedAt: new Date().toISOString()
         };
@@ -295,30 +321,22 @@
         delete current[id];
       }
       writeFeedback(current);
-      status.textContent = "התגובה נשמרה במכשיר זה.";
-    });
-
-    const send = document.createElement("button");
-    send.className = "button secondary";
-    send.type = "button";
-    send.textContent = "פרסם תגובה";
-    send.addEventListener("click", async () => {
       send.disabled = true;
       try {
-        await submitCipherFeedback(id, titleForCard(card), currentRating, comment.value.trim());
-        status.textContent = "התגובה פורסמה ונשלחה למנהל.";
+        await submitCipherFeedback(id, titleForCard(card), currentRating, text);
+        status.textContent = "הדירוג והתגובה נשמרו ונשלחו למנהל.";
       } catch {
-        status.textContent = "התגובה נשמרה במכשיר זה. השליחה למנהל לא הושלמה.";
+        status.textContent = "נשמר במכשיר זה. השליחה למנהל לא הושלמה.";
       } finally {
         send.disabled = false;
       }
     });
 
+    status.textContent = currentRating ? `דירוג שמור: ${currentRating} מתוך 5.` : "בחר דירוג ורק אחר כך שמור.";
     setRatingView(currentRating);
-    panel.append(title, stars, comment, send, status);
+    panel.append(title, ratingWrap, comment, send, status);
     card.querySelector(".sample-copy")?.appendChild(panel);
   }
-
   function wireCipherFeedback() {
     document.querySelectorAll("[data-example-id]").forEach(addCipherFeedback);
   }
@@ -1947,7 +1965,7 @@
     return Array.isArray(data) ? data : [];
   }
 
-  function renderPublicCipherComments(list, comments, message = "") {
+  function renderPublicCipherComments(list, comments, message = "", card = null) {
     list.replaceChildren();
     if (message) {
       const row = document.createElement("article");
@@ -1965,24 +1983,104 @@
       list.appendChild(row);
       return;
     }
+
+    const byParent = new Map();
     comments.forEach((row) => {
+      const parentId = String(row?.payload?.parentId || "");
+      if (!byParent.has(parentId)) byParent.set(parentId, []);
+      byParent.get(parentId).push(row);
+    });
+
+    const renderRow = (row, depth = 0) => {
       const payload = row.payload || {};
       const item = document.createElement("article");
-      item.className = "archive-item manager-message-item";
+      item.className = `archive-item manager-message-item cipher-comment-item${depth ? " is-reply" : ""}`;
+      item.style.setProperty("--reply-depth", String(Math.min(depth, 4)));
+
       const text = document.createElement("div");
       const title = document.createElement("strong");
       const rating = Number(payload.rating || 0);
       title.textContent = rating ? `דירוג ${rating} מתוך 5` : "תגובה";
       const meta = document.createElement("small");
-      meta.textContent = row.created_at ? new Date(row.created_at).toLocaleString("he-IL") : "";
+      const date = row.created_at ? new Date(row.created_at).toLocaleString("he-IL") : "";
+      meta.textContent = [date, depth ? "תגובה לתגובה" : "תגובה לצופן"].filter(Boolean).join(" | ");
       const body = document.createElement("p");
       body.textContent = contactPayloadValue(payload, "text", "אין תגובה כתובה.");
       text.append(title, meta, body);
-      item.appendChild(text);
-      list.appendChild(item);
-    });
-  }
 
+      const actions = document.createElement("div");
+      actions.className = "archive-actions cipher-comment-actions";
+      const reply = document.createElement("button");
+      reply.className = "button secondary";
+      reply.type = "button";
+      reply.textContent = "הגב";
+      actions.appendChild(reply);
+      item.append(text, actions);
+
+      const replyForm = document.createElement("form");
+      replyForm.className = "cipher-reply-form";
+      replyForm.hidden = true;
+      const input = document.createElement("textarea");
+      input.rows = 2;
+      input.maxLength = 500;
+      input.required = true;
+      input.placeholder = "כתוב תגובה לתגובה זו";
+      const replyActions = document.createElement("div");
+      replyActions.className = "archive-actions";
+      const send = document.createElement("button");
+      send.className = "button secondary";
+      send.type = "submit";
+      send.textContent = "שלח תגובה";
+      const cancel = document.createElement("button");
+      cancel.className = "button secondary";
+      cancel.type = "button";
+      cancel.textContent = "ביטול";
+      const status = document.createElement("small");
+      status.className = "cipher-feedback-status";
+      status.setAttribute("aria-live", "polite");
+      replyActions.append(send, cancel);
+      replyForm.append(input, replyActions, status);
+      item.appendChild(replyForm);
+
+      reply.addEventListener("click", () => {
+        replyForm.hidden = !replyForm.hidden;
+        if (!replyForm.hidden) input.focus();
+      });
+      cancel.addEventListener("click", () => {
+        replyForm.hidden = true;
+        input.value = "";
+        status.textContent = "";
+      });
+      replyForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const replyText = input.value.trim();
+        if (!replyText) return;
+        send.disabled = true;
+        status.textContent = "שולח תגובה...";
+        try {
+          await submitCipherReply(card?.dataset?.exampleId || payload.cipherId || "", String(row.id || ""), titleForCard(card), replyText);
+          status.textContent = "התגובה נשלחה.";
+          input.value = "";
+          const updated = await loadPublicCipherComments(card?.dataset?.exampleId || payload.cipherId || "");
+          renderPublicCipherComments(list, updated, "", card);
+        } catch {
+          status.textContent = "התגובה לא נשלחה כרגע.";
+          send.disabled = false;
+        }
+      });
+
+      list.appendChild(item);
+      (byParent.get(String(row.id || "")) || []).forEach((child) => renderRow(child, depth + 1));
+    };
+
+    const roots = (byParent.get("") || []).concat(
+      comments.filter((row) => {
+        const parentId = String(row?.payload?.parentId || "");
+        return parentId && !comments.some((candidate) => String(candidate.id || "") === parentId);
+      })
+    );
+    roots.forEach((row) => renderRow(row, 0));
+  }
   async function openPublicCipherComments(card) {
     const dialog = document.getElementById("cipherCommentsDialog");
     const heading = document.getElementById("cipherCommentsHeading");
@@ -1991,16 +2089,16 @@
     const cipherId = card.dataset.exampleId || "";
     if (heading) heading.textContent = `תגובות ל${titleForCard(card)}`;
     showDialog(dialog);
-    renderPublicCipherComments(list, [], "טוען תגובות...");
+    renderPublicCipherComments(list, [], "טוען תגובות...", card);
     try {
       const comments = await loadPublicCipherComments(cipherId);
-      renderPublicCipherComments(list, comments);
+      renderPublicCipherComments(list, comments, "", card);
     } catch (error) {
       const raw = String(error?.message || "");
       const message = /permission|policy|row-level|denied|403|unauthorized/i.test(raw)
         ? "אין עדיין הרשאת קריאה ציבורית לתגובות. צריך להפעיל מדיניות קריאה בשרת."
         : raw || "טעינת התגובות נכשלה.";
-      renderPublicCipherComments(list, [], message);
+      renderPublicCipherComments(list, [], message, card);
     }
   }
 
