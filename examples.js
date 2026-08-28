@@ -117,6 +117,34 @@
     }
   }
 
+  async function currentSignedInUserEmail() {
+    if (!supabaseClient?.auth) return "";
+    try {
+      const { data } = await supabaseClient.auth.getSession();
+      return String(data.session?.user?.email || "").trim().toLowerCase();
+    } catch {
+      return "";
+    }
+  }
+
+  function setSignInRequired(status) {
+    if (!status) return;
+    status.replaceChildren();
+    status.append("כדי לדרג או להגיב צריך להתחבר בחינם באזור אישי. ");
+    const link = document.createElement("a");
+    link.href = "account.html";
+    link.textContent = "כניסה לאזור אישי";
+    status.appendChild(link);
+  }
+
+  async function requireSignedInForFeedback(status) {
+    const email = await currentSignedInUserEmail();
+    if (email) return true;
+    setSignInRequired(status);
+    return false;
+  }
+
+
   async function ensureSupabaseAdminSession(email, password) {
     if (!supabaseClient?.auth) throw new Error("החיבור ל-Supabase אינו פעיל בדף הזה.");
     const cleanEmail = String(email || "").trim().toLowerCase();
@@ -181,6 +209,7 @@
 
   async function submitCipherFeedback(id, title, rating, comment) {
     if (!supabaseClient || (!rating && !comment)) return;
+    if (!await currentSignedInUserEmail()) throw new Error("signin_required");
     await supabaseClient.from("site_submissions").insert({
       kind: "note",
       payload: {
@@ -199,6 +228,7 @@
   async function submitCipherReply(cipherId, parentId, title, comment) {
     const text = String(comment || "").trim();
     if (!supabaseClient || !cipherId || !parentId || !text) return;
+    if (!await currentSignedInUserEmail()) throw new Error("signin_required");
     await supabaseClient.from("site_submissions").insert({
       kind: "note",
       payload: {
@@ -286,7 +316,8 @@
       button.setAttribute("role", "radio");
       button.setAttribute("aria-label", `דירוג ${value} מתוך 5`);
       button.textContent = "★";
-      button.addEventListener("click", () => {
+      button.addEventListener("click", async () => {
+        if (!await requireSignedInForFeedback(status)) return;
         currentRating = value;
         setRatingView(value);
         status.textContent = `נבחר דירוג ${value} מתוך 5. לשמירה לחץ על הכפתור.`;
@@ -299,7 +330,8 @@
     comment.maxLength = 500;
     comment.placeholder = "תגובה ציבורית על הצופן";
     comment.value = savedComment;
-    comment.addEventListener("input", () => {
+    comment.addEventListener("input", async () => {
+      if (!await requireSignedInForFeedback(status)) return;
       status.textContent = "התגובה טרם נשמרה. לחץ על הכפתור לשמירה.";
     });
 
@@ -308,6 +340,7 @@
     send.type = "button";
     send.textContent = "שמור דירוג ותגובה";
     send.addEventListener("click", async () => {
+      if (!await requireSignedInForFeedback(status)) return;
       const text = comment.value.trim();
       const current = readFeedback();
       if (text || currentRating) {
@@ -2042,7 +2075,11 @@
       replyForm.append(input, replyActions, status);
       item.appendChild(replyForm);
 
-      reply.addEventListener("click", () => {
+      reply.addEventListener("click", async () => {
+        if (!await requireSignedInForFeedback(status)) {
+          replyForm.hidden = false;
+          return;
+        }
         replyForm.hidden = !replyForm.hidden;
         if (!replyForm.hidden) input.focus();
       });
@@ -2055,6 +2092,7 @@
         event.preventDefault();
         const replyText = input.value.trim();
         if (!replyText) return;
+        if (!await requireSignedInForFeedback(status)) return;
         send.disabled = true;
         status.textContent = "שולח תגובה...";
         try {
