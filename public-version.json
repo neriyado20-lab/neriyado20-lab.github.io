@@ -1,8 +1,8 @@
 {
-  "notes": "עדכון גל עיני V558: חש״ר רגיל מחפש N, N-1, N+1, 1; נוסף כפתור הרחבה כללי עם בחירה מתגלגלת 1-5, שמחפש משניות בטבלה הנוכחית באלכסונים N±1 עד N±הערך וגם בדילוג ישר 1 עד הערך.",
+  "notes": "עדכון גל עיני V560: כפתור החיפוש הופך לעצירה בזמן חיפוש, מינימום משניות מסנן את טבלת הצפנים מיד, +מילים מזהה במסך לפי הדילוגים הנראים, ובאתר תפריט אחיד עם סימון הדף הפעיל ותצוגת צופן ממורכזת עם תנועה לכל כיוון.",
   "mandatory": false,
-  "version": "V558",
-  "sha256": "74A0E3659BFCB9C2713524F45BDCFA76D7006C5A732AE003A6CCBB655F5C0ABC",
-  "size": 6079962,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V558_portable.zip"
+  "version": "V560",
+  "sha256": "E5B7425A6F253B46CDCA70260A2B5B9FDE4A81B6E0BA6AAF01789F1EADDEAC5C",
+  "size": 17770092,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V560_portable.zip"
 }

@@ -49,7 +49,6 @@
     lineKeys: new Set(),
     frameKeys: new Set(),
     activeWordKey: null,
-    activeMatch: null,
     pendingColorKey: null,
     colorOverrides: {},
     removedWordKeys: new Set(),
@@ -149,7 +148,6 @@
     toggleWordLine: $("toggleWordLineButton"),
     toggleWordFrame: $("toggleWordFrameButton"),
     keepOnlyWord: $("keepOnlyWordButton"),
-    removeSingleMark: $("removeSingleMarkButton"),
     removeVisibleWord: $("removeVisibleWordButton"),
     removeWord: $("removeWordButton"),
     removeAllWord: $("removeAllWordButton"),
@@ -1250,11 +1248,13 @@
     const skipAbs = Math.max(1, Math.abs(primary.skip || 1));
     const extraRows = Number.parseInt(options.extraRows || "0", 10) || 0;
     const extraCols = Number.parseInt(options.extraCols || "0", 10) || 0;
-    const cols = Math.min(220, Math.max(80, skipAbs + DEFAULT_EXTRA_COLS + extraCols));
-    const rows = DEFAULT_ROWS + extraRows;
+    const primaryPositions = positionsForMatch(primary).filter((pos) => Number.isFinite(pos));
+    const centerPosition = primaryPositions.length ? primaryPositions[Math.floor((primaryPositions.length - 1) / 2)] : primary.start;
+    const cols = Math.min(320, Math.max(120, skipAbs + DEFAULT_EXTRA_COLS + extraCols + 40));
+    const rows = DEFAULT_ROWS + extraRows + 18;
     const centerCol = Math.floor(cols / 2);
     const centerRow = Math.floor(rows / 2);
-    const base = primary.start - centerRow * skipAbs - centerCol;
+    const base = centerPosition - centerRow * skipAbs - centerCol;
     const positions = [];
     const positionSet = new Set();
     for (let r = 0; r < rows; r += 1) {
@@ -1266,7 +1266,7 @@
       }
       positions.push(row);
     }
-    return { rows, cols, grid: positions, set: positionSet, center: primary.start };
+    return { rows, cols, grid: positions, set: positionSet, center: centerPosition };
   }
 
   function limitedWindowSkips(windowInfo) {
@@ -1801,31 +1801,6 @@
     saveDraft();
   }
 
-  function removeSingleMarkFromCurrent(target) {
-    const current = state.results[state.current];
-    if (!current || !target) return;
-    if (target.kind === "primary") {
-      setStatus("לא ניתן להסיר את סימון הראשית.", 0);
-      return;
-    }
-    const index = current.matches.indexOf(target);
-    if (index < 0) {
-      setStatus("הסימון המבוקש אינו קיים עוד בצופן.", 0);
-      return;
-    }
-    current.matches.splice(index, 1);
-    const key = matchKey(target);
-    secondaryCountForResult(current);
-    if (!current.matches.some((match) => matchKey(match) === key)) {
-      state.lineKeys.delete(key);
-      state.frameKeys.delete(key);
-    }
-    renderResults();
-    renderCurrent();
-    saveDraft();
-    setStatus(`הוסר הסימון של "${target.word}" שנבחר`, 0);
-  }
-
   function removeWordFromCurrent(key) {
     const current = state.results[state.current];
     if (!current) return;
@@ -1991,20 +1966,17 @@
     setStatus(removed ? `נשאר מופע אחד של "${target.word}" והוסרו ${removed}` : `כבר יש מופע אחד של "${target.word}"`, 0);
   }
 
-  function openWordMenu(event, key, match = null) {
+  function openWordMenu(event, key) {
     event.preventDefault();
     state.activeWordKey = key;
-    state.activeMatch = match;
     const current = state.results[state.current];
     const target = current?.matches.find((match) => matchKey(match) === key);
     els.toggleWordLine.hidden = false;
     els.toggleWordFrame.hidden = false;
     els.keepOnlyWord.hidden = false;
-    els.removeSingleMark.hidden = !match;
     els.removeVisibleWord.hidden = false;
     els.removeWord.hidden = false;
     els.removeAllWord.hidden = false;
-    els.removeSingleMark.disabled = !match || match.kind === "primary";
     els.removeVisibleWord.disabled = !target || target.kind === "primary";
     els.removeWord.disabled = !target || target.kind === "primary";
     els.removeAllWord.disabled = !target || target.kind === "primary";
@@ -2022,7 +1994,6 @@
   function hideWordMenu() {
     els.wordMenu.hidden = true;
     state.activeWordKey = null;
-    state.activeMatch = null;
   }
 
   function renderTopWords(result) {
@@ -2160,7 +2131,7 @@
               cell.dataset.wordKey = matchKey(match);
               if (state.frameKeys.has(matchKey(match))) cell.classList.add("word-frame");
               cell.title = `${match.word} | דילוג ${Math.abs(match.skip || 1)} | מיקום ${(match.start + 1).toLocaleString("he-IL")}`;
-            cell.addEventListener("contextmenu", (event) => openWordMenu(event, matchKey(match), match));
+            cell.addEventListener("contextmenu", (event) => openWordMenu(event, matchKey(match)));
           }
           if (pos === center) cell.classList.add("center");
         }
@@ -2653,7 +2624,7 @@
     }
     if (event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
       const horizontalDelta = event.deltaX || event.deltaY;
-      scrollDisplay(horizontalDelta > 0 ? -1 : 1, 0);
+      scrollDisplay(horizontalDelta > 0 ? 1 : -1, 0);
     } else {
       scrollDisplay(0, event.deltaY > 0 ? 1 : -1);
     }
@@ -2712,11 +2683,6 @@
     const key = state.activeWordKey;
     hideWordMenu();
     if (key) keepOnlyWordInCurrent(key);
-  });
-  els.removeSingleMark.addEventListener("click", () => {
-    const match = state.activeMatch;
-    hideWordMenu();
-    if (match) removeSingleMarkFromCurrent(match);
   });
   els.removeVisibleWord.addEventListener("click", () => {
     const key = state.activeWordKey;

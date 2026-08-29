@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   color-scheme: light;
   --ink: #17211d;
   --muted: #52645c;
@@ -4342,4 +4342,17 @@ footer .legal-footer a,
   color: var(--ink);
   font: inherit;
   line-height: 1.45;
+}
+.topbar nav a.is-active,
+.topbar nav a[aria-current="page"] {
+  color: var(--accent-dark);
+  border-bottom-color: var(--accent);
+  font-weight: 800;
+}
+
+.app-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
