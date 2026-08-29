@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
   "use strict";
 
   const TARGET_COUNT = 304805;
@@ -2004,7 +2004,10 @@
     }
     const chips = [];
     const grouped = new Map();
+    const visible = visiblePositionSet(result);
     result.matches.forEach((match) => {
+      const positions = positionsForMatch(match).filter((pos) => Number.isFinite(pos));
+      if (!positions.length || (visible.size && !positions.every((pos) => visible.has(pos)))) return;
       const key = matchKey(match);
       const existing = grouped.get(key);
       const skip = Math.abs(match.skip || 1);

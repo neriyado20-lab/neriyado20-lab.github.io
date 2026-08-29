@@ -1,8 +1,8 @@
 {
-  "notes": "עדכון גל עיני V562: חלון בחירת צבעים מציג את צבעי הרקע, הגופן והמסגרת לפי המצב הנוכחי בפועל; שדה הרחבת הדילוג הותאם לשדה מספרי כמו מינימום משניות, ברירת המחדל 1, וללא כפתור הרחב נפרד.",
+  "notes": "עדכון גל עיני V563: המילים העליונות בתוכנה ובאתר מוצגות רק כאשר כל אותיות המילה נמצאות בתחום התצוגה הנוכחי בשלמותן.",
   "mandatory": false,
-  "version": "V562",
-  "sha256": "E73D97A948B4F9341BACFDBB9144FACBCE7568B9EE314091450F29893D210EF2",
-  "size": 17773002,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V562_portable.zip"
+  "version": "V563",
+  "sha256": "677F172B532AD4AA3AB600648F10A8EDE1039128AF483B09C1E78559D9D8E8CD",
+  "size": 17772278,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V563_portable.zip"
 }
