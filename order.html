@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8">
@@ -12,7 +12,7 @@
   <meta property="og:description" content="פנייה לחיפוש צופן חדש לפי נושא, מילים ושאלה מנחה. התיאום מתבצע בצור קשר עד שתהיה סליקה מסודרת.">
   <meta property="og:url" content="https://neriyado20-lab.github.io/order.html">
   <meta name="twitter:card" content="summary">
-  <link rel="stylesheet" href="styles.css?v=130">
+  <link rel="stylesheet" href="styles.css?v=131">
 </head>
 <body class="order-page">
   <header class="topbar">
@@ -54,22 +54,12 @@
       </p>
     </section>
 
-    <section class="order-plans" aria-label="מסלולי חיפוש אישי">
-      <button class="order-plan selected" type="button" data-order-plan="basic">
-        <span>חיפוש בסיסי</span>
+    <section class="order-plans single-order-plan" aria-label="פנייה מרוכזת לצופן">
+      <article class="order-plan selected">
+        <span>פנייה מרוכזת</span>
         <strong>דרך צור קשר</strong>
-        <small>נושא אחד, לפחות 10 מילים חשובות, צילום צופן מסודר.</small>
-      </button>
-      <button class="order-plan" type="button" data-order-plan="expanded">
-        <span>חיפוש מורחב</span>
-        <strong>דרך צור קשר</strong>
-        <small>נושא אחד, עד 20 מילים, כמה ניסיונות ודוח קצר.</small>
-      </button>
-      <button class="order-plan" type="button" data-order-plan="print">
-        <span>צופן להדפסה</span>
-        <strong>דרך צור קשר</strong>
-        <small>בדיקה מורחבת עם הכנה מסודרת לתמונה/הדפסה.</small>
-      </button>
+        <small>כותבים את הנושא, המילים והשאלה המנחה; התיאום והמשך העבודה נעשים במענה אישי בצור קשר.</small>
+      </article>
     </section>
 
     <form id="cipherOrderForm" class="order-form">
@@ -86,7 +76,7 @@
       </label>
       <label>
         <span>מילים או ביטויים שחשובים לך</span>
-        <textarea id="orderWords" name="words" rows="4" required placeholder="לפחות 10 מילים חשובות בנושא, עדיף כל מילה בשורה נפרדת"></textarea>
+        <textarea id="orderWords" name="words" rows="4" required placeholder="לפחות 6 מילים חשובות, כל אחת מ־4 אותיות ומעלה בנושא, עדיף כל מילה בשורה נפרדת"></textarea>
       </label>
       <label>
         <span>שאלה מנחה</span>
@@ -118,6 +108,6 @@
   <script src="supabase-public.js?v=2"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=9"></script>
-  <script src="order.js?v=4"></script>
+  <script src="order.js?v=5"></script>
 </body>
 </html>

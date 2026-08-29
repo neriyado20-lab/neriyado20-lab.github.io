@@ -1,11 +1,7 @@
 (() => {
   const STORAGE_KEY = "gal-einai-site-interactions-v1";
-  const PLANS = {
-    basic: { name: "חיפוש בסיסי", minWords: 10 },
-    expanded: { name: "חיפוש מורחב", minWords: 10 },
-    print: { name: "צופן להדפסה", minWords: 10 },
-  };
-  let selectedPlan = "basic";
+  const MIN_WORDS = 6;
+  const MIN_WORD_LENGTH = 4;
 
   function $(id) {
     return document.getElementById(id);
@@ -29,20 +25,11 @@
     }
   }
 
-  function setPlan(plan) {
-    selectedPlan = PLANS[plan] ? plan : "basic";
-    document.querySelectorAll("[data-order-plan]").forEach((button) => {
-      button.classList.toggle("selected", button.dataset.orderPlan === selectedPlan);
-    });
-  }
-
   function buildSummary(data) {
-    const plan = PLANS[selectedPlan];
     return [
       "פנייה לחיפוש צופן - גל עיני",
       "",
       `סוג בקשה: ${data.kind === "existing-review" ? "עיון בצופן קיים" : "פנייה לחיפוש צופן חדש"}`,
-      `מסלול מבוקש: ${plan.name}`,
       `נושא: ${data.topic}`,
       "",
       "מילים / ביטויים:",
@@ -57,21 +44,16 @@
     ].filter(Boolean).join("\n");
   }
 
-  function countImportantWords(text) {
+  function importantWords(text) {
     return text
-      .split(/[\n,;]+/)
+      .split(/[\n,;\s]+/)
       .map((word) => word.trim())
-      .filter(Boolean).length;
+      .filter((word) => word.length >= MIN_WORD_LENGTH);
   }
-
-  document.querySelectorAll("[data-order-plan]").forEach((button) => {
-    button.addEventListener("click", () => setPlan(button.dataset.orderPlan));
-  });
 
   $("cipherOrderForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = {
-      plan: selectedPlan,
       kind: $("orderKind").value,
       topic: $("orderTopic").value.trim(),
       words: $("orderWords").value.trim(),
@@ -81,10 +63,9 @@
       at: new Date().toISOString(),
     };
     if (!data.topic || !data.question || !data.contact) return;
-    const plan = PLANS[selectedPlan];
-    const wordCount = countImportantWords(data.words);
-    if (wordCount < plan.minWords) {
-      $("orderStatus").textContent = `נא לכתוב לפחות ${plan.minWords} מילים או ביטויים חשובים בנושא. כרגע הוזנו ${wordCount}.`;
+    const wordCount = importantWords(data.words).length;
+    if (wordCount < MIN_WORDS) {
+      $("orderStatus").textContent = `נא לכתוב לפחות ${MIN_WORDS} מילים בנות ${MIN_WORD_LENGTH} אותיות ומעלה. כרגע נמצאו ${wordCount}.`;
       $("orderWords").focus();
       return;
     }
@@ -113,6 +94,4 @@
       $("orderStatus").textContent = "אפשר להעתיק ידנית מהתיבה.";
     }
   });
-
-  setPlan(selectedPlan);
 })();
