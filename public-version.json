@@ -1,8 +1,8 @@
 {
-  "notes": "עדכון גל עיני V560: כפתור החיפוש הופך לעצירה בזמן חיפוש, מינימום משניות מסנן את טבלת הצפנים מיד, +מילים מזהה במסך לפי הדילוגים הנראים, ובאתר תפריט אחיד עם סימון הדף הפעיל ותצוגת צופן ממורכזת עם תנועה לכל כיוון.",
+  "notes": "עדכון גל עיני V562: חלון בחירת צבעים מציג את צבעי הרקע, הגופן והמסגרת לפי המצב הנוכחי בפועל; שדה הרחבת הדילוג הותאם לשדה מספרי כמו מינימום משניות, ברירת המחדל 1, וללא כפתור הרחב נפרד.",
   "mandatory": false,
-  "version": "V560",
-  "sha256": "E5B7425A6F253B46CDCA70260A2B5B9FDE4A81B6E0BA6AAF01789F1EADDEAC5C",
-  "size": 17770092,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V560_portable.zip"
+  "version": "V562",
+  "sha256": "E73D97A948B4F9341BACFDBB9144FACBCE7568B9EE314091450F29893D210EF2",
+  "size": 17773002,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V562_portable.zip"
 }
