@@ -38,6 +38,7 @@
     verses: [],
     index: new Map(),
     results: [],
+    allResults: [],
     current: 0,
     resultSort: "",
     stop: false,
@@ -79,6 +80,7 @@
     skipTo: $("skipToInput"),
     resetRange: $("resetRangeButton"),
     minSecondary: $("minSecondaryInput"),
+    expandedSkipRadius: $("expandedSkipRadiusInput"),
     search: $("searchButton"),
     secondaryScan: $("secondaryScanButton"),
     allSkipScan: $("allSkipScanButton"),
@@ -198,6 +200,7 @@
       ["skipFrom", els.skipFrom],
       ["skipTo", els.skipTo],
       ["minSecondary", els.minSecondary],
+      ["expandedSkipRadius", els.expandedSkipRadius],
     ];
     fields.forEach(([key, input]) => {
       const value = params.get(key);
@@ -494,7 +497,7 @@
     const includeResultKey = (key) => !savedKeys || savedResultKeys.has(key);
     return {
       format: "gal_einai_web",
-      version: "W052",
+      version: "W055",
       saved_at: new Date().toISOString(),
       save_scope: options.scope || "full_search",
       primary: els.primary.value.trim(),
@@ -502,6 +505,7 @@
       skip_from: Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM,
       skip_to: Number.parseInt(els.skipTo.value || String(DEFAULT_SKIP_TO), 10) || DEFAULT_SKIP_TO,
       min_secondary: Number.parseInt(els.minSecondary.value || "0", 10) || 0,
+      expanded_skip_radius: selectedExpandedSkipRadius(),
       current: Math.max(0, Math.min(currentIndex, Math.max(0, selectedResults.length - 1))),
       manual_color_overrides: Object.fromEntries(Object.entries(state.colorOverrides).filter(([key]) => includeWordKey(key))),
       manual_removed_words: Array.from(state.removedWordKeys).filter(includeWordKey),
@@ -790,7 +794,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W052",
+      version: "W055",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1269,10 +1273,12 @@
     return { rows, cols, grid: positions, set: positionSet, center: centerPosition };
   }
 
-  function limitedWindowSkips(windowInfo) {
+  function limitedWindowSkips(windowInfo, radius = 1) {
     const primarySkip = Math.max(1, Math.abs(currentPrimarySkip(windowInfo)));
-    const absoluteSkips = Array.from(new Set([1, primarySkip, primarySkip + 1, primarySkip - 1]
-      .filter((skip) => skip > 0)));
+    const safeRadius = Math.max(1, Math.min(5, Number.parseInt(radius || "1", 10) || 1));
+    const straight = Array.from({ length: safeRadius }, (_item, index) => index + 1);
+    const diagonal = Array.from({ length: safeRadius * 2 + 1 }, (_item, index) => primarySkip - safeRadius + index);
+    const absoluteSkips = Array.from(new Set([...straight, ...diagonal].filter((skip) => skip > 0)));
     return absoluteSkips.flatMap((skip) => (skip === 1 ? [1, -1] : [skip, -skip]));
   }
 
@@ -1291,8 +1297,9 @@
     return skips;
   }
 
-  function findInWindow(word, windowInfo, { allSkips = false } = {}) {
-    const skips = allSkips ? allWindowSkips(word, windowInfo) : limitedWindowSkips(windowInfo);
+  function findInWindow(word, windowInfo, { allSkips = false, expandedRadius = 0 } = {}) {
+    const radius = expandedRadius || 1;
+    const skips = allSkips ? allWindowSkips(word, windowInfo) : limitedWindowSkips(windowInfo, radius);
     const found = [];
     const normalized = normalizeWord(word);
     for (const pos of windowInfo.set) {
@@ -1414,6 +1421,7 @@
     els.skipFrom.value = data.skip_from ?? DEFAULT_SKIP_FROM;
     els.skipTo.value = data.skip_to ?? DEFAULT_SKIP_TO;
     els.minSecondary.value = data.min_secondary ?? els.minSecondary.value;
+    if (els.expandedSkipRadius) els.expandedSkipRadius.value = String(Math.max(1, Math.min(5, Number.parseInt(data.expanded_skip_radius || "1", 10) || 1)));
     state.colorOverrides = data.manual_color_overrides && typeof data.manual_color_overrides === "object" && !Array.isArray(data.manual_color_overrides)
       ? { ...data.manual_color_overrides }
       : {};
@@ -1422,7 +1430,8 @@
     state.hiddenDisplayResults = new Set(Array.isArray(data.manual_hidden_display_results) ? data.manual_hidden_display_results.map(String) : []);
     state.hiddenMarksTableResults = new Set(Array.isArray(data.manual_hidden_marks_table_results) ? data.manual_hidden_marks_table_results.map(String) : []);
     const saved = Array.isArray(data.saved) ? data.saved : [];
-    state.results = saved.map(resultFromSavedItem).filter(Boolean).slice(0, PRO_MAX_RESULTS);
+    state.allResults = saved.map(resultFromSavedItem).filter(Boolean).slice(0, PRO_MAX_RESULTS);
+    state.results = state.allResults.slice();
     state.current = Math.max(0, Math.min(Number.parseInt(data.current, 10) || 0, Math.max(0, state.results.length - 1)));
     const loadedPrimaryWords = splitWords(els.primary.value);
     const loadedFrom = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM));
@@ -1431,6 +1440,7 @@
       ? { key: primaryCacheKey(loadedPrimaryWords, loadedFrom, loadedTo), matches: state.results.map((result) => result.primary), complete: true }
       : null;
     state.primaryResume = null;
+    applyMinimumSecondaryFilter({ announce: false });
     renderResults();
     renderCurrent();
     saveDraft();
@@ -1461,7 +1471,7 @@
     return JSON.stringify({ primaryWords, from, to });
   }
 
-  async function search(event, { cacheOnly = false, allSkips = false } = {}) {
+  async function search(event, { cacheOnly = false, allSkips = false, expandedRadius = 0 } = {}) {
     if (event) event.preventDefault();
     if (!state.torah) return;
     const primaryWords = splitWords(els.primary.value);
@@ -1510,6 +1520,7 @@
     state.suppressedFloodWords.clear();
     setBusy(true);
     state.results = [];
+    state.allResults = [];
     state.current = 0;
     renderResults();
     renderEmptyGrid(cacheOnly ? (allSkips ? "סורק משניות בכל הדילוגים..." : "סורק משניות בארבעת הדילוגים...") : "מחפש...");
@@ -1567,7 +1578,6 @@
         if (state.stop) break;
         const primaryMatch = primaries[i];
         const activeSecondaries = secondaries.filter((item) => item.word !== primaryMatch.word);
-        const minRequired = requiredCount(activeSecondaries);
         const requiredWords = activeSecondaries.filter((item) => item.required).map((item) => item.word);
         const tableWindowInfo = positionsForPrimary(primaryMatch);
         const windowInfo = positionsForPrimary(primaryMatch, { extraRows: SEARCH_EXTRA_ROWS, extraCols: SEARCH_EXTRA_COLS });
@@ -1577,7 +1587,7 @@
         const foundWords = new Set();
         const tableWords = new Set();
         for (const secondary of activeSecondaries) {
-          const matches = findInWindow(secondary.word, windowInfo, { allSkips });
+          const matches = findInWindow(secondary.word, windowInfo, { allSkips, expandedRadius });
           if (matchGroupIsFlood(matches, windowInfo)) {
             state.suppressedFloodWords.add(secondary.word);
             continue;
@@ -1589,7 +1599,7 @@
           local.push(...matches);
         }
         const hasRequired = requiredWords.every((word) => foundWords.has(word));
-        if (foundWords.size >= minRequired && hasRequired) {
+        if (hasRequired) {
           const result = applyManualOverridesToResult({
             primary: primaryMatch,
             matches: dedupeMatches(local),
@@ -1599,15 +1609,16 @@
             windowInfo,
             tableWindowInfo,
           });
-          if ((result.searchSecondaryCount || result.secondaryCount) >= minRequired) state.results.push(result);
+          state.allResults.push(result);
         }
         if (i % 5 === 0) {
-          setStatus(`בודק משניות ${i + 1}/${primaries.length} | נשמרו ${state.results.length}`, 60 + Math.floor(((i + 1) / total) * 40));
+          setStatus(`בודק משניות ${i + 1}/${primaries.length} | נמצאו ${state.allResults.length}`, 60 + Math.floor(((i + 1) / total) * 40));
           await nextFrame();
         }
-        if (state.results.length >= resultLimit) break;
+        if (state.allResults.length >= resultLimit) break;
       }
-      state.results.sort((a, b) => b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
+      state.allResults.sort((a, b) => b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
+      applyMinimumSecondaryFilter({ announce: false });
       state.resultSort = "";
       const limitNotice = state.results.length >= resultLimit ? ` | הוצגו עד ${resultLimit}` : "";
       const suppressedNotice = state.suppressedFloodWords.size
@@ -1627,6 +1638,40 @@
 
   function nextFrame() {
     return new Promise((resolve) => requestAnimationFrame(resolve));
+  }
+
+  function applyMinimumSecondaryFilter({ announce = true } = {}) {
+    const source = state.allResults.length ? state.allResults : state.results;
+    const minimum = Math.max(0, Number.parseInt(els.minSecondary.value || "0", 10) || 0);
+    const currentKey = state.results[state.current] ? resultKey(state.results[state.current]) : "";
+    state.results = source.filter((result) => (result.searchSecondaryCount ?? secondaryCountForResult(result)) >= minimum);
+    state.current = currentKey ? Math.max(0, state.results.findIndex((result) => resultKey(result) === currentKey)) : 0;
+    if (announce) {
+      const hidden = Math.max(0, source.length - state.results.length);
+      setStatus(hidden ? `מוצגים ${state.results.length} מתוך ${source.length} צפנים; סוננו ${hidden} שאינם עומדים במינימום ${minimum}` : `כל ${state.results.length} הצפנים עומדים במינימום ${minimum}`, 100);
+      renderResults();
+      renderCurrent();
+      saveDraft();
+    }
+  }
+
+  function selectedExpandedSkipRadius() {
+    return Math.max(1, Math.min(5, Number.parseInt(els.expandedSkipRadius?.value || "1", 10) || 1));
+  }
+
+  let expandedSkipTimer = 0;
+  function runExpandedSkipScan() {
+    if (!els.expandedSkipRadius) return;
+    const radius = selectedExpandedSkipRadius();
+    els.expandedSkipRadius.value = String(radius);
+    window.clearTimeout(expandedSkipTimer);
+    expandedSkipTimer = window.setTimeout(() => {
+      if (!state.primaryCache?.matches?.length || state.searching) {
+        setStatus(`הרחבת דילוג ${radius} נשמרה; היא תופעל לאחר מציאת ראשיות`, els.progress.value);
+        return;
+      }
+      search(null, { cacheOnly: true, expandedRadius: radius });
+    }, 350);
   }
 
   function renderResults() {
@@ -1706,20 +1751,25 @@
 
   function sortResultsBy(sortKey) {
     const currentPrimary = state.results[state.current]?.primary;
+    let compare;
     if (sortKey === "secondary") {
-      state.results.sort((a, b) => (
+      compare = (a, b) => (
         secondaryCountForResult(b) - secondaryCountForResult(a)
         || Math.abs(a.primary.skip) - Math.abs(b.primary.skip)
         || (a.primary.start || 0) - (b.primary.start || 0)
-      ));
+      );
+      state.results.sort(compare);
       state.current = 0;
     } else if (sortKey === "skip") {
-      state.results.sort((a, b) => Math.abs(a.primary.skip) - Math.abs(b.primary.skip) || secondaryCountForResult(b) - secondaryCountForResult(a));
+      compare = (a, b) => Math.abs(a.primary.skip) - Math.abs(b.primary.skip) || secondaryCountForResult(b) - secondaryCountForResult(a);
+      state.results.sort(compare);
     } else if (sortKey === "quality") {
-      state.results.sort((a, b) => qualityScore(b) - qualityScore(a) || secondaryCountForResult(b) - secondaryCountForResult(a) || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
+      compare = (a, b) => qualityScore(b) - qualityScore(a) || secondaryCountForResult(b) - secondaryCountForResult(a) || Math.abs(a.primary.skip) - Math.abs(b.primary.skip);
+      state.results.sort(compare);
     } else {
       return;
     }
+    if (state.allResults !== state.results) state.allResults.sort(compare);
     if (currentPrimary && sortKey !== "secondary") {
       const nextIndex = state.results.findIndex((item) => item.primary.start === currentPrimary.start && item.primary.skip === currentPrimary.skip && item.primary.word === currentPrimary.word);
       state.current = nextIndex >= 0 ? nextIndex : 0;
@@ -2347,6 +2397,7 @@
   function clearAll() {
     els.primary.value = "";
     els.secondary.value = "";
+    state.allResults = [];
     state.results = [];
     state.current = 0;
     state.primaryCache = null;
@@ -2508,6 +2559,9 @@
   els.form.addEventListener("submit", (event) => search(event));
   els.secondaryScan.addEventListener("click", () => search(null, { cacheOnly: true }));
   els.allSkipScan?.addEventListener("click", () => search(null, { cacheOnly: true, allSkips: true }));
+  els.minSecondary.addEventListener("change", () => applyMinimumSecondaryFilter());
+  els.minSecondary.addEventListener("input", () => applyMinimumSecondaryFilter());
+  els.expandedSkipRadius?.addEventListener("change", runExpandedSkipScan);
   els.resetRange.addEventListener("click", resetSkipRange);
   els.stop.addEventListener("click", () => {
     state.stop = true;

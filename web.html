@@ -48,9 +48,9 @@
     <button id="avotNextButton" type="button" title="משנה הבאה" aria-label="משנה הבאה">‹</button>
   </section>
 
-  <main class="web-shell desktop-like" data-app-version="W054">
+  <main class="web-shell desktop-like" data-app-version="W055">
     <section class="app-command-bar" aria-label="סרגל מצב">
-      <div class="app-version">גל עיני Web W054</div>
+      <div class="app-version">גל עיני Web W055 | תואם V563</div>
       <div id="editionBadge" class="edition-badge">מקצועית | בטא פתוחה</div>
       <div class="app-current-skip">טבלה בדילוג</div>
       <div class="app-blessing">בסיעתא דשמיא</div>
@@ -82,6 +82,10 @@
         <label>
           <span>מינ' משניות</span>
           <input id="minSecondaryInput" name="minSecondary" type="number" value="1" min="0" max="20">
+        </label>
+        <label class="expanded-skip-field pro-only">
+          <span>הרחבת דילוג</span>
+          <input id="expandedSkipRadiusInput" name="expandedSkipRadius" type="number" value="1" min="1" max="5" title="סריקת משניות בדילוגים N±הערך וגם בדילוגים ישרים 1 עד הערך">
         </label>
         <div class="search-actions">
           <button id="searchButton" class="button primary" type="submit">חפש</button>
@@ -263,6 +267,7 @@
         <ul>
           <li>לחיצה על שורה מציגה את הצופן. החצים ◀ ▶ עוברים ממצא אחד בכל פעם.</li>
           <li>הממצאים מדורגים לפי מספר המשניות ולאחר מכן לפי גודל הדילוג.</li>
+          <li>שינוי <b>מינימום משניות</b> מסנן מיד את הטבלה הקיימת בלי להריץ מחדש את חיפוש הראשיות.</li>
           <li class="pro-help"><b>ייצוא</b> מוריד CSV ל־Excel או מעתיק דוח טקסט.</li>
         </ul>
       </section>
@@ -332,6 +337,6 @@
   <script src="supabase-public.js?v=2"></script>
   <script src="hebrew-date.js?v=2"></script>
   <script src="site-interactions.js?v=9"></script>
-  <script src="web-app.js?v=66"></script>
+  <script src="web-app.js?v=67"></script>
 </body>
 </html>
