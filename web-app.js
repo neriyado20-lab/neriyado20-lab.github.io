@@ -27,7 +27,7 @@
   const WEB_DOWNLOADS_ENABLED = true;
   const DEFAULT_SKIP_FROM = 0;
   const DEFAULT_SKIP_TO = 800;
-  const MAX_AUTO_MATCHES_PER_WORD = 24;
+  const MAX_AUTO_MATCHES_PER_WORD = 1200;
   const MAX_AUTO_MARKED_CELL_RATIO = 0.22;
   const pageParams = new URLSearchParams(window.location.search);
   const edition = "pro";
@@ -69,6 +69,7 @@
     avotX: 0,
     avotLastFrame: 0,
     avotGroups: [],
+    liveSkipTimer: 0,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -78,6 +79,7 @@
     secondary: $("secondaryInput"),
     skipFrom: $("skipFromInput"),
     skipTo: $("skipToInput"),
+    liveSkip: $("liveSkipInput"),
     resetRange: $("resetRangeButton"),
     minSecondary: $("minSecondaryInput"),
     expandedSkipRadius: $("expandedSkipRadiusInput"),
@@ -497,13 +499,14 @@
     const includeResultKey = (key) => !savedKeys || savedResultKeys.has(key);
     return {
       format: "gal_einai_web",
-      version: "W055",
+      version: "W056",
       saved_at: new Date().toISOString(),
       save_scope: options.scope || "full_search",
       primary: els.primary.value.trim(),
       secondary: els.secondary.value.trim(),
       skip_from: Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM,
       skip_to: Number.parseInt(els.skipTo.value || String(DEFAULT_SKIP_TO), 10) || DEFAULT_SKIP_TO,
+      live_skip: state.results[state.current]?.displaySkip || Math.abs(state.results[state.current]?.primary?.skip || 1),
       min_secondary: Number.parseInt(els.minSecondary.value || "0", 10) || 0,
       expanded_skip_radius: selectedExpandedSkipRadius(),
       current: Math.max(0, Math.min(currentIndex, Math.max(0, selectedResults.length - 1))),
@@ -794,7 +797,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W055",
+      version: "W056",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1254,7 +1257,8 @@
     const extraCols = Number.parseInt(options.extraCols || "0", 10) || 0;
     const primaryPositions = positionsForMatch(primary).filter((pos) => Number.isFinite(pos));
     const centerPosition = primaryPositions.length ? primaryPositions[Math.floor((primaryPositions.length - 1) / 2)] : primary.start;
-    const cols = Math.min(320, Math.max(120, skipAbs + DEFAULT_EXTRA_COLS + extraCols + 40));
+    const visibleEstimate = Math.max(36, Math.ceil((window.innerWidth || 1280) / 22) + DEFAULT_EXTRA_COLS + extraCols);
+    const cols = Math.min(180, Math.max(36, Math.min(skipAbs, visibleEstimate)));
     const rows = DEFAULT_ROWS + extraRows + 18;
     const centerCol = Math.floor(cols / 2);
     const centerRow = Math.floor(rows / 2);
@@ -1270,7 +1274,7 @@
       }
       positions.push(row);
     }
-    return { rows, cols, grid: positions, set: positionSet, center: centerPosition };
+    return { rows, cols, logicalCols: skipAbs, grid: positions, set: positionSet, center: centerPosition };
   }
 
   function limitedWindowSkips(windowInfo, radius = 1) {
@@ -1433,6 +1437,9 @@
     state.allResults = saved.map(resultFromSavedItem).filter(Boolean).slice(0, PRO_MAX_RESULTS);
     state.results = state.allResults.slice();
     state.current = Math.max(0, Math.min(Number.parseInt(data.current, 10) || 0, Math.max(0, state.results.length - 1)));
+    const loadedLiveSkip = Math.abs(Number.parseInt(data.live_skip || "0", 10) || 0);
+    if (state.results[state.current] && loadedLiveSkip) applyDisplaySkipToResult(state.results[state.current], loadedLiveSkip);
+    if (els.liveSkip && state.results[state.current]) els.liveSkip.value = String(displaySkipForResult(state.results[state.current]));
     const loadedPrimaryWords = splitWords(els.primary.value);
     const loadedFrom = Math.max(1, Math.abs(Number.parseInt(els.skipFrom.value || String(DEFAULT_SKIP_FROM), 10) || DEFAULT_SKIP_FROM));
     const loadedTo = Math.max(loadedFrom, Math.abs(Number.parseInt(els.skipTo.value || String(loadedFrom), 10) || loadedFrom));
@@ -1783,6 +1790,29 @@
     setStatus(`טבלת הממצאים מוינה לפי ${sortKey === "secondary" ? "משניות" : sortKey === "skip" ? "דילוג" : "איכות"}`, els.progress.value);
   }
 
+  function displaySkipForResult(result) {
+    return Math.max(1, Math.abs(Number.parseInt(result?.displaySkip || result?.primary?.skip || "1", 10) || 1));
+  }
+
+  function applyDisplaySkipToResult(result, requestedSkip) {
+    if (!result?.primary) return;
+    const displaySkip = Math.max(1, Math.min(TARGET_COUNT, Math.abs(Number.parseInt(requestedSkip || "1", 10) || 1)));
+    result.displaySkip = displaySkip;
+    const displayPrimary = { ...result.primary, skip: result.primary.skip < 0 ? -displaySkip : displaySkip, positions: null };
+    result.windowInfo = positionsForPrimary(displayPrimary);
+    result.windowInfo.primarySkip = displayPrimary.skip;
+  }
+
+  function applyLiveSkip({ announce = true } = {}) {
+    const current = state.results[state.current];
+    if (!current || !els.liveSkip) return;
+    applyDisplaySkipToResult(current, els.liveSkip.value);
+    els.liveSkip.value = String(displaySkipForResult(current));
+    renderCurrent();
+    saveDraft();
+    if (announce) setStatus(`דילוג התצוגה עודכן ל־${displaySkipForResult(current).toLocaleString("he-IL")}`, 100);
+  }
+
   function renderCurrent() {
     const current = state.results[state.current];
     if (!current) {
@@ -1790,7 +1820,9 @@
       return;
     }
     const spp = sppAt(current.primary.start);
-    els.title.textContent = `טבלה בדילוג ${Math.abs(current.primary.skip)}${spp ? ` | ${spp}` : ""} | ממצא ${state.current + 1}/${state.results.length}`;
+    const displayedSkip = displaySkipForResult(current);
+    if (els.liveSkip) els.liveSkip.value = String(displayedSkip);
+    els.title.textContent = `טבלה בדילוג ${displayedSkip}${spp ? ` | ${spp}` : ""} | ממצא ${state.current + 1}/${state.results.length}`;
     renderTopWords(current);
     renderGrid(current);
   }
@@ -2559,6 +2591,14 @@
   els.form.addEventListener("submit", (event) => search(event));
   els.secondaryScan.addEventListener("click", () => search(null, { cacheOnly: true }));
   els.allSkipScan?.addEventListener("click", () => search(null, { cacheOnly: true, allSkips: true }));
+  els.liveSkip?.addEventListener("input", () => {
+    window.clearTimeout(state.liveSkipTimer);
+    state.liveSkipTimer = window.setTimeout(() => applyLiveSkip({ announce: false }), 250);
+  });
+  els.liveSkip?.addEventListener("change", () => applyLiveSkip());
+  els.liveSkip?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") { event.preventDefault(); applyLiveSkip(); }
+  });
   els.minSecondary.addEventListener("change", () => applyMinimumSecondaryFilter());
   els.minSecondary.addEventListener("input", () => applyMinimumSecondaryFilter());
   els.expandedSkipRadius?.addEventListener("change", runExpandedSkipScan);
