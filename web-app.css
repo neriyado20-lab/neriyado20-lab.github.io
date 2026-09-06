@@ -1348,3 +1348,7 @@ body[data-edition="free"] .help-body .pro-help {
     -webkit-print-color-adjust: exact;
   }
 }
+
+/* W056: desktop-compatible live skip control. */
+.app-current-skip { display: inline-flex; align-items: center; gap: .35rem; white-space: nowrap; }
+.app-current-skip input { width: 7.5ch; min-width: 7.5ch; padding: .25rem .4rem; border: 1px solid #8ea0b5; border-radius: 6px; font: inherit; text-align: center; background: #fff; }
