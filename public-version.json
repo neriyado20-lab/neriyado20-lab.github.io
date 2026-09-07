@@ -1,8 +1,8 @@
 {
-  "notes": "גל עיני V571: חבילת Windows מלאה הכוללת את קובצי התורה ותיקון להדפסה ישירה לאחר אישור אחד.",
+  "notes": "גל עיני V572: פרקי אבות המלאים חזרו, והשורה הנעה ממשיכה לפעול בזמן חיפוש וסריקה.",
   "mandatory": false,
-  "version": "V571",
-  "sha256": "448B0C85031ADF2786E227B065F72D95B3A4E74106A30784B3065EB8173C503C",
-  "size": 18678747,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V571_clean_portable.zip"
+  "version": "V572",
+  "sha256": "AA0CB93F65A1265B0630358AB5604C6A324C8A89B0AF44D46FA3CC2D4AE55C7B",
+  "size": 18678727,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V572_clean_portable.zip"
 }
