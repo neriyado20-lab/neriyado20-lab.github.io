@@ -1,8 +1,8 @@
 {
-  "notes": "גל עיני V572: פרקי אבות המלאים חזרו, והשורה הנעה ממשיכה לפעול בזמן חיפוש וסריקה.",
+  "notes": "גל עיני V573: במצב טקסט הדילוג נשאר ריק, ודילוג מוצג רק עבור טבלת צופן אמיתית.",
   "mandatory": false,
-  "version": "V572",
-  "sha256": "AA0CB93F65A1265B0630358AB5604C6A324C8A89B0AF44D46FA3CC2D4AE55C7B",
-  "size": 18678727,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V572_clean_portable.zip"
+  "version": "V573",
+  "sha256": "C4E80AA88D21B74FA7E8443B97DFC96AA02AA81597D4C1EFE463B129A6032528",
+  "size": 18678492,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V573_clean_portable.zip"
 }
