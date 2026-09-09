@@ -95,6 +95,9 @@
     history: $("historyButton"),
     export: $("exportButton"),
     saveImage: $("saveImageButton"),
+    quickDownloadCipher: $("quickDownloadCipherButton"),
+    quickDownloadImage: $("quickDownloadImageButton"),
+    shareCipher: $("shareCipherButton"),
     print: $("printButton"),
     projectFile: $("projectFileInput"),
     progress: $("searchProgress"),
@@ -183,8 +186,10 @@
     const nextParams = new URLSearchParams(window.location.search);
     nextParams.delete("edition");
     els.editionBadge.textContent = "שימוש מלא באתר | הורדות פתוחות";
-    els.editionSwitch.textContent = "הורדת תוכנת גל עיני ל-Windows";
-    els.editionSwitch.href = "index.html#download";
+    if (els.editionSwitch) {
+      els.editionSwitch.textContent = "הורדת תוכנת גל עיני ל-Windows";
+      els.editionSwitch.href = "index.html#download";
+    }
     const maxSkip = PRO_MAX_SKIP;
     const maxSecondaries = PRO_MAX_SECONDARIES;
     els.skipFrom.max = String(maxSkip);
@@ -499,7 +504,7 @@
     const includeResultKey = (key) => !savedKeys || savedResultKeys.has(key);
     return {
       format: "gal_einai_web",
-      version: "W056",
+      version: "W057",
       saved_at: new Date().toISOString(),
       save_scope: options.scope || "full_search",
       primary: els.primary.value.trim(),
@@ -592,6 +597,58 @@
     downloadProject(data, `${current.primary.word || data.primary || "צופן"} - צופן נוכחי`);
     saveDraft();
     setStatus(`הצופן הנוכחי נשמר | ממצא ${state.current + 1}/${state.results.length}`, 100);
+  }
+
+  function currentShareUrl() {
+    const url = new URL(window.location.href);
+    url.search = "";
+    const current = state.results[state.current];
+    const data = projectData({ scope: "current_cipher", results: current ? [current] : [], current: 0 });
+    if (data.primary) url.searchParams.set("primary", data.primary);
+    if (data.secondary) url.searchParams.set("secondary", data.secondary);
+    url.searchParams.set("skipFrom", String(data.skip_from ?? els.skipFrom.value));
+    url.searchParams.set("skipTo", String(data.skip_to ?? els.skipTo.value));
+    url.searchParams.set("minSecondary", String(data.min_secondary ?? els.minSecondary.value));
+    return url.toString();
+  }
+
+  async function shareCurrentCipher() {
+    const current = state.results[state.current];
+    if (!current) {
+      setStatus("אין צופן לשיתוף. יש לבחור ממצא מטבלת הממצאים.", 0);
+      return;
+    }
+    const data = projectData({ scope: "current_cipher", results: [current], current: 0 });
+    const name = `${safeFileName(current.primary.word || data.primary || "צופן")} - גל עיני`;
+    const file = new File(
+      [JSON.stringify(data, null, 2)],
+      `${name}.gal_einai.json`,
+      { type: "application/json" }
+    );
+    try {
+      if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
+        await navigator.share({ title: name, text: "צופן שנוצר בגל עיני", files: [file] });
+        setStatus("הצופן שותף בהצלחה", 100);
+        return;
+      }
+      const url = currentShareUrl();
+      if (navigator.share) {
+        await navigator.share({ title: name, text: "צופן שנוצר בגל עיני", url });
+        setStatus("קישור הצופן שותף בהצלחה", 100);
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setStatus("קישור לצופן הועתק. אפשר להדביק אותו בהודעה.", 100);
+    } catch (error) {
+      if (error && error.name === "AbortError") return;
+      try {
+        await navigator.clipboard.writeText(currentShareUrl());
+        setStatus("קישור לצופן הועתק. אפשר להדביק אותו בהודעה.", 100);
+      } catch {
+        downloadProject(data, name);
+        setStatus("השיתוף אינו זמין בדפדפן זה; קובץ הצופן הורד לשיתוף ידני.", 100);
+      }
+    }
   }
 
   function readLibrary() {
@@ -797,7 +854,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W056",
+      version: "W057",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -2670,6 +2727,9 @@
   });
   els.print.addEventListener("click", printCurrent);
   els.saveImage.addEventListener("click", saveCurrentImage);
+  els.quickDownloadCipher.addEventListener("click", saveCurrentProjectFile);
+  els.quickDownloadImage.addEventListener("click", saveCurrentImage);
+  els.shareCipher.addEventListener("click", shareCurrentCipher);
   els.toggleDisplayControls.addEventListener("click", toggleDisplayControls);
   els.toggleTopWords.addEventListener("click", toggleTopWords);
   els.showTopWords.addEventListener("change", () => {
