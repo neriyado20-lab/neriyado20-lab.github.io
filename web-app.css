@@ -389,6 +389,51 @@ body[data-edition="free"] .search-actions {
   color: #1f5b35;
 }
 
+.cipher-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-inline-start: auto;
+}
+
+.cipher-action-button {
+  min-height: 36px;
+  padding: 7px 13px;
+  border: 1px solid #8aa99a;
+  border-radius: 9px;
+  background: #fff;
+  color: #24483a;
+  font: 800 14px/1 Arial, "Noto Sans Hebrew", sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cipher-action-button:hover,
+.cipher-action-button:focus-visible {
+  background: #edf8f1;
+  border-color: #397b5b;
+}
+
+.cipher-action-button.download { background: #eaf7ef; }
+.cipher-action-button.image { background: #fff4d7; }
+.cipher-action-button.share { background: #e9f2ff; border-color: #7398c4; }
+
+@media (max-width: 760px) {
+  .torah-head {
+    flex-wrap: wrap;
+  }
+
+  .cipher-quick-actions {
+    width: 100%;
+    order: 5;
+  }
+
+  .cipher-action-button {
+    flex: 1 1 0;
+    padding-inline: 6px;
+  }
+}
+
 .search-actions .library-button {
   background: #e8eef8;
   border-color: #8ca4c7;
