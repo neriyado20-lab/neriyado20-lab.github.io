@@ -215,6 +215,15 @@
     });
   }
 
+  function resizeSecondaryInput() {
+    if (!els.secondary) return;
+    els.secondary.style.height = "auto";
+    const maximum = Math.min(window.innerHeight * 0.34, 260);
+    const nextHeight = Math.max(25, Math.min(els.secondary.scrollHeight, maximum));
+    els.secondary.style.height = `${nextHeight}px`;
+    els.secondary.style.overflowY = els.secondary.scrollHeight > maximum ? "auto" : "hidden";
+  }
+
   function normalizeWord(value) {
     return String(value || "")
       .replace(/[^\u05d0-\u05ea?]/g, "")
@@ -504,7 +513,7 @@
     const includeResultKey = (key) => !savedKeys || savedResultKeys.has(key);
     return {
       format: "gal_einai_web",
-      version: "W057",
+      version: "W058",
       saved_at: new Date().toISOString(),
       save_scope: options.scope || "full_search",
       primary: els.primary.value.trim(),
@@ -854,7 +863,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W057",
+      version: "W058",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -951,6 +960,7 @@
   function loadHistoryFields(item) {
     els.primary.value = item.primary || "";
     els.secondary.value = item.secondary || "";
+    resizeSecondaryInput();
     els.skipFrom.value = String(item.skipFrom ?? DEFAULT_SKIP_FROM);
     els.skipTo.value = String(item.skipTo ?? DEFAULT_SKIP_TO);
     els.minSecondary.value = String(item.minSecondary || 0);
@@ -1479,6 +1489,7 @@
     if (!data || typeof data !== "object") throw new Error("קובץ הצופן אינו תקין");
     els.primary.value = data.primary || "";
     els.secondary.value = data.secondary || "";
+    resizeSecondaryInput();
     els.skipFrom.value = data.skip_from ?? DEFAULT_SKIP_FROM;
     els.skipTo.value = data.skip_to ?? DEFAULT_SKIP_TO;
     els.minSecondary.value = data.min_secondary ?? els.minSecondary.value;
@@ -2486,6 +2497,7 @@
   function clearAll() {
     els.primary.value = "";
     els.secondary.value = "";
+    resizeSecondaryInput();
     state.allResults = [];
     state.results = [];
     state.current = 0;
@@ -2646,6 +2658,7 @@
   }
 
   els.form.addEventListener("submit", (event) => search(event));
+  els.secondary.addEventListener("input", resizeSecondaryInput);
   els.secondaryScan.addEventListener("click", () => search(null, { cacheOnly: true }));
   els.allSkipScan?.addEventListener("click", () => search(null, { cacheOnly: true, allSkips: true }));
   els.liveSkip?.addEventListener("input", () => {
@@ -2924,9 +2937,11 @@
     state.avotOrder = "ordered";
   }
   applyEdition();
+  resizeSecondaryInput();
   applyDisplayControlsVisibility();
   applyTopWordsVisibility();
   applyAvotSettings();
   loadAvot();
   requestAnimationFrame(animateAvot);
 })();
+
