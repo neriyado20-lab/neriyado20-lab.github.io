@@ -4204,15 +4204,48 @@ footer .legal-footer a,
 }
 
 .update-subscription-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "heading heading"
+    "field action"
+    "status status";
+  align-items: end;
+  gap: 8px 10px;
   margin-top: 0;
 }
 
+.update-subscription-form > div {
+  grid-area: heading;
+  min-height: 24px;
+}
+
 .update-subscription-form label {
-  min-width: min(230px, 68vw);
+  grid-area: field;
+  width: 100%;
+  min-width: 0;
 }
 
 .update-subscription-form .button {
+  grid-area: action;
+  width: max-content;
   white-space: nowrap;
+}
+
+.update-subscription-form > small {
+  grid-area: status;
+  min-height: 20px;
+}
+
+@media (max-width: 520px) {
+  .update-subscription-form {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "heading"
+      "field"
+      "action"
+      "status";
+  }
 }
 .manager-notification-tools {
   display: flex;
@@ -4364,3 +4397,4 @@ footer .legal-footer a,
 .single-order-plan .order-plan {
   cursor: default;
 }
+
