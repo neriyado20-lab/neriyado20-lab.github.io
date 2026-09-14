@@ -1067,7 +1067,9 @@ body[data-edition="free"] .search-actions {
   position: fixed;
   z-index: 1000;
   display: grid;
+  width: max-content;
   min-width: 170px;
+  max-width: calc(100vw - 12px);
   padding: 5px;
   border: 1px solid #7d9589;
   border-radius: 6px;
@@ -1088,6 +1090,7 @@ body[data-edition="free"] .search-actions {
   text-align: right;
   font: 14px Arial, "Noto Sans Hebrew", sans-serif;
   cursor: pointer;
+  white-space: normal;
 }
 
 .word-menu button:hover,
