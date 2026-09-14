@@ -513,7 +513,7 @@
     const includeResultKey = (key) => !savedKeys || savedResultKeys.has(key);
     return {
       format: "gal_einai_web",
-      version: "W058",
+      version: "W059",
       saved_at: new Date().toISOString(),
       save_scope: options.scope || "full_search",
       primary: els.primary.value.trim(),
@@ -863,7 +863,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W058",
+      version: "W059",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1959,7 +1959,6 @@
       setStatus("לא ניתן להסיר את הראשית מהצופן.", 0);
       return;
     }
-    state.removedWordKeys.add(key);
     current.matches = current.matches.filter((match) => matchKey(match) !== key);
     secondaryCountForResult(current);
     state.lineKeys.delete(key);
@@ -2019,17 +2018,21 @@
       setStatus("לא ניתן להסיר את הראשית מתוצאות החיפוש.", 0);
       return;
     }
-    state.removedWordKeys.add(key);
-    state.results.forEach((result) => {
+    const affectedResults = new Set([...state.allResults, ...state.results]);
+    affectedResults.forEach((result) => {
       result.matches = result.matches.filter((match) => matchKey(match) !== key);
       secondaryCountForResult(result);
     });
+    const remainingTokens = splitSearchTokens(els.secondary.value)
+      .filter((token) => !expandSearchToken(token).includes(key));
+    els.secondary.value = remainingTokens.join(" ");
+    resizeSecondaryInput();
     state.lineKeys.delete(key);
     state.frameKeys.delete(key);
     renderResults();
     renderCurrent();
     saveDraft();
-    setStatus(`המילה "${target.word}" הוסרה מכל תוצאות החיפוש`, 0);
+    setStatus(`המילה "${target.word}" הוסרה מכל הצפנים בחיפוש האחרון ומשדה המשניות`, 0);
   }
 
   function removeDateMarksFromCurrent() {
@@ -2135,8 +2138,9 @@
     els.toggleWordLine.textContent = state.lineKeys.has(key) ? "הסר קו למילה" : "הצג קו למילה";
     els.toggleWordFrame.textContent = state.frameKeys.has(key) ? "הסר מסגרת מאותיות הממצא" : "הוסף מסגרת לאותיות הממצא";
     els.wordMenu.hidden = false;
-    const menuWidth = 190;
-    const menuHeight = 260;
+    const menuRect = els.wordMenu.getBoundingClientRect();
+    const menuWidth = menuRect.width;
+    const menuHeight = menuRect.height;
     els.wordMenu.style.left = `${Math.max(6, Math.min(event.clientX, window.innerWidth - menuWidth - 6))}px`;
     els.wordMenu.style.top = `${Math.max(6, Math.min(event.clientY, window.innerHeight - menuHeight - 6))}px`;
   }
