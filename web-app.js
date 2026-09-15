@@ -88,6 +88,7 @@
     allSkipScan: $("allSkipScanButton"),
     stop: $("stopButton"),
     clear: $("clearButton"),
+    quickClearDisplayMarks: $("quickClearDisplayMarksButton"),
     openProject: $("openProjectButton"),
     saveProject: $("saveProjectButton"),
     saveCurrentProject: $("saveCurrentProjectButton"),
@@ -513,7 +514,7 @@
     const includeResultKey = (key) => !savedKeys || savedResultKeys.has(key);
     return {
       format: "gal_einai_web",
-      version: "W059",
+      version: "W060",
       saved_at: new Date().toISOString(),
       save_scope: options.scope || "full_search",
       primary: els.primary.value.trim(),
@@ -863,7 +864,7 @@
     }
     const backup = {
       format: "gal_einai_library",
-      version: "W059",
+      version: "W060",
       exported_at: new Date().toISOString(),
       items,
     };
@@ -1251,7 +1252,7 @@
   function displayMatchesForResult(result) {
     if (!result) return [];
     if (state.hiddenDisplayResults.has(resultKey(result))) {
-      return result.matches.filter((match) => match.kind === "primary");
+      return [];
     }
     const grouped = new Map();
     result.matches.forEach((match) => {
@@ -2050,17 +2051,19 @@
 
   function clearDisplayMarksFromCurrent() {
     const current = state.results[state.current];
-    if (!current) return;
-    const secondaryCount = current.matches.filter((match) => match.kind !== "primary").length;
-    if (!secondaryCount) {
-      setStatus("אין סימוני תצוגה לניקוי בצופן הנוכחי", 0);
+    if (!current) {
+      setStatus("אין צופן שממנו אפשר לנקות סימונים", 0);
+      return;
+    }
+    if (state.hiddenDisplayResults.has(resultKey(current))) {
+      setStatus("הסימונים כבר נקיים. הראשית והמשניות נשארו בשדות.", 0);
       return;
     }
     state.hiddenDisplayResults.add(resultKey(current));
     state.lineKeys.clear();
     renderCurrent();
     saveDraft();
-    setStatus("סימוני התצוגה נוקו. טבלת הממצאים וטבלת הסימונים נשארו כפי שהיו.", 0);
+    setStatus("כל סימוני הראשית והמשניות נוקו מהתצוגה. המילים ותוצאות החיפוש נשארו.", 0);
   }
 
   function clearMarksTableFromCurrent() {
@@ -2682,6 +2685,7 @@
     setStatus("בקשת עצירה התקבלה...", els.progress.value);
   });
   els.clear.addEventListener("click", clearAll);
+  els.quickClearDisplayMarks.addEventListener("click", clearDisplayMarksFromCurrent);
   els.openProject.addEventListener("click", () => {
     els.projectFile.click();
   });
