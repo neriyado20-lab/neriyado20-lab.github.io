@@ -318,6 +318,7 @@
     state.searching = value;
     els.search.disabled = value;
     els.secondaryScan.disabled = value;
+    $("wordsPlusButton").disabled = value;
     els.saveProject.disabled = value;
     if (els.saveCurrentProject) els.saveCurrentProject.disabled = value;
     els.export.disabled = value;
@@ -1547,6 +1548,84 @@
     return JSON.stringify({ primaryWords, from, to });
   }
 
+  async function addWordsAndSearch() {
+    if (state.searching) return;
+    const raw = window.prompt("הקלד מילים נוספות, מופרדות ברווח או פסיק:");
+    if (raw === null) return;
+    const words = splitWords(raw).filter((word) => word.length >= 2);
+    if (!words.length) {
+      setStatus("יש להקליד מילים באורך שתי אותיות לפחות", 0);
+      return;
+    }
+    if (!state.primaryCache?.matches?.length) {
+      setStatus("אין ראשיות לסריקה. יש לחפש ראשיות או לפתוח צופן תחילה.", 0);
+      return;
+    }
+    const existing = new Set(splitWords(els.secondary.value));
+    const additions = words.filter((word) => !existing.has(word));
+    els.secondary.value = [els.secondary.value.trim(), ...additions].filter(Boolean).join(" ");
+    resizeSecondaryInput();
+    await scanNewWordsAroundPrimaries(words);
+  }
+
+  async function scanNewWordsAroundPrimaries(words) {
+    const primaries = state.primaryCache.matches.slice();
+    const requested = [...new Set(words)];
+    const source = state.allResults.length ? state.allResults : state.results;
+    const byPrimary = new Map(source.map((result) => [resultKey(result), result]));
+    const selectedKey = state.results[state.current] ? resultKey(state.results[state.current]) : "";
+    state.stop = false;
+    setBusy(true);
+    let scanned = 0;
+    try {
+      for (const primary of primaries) {
+        if (state.stop) break;
+        const key = resultKey({ primary });
+        const previous = byPrimary.get(key);
+        const tableWindowInfo = previous?.tableWindowInfo || positionsForPrimary(primary);
+        const windowInfo = previous?.windowInfo || positionsForPrimary(primary, { extraRows: SEARCH_EXTRA_ROWS, extraCols: SEARCH_EXTRA_COLS });
+        tableWindowInfo.primarySkip = primary.skip;
+        windowInfo.primarySkip = primary.skip;
+        const local = previous ? previous.matches.slice() : [primary];
+        for (const word of requested) {
+          if (word === primary.word) continue;
+          const matches = findInWindow(word, windowInfo, { allSkips: false, expandedRadius: 0 });
+          if (matchGroupIsFlood(matches, windowInfo)) {
+            state.suppressedFloodWords.add(word);
+            continue;
+          }
+          local.push(...matches);
+        }
+        const matches = dedupeMatches(local);
+        const secondaryMatches = matches.filter((match) => match.word !== primary.word);
+        const foundWords = new Set(secondaryMatches.map((match) => match.word));
+        const tableWords = new Set(secondaryMatches.filter((match) => positionsForMatch(match).every((position) => tableWindowInfo.set.has(position))).map((match) => match.word));
+        byPrimary.set(key, applyManualOverridesToResult({
+          ...previous, primary, matches, windowInfo, tableWindowInfo,
+          secondaryCount: tableWords.size, tableSecondaryCount: tableWords.size,
+          searchSecondaryCount: foundWords.size,
+        }));
+        scanned += 1;
+        setStatus(`מילים+ | סורק ${requested.length} מילים שהוזנו כעת | ראשיות ${scanned}/${primaries.length}`, Math.floor(scanned / primaries.length * 100));
+        if (scanned % 5 === 0) await nextFrame();
+      }
+    } catch (error) {
+      setStatus(`שגיאה בסריקת מילים+: ${error.message}`, 0);
+      return;
+    } finally {
+      state.allResults = [...byPrimary.values()];
+      state.allResults.sort((a, b) => b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
+      applyMinimumSecondaryFilter({ announce: false });
+      if (selectedKey) state.current = Math.max(0, state.results.findIndex((result) => resultKey(result) === selectedKey));
+      state.resultSort = "";
+      renderResults();
+      renderCurrent();
+      saveDraft();
+      setBusy(false);
+    }
+    setStatus(`מילים+ | ${state.stop ? "הסריקה נעצרה" : "הסריקה הסתיימה"} | נסרקו ${requested.length} מילים סביב ${scanned} ראשיות`, Math.floor(scanned / primaries.length * 100));
+  }
+
   async function search(event, { cacheOnly = false, allSkips = false, expandedRadius = 0 } = {}) {
     if (event) event.preventDefault();
     if (!state.torah) return;
@@ -2666,6 +2745,7 @@
 
   els.form.addEventListener("submit", (event) => search(event));
   els.secondary.addEventListener("input", resizeSecondaryInput);
+  $("wordsPlusButton").addEventListener("click", addWordsAndSearch);
   els.secondaryScan.addEventListener("click", () => search(null, { cacheOnly: true }));
   els.allSkipScan?.addEventListener("click", () => search(null, { cacheOnly: true, allSkips: true }));
   els.liveSkip?.addEventListener("input", () => {
