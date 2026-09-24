@@ -1399,8 +1399,8 @@
   function softwareUpdateMessage() {
     return {
       topic: "software_updates",
-      subject: "גל עיני V552 זמינה להורדה",
-      body: withNotificationBlessing("שלום וברכה,\n\nגרסת גל עיני V552 זמינה להורדה באתר.\nהעדכון מוסיף אפשרות עדכון מתוך התוכנה לאחר הרשמה, לצד שיפורי תנועה וגרירה.\n\nלהורדה:\nhttps://neriyado20-lab.github.io/#download\n\nבברכה,\nגל עיני"),
+      subject: "גל עיני V573 זמינה להורדה",
+      body: withNotificationBlessing("שלום וברכה,\n\nגרסת גל עיני V573 זמינה להורדה באתר.\n\nלהורדה:\nhttps://neriyado20-lab.github.io/#download\n\nבברכה,\nגל עיני"),
     };
   }
 
