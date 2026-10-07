@@ -1,8 +1,8 @@
 {
-  "notes": "גל עיני V581: תיקון אחרונים ובטל/בצע שוב, העתקת דילוג בלחיצה כפולה, חיפוש במסך המורחב ופעולות העתקה והדבקה. יש לחלץ את כל חבילת ה-ZIP ולהפעיל GalEinai_V581.exe.",
+  "notes": "גל עיני V581 — עדכון בלבד להתקנה קיימת מ־V573 ומעלה. סגרו את התוכנה, חלצו לתיקיית ההתקנה הקיימת והפעילו GalEinai_V581.exe. קובצי התורה והנתונים האישיים אינם מוחלפים.",
   "mandatory": false,
   "version": "V581",
-  "sha256": "0C8F5F6E3E3DA3B89F9A9632A712696BE9276BA6C6353AB45C23BA9E73CE57B6",
-  "size": 18700849,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V581.zip"
+  "sha256": "B636CC6AB69F82241019EFCBCB9800781DDD5BA6C5FC8DC4585B68EA57EF8EC4",
+  "size": 9141889,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V581_update_only.zip"
 }
