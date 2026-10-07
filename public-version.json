@@ -1,8 +1,8 @@
 {
-  "notes": "גל עיני V573: במצב טקסט הדילוג נשאר ריק, ודילוג מוצג רק עבור טבלת צופן אמיתית.",
+  "notes": "גל עיני V581: תיקון אחרונים ובטל/בצע שוב, העתקת דילוג בלחיצה כפולה, חיפוש במסך המורחב ופעולות העתקה והדבקה. יש לחלץ את כל חבילת ה-ZIP ולהפעיל GalEinai_V581.exe.",
   "mandatory": false,
-  "version": "V573",
-  "sha256": "C4E80AA88D21B74FA7E8443B97DFC96AA02AA81597D4C1EFE463B129A6032528",
-  "size": 18678492,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V573_clean_portable.zip"
+  "version": "V581",
+  "sha256": "0C8F5F6E3E3DA3B89F9A9632A712696BE9276BA6C6353AB45C23BA9E73CE57B6",
+  "size": 18700849,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V581.zip"
 }
