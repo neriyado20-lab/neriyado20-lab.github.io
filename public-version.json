@@ -1,8 +1,8 @@
 {
-  "notes": "גל עיני V583 — מספר קו סוד החשמל החדש: 17000-77-505. כולל תיקוני V582 להדפסה ולקיצור הדרך. עדכון בלבד: חלצו לתיקיית התוכנה הקיימת והפעילו GalEinai_V583.exe פעם אחת. נתוני המשתמש והתורה אינם מוחלפים.",
+  "notes": "גל עיני V584 — קליק אחד מציג צופן ושומר עליו בזמן עדכון ומיון הרשימה. ברירת המחדל: איכות מהגבוהה לנמוכה. עדכון בלבד: חלצו לתיקיית התוכנה הקיימת והפעילו GalEinai_V584.exe פעם אחת. נתוני המשתמש והתורה אינם מוחלפים.",
   "mandatory": false,
-  "version": "V583",
-  "sha256": "E951416FBDC02A66319E23A8D1CC13CE22EEBD12958DB83AF20AA9DA3147B70E",
-  "size": 9195549,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V583_update_only.zip"
+  "version": "V584",
+  "sha256": "0D9BA328A28D5F2247DE9EC89B42A0B1DAE189ED7A3D11E001DC9265B83D16C5",
+  "size": 9202048,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V584_update_only.zip"
 }

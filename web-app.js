@@ -1573,7 +1573,6 @@
     const requested = [...new Set(words)];
     const source = state.allResults.length ? state.allResults : state.results;
     const byPrimary = new Map(source.map((result) => [resultKey(result), result]));
-    const selectedKey = state.results[state.current] ? resultKey(state.results[state.current]) : "";
     state.stop = false;
     setBusy(true);
     let scanned = 0;
@@ -1614,12 +1613,7 @@
       return;
     } finally {
       state.allResults = [...byPrimary.values()];
-      state.allResults.sort((a, b) => b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
-      applyMinimumSecondaryFilter({ announce: false });
-      if (selectedKey) state.current = Math.max(0, state.results.findIndex((result) => resultKey(result) === selectedKey));
-      state.resultSort = "";
-      renderResults();
-      renderCurrent();
+      refreshRankedResults();
       saveDraft();
       setBusy(false);
     }
@@ -1674,11 +1668,11 @@
     state.stop = false;
     state.suppressedFloodWords.clear();
     setBusy(true);
-    state.results = [];
+    if (!cacheOnly) state.results = [];
     state.allResults = [];
-    state.current = 0;
+    if (!cacheOnly) state.current = 0;
     renderResults();
-    renderEmptyGrid(cacheOnly ? (allSkips ? "סורק משניות בכל הדילוגים..." : "סורק משניות בארבעת הדילוגים...") : "מחפש...");
+    if (!cacheOnly) renderEmptyGrid("מחפש...");
     try {
       const skips = [];
       for (let s = from; s <= to; s += 1) {
@@ -1772,16 +1766,12 @@
         }
         if (state.allResults.length >= resultLimit) break;
       }
-      state.allResults.sort((a, b) => b.secondaryCount - a.secondaryCount || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
-      applyMinimumSecondaryFilter({ announce: false });
-      state.resultSort = "";
+      refreshRankedResults();
       const limitNotice = state.results.length >= resultLimit ? ` | הוצגו עד ${resultLimit}` : "";
       const suppressedNotice = state.suppressedFloodWords.size
         ? ` | לא סומנו מילים שמציפות את הלוח: ${Array.from(state.suppressedFloodWords).slice(0, 4).join(", ")}`
         : "";
       setStatus(`החיפוש הסתיים | ראשיות ${primaries.length} | צפנים ${state.results.length}${limitNotice}${suppressedNotice}`, 100);
-      renderResults();
-      renderCurrent();
       saveDraft();
       rememberSearch();
     } catch (error) {
@@ -1829,7 +1819,25 @@
     }, 350);
   }
 
-  function renderResults() {
+  function refreshRankedResults() {
+    // Read the selection now, not the selection captured before an async scan.
+    const selected = state.results[state.current];
+    const selectedKey = resultKey(selected);
+    state.allResults.sort((a, b) => qualityScore(b) - qualityScore(a) || secondaryCountForResult(b) - secondaryCountForResult(a) || Math.abs(a.primary.skip) - Math.abs(b.primary.skip));
+    applyMinimumSecondaryFilter({ announce: false });
+    const retained = selectedKey && resultKey(state.results[state.current]) === selectedKey;
+    if (retained && selected !== state.results[state.current]) {
+      for (const name of ["displaySkip", "windowInfo", "tableWindowInfo"]) {
+        if (selected[name] !== undefined) state.results[state.current][name] = selected[name];
+      }
+    }
+    state.resultSort = "quality";
+    renderResults({ preserveScroll: true });
+    if (!retained) renderCurrent();
+  }
+
+  function renderResults({ preserveScroll = false } = {}) {
+    const scrollTop = els.resultWrap.scrollTop;
     els.count.textContent = String(state.results.length);
     els.head.innerHTML = "";
     els.body.innerHTML = "";
@@ -1887,7 +1895,8 @@
       els.body.appendChild(tr);
     });
     const activeRow = els.body.querySelector("tr.active");
-    if (activeRow) activeRow.scrollIntoView({ block: "nearest", inline: "nearest" });
+    if (preserveScroll) els.resultWrap.scrollTop = scrollTop;
+    else if (activeRow) activeRow.scrollIntoView({ block: "nearest", inline: "nearest" });
   }
 
   function qualityScore(result) {
@@ -1914,7 +1923,6 @@
         || (a.primary.start || 0) - (b.primary.start || 0)
       );
       state.results.sort(compare);
-      state.current = 0;
     } else if (sortKey === "skip") {
       compare = (a, b) => Math.abs(a.primary.skip) - Math.abs(b.primary.skip) || secondaryCountForResult(b) - secondaryCountForResult(a);
       state.results.sort(compare);
@@ -1925,16 +1933,12 @@
       return;
     }
     if (state.allResults !== state.results) state.allResults.sort(compare);
-    if (currentPrimary && sortKey !== "secondary") {
+    if (currentPrimary) {
       const nextIndex = state.results.findIndex((item) => item.primary.start === currentPrimary.start && item.primary.skip === currentPrimary.skip && item.primary.word === currentPrimary.word);
       state.current = nextIndex >= 0 ? nextIndex : 0;
     }
     state.resultSort = sortKey;
-    renderResults();
-    if (sortKey === "secondary") {
-      els.resultWrap.scrollTop = 0;
-      renderCurrent();
-    }
+    renderResults({ preserveScroll: true });
     setStatus(`טבלת הממצאים מוינה לפי ${sortKey === "secondary" ? "משניות" : sortKey === "skip" ? "דילוג" : "איכות"}`, els.progress.value);
   }
 
