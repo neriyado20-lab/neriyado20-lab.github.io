@@ -1,8 +1,8 @@
 {
-  "notes": "גל עיני V584 — קליק אחד מציג צופן ושומר עליו בזמן עדכון ומיון הרשימה. ברירת המחדל: איכות מהגבוהה לנמוכה. עדכון בלבד: חלצו לתיקיית התוכנה הקיימת והפעילו GalEinai_V584.exe פעם אחת. נתוני המשתמש והתורה אינם מוחלפים.",
+  "notes": "גל עיני V585 — שמור חיפוש שלם: כל הצפנים בקובץ דחוס, עם הודעת נפח ושחזור הצופן הנבחר והתצוגה. בתפריט קובץ. לפתיחה: פתח פרויקט. חלצו את העדכון לתיקיית התוכנה והפעילו GalEinai_V585.exe פעם אחת.",
   "mandatory": false,
-  "version": "V584",
-  "sha256": "0D9BA328A28D5F2247DE9EC89B42A0B1DAE189ED7A3D11E001DC9265B83D16C5",
-  "size": 9202048,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V584_update_only.zip"
+  "version": "V585",
+  "sha256": "FC7F00B060580E5B286C9177C5E4C2428A2089C639BA3FB31DAFF1CDC9334FA0",
+  "size": 9232742,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V585_update_only.zip"
 }
