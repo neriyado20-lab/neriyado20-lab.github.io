@@ -1,8 +1,8 @@
 {
-  "notes": "גל עיני V586 — מעקב אוטומטי אחר ראש רשימת הצפנים עד לבחירה. לחיצה על במסך משחררת את הבחירה וחוזרת לראש הרשימה. חלצו את העדכון לתיקיית התוכנה והפעילו GalEinai_V586.exe פעם אחת.",
+  "notes": "גל עיני V587 — חלונות התוכנה ותפריט מילים+ נפתחים ליד סמן העכבר, בהתאמה לגבולות המסך. חלצו את העדכון לתיקיית התוכנה והפעילו GalEinai_V587.exe פעם אחת.",
   "mandatory": false,
-  "version": "V586",
-  "sha256": "B35DBF7AFF45C5EC0429F9A11297960B6DE54536BD15EAA1A625D401E95D3BE8",
-  "size": 9234235,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V586_update_only.zip"
+  "version": "V587",
+  "sha256": "02FB4D8C73AF237CC2BD0505D19E5A0BB11FE00D68263266A4E7A533DE9CA1E3",
+  "size": 9241718,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V587_update_only.zip"
 }
