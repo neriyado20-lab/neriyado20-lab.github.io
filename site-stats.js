@@ -14,6 +14,7 @@
     if(!session){status.textContent='נדרשת כניסת מנהל. הסיסמה המקומית של מצב ניהול אינה מספיקה ללא חשבון מנהל מחובר.';return;}
     status.textContent='טוען נתונים…';
     const {data,error}=await client.rpc('site_metric_report',{p_days:Number($('statsDays').value)});
+    if(recovering)return;
     if(error){$('statsLogin').hidden=false;status.textContent=error.code==='42501'?'לחשבון המחובר אין הרשאה לדוח. היכנס עם חשבון המנהל.':'הדוח אינו זמין כרגע. ייתכן שהגדרת המונים במסד הנתונים טרם הושלמה.';return;}
     $('statsReport').hidden=false;$('statsTotals').replaceChildren();
     for(const [key,label] of Object.entries({visits:'כניסות',page_views:'צפיות בעמודים',cipher_views:'צפיות בכרטיסי צפנים',cipher_opens:'פתיחות צפנים',video_plays:'הפעלות סרטונים',video_opens:'פתיחות קישורי סרטונים',downloads:'לחיצות הורדה'})){
