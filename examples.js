@@ -6,7 +6,8 @@
   const MANAGER_SESSION_KEY = "gal-einai-vault-manager-session-v1";
   const MANAGER_PASSWORD_HASH = "b2085a238dba1a766cd2de60089abeb61631cc4ac122d0363e6d67ad56605242";
   const MANAGER_RECOVERY_MASK = "n******o20@g****.com";
-  const ADMIN_EMAIL = "admin@gal-einai.local";
+  const ADMIN_EMAIL = "neriyado20@gmail.com";
+  const ADMIN_EMAILS = new Set([ADMIN_EMAIL, "admin@gal-einai.local"]);
   const VIEW_DELAY_MS = 1200;
   const SEEN_VISIBILITY_RATIO = 0.35;
   const SUPABASE_URL = "https://sxbfjouuguniegwbevwy.supabase.co";
@@ -149,9 +150,9 @@
     if (!supabaseClient?.auth) throw new Error("החיבור ל-Supabase אינו פעיל בדף הזה.");
     const cleanEmail = String(email || "").trim().toLowerCase();
     const cleanPassword = String(password || "");
-    if (cleanEmail !== ADMIN_EMAIL) throw new Error(`יש להתחבר עם ${ADMIN_EMAIL}.`);
+    if (!ADMIN_EMAILS.has(cleanEmail)) throw new Error(`יש להתחבר עם ${ADMIN_EMAIL}.`);
     let activeEmail = await currentSupabaseAdminEmail();
-    if (activeEmail === ADMIN_EMAIL) return true;
+    if (ADMIN_EMAILS.has(activeEmail)) return true;
     if (!cleanPassword) throw new Error("יש להזין גם את סיסמת Supabase של המנהל.");
     const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: cleanEmail,
@@ -159,7 +160,7 @@
     });
     if (error) throw error;
     activeEmail = String(data.session?.user?.email || "").trim().toLowerCase();
-    if (activeEmail !== ADMIN_EMAIL) throw new Error("התחברות Supabase הצליחה, אבל המשתמש אינו מנהל האתר.");
+    if (!ADMIN_EMAILS.has(activeEmail)) throw new Error("התחברות Supabase הצליחה, אבל המשתמש אינו מנהל האתר.");
     return true;
   }
   function disableManagerMode(seen) {
@@ -680,7 +681,7 @@
     try {
       const { data } = await supabaseClient.auth.getSession();
       const email = data.session?.user?.email || "";
-      if (String(email).trim().toLowerCase() !== String(ADMIN_EMAIL).trim().toLowerCase()) return;
+      if (!ADMIN_EMAILS.has(String(email).trim().toLowerCase())) return;
       const now = new Date().toISOString();
       await Promise.all(expired.map((item) => upsertContent({
         id: item.id,
@@ -770,6 +771,7 @@
     const input = document.getElementById("cipherManagerFile");
     const file = input?.files?.[0];
     if (!file) return "";
+    if (!ADMIN_EMAILS.has(await currentSupabaseAdminEmail())) throw new Error("יש להתחבר לחשבון המנהל לפני העלאה. כניסה מקומית למצב ניהול אינה מספיקה. התחבר עם כתובת המייל והסיסמה שלך.");
     if (!supabaseClient) throw new Error("העלאת קובץ דורשת חיבור לאחסון האתר.");
     const ext = fileExtension(file.name) || (file.type.startsWith("image/") ? ".png" : ".bin");
     const path = `ciphers/${slugifyId(title)}-${Date.now().toString(36)}${ext}`;
@@ -813,6 +815,7 @@
 
   async function upsertContent(item) {
     if (!supabaseClient) throw new Error("החיבור לניהול אינו פעיל.");
+    if (!ADMIN_EMAILS.has(await currentSupabaseAdminEmail())) throw new Error("יש להתחבר לחשבון המנהל לפני שמירת הצופן.");
     const { error } = await supabaseClient.from("admin_content").upsert(item);
     if (error) throw error;
     rememberContentItem(item);
@@ -1723,7 +1726,7 @@
   async function checkManagerConnection() {
     const status = document.getElementById("managerConnectionStatus");
     const activeEmail = await currentSupabaseAdminEmail();
-    if (activeEmail !== ADMIN_EMAIL) {
+    if (!ADMIN_EMAILS.has(activeEmail)) {
       if (status) status.textContent = `לא מחובר למנהל Supabase (${ADMIN_EMAIL}).`; 
       return;
     }
