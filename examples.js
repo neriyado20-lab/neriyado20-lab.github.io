@@ -775,12 +775,22 @@
     if (!supabaseClient) throw new Error("העלאת קובץ דורשת חיבור לאחסון האתר.");
     const ext = fileExtension(file.name) || (file.type.startsWith("image/") ? ".png" : ".bin");
     const path = `ciphers/${slugifyId(title)}-${Date.now().toString(36)}${ext}`;
-    const { error } = await supabaseClient.storage.from("public-ciphers").upload(path, file, {
+    // Use an explicit binary body and MIME type. Browser file associations can
+    // incorrectly label images as JSON; multipart File uploads retain that label.
+    const mimeByExtension = {".png":"image/png", ".jpg":"image/jpeg", ".jpeg":"image/jpeg", ".webp":"image/webp", ".gif":"image/gif", ".json":"application/json", ".pdf":"application/pdf"};
+    const contentType = mimeByExtension[ext.toLowerCase()] || "application/octet-stream";
+    const bytes = await file.arrayBuffer();
+    const { error } = await supabaseClient.storage.from("public-ciphers").upload(path, bytes, {
       cacheControl: "3600",
-      contentType: file.type || "application/octet-stream",
+      contentType,
       upsert: false
     });
-    if (error) throw error;
+    if (error) {
+      const detail = String(error.message || "");
+      if (/row.level security|unauthorized|permission/i.test(detail)) throw new Error("העלאת התמונה נדחתה בגלל הרשאות. צא מהחשבון והתחבר שוב עם מייל המנהל.");
+      if (/JSON|Unexpected token/i.test(detail)) throw new Error("שירות האחסון לא קיבל את הקובץ כראוי. העלאת הקובץ נכשלה לפני שמירת הצופן.");
+      throw error;
+    }
     const { data } = supabaseClient.storage.from("public-ciphers").getPublicUrl(path);
     return data?.publicUrl || path;
   }
