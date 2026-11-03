@@ -1,8 +1,8 @@
 {
-  "notes": "גל עיני V589 — תיקון חיפוש משניות ללא כל דילוג; מילים+ תומך בטווח המבוקש ובדילוגים שליליים. חלצו את העדכון לתיקיית התוכנה והפעילו GalEinai_V589.exe פעם אחת.",
+  "notes": "גל עיני V592 — חיפוש לפי טווח ועצירה ואיפוס של סימוני החיפוש. חלצו את העדכון לתיקיית התוכנה והפעילו GalEinai_V592.exe פעם אחת.",
   "mandatory": false,
-  "version": "V589",
-  "sha256": "0AD03789739868A15D684C69AA5BDA9A162011A4121F8AA6F070EDEE94690E8D",
-  "size": 11067080,
-  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V589_update_only.zip"
+  "version": "V592",
+  "sha256": "3FA3E18CA6E5E8079B91D7F800C3C70136D211802E2F58467C24DDFB67F10398",
+  "size": 11069782,
+  "installer_url": "https://neriyado20-lab.github.io/downloads/Gal_Einai_Windows_V592_update_only.zip"
 }
