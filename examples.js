@@ -632,11 +632,11 @@
   }
 
   function activeTopic() {
-    return document.querySelector("[data-topic-filter].is-active")?.dataset.topicFilter || "all";
+    return document.querySelector("[data-topic-filter].is-active")?.dataset.topicFilter || "choose";
   }
 
   function activeTopicLabel() {
-    return document.querySelector("[data-topic-filter].is-active")?.textContent?.trim() || "כל הנושאים";
+    return document.querySelector("[data-topic-filter].is-active")?.textContent?.trim() || "בחירת נושא";
   }
 
   function markerValue(text, name) {
@@ -1904,7 +1904,9 @@
     document.querySelectorAll("[data-example-filter]").forEach((item) => item.classList.remove("is-active"));
     document.querySelector('[data-example-filter="all"]')?.classList.add("is-active");
     document.querySelectorAll("[data-topic-filter]").forEach((item) => item.classList.remove("is-active"));
-    document.querySelector('[data-topic-filter="all"]')?.classList.add("is-active");
+    document.querySelectorAll("[data-topic-filter]").forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.topicFilter === card.dataset.topic);
+    });
     applyFilter(seen);
     card.hidden = false;
     card.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1928,7 +1930,7 @@
       setCardState(card, seen);
       const seenNow = isSeen(card, seen);
       const showBySeen = filter === "all" || (filter === "new" && !seenNow) || (filter === "seen" && seenNow);
-      const showByTopic = topic === "all" || card.dataset.topic === topic;
+      const showByTopic = card.dataset.topic === topic;
       const show = showBySeen && showByTopic;
       card.hidden = !show;
       if (show) visibleCards.push(card);
@@ -1938,7 +1940,15 @@
     });
     const empty = document.getElementById("examplesEmptyState");
     if (empty) empty.hidden = Boolean(visibleCards.length) || topic === "all" || topic === "users";
+    document.querySelectorAll("[data-topic-filter]").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.topicFilter === topic));
+    });
     updateCounter(cards.filter((card) => card.dataset.adminHidden !== "true"), visibleCards);
+    if (topic === "choose") {
+      if (empty) empty.hidden = true;
+      const counter = document.getElementById("examplesCount");
+      if (counter) counter.textContent = "בחרו נושא כדי לצפות בצפנים השייכים אליו";
+    }
     return visibleCards;
   }
 
